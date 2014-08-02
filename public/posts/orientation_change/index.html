@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
 
-  <title> Подводные камни смены ориентации &middot; Dev notes </title>
+  <title> Подводные камни смены ориентации в Android &middot; Dev notes </title>
 
   
   <link rel="stylesheet" href="http://dddpaul.github.io/blog/css/poole.css">
@@ -46,19 +46,19 @@
 
     <div class="content container">
 <div class="post">
-  <h1>Подводные камни смены ориентации</h1>
+  <h1>Подводные камни смены ориентации в Android</h1>
   <span class="post-date">Sat, Aug 2, 2014</span>
       
 
 <p>Основная мысль после нескольких дней отладки приложения — смена ориентации (rotation, orientation change) дает просто массу способов выстрелить себе в ногу. Наконец-то я понял тех разработчиков, которые просто запрещают смену ориентации в своем софте.</p>
 
-<p>Какие же здесь есть подводные камни?</p>
+<p>Опишу в порядке возрастания сложности, на какие подводные камни мне пришлось натолкнуться.</p>
 
 <h3 id="toc_0">Beginner&rsquo;s level</h3>
 
 <p>Надо сохранять состояние (state) фрагментов. Не сохранил — потерял, т.к. активити и фрагменты будут пересозданы. Если стейт фрагмента сериализуется в строку, то просто переопределяем метод onSaveInstanceState(). Способ описан как в <a href="http://developer.android.com/guide/components/fragments.html#Lifecycle">официальной документации</a>, так и в множестве других мест.</p>
 
-<h3 id="toc_1">Intermediate.</h3>
+<h3 id="toc_1">Intermediate</h3>
 
 <p>Не забываем про AsyncTask. Их тоже надо сохранять, ибо иначе при смене ориентации мы его потеряем. Или он что-нибудь обвалит :) Для решения этой проблемы придумана такая отличная штука, как retaining fragments. Всего один вызов setRetainInstance(true) продляет жизнь фрагменту и связанному с ним асинктаску (назовем это длинный стейт).</p>
 
