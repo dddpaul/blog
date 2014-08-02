@@ -1,6 +1,6 @@
 +++
 date = 2014-08-01T13:34:16Z
-draft = true
+draft = false
 title = "Memory leaks"
 tags = [ "Android", "Java" ]
 

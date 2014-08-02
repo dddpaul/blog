@@ -1,6 +1,6 @@
 +++
 date = 2014-07-30T07:14:41Z
-draft = true
+draft = false
 title = "Multi-pane layout for tablets"
 tags = [ "Android", "Java" ]
 

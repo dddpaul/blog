@@ -1,6 +1,6 @@
 +++
 date = 2014-07-29T07:55:41Z
-draft = true
+draft = false
 title = "Retaining state with headless fragments"
 tags = [ "Android", "Java" ]
 

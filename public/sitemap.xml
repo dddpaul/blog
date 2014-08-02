@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  
+  <url>
+    <loc>http://dddpaul.github.io/</loc>
+    <lastmod>2014-08-01T13:34:16+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://dddpaul.github.io/posts/memory-leaks</loc>
+    <lastmod>2014-08-01T13:34:16+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://dddpaul.github.io/posts/multi-pane</loc>
+    <lastmod>2014-07-30T07:14:41+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://dddpaul.github.io/posts/headless-fragments</loc>
+    <lastmod>2014-07-29T07:55:41+00:00</lastmod>
+  </url>
+  
+</urlset>

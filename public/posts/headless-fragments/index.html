@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+  <title> Retaining state with headless fragments &middot; Development notes </title>
+
+  
+  <link rel="stylesheet" href="http://dddpaul.github.io/blog/css/poole.css">
+  <link rel="stylesheet" href="http://dddpaul.github.io/blog/css/syntax.css">
+  <link rel="stylesheet" href="http://dddpaul.github.io/blog/css/hyde.css">
+  <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
+
+  
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144-precomposed.png">
+  <link rel="shortcut icon" href="/favicon.ico">
+
+  
+  <link href="" rel="alternate" type="application/rss+xml" title="Development notes" />
+</head>
+
+<body>
+
+<div class="sidebar">
+  <div class="container sidebar-sticky">
+    <div class="sidebar-about">
+      <h1>Development notes</h1>
+      <p class="lead">
+      An elegant open source and mobile first theme for <a href="http://hugo.spf13.com">hugo</a> made by <a href="http://twitter.com/mdo">@mdo</a>. Originally made for Jekyll.
+      </p>
+    </div>
+
+    <ul class="sidebar-nav">
+      <li><a href="/">Home</a> </li>
+      
+    </ul>
+
+    <p>&copy; 2014. All rights reserved. </p>
+  </div>
+</div>
+
+
+    <div class="content container">
+<div class="post">
+  <h1>Retaining state with headless fragments</h1>
+  <span class="post-date">Tue, Jul 29, 2014</span>
+      <p>Some articles:</p>
+
+<ul>
+<li>Official <a href="http://developer.android.com/guide/components/fragments.html">Fragments guide</a>. Has some clues for headless fragments (see &ldquo;Adding a fragment without a UI&rdquo;).</li>
+<li>Superb <a href="http://www.vogella.com/tutorials/AndroidFragments/article.html">multi-pane fragments tutorial</a> from Lars Vogel. Contains some tips for <a href="http://www.vogella.com/tutorials/AndroidFragments/article.html#headlessfragments">headless fragments</a>.</li>
+<li><a href="http://techbandhu.wordpress.com/2013/07/02/android-headless-fragment/">Android best tip to work with fragments and orientation change</a>. More detailed headless fragments technique description.</li>
+<li>Headless fragment example - <a href="https://android.googlesource.com/platform/development/+/master/samples/ApiDemos/src/com/example/android/apis/app/FragmentRetainInstance.java">FragmentRetainInstance.java</a>. In this code headless fragment is created from other fragment. In my case it&rsquo;s inappropriate because of Robolectric testing (recursive fragment transactions).</li>
+<li><a href="http://www.intertech.com/Blog/saving-and-retrieving-android-instance-state-part-2/">Saving (And Retrieving) Android Instance State – Part 2</a>. Details about retained fragments. Neat retained fragment lifecycle.</li>
+<li><a href="http://www.androiddesignpatterns.com/2013/04/retaining-objects-across-config-changes.html">Handling Configuration Changes with Fragments</a>. Main advice - Manage the Object Inside a Retained Fragment.</li>
+<li><a href="http://ideaventure.blogspot.com.au/2014/01/android-activityfragment-life-cycle.html">Android Activity/Fragment life cycle analysis</a>. Full logging of all lifecycle method calls in different situations.</li>
+</ul>
+
+<p>And StackOverflow discussions:</p>
+
+<ul>
+<li><a href="http://stackoverflow.com/questions/11591302/unable-to-use-fragment-setretaininstance-as-a-replacement-for-activity-onretai">Unable to use Fragment.setRetainInstance() as a replacement for Activity.onRetainNonConfigurationInstance()</a>. How to preserve fragments with WebViews and AsyncTasks. One of the answers is to override Fragment.onDestroy() and save asynctasks to Application object.</li>
+<li><a href="http://stackoverflow.com/questions/12640316/further-understanding-setretaininstancetrue">Further understanding setRetainInstance(true)</a>. Retained fragment lifecycle logs.</li>
+<li><a href="http://stackoverflow.com/questions/8417885/android-fragments-retaining-an-asynctask-during-screen-rotation-or-configuratio">Android Fragments. Retaining an AsyncTask during screen rotation or configuration change</a>. Retained fragment with inner asynctask example and much more. AsyncTask has reference to fragment - it&rsquo;s interesting.</li>
+</ul>
+
+</div>
+</div>
+
+  </body>
+</html>
