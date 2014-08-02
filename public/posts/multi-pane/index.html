@@ -7,12 +7,12 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
 
-  <title> Multi-pane layout for tablets &middot; Development notes </title>
+  <title> Multi-pane layout for tablets &middot; Dev notes </title>
 
   
-  <link rel="stylesheet" href="http://dddpaul.github.io/blog/css/poole.css">
-  <link rel="stylesheet" href="http://dddpaul.github.io/blog/css/syntax.css">
-  <link rel="stylesheet" href="http://dddpaul.github.io/blog/css/hyde.css">
+  <link rel="stylesheet" href="http://localhost:1313/css/poole.css">
+  <link rel="stylesheet" href="http://localhost:1313/css/syntax.css">
+  <link rel="stylesheet" href="http://localhost:1313/css/hyde.css">
   <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
 
   
@@ -20,7 +20,7 @@
   <link rel="shortcut icon" href="/favicon.ico">
 
   
-  <link href="" rel="alternate" type="application/rss+xml" title="Development notes" />
+  <link href="" rel="alternate" type="application/rss+xml" title="Dev notes" />
 </head>
 
 <body>
@@ -28,7 +28,7 @@
 <div class="sidebar">
   <div class="container sidebar-sticky">
     <div class="sidebar-about">
-      <h1>Development notes</h1>
+      <h1>Dev notes</h1>
       <p class="lead">
       An elegant open source and mobile first theme for <a href="http://hugo.spf13.com">hugo</a> made by <a href="http://twitter.com/mdo">@mdo</a>. Originally made for Jekyll.
       </p>
@@ -66,5 +66,8 @@
 </div>
 </div>
 
-  </body>
+  <script>document.write('<script src="http://'
+        + (location.host || 'localhost').split(':')[0]
+		+ ':1313/livereload.js?mindelay=10"></'
+        + 'script>')</script></body>
 </html>

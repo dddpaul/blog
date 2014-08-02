@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
 
-  <title> Posts &middot; Dev notes </title>
+  <title> Подводные камни смены ориентации &middot; Dev notes </title>
 
   
   <link rel="stylesheet" href="http://localhost:1313/css/poole.css">
@@ -20,7 +20,7 @@
   <link rel="shortcut icon" href="/favicon.ico">
 
   
-  <link href="http://localhost:1313/posts/index.xml" rel="alternate" type="application/rss+xml" title="Dev notes" />
+  <link href="" rel="alternate" type="application/rss+xml" title="Dev notes" />
 </head>
 
 <body>
@@ -45,18 +45,13 @@
 
 
     <div class="content container">
-  <ul class="posts">
-      
-      <li><span><a href="http://localhost:1313/posts/orientation_change">Подводные камни смены ориентации</a><time class="pull-right post-list">Sat, Aug 2, 2014</h4></time></span></span></li>
-      
-      <li><span><a href="http://localhost:1313/posts/memory-leaks">Memory leaks</a><time class="pull-right post-list">Fri, Aug 1, 2014</h4></time></span></span></li>
-      
-      <li><span><a href="http://localhost:1313/posts/multi-pane">Multi-pane layout for tablets</a><time class="pull-right post-list">Wed, Jul 30, 2014</h4></time></span></span></li>
-      
-      <li><span><a href="http://localhost:1313/posts/headless-fragments">Retaining state with headless fragments</a><time class="pull-right post-list">Tue, Jul 29, 2014</h4></time></span></span></li>
-      
-  </ul>
-    </div>
+<div class="post">
+  <h1>Подводные камни смены ориентации</h1>
+  <span class="post-date">Sat, Aug 2, 2014</span>
+      <p>Основная мысль, которую я вынес после нескольких дней отладки приложения: смена ориентации (rotation, orientation change) - это очень непростая вещь! Она дает просто массу способов выстрелисть себе в ногу. Наконец-то я понял, тех разработчиков, которые просто запрещают смену ориентации в своем софте.</p>
+
+</div>
+</div>
 
   <script>document.write('<script src="http://'
         + (location.host || 'localhost').split(':')[0]

@@ -7,12 +7,12 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
 
-  <title> Development notes &middot; Development notes </title>
+  <title> Dev notes &middot; Dev notes </title>
 
   
-  <link rel="stylesheet" href="http://dddpaul.github.io/blog/css/poole.css">
-  <link rel="stylesheet" href="http://dddpaul.github.io/blog/css/syntax.css">
-  <link rel="stylesheet" href="http://dddpaul.github.io/blog/css/hyde.css">
+  <link rel="stylesheet" href="http://localhost:1313/css/poole.css">
+  <link rel="stylesheet" href="http://localhost:1313/css/syntax.css">
+  <link rel="stylesheet" href="http://localhost:1313/css/hyde.css">
   <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
 
   
@@ -20,7 +20,7 @@
   <link rel="shortcut icon" href="/favicon.ico">
 
   
-  <link href="http://dddpaul.github.io/index.xml" rel="alternate" type="application/rss+xml" title="Development notes" />
+  <link href="http://localhost:1313/index.xml" rel="alternate" type="application/rss+xml" title="Dev notes" />
 </head>
 
 <body>
@@ -28,7 +28,7 @@
 <div class="sidebar">
   <div class="container sidebar-sticky">
     <div class="sidebar-about">
-      <h1>Development notes</h1>
+      <h1>Dev notes</h1>
       <p class="lead">
       An elegant open source and mobile first theme for <a href="http://hugo.spf13.com">hugo</a> made by <a href="http://twitter.com/mdo">@mdo</a>. Originally made for Jekyll.
       </p>
@@ -50,7 +50,20 @@
       
   <div class="post">
     <h1 class="post-title">
-      <a href="http://dddpaul.github.io/posts/memory-leaks">
+      <a href="http://localhost:1313/posts/orientation_change">
+        Подводные камни смены ориентации
+      </a>
+    </h1>
+
+    <span class="post-date">Sat, Aug 2, 2014</span>
+
+    <p>Основная мысль, которую я вынес после нескольких дней отладки приложения: смена ориентации (rotation, orientation change) - это очень непростая вещь! Она дает просто массу способов выстрелисть себе в ногу. Наконец-то я понял, тех разработчиков, которые просто запрещают смену ориентации в своем софте.</p>
+
+  </div>
+  
+  <div class="post">
+    <h1 class="post-title">
+      <a href="http://localhost:1313/posts/memory-leaks">
         Memory leaks
       </a>
     </h1>
@@ -69,7 +82,7 @@
   
   <div class="post">
     <h1 class="post-title">
-      <a href="http://dddpaul.github.io/posts/multi-pane">
+      <a href="http://localhost:1313/posts/multi-pane">
         Multi-pane layout for tablets
       </a>
     </h1>
@@ -95,7 +108,7 @@
   
   <div class="post">
     <h1 class="post-title">
-      <a href="http://dddpaul.github.io/posts/headless-fragments">
+      <a href="http://localhost:1313/posts/headless-fragments">
         Retaining state with headless fragments
       </a>
     </h1>
@@ -127,5 +140,8 @@
 </div>
 
 
-  </body>
+  <script>document.write('<script src="http://'
+        + (location.host || 'localhost').split(':')[0]
+		+ ':1313/livereload.js?mindelay=10"></'
+        + 'script>')</script></body>
 </html>
