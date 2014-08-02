@@ -2,5 +2,9 @@ baseurl = "http://dddpaul.github.io/blog"
 languageCode = "en-us"
 title = "Dev notes"
 
+[permalinks]
+  posts = "blog/:year/:month/:day/:filename/"
+
 [params]
   Description = "Notes about Android, Java, Go and other technical stuff"
+  BaseUrl = "/blog/"
