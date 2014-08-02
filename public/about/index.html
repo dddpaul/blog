@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>about</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <link href="" rel="alternate" type="application/rss+xml" title="my new hugo site" />
+  <link href="http://localhost:1313/css/bootstrap.min.css" rel="stylesheet">
+  <link href="http://localhost:1313/css/hc.css" rel="stylesheet">
+  <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+  
+    
+    </head>
+    <body>
+<div class="nav-toggle"><i class="fa fa-bars fa-2x"></i> Herring Cove </div>
+      <div id = "wrapper">
+
+
+<div class="navbar navbar-default" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <p class="navbar-brand">my new hugo site</p>
+        </div>
+        <div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+          <li><a href="http://localhost:1313/post/">Posts</a></li>
+          <li><a href="http://localhost:1313/about/">About</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+
+
+       
+       <div id="sidebar-wrapper">
+        <ul class="sidebar-nav">
+          <li class="sidebar-brand"><a href="http://localhost:1313/"><h1 class="brand">my new hugo site</h1></a><h3></h3></li>
+          <hr />
+          <li><a href="http://localhost:1313/post/">Posts</a></li>
+          <li><a href="http://localhost:1313/about/">About</a></li>
+          <hr />
+          <div id="social-wrapper">
+           
+           
+           
+           
+         </div>
+       </ul>
+     </div>
+
+
+
+     <div class="container">
+
+
+  <div id="article">
+   <div class="article-title">about</div>
+   <p class="meta"><small>&nbsp;<i class="fa fa-calendar-o"></i> 2014-08-01</small></p> <hr/>
+   <div class="post">
+     <p><strong>Retaining state with headless fragments</strong></p>
+
+<p>Some precious articles:</p>
+
+<ul>
+<li>Official <a href="http://developer.android.com/guide/components/fragments.html">Fragments guide</a>. Has some clues for headless fragments (see &ldquo;Adding a fragment without a UI&rdquo;).</li>
+<li>Superb <a href="http://www.vogella.com/tutorials/AndroidFragments/article.html">multi-pane fragments tutorial</a> from Lars Vogel. Contains some tips for <a href="http://www.vogella.com/tutorials/AndroidFragments/article.html#headlessfragments">headless fragments</a>.</li>
+<li><a href="http://techbandhu.wordpress.com/2013/07/02/android-headless-fragment/">Android best tip to work with fragments and orientation change</a>. More detailed headless fragments technique description.</li>
+<li>Headless fragment example - <a href="https://android.googlesource.com/platform/development/+/master/samples/ApiDemos/src/com/example/android/apis/app/FragmentRetainInstance.java">FragmentRetainInstance.java</a>. In this code headless fragment is created from other fragment. In my case it&rsquo;s inappropriate because of Robolectric testing (recursive fragment transactions).</li>
+<li><a href="http://www.intertech.com/Blog/saving-and-retrieving-android-instance-state-part-2/">Saving (And Retrieving) Android Instance State – Part 2</a>. Details about retained fragments. Neat retained fragment lifecycle.</li>
+<li><a href="http://www.androiddesignpatterns.com/2013/04/retaining-objects-across-config-changes.html">Handling Configuration Changes with Fragments</a>. Main advice - Manage the Object Inside a Retained Fragment.</li>
+<li><a href="http://ideaventure.blogspot.com.au/2014/01/android-activityfragment-life-cycle.html">Android Activity/Fragment life cycle analysis</a>. Full logging of all lifecycle method calls in different situations.</li>
+</ul>
+
+<p>And SO discussions:</p>
+
+<ul>
+<li><a href="http://stackoverflow.com/questions/11591302/unable-to-use-fragment-setretaininstance-as-a-replacement-for-activity-onretai">Unable to use Fragment.setRetainInstance() as a replacement for Activity.onRetainNonConfigurationInstance()</a>. How to preserve fragments with WebViews and AsyncTasks. One of the answers is to override Fragment.onDestroy() and save asynctasks to Application object.</li>
+<li><a href="http://stackoverflow.com/questions/12640316/further-understanding-setretaininstancetrue">Further understanding setRetainInstance(true)</a>. Retained fragment lifecycle logs.</li>
+<li><a href="http://stackoverflow.com/questions/8417885/android-fragments-retaining-an-asynctask-during-screen-rotation-or-configuratio">Android Fragments. Retaining an AsyncTask during screen rotation or configuration change</a>. Retained fragment with inner asynctask example and much more. AsyncTask has reference to fragment - it&rsquo;s interesting.</li>
+</ul>
+
+<p><strong>Multi-pane layout for tablets</strong></p>
+
+<p>Some precious articles:
+* <a href="http://commonsware.com/blog/2012/08/20/multiple-view-viewpager-options.html">Multiple-View ViewPager Options</a>. It&rsquo;s a brilliant set of methods to display several fragments simultaneously using ViewPager. I&rsquo;ve personally used first method (overriding getPageWidth() in PagerAdapter) - it works for me.
+* <a href="http://shashikawlp.wordpress.com/2012/12/13/android-viewpager-with-multiple-views/">Android ViewPager with Multiple Views</a>. Looks like third method from previous article.</p>
+
+<p>And SO discussions:</p>
+
+<ul>
+<li><a href="http://stackoverflow.com/questions/9468581/can-viewpager-have-multiple-views-in-per-page">Can ViewPager have multiple views in per page?</a>. There are links to CommonsWare article and description of method used for some Dutch newspaper app. Looks nice but it display one full page and part of another - it&rsquo;s not what I need now.</li>
+<li><a href="http://stackoverflow.com/questions/23149850/viewpager-with-different-adapters-for-portrait-and-landscape">ViewPager with different adapters for portrait and landscape</a>. Dude wants to show A,B,C fragments in portrait mode and A,C only in landscape. Not my case but interesting.</li>
+<li><a href="http://stackoverflow.com/questions/6465680/how-to-determine-the-screen-width-in-terms-of-dp-or-dip-at-runtime-in-android">How to determine the screen width in terms of dp or dip at runtime in Android?</a>. Describe how to calculate screen size in &ldquo;density-independent pixels&rdquo;. It&rsquo;s useful for decide when which layout to use programmatically.</li>
+</ul>
+
+<p><strong>Memory leaks</strong></p>
+
+<ul>
+<li><a href="http://geekple.com/blogs/feeds/9AlMn/posts/354891570708736">TextView with id and textIsSelectable=&ldquo;true&rdquo; causes leaking of the Activity object</a>. And corresponding <a href="http://stackoverflow.com/questions/22990634/textview-with-id-and-textisselectable-true-causes-leaking-of-the-activity-obje">Stack Overflow topic</a>. I&rsquo;ve bumped into this issue personally and spent a quite some time too. Rotating emulator and heapdumping mostly :) The point is that TextView with id and android:textIsSelectable=&ldquo;true&rdquo; causes memory leak on Android 4.0.x, 4.1.x, 4.2.x, 4.3.x. Can&rsquo;t check it on 4.4.2 because of <a href="https://code.google.com/p/android/issues/detail?id=61671">emulator bug</a>.</li>
+<li><a href="http://stackoverflow.com/questions/18348049/android-edittext-memory-leak">Android EditText Memory Leak</a>, <a href="http://stackoverflow.com/questions/8497965/why-does-edittext-retain-its-activitys-context-in-ice-cream-sandwich">Why does EditText retain its Activity&rsquo;s Context in Ice Cream Sandwich</a>, <a href="http://stackoverflow.com/questions/14069501/edittext-causing-memory-leak">EditText causing memory leak</a>. The main theme of this topics is that EditText leaks when spellchecker suggestions are used. You can turn it off but it can help or maybe not. EditText is leaking on Android 4.0.x, 4.1.x, 4.2.x. Thanks god, seems like it&rsquo;s fixed in Android 4.3, API 18 (checked on Nexus 7 2013 emulator). Although <a href="https://code.google.com/p/android/issues/detail?id=60930">corresponding issue</a> is still open.</li>
+<li><a href="http://stackoverflow.com/a/18414294">Fragments are not being released from memory</a>. A valuable advice - use weak references to point to any object that references its context outside of your Activity. I&rsquo;m not sure is it a proper approach to weak referencing ViewPager, but for some more &ldquo;distant&rdquo; object like <a href="http://www.michenux.net/android-asynctask-in-fragment-best-pratices-725.html">AsyncTask</a> it might be reasonable.</li>
+</ul>
+
+   </div>
+ </div>
+
+
+ <a href="https://twitter.com/share" class="twitter-share-button " data-size="small" data-count="none">Tweet</a>
+ <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+
+ <ul class="pager">
+     
+     
+</ul>
+
+
+
+    </ul>
+    </div>
+    <footer>
+
+        <p class="text-muted credit">&copy; . All rights reserved. </p>
+    </footer>
+ 
+    <script src="/js/jquery-1.10.2.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script src="/js/bootstrap.js"></script>
+    <script type="text/javascript" src="/js/hc.js"></script>
+</body>
+
+</html>
+

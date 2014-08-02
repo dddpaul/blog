@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+      <title>Recent Content on my new hugo site </title>
+      <generator uri="https://hugo.spf13.com">Hugo</generator>
+    <link>http://localhost:1313/index.xml</link>
+    <language>en-us</language>
+    
+    
+    <updated>Fri, 01 Aug 2014 18:54:54 UTC</updated>
+    
+    <item>
+      <title>about</title>
+      <link>http://localhost:1313/about</link>
+      <pubDate>Fri, 01 Aug 2014 18:54:54 UTC</pubDate>
+      
+      <guid>http://localhost:1313/about</guid>
+      <description>&lt;p&gt;&lt;strong&gt;Retaining state with headless fragments&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Some precious articles:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Official &lt;a href=&#34;http://developer.android.com/guide/components/fragments.html&#34;&gt;Fragments guide&lt;/a&gt;. Has some clues for headless fragments (see &amp;ldquo;Adding a fragment without a UI&amp;rdquo;).&lt;/li&gt;
+&lt;li&gt;Superb &lt;a href=&#34;http://www.vogella.com/tutorials/AndroidFragments/article.html&#34;&gt;multi-pane fragments tutorial&lt;/a&gt; from Lars Vogel. Contains some tips for &lt;a href=&#34;http://www.vogella.com/tutorials/AndroidFragments/article.html#headlessfragments&#34;&gt;headless fragments&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://techbandhu.wordpress.com/2013/07/02/android-headless-fragment/&#34;&gt;Android best tip to work with fragments and orientation change&lt;/a&gt;. More detailed headless fragments technique description.&lt;/li&gt;
+&lt;li&gt;Headless fragment example - &lt;a href=&#34;https://android.googlesource.com/platform/development/+/master/samples/ApiDemos/src/com/example/android/apis/app/FragmentRetainInstance.java&#34;&gt;FragmentRetainInstance.java&lt;/a&gt;. In this code headless fragment is created from other fragment. In my case it&amp;rsquo;s inappropriate because of Robolectric testing (recursive fragment transactions).&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.intertech.com/Blog/saving-and-retrieving-android-instance-state-part-2/&#34;&gt;Saving (And Retrieving) Android Instance State – Part 2&lt;/a&gt;. Details about retained fragments. Neat retained fragment lifecycle.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.androiddesignpatterns.com/2013/04/retaining-objects-across-config-changes.html&#34;&gt;Handling Configuration Changes with Fragments&lt;/a&gt;. Main advice - Manage the Object Inside a Retained Fragment.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://ideaventure.blogspot.com.au/2014/01/android-activityfragment-life-cycle.html&#34;&gt;Android Activity/Fragment life cycle analysis&lt;/a&gt;. Full logging of all lifecycle method calls in different situations.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;And SO discussions:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://stackoverflow.com/questions/11591302/unable-to-use-fragment-setretaininstance-as-a-replacement-for-activity-onretai&#34;&gt;Unable to use Fragment.setRetainInstance() as a replacement for Activity.onRetainNonConfigurationInstance()&lt;/a&gt;. How to preserve fragments with WebViews and AsyncTasks. One of the answers is to override Fragment.onDestroy() and save asynctasks to Application object.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://stackoverflow.com/questions/12640316/further-understanding-setretaininstancetrue&#34;&gt;Further understanding setRetainInstance(true)&lt;/a&gt;. Retained fragment lifecycle logs.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://stackoverflow.com/questions/8417885/android-fragments-retaining-an-asynctask-during-screen-rotation-or-configuratio&#34;&gt;Android Fragments. Retaining an AsyncTask during screen rotation or configuration change&lt;/a&gt;. Retained fragment with inner asynctask example and much more. AsyncTask has reference to fragment - it&amp;rsquo;s interesting.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;Multi-pane layout for tablets&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Some precious articles:
+* &lt;a href=&#34;http://commonsware.com/blog/2012/08/20/multiple-view-viewpager-options.html&#34;&gt;Multiple-View ViewPager Options&lt;/a&gt;. It&amp;rsquo;s a brilliant set of methods to display several fragments simultaneously using ViewPager. I&amp;rsquo;ve personally used first method (overriding getPageWidth() in PagerAdapter) - it works for me.
+* &lt;a href=&#34;http://shashikawlp.wordpress.com/2012/12/13/android-viewpager-with-multiple-views/&#34;&gt;Android ViewPager with Multiple Views&lt;/a&gt;. Looks like third method from previous article.&lt;/p&gt;
+
+&lt;p&gt;And SO discussions:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://stackoverflow.com/questions/9468581/can-viewpager-have-multiple-views-in-per-page&#34;&gt;Can ViewPager have multiple views in per page?&lt;/a&gt;. There are links to CommonsWare article and description of method used for some Dutch newspaper app. Looks nice but it display one full page and part of another - it&amp;rsquo;s not what I need now.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://stackoverflow.com/questions/23149850/viewpager-with-different-adapters-for-portrait-and-landscape&#34;&gt;ViewPager with different adapters for portrait and landscape&lt;/a&gt;. Dude wants to show A,B,C fragments in portrait mode and A,C only in landscape. Not my case but interesting.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://stackoverflow.com/questions/6465680/how-to-determine-the-screen-width-in-terms-of-dp-or-dip-at-runtime-in-android&#34;&gt;How to determine the screen width in terms of dp or dip at runtime in Android?&lt;/a&gt;. Describe how to calculate screen size in &amp;ldquo;density-independent pixels&amp;rdquo;. It&amp;rsquo;s useful for decide when which layout to use programmatically.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;Memory leaks&lt;/strong&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://geekple.com/blogs/feeds/9AlMn/posts/354891570708736&#34;&gt;TextView with id and textIsSelectable=&amp;ldquo;true&amp;rdquo; causes leaking of the Activity object&lt;/a&gt;. And corresponding &lt;a href=&#34;http://stackoverflow.com/questions/22990634/textview-with-id-and-textisselectable-true-causes-leaking-of-the-activity-obje&#34;&gt;Stack Overflow topic&lt;/a&gt;. I&amp;rsquo;ve bumped into this issue personally and spent a quite some time too. Rotating emulator and heapdumping mostly :) The point is that TextView with id and android:textIsSelectable=&amp;ldquo;true&amp;rdquo; causes memory leak on Android 4.0.x, 4.1.x, 4.2.x, 4.3.x. Can&amp;rsquo;t check it on 4.4.2 because of &lt;a href=&#34;https://code.google.com/p/android/issues/detail?id=61671&#34;&gt;emulator bug&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://stackoverflow.com/questions/18348049/android-edittext-memory-leak&#34;&gt;Android EditText Memory Leak&lt;/a&gt;, &lt;a href=&#34;http://stackoverflow.com/questions/8497965/why-does-edittext-retain-its-activitys-context-in-ice-cream-sandwich&#34;&gt;Why does EditText retain its Activity&amp;rsquo;s Context in Ice Cream Sandwich&lt;/a&gt;, &lt;a href=&#34;http://stackoverflow.com/questions/14069501/edittext-causing-memory-leak&#34;&gt;EditText causing memory leak&lt;/a&gt;. The main theme of this topics is that EditText leaks when spellchecker suggestions are used. You can turn it off but it can help or maybe not. EditText is leaking on Android 4.0.x, 4.1.x, 4.2.x. Thanks god, seems like it&amp;rsquo;s fixed in Android 4.3, API 18 (checked on Nexus 7 2013 emulator). Although &lt;a href=&#34;https://code.google.com/p/android/issues/detail?id=60930&#34;&gt;corresponding issue&lt;/a&gt; is still open.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://stackoverflow.com/a/18414294&#34;&gt;Fragments are not being released from memory&lt;/a&gt;. A valuable advice - use weak references to point to any object that references its context outside of your Activity. I&amp;rsquo;m not sure is it a proper approach to weak referencing ViewPager, but for some more &amp;ldquo;distant&amp;rdquo; object like &lt;a href=&#34;http://www.michenux.net/android-asynctask-in-fragment-best-pratices-725.html&#34;&gt;AsyncTask&lt;/a&gt; it might be reasonable.&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
