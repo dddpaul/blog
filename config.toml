@@ -7,4 +7,3 @@ title = "Dev notes"
 
 [params]
   Description = "Notes about Android, Java, Go and other technical stuff"
-  BaseUrl = "/blog/"
