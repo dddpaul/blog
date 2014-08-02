@@ -17,27 +17,27 @@
       <guid>http://dddpaul.github.io/posts/orientation_change</guid>
       <description>
 
-&lt;p&gt;Основная мысль, которую я вынес после нескольких дней отладки приложения: смена ориентации (rotation, orientation change) - это очень непростая вещь! Она дает просто массу способов выстрелисть себе в ногу. Наконец-то я понял, тех разработчиков, которые просто запрещают смену ориентации в своем софте.&lt;/p&gt;
+&lt;p&gt;Основная мысль после нескольких дней отладки приложения — смена ориентации (rotation, orientation change) дает просто массу способов выстрелить себе в ногу. Наконец-то я понял тех разработчиков, которые просто запрещают смену ориентации в своем софте.&lt;/p&gt;
 
 &lt;p&gt;Какие же здесь есть подводные камни?&lt;/p&gt;
 
 &lt;h3 id=&#34;toc_0&#34;&gt;Beginner&amp;rsquo;s level&lt;/h3&gt;
 
-&lt;p&gt;Надо сохранять состояние (state) фрагментов. Не сохранил - потерял, т.к. активити и фрагменты будут пересозданы. Если стейт фрагмента сериализуется в строку, то просто переопределяем метод onSaveInstanceState(). Способ описан как в &lt;a href=&#34;http://developer.android.com/guide/components/fragments.html#Lifecycle&#34;&gt;официальной документации&lt;/a&gt;, так и в множестве других мест.&lt;/p&gt;
+&lt;p&gt;Надо сохранять состояние (state) фрагментов. Не сохранил — потерял, т.к. активити и фрагменты будут пересозданы. Если стейт фрагмента сериализуется в строку, то просто переопределяем метод onSaveInstanceState(). Способ описан как в &lt;a href=&#34;http://developer.android.com/guide/components/fragments.html#Lifecycle&#34;&gt;официальной документации&lt;/a&gt;, так и в множестве других мест.&lt;/p&gt;
 
 &lt;h3 id=&#34;toc_1&#34;&gt;Intermediate.&lt;/h3&gt;
 
-&lt;p&gt;Не забываем про AsyncTask. Их тоже надо сохранять, ибо иначе при смене ориентации он улетит в космос как Вояджер-1. Или что-нибудь обвалит :) Для решения этой проблемы придумана такая отличная штука, как retaining fragments. Всего один вызов setRetainInstance(true) продляет жизнь фрагменту и связанному с ним асинктаску (назовем это длинный стейт).&lt;/p&gt;
+&lt;p&gt;Не забываем про AsyncTask. Их тоже надо сохранять, ибо иначе при смене ориентации мы его потеряем. Или он что-нибудь обвалит :) Для решения этой проблемы придумана такая отличная штука, как retaining fragments. Всего один вызов setRetainInstance(true) продляет жизнь фрагменту и связанному с ним асинктаску (назовем это длинный стейт).&lt;/p&gt;
 
-&lt;p&gt;Тут начинаются подводные камни (потому и intermediate level). Что если мы хотим в портретном режиме свайпить фрагменты (через ViewPager), а в landscape - просто показать их всех в линеечку (с помощью LinearLayout безо всякого ViewPager)? Запустим приложение в portrait mode, перевернем, и получим &amp;ldquo;IllegalArgumentException: No view found&amp;rdquo;.&lt;/p&gt;
+&lt;p&gt;Тут и начинаются подводные камни. Что если мы хотим в портретном режиме свайпить фрагменты (через ViewPager), а в landscape — просто показать их всех в линеечку (с помощью LinearLayout безо всякого ViewPager)? Запустим приложение в portrait mode, перевернем, и получим &amp;ldquo;IllegalArgumentException: No view found&amp;rdquo;.&lt;/p&gt;
 
-&lt;p&gt;Суть в том, что изначальный фрагмент с портретного режима останется и даже сохранит ссылку на ViewPager, которого в landscape layout уже просто нет :) Отсюда вывод - использовать для сохранения длинного стейта нужно headless fragments, т.е. фрагменты без UI. Тогда получается красиво: в &amp;ldquo;обычных&amp;rdquo; фрагментах формочки и кнопочки, а асинктаски - в отдельных, которые ничего про UI не знают.&lt;/p&gt;
+&lt;p&gt;Суть в том, что изначальный фрагмент с портретного режима останется и даже сохранит ссылку на ViewPager, которого в landscape layout уже просто нет :) Отсюда вывод - использовать для сохранения длинного стейта нужно headless fragments, т.е. фрагменты без UI. Тогда получается красиво: в &amp;ldquo;обычных&amp;rdquo; фрагментах формочки и кнопочки, а асинктаски — в отдельных, которые ничего про UI не знают.&lt;/p&gt;
 
-&lt;p&gt;Остался последний вопрос - как этот headless fragment создать/запустить? В android-samples есть пример &lt;a href=&#34;https://android.googlesource.com/platform/development/+/master/samples/ApiDemos/src/com/example/android/apis/app/FragmentRetainInstance.java&#34;&gt;FragmentRetainInstance.java&lt;/a&gt;, в котором используется способ матрешки - активити запускает parent fragment, parent запускает worker fragment, внутри которого сидит асинктаск.&lt;/p&gt;
+&lt;p&gt;Остался последний вопрос — как этот headless fragment создать/запустить? В android-samples есть пример &lt;a href=&#34;https://android.googlesource.com/platform/development/+/master/samples/ApiDemos/src/com/example/android/apis/app/FragmentRetainInstance.java&#34;&gt;FragmentRetainInstance.java&lt;/a&gt;, в котором используется способ матрешки - активити запускает parent fragment, parent запускает worker fragment, внутри которого сидит асинктаск.&lt;/p&gt;
 
 &lt;p&gt;Вроде хорошая схема, но если вы, не дай бог, возьмете Robolectric и напишите юнит-тест для родительского фрагмента, то получите что-то типа recursive transaction exception. Суть в том, что роболектрик создает тестируемый фрагмент обычным способом (через транзакцию), а внутри запускается новая транзакция (для worker fragment). А так нельзя, это вам не JPA какой-нибудь :)&lt;/p&gt;
 
-&lt;p&gt;Итого - держим асинктаски в headless-фрагменте, который запускаем из активити. В целом, это отличная схема на все случаи жизни, а не только для приведенного примера.&lt;/p&gt;
+&lt;p&gt;Итого — держим асинктаски в headless-фрагменте, который запускаем из активити. В целом, это отличная схема на все случаи жизни, а не только для приведенного примера.&lt;/p&gt;
 
 &lt;h3 id=&#34;toc_2&#34;&gt;Veteran&lt;/h3&gt;
 
@@ -47,14 +47,14 @@
 
 &lt;ul&gt;
 &lt;li&gt;1-й layout состоит из одного ViewPager&amp;rsquo;а;&lt;/li&gt;
-&lt;li&gt;2-й - LinearLayout с двумя фрагментами.&lt;/li&gt;
+&lt;li&gt;2-й — LinearLayout с двумя фрагментами.&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;В чем прелесть подхода - 2-й layout можно положить в папочку, например, layout-w600dp и он будет автоматически использован, если ширина экрана больше 600dp. Красота!&lt;/p&gt;
+&lt;p&gt;В чем прелесть подхода — 2-й layout можно положить в папочку, например, layout-w600dp и он будет автоматически использован, если ширина экрана больше 600dp. Красота!&lt;/p&gt;
 
 &lt;p&gt;Оно даже работает и не падает. Правда, появился какой-то странный глюк с &lt;a href=&#34;http://github.com/greenrobot/EventBus&#34;&gt;EventBus&lt;/a&gt;: иногда фрагмент получает два сообщения вместо одного. При более пристальном изучении оказалось наоборот - два одинаковых фрагмента получают одно сообщение. Откуда они берутся? А кто его знает :)&lt;/p&gt;
 
-&lt;p&gt;Убил кучу времени в DDMS, VisualVM и MAT, написал &lt;a href=&#34;https://github.com/dddpaul/android-ViewPagerBug&#34;&gt;тестовый проект&lt;/a&gt;, описал симптомы на &lt;a href=&#34;http://stackoverflow.com/questions/25033824/dublicate-fragment-allocation-when-using-viewpager-with-different-layouts&#34;&gt;StackOverflow&lt;/a&gt;. Вкратце, именно при использовании такого варианта multi-pane (когда в одном layout есть ViewPager, а в другом нет), фрагменты создаются ДВАЖДЫ. Причем, оба в RESUMED state, поэтому они оба и ловят сообщения по EventBus.&lt;/p&gt;
+&lt;p&gt;Была убита куча времени в DDMS/VisualVM/MAT, в результате чего появился &lt;a href=&#34;https://github.com/dddpaul/android-ViewPagerBug&#34;&gt;тестовый проект&lt;/a&gt;, также описал симптомы на &lt;a href=&#34;http://stackoverflow.com/questions/25033824/dublicate-fragment-allocation-when-using-viewpager-with-different-layouts&#34;&gt;StackOverflow&lt;/a&gt;. Вкратце, именно при использовании такого варианта multi-pane (когда в одном layout есть ViewPager, а в другом нет), фрагменты при перевороте создаются ДВАЖДЫ. Причем, оба в RESUMED state, поэтому они оба и ловят сообщения по EventBus.&lt;/p&gt;
 
 &lt;p&gt;Плюнув, отказался от второго layout&amp;rsquo;а, теперь ViewPager используется везде. Чтобы показать сразу 2 фрагмента, можно использовать разные &lt;a href=&#34;http://commonsware.com/blog/2012/08/20/multiple-view-viewpager-options.html&#34;&gt;хитрые способы&lt;/a&gt;. Они, в общем, несложные, и, в моем случае, способ с переопределением getPageWidth() даже не внес никаких сайд-эффектов. Правда, определение ширины экрана, когда надо показать multi-pane пришлось вынести в код, получилось чуть менее декларативненько.&lt;/p&gt;
 
