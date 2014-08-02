@@ -1,3 +1,6 @@
 baseurl = "http://dddpaul.github.io/blog"
 languageCode = "en-us"
 title = "Dev notes"
+
+[params]
+  Description = "Notes about Android, Java, Go and other technical stuff"
