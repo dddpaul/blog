@@ -6,8 +6,9 @@ echo -e "\033[0;32mDeploying updates to Github...\033[0m"
 hugo -t hyde
 
 # Till will be fixed https://github.com/spf13/hugo/issues/230
+rm -rf public/2014
 mv public/blog/* public
-rmdir public/blog
+rm -rf public/blog
 
 # Add changes to git.
 git add -A
