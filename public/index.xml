@@ -151,5 +151,15 @@ pager.setAdapter( null );
 </description>
     </item>
     
+    <item>
+      <title>First node</title>
+      <link>http://dddpaul.github.io/blog/2014/07/28/oldest/</link>
+      <pubDate>Mon, 28 Jul 2014 12:00:00 UTC</pubDate>
+      
+      <guid>http://dddpaul.github.io/blog/2014/07/28/oldest/</guid>
+      <description>&lt;p&gt;This blog is based on &lt;a href=&#34;http://hugo.spf13.com/&#34;&gt;Hugo&lt;/a&gt; - static site generator written on Go. GitHub interaction is organized with use of &lt;a href=&#34;http://hugo.spf13.com/tutorials/github_pages_blog&#34;&gt;Hosting on GitHub Pages&lt;/a&gt; tutorial. See &amp;ldquo;Configure git Workflow&amp;rdquo; section specifically.&lt;/p&gt;
+</description>
+    </item>
+    
   </channel>
 </rss>

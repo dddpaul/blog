@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+      <title>Hugo on Dev notes </title>
+      <generator uri="https://hugo.spf13.com">Hugo</generator>
+    <link>http://dddpaul.github.io/tags/hugo/index.xml</link>
+    <language>en-us</language>
+    
+    
+    <updated>Mon, 28 Jul 2014 12:00:00 UTC</updated>
+    
+    <item>
+      <title>First node</title>
+      <link>http://dddpaul.github.io/blog/2014/07/28/oldest/</link>
+      <pubDate>Mon, 28 Jul 2014 12:00:00 UTC</pubDate>
+      
+      <guid>http://dddpaul.github.io/blog/2014/07/28/oldest/</guid>
+      <description>&lt;p&gt;This blog is based on &lt;a href=&#34;http://hugo.spf13.com/&#34;&gt;Hugo&lt;/a&gt; - static site generator written on Go. GitHub interaction is organized with use of &lt;a href=&#34;http://hugo.spf13.com/tutorials/github_pages_blog&#34;&gt;Hosting on GitHub Pages&lt;/a&gt; tutorial. See &amp;ldquo;Configure git Workflow&amp;rdquo; section specifically.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
