@@ -1,7 +1,7 @@
 +++
 date = 2014-07-28T12:00:00Z
 draft = false
-title = "First node"
+title = "First note"
 tags = [ "Hugo", "Golang" ]
 
 +++
