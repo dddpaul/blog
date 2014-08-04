@@ -26,35 +26,52 @@
 <body>
 
 <div class="sidebar">
-  <div class="container sidebar-sticky">
-    <div class="sidebar-about">
-      <h1>Dev notes</h1>
-      <p class="lead">
-       Notes about Android, Java, JavaScript, Go and other technical stuff 
-      </p>
+    <div class="container sidebar-sticky">
+        <div class="sidebar-about">
+            <h1>Dev notes</h1>
+            <p class="lead">
+                 Notes about Android, Java, JavaScript, Go and other technical stuff 
+            </p>
+        </div>
+
+        <ul class="sidebar-nav">
+            <li><a href="/">Home</a> </li>
+            
+            <li><a href="http://github.com/dddpaul"> GitHub </a></li>
+            
+            <li><a href="http://google.com/&#43;PavelDerendyaev1"> Google&#43; </a></li>
+            
+            <li><a href="index.xml"> RSS </a></li>
+            
+        </ul>
+
+        <section id="tags">
+            Tags:
+            <ul>
+                
+                <li><a href="/tags/android">android</a> </li>
+                
+                <li><a href="/tags/git">git</a> </li>
+                
+                <li><a href="/tags/golang">golang</a> </li>
+                
+                <li><a href="/tags/hugo">hugo</a> </li>
+                
+                <li><a href="/tags/java">java</a> </li>
+                
+            </ul>
+        </section>
+
+        <p>&copy; 2014. All rights reserved. </p>
     </div>
-
-    <ul class="sidebar-nav">
-      <li><a href="/">Home</a> </li>
-      
-        <li><a href="http://github.com/dddpaul"> GitHub </a></li>
-      
-        <li><a href="http://google.com/&#43;PavelDerendyaev1"> Google&#43; </a></li>
-      
-        <li><a href="index.xml"> RSS </a></li>
-      
-    </ul>
-
-    <p>&copy; 2014. All rights reserved. </p>
-  </div>
 </div>
 
 
-    <div class="content container">
-<div class="post">
-  <h1>Подводные камни смены ориентации в Android</h1>
-  <span class="post-date">Sat, Aug 2, 2014</span>
-      
+<div class="content container">
+    <div class="post">
+        <h1>Подводные камни смены ориентации в Android</h1>
+        <span class="post-date">2014-08-02</span>
+        
 
 <p>Основная мысль после нескольких дней отладки приложения — смена ориентации (rotation, orientation change) дает просто массу способов выстрелить себе в ногу. Наконец-то я понял тех разработчиков, которые просто запрещают смену ориентации в своем софте.</p>
 
@@ -121,8 +138,18 @@ pager.setAdapter( null );
 
 <p>К чему весь этот пост - выложил обновление <a href="https://play.google.com/store/apps/details?id=com.github.dddpaul.netcat">Simple NetCat</a>. Версия 1.4 поддерживает multi-pane на планшетах, содержит меньше багов (скрестил два пальца) и практически не течет по памяти.</p>
 
-</div>
+    </div>
+
+    Tags:
+    <ul id="tags">
+        
+        <li><a href="/tags/android">Android</a> </li>
+        
+        <li><a href="/tags/java">Java</a> </li>
+        
+    </ul>
+
 </div>
 
-  </body>
+</body>
 </html>

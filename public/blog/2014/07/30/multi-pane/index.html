@@ -26,35 +26,52 @@
 <body>
 
 <div class="sidebar">
-  <div class="container sidebar-sticky">
-    <div class="sidebar-about">
-      <h1>Dev notes</h1>
-      <p class="lead">
-       Notes about Android, Java, JavaScript, Go and other technical stuff 
-      </p>
+    <div class="container sidebar-sticky">
+        <div class="sidebar-about">
+            <h1>Dev notes</h1>
+            <p class="lead">
+                 Notes about Android, Java, JavaScript, Go and other technical stuff 
+            </p>
+        </div>
+
+        <ul class="sidebar-nav">
+            <li><a href="/">Home</a> </li>
+            
+            <li><a href="http://github.com/dddpaul"> GitHub </a></li>
+            
+            <li><a href="http://google.com/&#43;PavelDerendyaev1"> Google&#43; </a></li>
+            
+            <li><a href="index.xml"> RSS </a></li>
+            
+        </ul>
+
+        <section id="tags">
+            Tags:
+            <ul>
+                
+                <li><a href="/tags/android">android</a> </li>
+                
+                <li><a href="/tags/git">git</a> </li>
+                
+                <li><a href="/tags/golang">golang</a> </li>
+                
+                <li><a href="/tags/hugo">hugo</a> </li>
+                
+                <li><a href="/tags/java">java</a> </li>
+                
+            </ul>
+        </section>
+
+        <p>&copy; 2014. All rights reserved. </p>
     </div>
-
-    <ul class="sidebar-nav">
-      <li><a href="/">Home</a> </li>
-      
-        <li><a href="http://github.com/dddpaul"> GitHub </a></li>
-      
-        <li><a href="http://google.com/&#43;PavelDerendyaev1"> Google&#43; </a></li>
-      
-        <li><a href="index.xml"> RSS </a></li>
-      
-    </ul>
-
-    <p>&copy; 2014. All rights reserved. </p>
-  </div>
 </div>
 
 
-    <div class="content container">
-<div class="post">
-  <h1>Multi-pane layout for tablets</h1>
-  <span class="post-date">Wed, Jul 30, 2014</span>
-      <p>Some articles:</p>
+<div class="content container">
+    <div class="post">
+        <h1>Multi-pane layout for tablets</h1>
+        <span class="post-date">2014-07-30</span>
+        <p>Some articles:</p>
 
 <ul>
 <li><a href="http://commonsware.com/blog/2012/08/20/multiple-view-viewpager-options.html">Multiple-View ViewPager Options</a>. It&rsquo;s a brilliant set of methods to display several fragments simultaneously using ViewPager. I&rsquo;ve personally used first method (overriding getPageWidth() in PagerAdapter) - it works for me.</li>
@@ -69,8 +86,18 @@
 <li><a href="http://stackoverflow.com/questions/6465680/how-to-determine-the-screen-width-in-terms-of-dp-or-dip-at-runtime-in-android">How to determine the screen width in terms of dp or dip at runtime in Android?</a>. Describe how to calculate screen size in &ldquo;density-independent pixels&rdquo;. It&rsquo;s useful for decide when which layout to use programmatically.</li>
 </ul>
 
-</div>
+    </div>
+
+    Tags:
+    <ul id="tags">
+        
+        <li><a href="/tags/android">Android</a> </li>
+        
+        <li><a href="/tags/java">Java</a> </li>
+        
+    </ul>
+
 </div>
 
-  </body>
+</body>
 </html>

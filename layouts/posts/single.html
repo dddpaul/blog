@@ -1,0 +1,23 @@
+{{ template "theme/partials/head.html" . }}
+<body>
+
+{{ template "partials/sidebar.html" . }}
+
+<div class="content container">
+    <div class="post">
+        <h1>{{ .Title }}</h1>
+        <span class="post-date">{{ .Date.Format "2006-01-02" }}</span>
+        {{ .Content }}
+    </div>
+
+    Tags:
+    <ul id="tags">
+        {{ range .Params.tags }}
+        <li><a href="/tags/{{ . | urlize }}">{{ . }}</a> </li>
+        {{ end }}
+    </ul>
+
+</div>
+
+</body>
+</html>

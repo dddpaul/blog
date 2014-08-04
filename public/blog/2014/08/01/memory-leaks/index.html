@@ -26,35 +26,52 @@
 <body>
 
 <div class="sidebar">
-  <div class="container sidebar-sticky">
-    <div class="sidebar-about">
-      <h1>Dev notes</h1>
-      <p class="lead">
-       Notes about Android, Java, JavaScript, Go and other technical stuff 
-      </p>
+    <div class="container sidebar-sticky">
+        <div class="sidebar-about">
+            <h1>Dev notes</h1>
+            <p class="lead">
+                 Notes about Android, Java, JavaScript, Go and other technical stuff 
+            </p>
+        </div>
+
+        <ul class="sidebar-nav">
+            <li><a href="/">Home</a> </li>
+            
+            <li><a href="http://github.com/dddpaul"> GitHub </a></li>
+            
+            <li><a href="http://google.com/&#43;PavelDerendyaev1"> Google&#43; </a></li>
+            
+            <li><a href="index.xml"> RSS </a></li>
+            
+        </ul>
+
+        <section id="tags">
+            Tags:
+            <ul>
+                
+                <li><a href="/tags/android">android</a> </li>
+                
+                <li><a href="/tags/git">git</a> </li>
+                
+                <li><a href="/tags/golang">golang</a> </li>
+                
+                <li><a href="/tags/hugo">hugo</a> </li>
+                
+                <li><a href="/tags/java">java</a> </li>
+                
+            </ul>
+        </section>
+
+        <p>&copy; 2014. All rights reserved. </p>
     </div>
-
-    <ul class="sidebar-nav">
-      <li><a href="/">Home</a> </li>
-      
-        <li><a href="http://github.com/dddpaul"> GitHub </a></li>
-      
-        <li><a href="http://google.com/&#43;PavelDerendyaev1"> Google&#43; </a></li>
-      
-        <li><a href="index.xml"> RSS </a></li>
-      
-    </ul>
-
-    <p>&copy; 2014. All rights reserved. </p>
-  </div>
 </div>
 
 
-    <div class="content container">
-<div class="post">
-  <h1>Memory leaks</h1>
-  <span class="post-date">Fri, Aug 1, 2014</span>
-      <p>StackOverflow discussions mostly:</p>
+<div class="content container">
+    <div class="post">
+        <h1>Memory leaks</h1>
+        <span class="post-date">2014-08-01</span>
+        <p>StackOverflow discussions mostly:</p>
 
 <ul>
 <li><a href="http://geekple.com/blogs/feeds/9AlMn/posts/354891570708736">TextView with id and textIsSelectable=&ldquo;true&rdquo; causes leaking of the Activity object</a>. And corresponding <a href="http://stackoverflow.com/questions/22990634/textview-with-id-and-textisselectable-true-causes-leaking-of-the-activity-obje">Stack Overflow topic</a>. I&rsquo;ve bumped into this issue personally and spent a quite some time too. Rotating emulator and heapdumping mostly :) The point is that TextView with id and android:textIsSelectable=&ldquo;true&rdquo; causes memory leak on Android 4.0.x, 4.1.x, 4.2.x, 4.3.x. Can&rsquo;t check it on 4.4.2 because of <a href="https://code.google.com/p/android/issues/detail?id=61671">emulator bug</a>.</li>
@@ -62,8 +79,18 @@
 <li><a href="http://stackoverflow.com/a/18414294">Fragments are not being released from memory</a>. A valuable advice - use weak references to point to any object that references its context outside of your Activity. I&rsquo;m not sure is it a proper approach to weak referencing ViewPager, but for some more &ldquo;distant&rdquo; object like <a href="http://www.michenux.net/android-asynctask-in-fragment-best-pratices-725.html">AsyncTask</a> it might be reasonable.</li>
 </ul>
 
-</div>
+    </div>
+
+    Tags:
+    <ul id="tags">
+        
+        <li><a href="/tags/android">Android</a> </li>
+        
+        <li><a href="/tags/java">Java</a> </li>
+        
+    </ul>
+
 </div>
 
-  </body>
+</body>
 </html>
