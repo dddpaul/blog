@@ -6,4 +6,14 @@ title = "Dev notes"
   posts = "blog/:year/:month/:day/:filename/"
 
 [params]
-  Description = "Notes about Android, Java, Go and other technical stuff"
+  Description = "Notes about Android, Java, JavaScript, Go and other technical stuff"
+
+[[menu.main]]
+    Name = "Google+"
+    Url ="http://google.com/+PavelDerendyaev1"
+[[menu.main]]
+    name = "GitHub"
+    url ="http://github.com/dddpaul"
+[[menu.main]]
+    name = "RSS"
+    url = "index.xml"
