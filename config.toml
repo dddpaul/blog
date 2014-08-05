@@ -7,6 +7,7 @@ title = "Dev notes"
 
 [params]
   Description = "Notes about Android, Java, JavaScript, Go and other technical stuff"
+  Path = "/blog" # Comment out to test on localhost
 
 [[menu.main]]
     Name = "Google+"
