@@ -5,11 +5,6 @@ echo -e "\033[0;32mDeploying updates to Github...\033[0m"
 # Build the project.
 hugo -t hyde
 
-# Till https://github.com/spf13/hugo/issues/230 will be fixed
-rm -rf public/2014
-mv public/blog/* public
-rm -rf public/blog
-
 # Add changes to git.
 git add -A
 

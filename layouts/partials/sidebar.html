@@ -16,9 +16,8 @@
 
         Tags:
         <ul>
-            {{ $path := .Site.Params.Path }}
             {{ range $key, $taxonomy := .Site.Taxonomies.tags }}
-            <li><a href="{{ $path }}/tags/{{ $key | urlize }}">{{ $key }}</a> </li>
+            <li><a href="/tags/{{ $key | urlize }}">{{ $key }}</a> </li>
             {{ end }}
         </ul>
 
