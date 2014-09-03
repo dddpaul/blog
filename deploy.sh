@@ -8,11 +8,6 @@ hugo -t hyde
 # Add changes to git.
 git add -A
 
-# Till https://github.com/spf13/hugo/issues/230 will be fixed
-rm -rf public/2014
-mv public/blog/* public
-rm -rf public/blog
-
 # Commit changes.
 msg="rebuilding site `date`"
 if [ $# -eq 1 ]
