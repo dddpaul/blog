@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
 
-  <title> Dev notes &middot; Dev notes </title>
+  <title> Подводные камни смены ориентации в Android &middot; Dev notes </title>
 
   
   <link rel="stylesheet" href="http://dddpaul.github.io/blog/css/poole.css">
@@ -20,7 +20,7 @@
   <link rel="shortcut icon" href="/favicon.ico">
 
   
-  <link href="http://dddpaul.github.io/index.xml" rel="alternate" type="application/rss+xml" title="Dev notes" />
+  <link href="" rel="alternate" type="application/rss+xml" title="Dev notes" />
 </head>
 
 <body>
@@ -66,22 +66,13 @@
 </div>
 
 
-    <div class="content container">
-<div class="posts">
+<div class="content container">
+    <div class="post">
+        <h1>Подводные камни смены ориентации в Android</h1>
+        <span class="post-date">2014-08-02</span>
+        
 
-      
-  <div class="post">
-    <h1 class="post-title">
-      <a href="http://dddpaul.github.io/2014/08/02/orientation_change/">
-        Подводные камни смены ориентации в Android
-      </a>
-    </h1>
-
-    <span class="post-date">Sat, Aug 2, 2014</span>
-
-    
-
-<p>После нескольких дней отладки приложения пришел к выводу, что смена ориентации (rotation, orientation change) требует к себе особого внимания. Наконец-то я понял тех разработчиков, которые напрочь запрещают смену ориентации в своем софте. Ведь, не зная некоторых неочевидных нюансов, можно легко получить крах приложения или утечку памяти.</p>
+<p>Основная мысль после нескольких дней отладки приложения — смена ориентации (rotation, orientation change) дает просто массу способов выстрелить себе в ногу. Наконец-то я понял тех разработчиков, которые просто запрещают смену ориентации в своем софте.</p>
 
 <p>Опишу в порядке возрастания сложности, на какие подводные камни мне пришлось натолкнуться.</p>
 
@@ -105,7 +96,7 @@
 
 <h3 id="toc_2">Veteran</h3>
 
-<p>Копаем в сторону уже вскользь упомянутого multi-pane. Как его сделать правильно на одних фрагментах? Внятно описанный <a href="http://www.vogella.com/tutorials/AndroidFragments/article.html">способ от Ларса Вогеля</a> требует разных активити, а я не хочу плодить сущности.</p>
+<p>Копаем в сторону уже всколзь упомянутого multi-pane. Как его сделать правильно на одних фрагментах? Внятно описанный <a href="http://www.vogella.com/tutorials/AndroidFragments/article.html">способ от Ларса Вогеля</a> требует разных активити, а я не хочу плодить сущности.</p>
 
 <p>Используем уже описанный метод с двумя layout&rsquo;ами (ведь мы же за декларативный подход!):</p>
 
@@ -146,130 +137,19 @@ pager.setAdapter( null );
 
 <p>К чему весь этот пост - выложил обновление <a href="https://play.google.com/store/apps/details?id=com.github.dddpaul.netcat">Simple NetCat</a>. Версия 1.4 поддерживает multi-pane на планшетах, содержит меньше багов (скрестил два пальца) и практически не течет по памяти.</p>
 
-  </div>
-  
-  <div class="post">
-    <h1 class="post-title">
-      <a href="http://dddpaul.github.io/2014/08/01/memory-leaks/">
-        Memory leaks
-      </a>
-    </h1>
+    </div>
 
-    <span class="post-date">Fri, Aug 1, 2014</span>
+    Tags:
+    <ul id="tags">
+        
+        
+        <li><a href="/blog/tags/android">Android</a> </li>
+        
+        <li><a href="/blog/tags/java">Java</a> </li>
+        
+    </ul>
 
-    <p>Articles:</p>
-
-<ul>
-<li><p><a href="http://android-developers.blogspot.ru/2009/01/avoiding-memory-leaks.html">Avoiding memory leaks</a>. This great article describes base causes of memory leaks on Android. I quote summary from there:</p>
-
-<ul>
-<li>Do not keep long-lived references to a context-activity (a reference to an activity should have the same life cycle as the activity itself)</li>
-<li>Try using the context-application instead of a context-activity</li>
-<li>Avoid non-static inner classes in an activity if you don&rsquo;t control their life cycle, use a static inner class and make a weak reference to the activity inside. The solution to this issue is to use a static inner class with a WeakReference to the outer class, as done in ViewRoot and its W inner class for instance</li>
-<li>A garbage collector is not an insurance against memory leaks</li>
-</ul></li>
-
-<li><p><a href="http://www.androiddesignpatterns.com/2013/01/inner-class-handler-memory-leak.html">How to Leak a Context: Handlers &amp; Inner Classes</a>. Be cautious when using inner classes inside activity. The summary:</p>
-
-<ul>
-<li>In Java, non-static inner and anonymous classes hold an implicit reference to their outer class. Static inner classes, on the other hand, do not.</li>
-<li>Avoid using non-static inner classes in an activity if instances of the inner class outlive the activity&rsquo;s lifecycle.</li>
-<li>Instead, prefer static inner classes and hold a weak reference to the activity inside.</li>
-</ul></li>
-
-<li><p><a href="http://habrahabr.ru/post/116294/">Отслеживание утечек памяти в Android приложениях</a>. This article gives example of class for tracking memory leaks based on WeakReference.</p></li>
-</ul>
-
-<p>StackOverflow discussions mostly:</p>
-
-<ul>
-<li><a href="http://geekple.com/blogs/feeds/9AlMn/posts/354891570708736">TextView with id and textIsSelectable=&ldquo;true&rdquo; causes leaking of the Activity object</a>. And corresponding <a href="http://stackoverflow.com/questions/22990634/textview-with-id-and-textisselectable-true-causes-leaking-of-the-activity-obje">Stack Overflow topic</a>. I&rsquo;ve bumped into this issue personally and spent a quite some time too. Rotating emulator and heapdumping mostly :) The point is that TextView with id and android:textIsSelectable=&ldquo;true&rdquo; causes memory leak on Android 4.0.x, 4.1.x, 4.2.x, 4.3.x. Can&rsquo;t check it on 4.4.2 because of <a href="https://code.google.com/p/android/issues/detail?id=61671">emulator bug</a>.</li>
-<li><a href="http://stackoverflow.com/questions/18348049/android-edittext-memory-leak">Android EditText Memory Leak</a>, <a href="http://stackoverflow.com/questions/8497965/why-does-edittext-retain-its-activitys-context-in-ice-cream-sandwich">Why does EditText retain its Activity&rsquo;s Context in Ice Cream Sandwich</a>, <a href="http://stackoverflow.com/questions/14069501/edittext-causing-memory-leak">EditText causing memory leak</a>. The main theme of this topics is that EditText leaks when spellchecker suggestions are used. You can turn it off but it can help or maybe not. EditText is leaking on Android 4.0.x, 4.1.x, 4.2.x. Thanks god, seems like it&rsquo;s fixed in Android 4.3, API 18 (checked on Nexus 7 2013 emulator). Although <a href="https://code.google.com/p/android/issues/detail?id=60930">corresponding issue</a> is still open.</li>
-<li><a href="http://stackoverflow.com/a/18414294">Fragments are not being released from memory</a>. A valuable advice - use weak references to point to any object that references its context outside of your Activity. I&rsquo;m not sure is it a proper approach to weak referencing ViewPager, but for some more &ldquo;distant&rdquo; object like <a href="http://www.michenux.net/android-asynctask-in-fragment-best-pratices-725.html">AsyncTask</a> it might be reasonable.</li>
-</ul>
-
-<p>Videos:</p>
-
-<ul>
-<li><a href="http://www.youtube.com/watch?v=_CruQY55HOk"> Google I/O 2011: Memory management for Android Apps </a>. Presentation by <a href="http://dubroy.com">Patrick Dubroy</a>.</li>
-</ul>
-
-  </div>
-  
-  <div class="post">
-    <h1 class="post-title">
-      <a href="http://dddpaul.github.io/2014/07/30/multi-pane/">
-        Multi-pane layout for tablets
-      </a>
-    </h1>
-
-    <span class="post-date">Wed, Jul 30, 2014</span>
-
-    <p>Some articles:</p>
-
-<ul>
-<li><a href="http://commonsware.com/blog/2012/08/20/multiple-view-viewpager-options.html">Multiple-View ViewPager Options</a>. It&rsquo;s a brilliant set of methods to display several fragments simultaneously using ViewPager. I&rsquo;ve personally used first method (overriding getPageWidth() in PagerAdapter) - it works for me.</li>
-<li><a href="http://shashikawlp.wordpress.com/2012/12/13/android-viewpager-with-multiple-views/">Android ViewPager with Multiple Views</a>. Looks like third method from previous article.</li>
-</ul>
-
-<p>And StackOverflow discussions:</p>
-
-<ul>
-<li><a href="http://stackoverflow.com/questions/9468581/can-viewpager-have-multiple-views-in-per-page">Can ViewPager have multiple views in per page?</a>. There are links to CommonsWare article and description of method used for some Dutch newspaper app. Looks nice but it display one full page and part of another - it&rsquo;s not what I need now.</li>
-<li><a href="http://stackoverflow.com/questions/23149850/viewpager-with-different-adapters-for-portrait-and-landscape">ViewPager with different adapters for portrait and landscape</a>. Dude wants to show A,B,C fragments in portrait mode and A,C only in landscape. Not my case but interesting.</li>
-<li><a href="http://stackoverflow.com/questions/6465680/how-to-determine-the-screen-width-in-terms-of-dp-or-dip-at-runtime-in-android">How to determine the screen width in terms of dp or dip at runtime in Android?</a>. Describe how to calculate screen size in &ldquo;density-independent pixels&rdquo;. It&rsquo;s useful for decide when which layout to use programmatically.</li>
-</ul>
-
-  </div>
-  
-  <div class="post">
-    <h1 class="post-title">
-      <a href="http://dddpaul.github.io/2014/07/29/headless-fragments/">
-        Retaining state with headless fragments
-      </a>
-    </h1>
-
-    <span class="post-date">Tue, Jul 29, 2014</span>
-
-    <p>Some articles:</p>
-
-<ul>
-<li>Official <a href="http://developer.android.com/guide/components/fragments.html">Fragments guide</a>. Has some clues for headless fragments (see &ldquo;Adding a fragment without a UI&rdquo;).</li>
-<li>Superb <a href="http://www.vogella.com/tutorials/AndroidFragments/article.html">multi-pane fragments tutorial</a> from Lars Vogel. Contains some tips for <a href="http://www.vogella.com/tutorials/AndroidFragments/article.html#headlessfragments">headless fragments</a>.</li>
-<li><a href="http://techbandhu.wordpress.com/2013/07/02/android-headless-fragment/">Android best tip to work with fragments and orientation change</a>. More detailed headless fragments technique description.</li>
-<li>Headless fragment example - <a href="https://android.googlesource.com/platform/development/+/master/samples/ApiDemos/src/com/example/android/apis/app/FragmentRetainInstance.java">FragmentRetainInstance.java</a>. In this code headless fragment is created from other fragment. In my case it&rsquo;s inappropriate because of Robolectric testing (recursive fragment transactions).</li>
-<li><a href="http://www.intertech.com/Blog/saving-and-retrieving-android-instance-state-part-2/">Saving (And Retrieving) Android Instance State – Part 2</a>. Details about retained fragments. Neat retained fragment lifecycle.</li>
-<li><a href="http://www.androiddesignpatterns.com/2013/04/retaining-objects-across-config-changes.html">Handling Configuration Changes with Fragments</a>. Main advice - Manage the Object Inside a Retained Fragment.</li>
-<li><a href="http://ideaventure.blogspot.com.au/2014/01/android-activityfragment-life-cycle.html">Android Activity/Fragment life cycle analysis</a>. Full logging of all lifecycle method calls in different situations.</li>
-</ul>
-
-<p>And StackOverflow discussions:</p>
-
-<ul>
-<li><a href="http://stackoverflow.com/questions/11591302/unable-to-use-fragment-setretaininstance-as-a-replacement-for-activity-onretai">Unable to use Fragment.setRetainInstance() as a replacement for Activity.onRetainNonConfigurationInstance()</a>. How to preserve fragments with WebViews and AsyncTasks. One of the answers is to override Fragment.onDestroy() and save asynctasks to Application object.</li>
-<li><a href="http://stackoverflow.com/questions/12640316/further-understanding-setretaininstancetrue">Further understanding setRetainInstance(true)</a>. Retained fragment lifecycle logs.</li>
-<li><a href="http://stackoverflow.com/questions/8417885/android-fragments-retaining-an-asynctask-during-screen-rotation-or-configuratio">Android Fragments. Retaining an AsyncTask during screen rotation or configuration change</a>. Retained fragment with inner asynctask example and much more. AsyncTask has reference to fragment - it&rsquo;s interesting.</li>
-</ul>
-
-  </div>
-  
-  <div class="post">
-    <h1 class="post-title">
-      <a href="http://dddpaul.github.io/2014/07/28/oldest/">
-        First note
-      </a>
-    </h1>
-
-    <span class="post-date">Mon, Jul 28, 2014</span>
-
-    <p>This blog is based on <a href="http://hugo.spf13.com/">Hugo</a> - static site generator written on Go. GitHub interaction is organized with use of <a href="http://hugo.spf13.com/tutorials/github_pages_blog">Hosting on GitHub Pages</a> tutorial. See &ldquo;Configure git Workflow&rdquo; section specifically.</p>
-
-<p>And for all of the git 1.7.x (and older) users - you can grab git-subtree from contrib dirertory of <a href="https://github.com/git/git">Git repo</a>. I&rsquo;ve used git-subtree from latest 1.8.x. It&rsquo;s just a shell script, run make, chmod +x and copy it to /usr/lib/git-core.</p>
-
-  </div>
-  
 </div>
 
-
-  </body>
+</body>
 </html>
