@@ -3,7 +3,7 @@ languageCode = "en-us"
 title = "Dev notes"
 
 [permalinks]
-  posts = "/blog/:year/:month/:day/:filename/"
+  posts = ":year/:month/:day/:filename/"
 
 [params]
   Description = "Notes about Android, Java, JavaScript, Go and other technical stuff"
