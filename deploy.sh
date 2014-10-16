@@ -9,8 +9,8 @@ hugo -t hyde
 git add -A
 
 # Till https://github.com/spf13/hugo/issues/230 will be fixed completely
-mkdir -p public/blog
-mv public/20** public/blog/
+#mkdir -p public/blog
+#mv public/20** public/blog/
 
 # Commit changes.
 msg="rebuilding site `date`"
