@@ -11,10 +11,10 @@
     
     <item>
       <title>Подводные камни смены ориентации в Android</title>
-      <link>http://dddpaul.github.io/2014/08/02/orientation_change/</link>
+      <link>http://dddpaul.github.io/blog/2014/08/02/orientation_change/</link>
       <pubDate>Sat, 02 Aug 2014 13:32:33 UTC</pubDate>
       
-      <guid>http://dddpaul.github.io/2014/08/02/orientation_change/</guid>
+      <guid>http://dddpaul.github.io/blog/2014/08/02/orientation_change/</guid>
       <description>
 
 &lt;p&gt;После нескольких дней отладки приложения пришел к выводу, что смена ориентации (rotation, orientation change) требует к себе особого внимания. Наконец-то я понял тех разработчиков, которые напрочь запрещают смену ориентации в своем софте. Ведь, не зная некоторых неочевидных нюансов, можно легко получить крах приложения или утечку памяти.&lt;/p&gt;
@@ -86,10 +86,10 @@ pager.setAdapter( null );
     
     <item>
       <title>Memory leaks</title>
-      <link>http://dddpaul.github.io/2014/08/01/memory-leaks/</link>
+      <link>http://dddpaul.github.io/blog/2014/08/01/memory-leaks/</link>
       <pubDate>Fri, 01 Aug 2014 13:34:16 UTC</pubDate>
       
-      <guid>http://dddpaul.github.io/2014/08/01/memory-leaks/</guid>
+      <guid>http://dddpaul.github.io/blog/2014/08/01/memory-leaks/</guid>
       <description>&lt;p&gt;Articles:&lt;/p&gt;
 
 &lt;ul&gt;
@@ -131,10 +131,10 @@ pager.setAdapter( null );
     
     <item>
       <title>Multi-pane layout for tablets</title>
-      <link>http://dddpaul.github.io/2014/07/30/multi-pane/</link>
+      <link>http://dddpaul.github.io/blog/2014/07/30/multi-pane/</link>
       <pubDate>Wed, 30 Jul 2014 07:14:41 UTC</pubDate>
       
-      <guid>http://dddpaul.github.io/2014/07/30/multi-pane/</guid>
+      <guid>http://dddpaul.github.io/blog/2014/07/30/multi-pane/</guid>
       <description>&lt;p&gt;Some articles:&lt;/p&gt;
 
 &lt;ul&gt;
@@ -154,10 +154,10 @@ pager.setAdapter( null );
     
     <item>
       <title>Retaining state with headless fragments</title>
-      <link>http://dddpaul.github.io/2014/07/29/headless-fragments/</link>
+      <link>http://dddpaul.github.io/blog/2014/07/29/headless-fragments/</link>
       <pubDate>Tue, 29 Jul 2014 07:55:41 UTC</pubDate>
       
-      <guid>http://dddpaul.github.io/2014/07/29/headless-fragments/</guid>
+      <guid>http://dddpaul.github.io/blog/2014/07/29/headless-fragments/</guid>
       <description>&lt;p&gt;Some articles:&lt;/p&gt;
 
 &lt;ul&gt;
