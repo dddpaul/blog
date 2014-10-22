@@ -2,6 +2,7 @@
 date = 2014-08-02T13:32:33Z
 draft = false
 title = "Подводные камни смены ориентации в Android"
+series = [ "Memory leaks" ]
 tags = [ "Android", "Java" ]
 
 +++

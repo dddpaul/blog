@@ -3,12 +3,16 @@ languageCode = "en-us"
 title = "Dev notes"
 theme = "hyde"
 
+[Taxonomies]
+    tag = "tags"
+    series = "series"
+
 [permalinks]
-  posts = "/blog/:year/:month/:day/:filename/"
+    posts = "/blog/:year/:month/:day/:filename/"
 
 [params]
-  Description = "Notes about Android, Java, JavaScript, Go and other technical stuff"
-  Path = "/blog" # Comment out to test on localhost
+    Description = "Notes about Android, Java, JavaScript, Go and other technical stuff"
+    #Path = "/blog" # Comment out to test on localhost
 
 [[menu.main]]
     Name = "Google+"
