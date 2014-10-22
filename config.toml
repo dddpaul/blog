@@ -1,6 +1,7 @@
 baseurl = "http://dddpaul.github.io/blog"
 languageCode = "en-us"
 title = "Dev notes"
+theme = "hyde"
 
 [permalinks]
   posts = "/blog/:year/:month/:day/:filename/"
