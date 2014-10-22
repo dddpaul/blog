@@ -43,3 +43,8 @@ tags = [ "Android", "Java" ]
 ### Выводы
 
 Отличная и годная статья :)
+
+Ссылки:
+
+* [A journey on the Android Main Thread - PSVM](http://corner.squareup.com/2013/10/android-main-thread-1.html). Рассказ про про внутренности Main Thread: Loopers, Handlers и т.д.
+* [A journey on the Android Main Thread - Lifecycle bits](http://corner.squareup.com/2013/12/android-main-thread-2.html). Продолжение — про lifecycle и orientation change. 

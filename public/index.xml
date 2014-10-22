@@ -57,6 +57,13 @@
 &lt;h3 id=&#34;toc_4&#34;&gt;Выводы&lt;/h3&gt;
 
 &lt;p&gt;Отличная и годная статья :)&lt;/p&gt;
+
+&lt;p&gt;Ссылки:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://corner.squareup.com/2013/10/android-main-thread-1.html&#34;&gt;A journey on the Android Main Thread - PSVM&lt;/a&gt;. Рассказ про про внутренности Main Thread: Loopers, Handlers и т.д.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://corner.squareup.com/2013/12/android-main-thread-2.html&#34;&gt;A journey on the Android Main Thread - Lifecycle bits&lt;/a&gt;. Продолжение — про lifecycle и orientation change.&lt;/li&gt;
+&lt;/ul&gt;
 </description>
     </item>
     
