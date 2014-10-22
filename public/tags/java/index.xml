@@ -7,14 +7,65 @@
     <language>en-us</language>
     
     
-    <updated>Sat, 02 Aug 2014 13:32:33 UTC</updated>
+    <updated>Tue, 21 Oct 2014 14:30:16 UTC</updated>
+    
+    <item>
+      <title>Борьба с утечками памяти в Android (Badoo)</title>
+      <link>http://dddpaul.github.io/blog/2014/10/21/android-memory-leak-badoo/</link>
+      <pubDate>Tue, 21 Oct 2014 14:30:16 UTC</pubDate>
+      
+      <guid>http://dddpaul.github.io/blog/2014/10/21/android-memory-leak-badoo/</guid>
+      <description>
+
+&lt;p&gt;На хабре появилась статья &lt;a href=&#34;http://habrahabr.ru/company/badoo/blog/240479/&#34;&gt;Борьба с утечками памяти в Android. Часть 1&lt;/a&gt; от компании Badoo. Т.к. тема созвучна с моими постами из серии &lt;a href=&#34;/series/memory-leaks&#34;&gt;Memory leaks&lt;/a&gt;, то решил вкратце описать их методы.&lt;/p&gt;
+
+&lt;p&gt;Суть проблемы — использование android.os.Handler, в который постится анонимный Runnable с помощью метода &lt;a href=&#34;http://developer.android.com/reference/android/os/Handler.html#postDelayed(java.lang.Runnable, long&#34;&gt;postDelayed&lt;/a&gt;. Для демонстрации, Runnable просто меняет какой-либо TextView (т.е. содержит внутри себя ссылку mTextView), и время до выполнения Runnable берется довольно большим. Так вот, если за этот промежуток времени повернуть девайс несколько раз, то старые активити не будут собираться GC, т.к. в Java любой анонимный класс всегда имеет неявную ссылку на внешний класс.&lt;/p&gt;
+
+&lt;h3 id=&#34;toc_0&#34;&gt;Решение с использованием статического класса&lt;/h3&gt;
+
+&lt;p&gt;Переделка анонимного класса в статический проблему не решает — Activity сохранен в ссылке mContext из mTextView внутри нашей реализации Runnable.&lt;/p&gt;
+
+&lt;h3 id=&#34;toc_1&#34;&gt;Решение с использованием статического класса и WeakReference&lt;/h3&gt;
+
+&lt;p&gt;В реализации Runnable сохраняем ссылку на TextView в WeakReference. Использование WeakReference требует особой аккуратности: такая ссылка в любой момент может обнулиться. Поэтому сначала сохраняем ссылку в локальную переменную и работаем только с последней, проверив ее на null.&lt;/p&gt;
+
+&lt;p&gt;Для использования данного подхода нам необходимо:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;использовать статический внутренний или внешний класс;&lt;/li&gt;
+&lt;li&gt;использовать WeakReference для всех объектов, на которые мы ссылаемся.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Это решает проблему.&lt;/p&gt;
+
+&lt;h3 id=&#34;toc_2&#34;&gt;Очистка всех сообщений в onDestroy&lt;/h3&gt;
+
+&lt;p&gt;Добавим в onDestroy вызов метода класса Handler &lt;a href=&#34;http://developer.android.com/reference/android/os/Handler.html#removeCallbacksAndMessages(java.lang.Object)&#34;&gt;removeCallbacksAndMessages&lt;/a&gt;. Он удаляет все сообщения, находящиеся в очереди данного Handler&amp;rsquo;а. Это очень хороший способ защититься от утечки памяти, но во-первых, нужно не забыть это сделать, а во-вторых, в комментах к статье пишут, что вызов onDestroy в общем случае не гарантирован.&lt;/p&gt;
+
+&lt;p&gt;Цитата из документации — &lt;a href=&#34;http://developer.android.com/training/basics/activity-lifecycle/stopping.html&#34;&gt;Stopping and Restarting an Activity&lt;/a&gt;:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;When your activity receives a call to the onStop() method, it&amp;rsquo;s no longer visible and should release almost all resources that aren&amp;rsquo;t needed while the user is not using it. Once your activity is stopped, the system might destroy the instance if it needs to recover system memory. In extreme cases, the system might simply kill your app process without calling the activity&amp;rsquo;s final onDestroy() callback, so it&amp;rsquo;s important you use onStop() to release resources that might leak memory.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h3 id=&#34;toc_3&#34;&gt;Решение с использованием WeakHandler&lt;/h3&gt;
+
+&lt;p&gt;Команда Badoo написала свой Handler — &lt;a href=&#34;github.com/badoo/android-weak-handler&#34;&gt;WeakHandler&lt;/a&gt;. Это класс, который ведет себя совершенно как Handler, но исключает утечки памяти за счет использования слабых ссылок.&lt;/p&gt;
+
+&lt;p&gt;Главная идея — держать жесткую ссылку на сообщения или Runnable до тех пор, пока существует жесткая ссылка на WeakHandler. Как только WeakHandler может быть удален из памяти, все остальное должно быть удалено вместе с ним.&lt;/p&gt;
+
+&lt;h3 id=&#34;toc_4&#34;&gt;Выводы&lt;/h3&gt;
+
+&lt;p&gt;Отличная и годная статья :)&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Подводные камни смены ориентации в Android</title>
-      <link>http://dddpaul.github.io/blog/2014/08/02/orientation_change/</link>
+      <link>http://dddpaul.github.io/blog/2014/08/02/orientation-change/</link>
       <pubDate>Sat, 02 Aug 2014 13:32:33 UTC</pubDate>
       
-      <guid>http://dddpaul.github.io/blog/2014/08/02/orientation_change/</guid>
+      <guid>http://dddpaul.github.io/blog/2014/08/02/orientation-change/</guid>
       <description>
 
 &lt;p&gt;После нескольких дней отладки приложения пришел к выводу, что смена ориентации (rotation, orientation change) требует к себе особого внимания. Наконец-то я понял тех разработчиков, которые напрочь запрещают смену ориентации в своем софте. Ведь, не зная некоторых неочевидных нюансов, можно легко получить крах приложения или утечку памяти.&lt;/p&gt;
@@ -85,11 +136,11 @@ pager.setAdapter( null );
     </item>
     
     <item>
-      <title>Memory leaks</title>
-      <link>http://dddpaul.github.io/blog/2014/08/01/memory-leaks/</link>
+      <title>Android memory leaks</title>
+      <link>http://dddpaul.github.io/blog/2014/08/01/android-memory-leaks/</link>
       <pubDate>Fri, 01 Aug 2014 13:34:16 UTC</pubDate>
       
-      <guid>http://dddpaul.github.io/blog/2014/08/01/memory-leaks/</guid>
+      <guid>http://dddpaul.github.io/blog/2014/08/01/android-memory-leaks/</guid>
       <description>&lt;p&gt;Articles:&lt;/p&gt;
 
 &lt;ul&gt;

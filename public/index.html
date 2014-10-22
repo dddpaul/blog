@@ -76,12 +76,66 @@
       
   <div class="post">
     <h1 class="post-title">
-      <a href="http://dddpaul.github.io/blog/2014/10/16/angularjs_directive/">
+      <a href="http://dddpaul.github.io/blog/2014/10/21/android-memory-leak-badoo/">
+        Борьба с утечками памяти в Android (Badoo)
+      </a>
+    </h1>
+
+    <span class="post-date">2014-10-21</span>
+
+    
+
+<p>На хабре появилась статья <a href="http://habrahabr.ru/company/badoo/blog/240479/">Борьба с утечками памяти в Android. Часть 1</a> от компании Badoo. Т.к. тема созвучна с моими постами из серии <a href="/series/memory-leaks">Memory leaks</a>, то решил вкратце описать их методы.</p>
+
+<p>Суть проблемы — использование android.os.Handler, в который постится анонимный Runnable с помощью метода <a href="http://developer.android.com/reference/android/os/Handler.html#postDelayed(java.lang.Runnable, long">postDelayed</a>. Для демонстрации, Runnable просто меняет какой-либо TextView (т.е. содержит внутри себя ссылку mTextView), и время до выполнения Runnable берется довольно большим. Так вот, если за этот промежуток времени повернуть девайс несколько раз, то старые активити не будут собираться GC, т.к. в Java любой анонимный класс всегда имеет неявную ссылку на внешний класс.</p>
+
+<h3 id="toc_0">Решение с использованием статического класса</h3>
+
+<p>Переделка анонимного класса в статический проблему не решает — Activity сохранен в ссылке mContext из mTextView внутри нашей реализации Runnable.</p>
+
+<h3 id="toc_1">Решение с использованием статического класса и WeakReference</h3>
+
+<p>В реализации Runnable сохраняем ссылку на TextView в WeakReference. Использование WeakReference требует особой аккуратности: такая ссылка в любой момент может обнулиться. Поэтому сначала сохраняем ссылку в локальную переменную и работаем только с последней, проверив ее на null.</p>
+
+<p>Для использования данного подхода нам необходимо:</p>
+
+<ul>
+<li>использовать статический внутренний или внешний класс;</li>
+<li>использовать WeakReference для всех объектов, на которые мы ссылаемся.</li>
+</ul>
+
+<p>Это решает проблему.</p>
+
+<h3 id="toc_2">Очистка всех сообщений в onDestroy</h3>
+
+<p>Добавим в onDestroy вызов метода класса Handler <a href="http://developer.android.com/reference/android/os/Handler.html#removeCallbacksAndMessages(java.lang.Object)">removeCallbacksAndMessages</a>. Он удаляет все сообщения, находящиеся в очереди данного Handler&rsquo;а. Это очень хороший способ защититься от утечки памяти, но во-первых, нужно не забыть это сделать, а во-вторых, в комментах к статье пишут, что вызов onDestroy в общем случае не гарантирован.</p>
+
+<p>Цитата из документации — <a href="http://developer.android.com/training/basics/activity-lifecycle/stopping.html">Stopping and Restarting an Activity</a>:</p>
+
+<blockquote>
+<p>When your activity receives a call to the onStop() method, it&rsquo;s no longer visible and should release almost all resources that aren&rsquo;t needed while the user is not using it. Once your activity is stopped, the system might destroy the instance if it needs to recover system memory. In extreme cases, the system might simply kill your app process without calling the activity&rsquo;s final onDestroy() callback, so it&rsquo;s important you use onStop() to release resources that might leak memory.</p>
+</blockquote>
+
+<h3 id="toc_3">Решение с использованием WeakHandler</h3>
+
+<p>Команда Badoo написала свой Handler — <a href="github.com/badoo/android-weak-handler">WeakHandler</a>. Это класс, который ведет себя совершенно как Handler, но исключает утечки памяти за счет использования слабых ссылок.</p>
+
+<p>Главная идея — держать жесткую ссылку на сообщения или Runnable до тех пор, пока существует жесткая ссылка на WeakHandler. Как только WeakHandler может быть удален из памяти, все остальное должно быть удалено вместе с ним.</p>
+
+<h3 id="toc_4">Выводы</h3>
+
+<p>Отличная и годная статья :)</p>
+
+  </div>
+  
+  <div class="post">
+    <h1 class="post-title">
+      <a href="http://dddpaul.github.io/blog/2014/10/16/angularjs-directive/">
         Директивы AngularJS
       </a>
     </h1>
 
-    <span class="post-date">Thu, Oct 16, 2014</span>
+    <span class="post-date">2014-10-16</span>
 
     <p>Статьи:</p>
 
@@ -97,12 +151,12 @@
   
   <div class="post">
     <h1 class="post-title">
-      <a href="http://dddpaul.github.io/blog/2014/08/02/orientation_change/">
+      <a href="http://dddpaul.github.io/blog/2014/08/02/orientation-change/">
         Подводные камни смены ориентации в Android
       </a>
     </h1>
 
-    <span class="post-date">Sat, Aug 2, 2014</span>
+    <span class="post-date">2014-08-02</span>
 
     
 
@@ -175,12 +229,12 @@ pager.setAdapter( null );
   
   <div class="post">
     <h1 class="post-title">
-      <a href="http://dddpaul.github.io/blog/2014/08/01/memory-leaks/">
-        Memory leaks
+      <a href="http://dddpaul.github.io/blog/2014/08/01/android-memory-leaks/">
+        Android memory leaks
       </a>
     </h1>
 
-    <span class="post-date">Fri, Aug 1, 2014</span>
+    <span class="post-date">2014-08-01</span>
 
     <p>Articles:</p>
 
@@ -228,7 +282,7 @@ pager.setAdapter( null );
       </a>
     </h1>
 
-    <span class="post-date">Wed, Jul 30, 2014</span>
+    <span class="post-date">2014-07-30</span>
 
     <p>Some articles:</p>
 
@@ -254,7 +308,7 @@ pager.setAdapter( null );
       </a>
     </h1>
 
-    <span class="post-date">Tue, Jul 29, 2014</span>
+    <span class="post-date">2014-07-29</span>
 
     <p>Some articles:</p>
 
@@ -285,7 +339,7 @@ pager.setAdapter( null );
       </a>
     </h1>
 
-    <span class="post-date">Mon, Jul 28, 2014</span>
+    <span class="post-date">2014-07-28</span>
 
     <p>This blog is based on <a href="http://hugo.spf13.com/">Hugo</a> - static site generator written on Go. GitHub interaction is organized with use of <a href="http://hugo.spf13.com/tutorials/github_pages_blog">Hosting on GitHub Pages</a> tutorial. See &ldquo;Configure git Workflow&rdquo; section specifically.</p>
 

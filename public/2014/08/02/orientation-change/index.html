@@ -72,8 +72,12 @@
 
 <div class="content container">
     <div class="post">
-        <h1>Подводные камни смены ориентации в Android</h1>
+        <h1 class="post-title">Подводные камни смены ориентации в Android</h1>
         <span class="post-date">2014-08-02</span>
+        
+        
+        <p class="seriesname">Series: <a href="http://dddpaul.github.io/blog/series/memory-leaks">Memory leaks</a></p>
+        
         
 
 <p>После нескольких дней отладки приложения пришел к выводу, что смена ориентации (rotation, orientation change) требует к себе особого внимания. Наконец-то я понял тех разработчиков, которые напрочь запрещают смену ориентации в своем софте. Ведь, не зная некоторых неочевидных нюансов, можно легко получить крах приложения или утечку памяти.</p>
@@ -143,6 +147,37 @@ pager.setAdapter( null );
 
     </div>
 
+    
+        
+        
+        <hr/>
+        <p><a href="" id="series"></a>This is a post in the <b>Memory leaks</b> series.<br/>
+            Other posts in this series:</p>
+        
+        
+        <ul class="series">
+            
+            <li>2014-10-21 -
+                
+                    <a href="http://dddpaul.github.io/blog/2014/10/21/android-memory-leak-badoo/">Борьба с утечками памяти в Android (Badoo) </a>
+                
+            </li>
+            
+            <li>2014-08-02 -
+                
+                    Подводные камни смены ориентации в Android
+                
+            </li>
+            
+            <li>2014-08-01 -
+                
+                    <a href="http://dddpaul.github.io/blog/2014/08/01/android-memory-leaks/">Android memory leaks </a>
+                
+            </li>
+            
+        </ul>
+    
+
     Tags:
     <ul id="tags">
         
@@ -157,3 +192,4 @@ pager.setAdapter( null );
 
 </body>
 </html>
+

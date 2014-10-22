@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-      <title>Posts on Dev notes </title>
+      <title>Memory-Leaks on Dev notes </title>
       <generator uri="https://hugo.spf13.com">Hugo</generator>
-    <link>http://dddpaul.github.io/posts/index.xml</link>
+    <link>http://dddpaul.github.io/series/memory-leaks/index.xml</link>
     <language>en-us</language>
     
     
@@ -57,24 +57,6 @@
 &lt;h3 id=&#34;toc_4&#34;&gt;Выводы&lt;/h3&gt;
 
 &lt;p&gt;Отличная и годная статья :)&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Директивы AngularJS</title>
-      <link>http://dddpaul.github.io/blog/2014/10/16/angularjs-directive/</link>
-      <pubDate>Thu, 16 Oct 2014 11:26:00 UTC</pubDate>
-      
-      <guid>http://dddpaul.github.io/blog/2014/10/16/angularjs-directive/</guid>
-      <description>&lt;p&gt;Статьи:&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;http://statelessprime.blogspot.ru/2013/04/angularjs-directive-overview.html&#34;&gt;AngularJS directive: Overview&lt;/a&gt;. Очень крутой сборник статей про директивы. Помогает понять, как правильно создать шаблон директивы вручную (через функции compile и link), а также, как навесить watches.&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://www.benlesh.com/2013/08/angularjs-watch-digest-and-apply-oh-my.html&#34;&gt;AngularJS: $watch, $digest and $apply&lt;/a&gt;. Еще раз об этих базовых функциях AngularJS почитать никогда не вредно.&lt;/li&gt;
-&lt;li&gt;A Practical Guide to AngularJS Directives - &lt;a href=&#34;http://www.sitepoint.com/practical-guide-angularjs-directives/&#34;&gt;Part 1&lt;/a&gt;, &lt;a href=&#34;http://www.sitepoint.com/practical-guide-angularjs-directives-part-two/&#34;&gt;Part 2&lt;/a&gt;. Подробно про директивы.&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://odetocode.com/blogs/scott/archive/2013/09/11/moving-data-in-an-angularjs-directive.aspx&#34;&gt;Moving Data In An AngularJS Directive&lt;/a&gt;. Передача данных в директиву.&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://www.undefinednull.com/2014/02/11/mastering-the-scope-of-a-directive-in-angularjs/&#34;&gt;Mastering the Scope of the Directives in AngularJS&lt;/a&gt;. Очень подробно разжевано про scope в директивах.&lt;/li&gt;
-&lt;/ul&gt;
 </description>
     </item>
     
@@ -195,69 +177,6 @@ pager.setAdapter( null );
 &lt;ul&gt;
 &lt;li&gt;&lt;a href=&#34;http://www.youtube.com/watch?v=_CruQY55HOk&#34;&gt; Google I/O 2011: Memory management for Android Apps &lt;/a&gt;. Presentation by &lt;a href=&#34;http://dubroy.com&#34;&gt;Patrick Dubroy&lt;/a&gt;.&lt;/li&gt;
 &lt;/ul&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Multi-pane layout for tablets</title>
-      <link>http://dddpaul.github.io/blog/2014/07/30/multi-pane/</link>
-      <pubDate>Wed, 30 Jul 2014 07:14:41 UTC</pubDate>
-      
-      <guid>http://dddpaul.github.io/blog/2014/07/30/multi-pane/</guid>
-      <description>&lt;p&gt;Some articles:&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;http://commonsware.com/blog/2012/08/20/multiple-view-viewpager-options.html&#34;&gt;Multiple-View ViewPager Options&lt;/a&gt;. It&amp;rsquo;s a brilliant set of methods to display several fragments simultaneously using ViewPager. I&amp;rsquo;ve personally used first method (overriding getPageWidth() in PagerAdapter) - it works for me.&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://shashikawlp.wordpress.com/2012/12/13/android-viewpager-with-multiple-views/&#34;&gt;Android ViewPager with Multiple Views&lt;/a&gt;. Looks like third method from previous article.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;And StackOverflow discussions:&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;http://stackoverflow.com/questions/9468581/can-viewpager-have-multiple-views-in-per-page&#34;&gt;Can ViewPager have multiple views in per page?&lt;/a&gt;. There are links to CommonsWare article and description of method used for some Dutch newspaper app. Looks nice but it display one full page and part of another - it&amp;rsquo;s not what I need now.&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://stackoverflow.com/questions/23149850/viewpager-with-different-adapters-for-portrait-and-landscape&#34;&gt;ViewPager with different adapters for portrait and landscape&lt;/a&gt;. Dude wants to show A,B,C fragments in portrait mode and A,C only in landscape. Not my case but interesting.&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://stackoverflow.com/questions/6465680/how-to-determine-the-screen-width-in-terms-of-dp-or-dip-at-runtime-in-android&#34;&gt;How to determine the screen width in terms of dp or dip at runtime in Android?&lt;/a&gt;. Describe how to calculate screen size in &amp;ldquo;density-independent pixels&amp;rdquo;. It&amp;rsquo;s useful for decide when which layout to use programmatically.&lt;/li&gt;
-&lt;/ul&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Retaining state with headless fragments</title>
-      <link>http://dddpaul.github.io/blog/2014/07/29/headless-fragments/</link>
-      <pubDate>Tue, 29 Jul 2014 07:55:41 UTC</pubDate>
-      
-      <guid>http://dddpaul.github.io/blog/2014/07/29/headless-fragments/</guid>
-      <description>&lt;p&gt;Some articles:&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;Official &lt;a href=&#34;http://developer.android.com/guide/components/fragments.html&#34;&gt;Fragments guide&lt;/a&gt;. Has some clues for headless fragments (see &amp;ldquo;Adding a fragment without a UI&amp;rdquo;).&lt;/li&gt;
-&lt;li&gt;Superb &lt;a href=&#34;http://www.vogella.com/tutorials/AndroidFragments/article.html&#34;&gt;multi-pane fragments tutorial&lt;/a&gt; from Lars Vogel. Contains some tips for &lt;a href=&#34;http://www.vogella.com/tutorials/AndroidFragments/article.html#headlessfragments&#34;&gt;headless fragments&lt;/a&gt;.&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://techbandhu.wordpress.com/2013/07/02/android-headless-fragment/&#34;&gt;Android best tip to work with fragments and orientation change&lt;/a&gt;. More detailed headless fragments technique description.&lt;/li&gt;
-&lt;li&gt;Headless fragment example - &lt;a href=&#34;https://android.googlesource.com/platform/development/+/master/samples/ApiDemos/src/com/example/android/apis/app/FragmentRetainInstance.java&#34;&gt;FragmentRetainInstance.java&lt;/a&gt;. In this code headless fragment is created from other fragment. In my case it&amp;rsquo;s inappropriate because of Robolectric testing (recursive fragment transactions).&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://www.intertech.com/Blog/saving-and-retrieving-android-instance-state-part-2/&#34;&gt;Saving (And Retrieving) Android Instance State – Part 2&lt;/a&gt;. Details about retained fragments. Neat retained fragment lifecycle.&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://www.androiddesignpatterns.com/2013/04/retaining-objects-across-config-changes.html&#34;&gt;Handling Configuration Changes with Fragments&lt;/a&gt;. Main advice - Manage the Object Inside a Retained Fragment.&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://ideaventure.blogspot.com.au/2014/01/android-activityfragment-life-cycle.html&#34;&gt;Android Activity/Fragment life cycle analysis&lt;/a&gt;. Full logging of all lifecycle method calls in different situations.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;And StackOverflow discussions:&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;http://stackoverflow.com/questions/11591302/unable-to-use-fragment-setretaininstance-as-a-replacement-for-activity-onretai&#34;&gt;Unable to use Fragment.setRetainInstance() as a replacement for Activity.onRetainNonConfigurationInstance()&lt;/a&gt;. How to preserve fragments with WebViews and AsyncTasks. One of the answers is to override Fragment.onDestroy() and save asynctasks to Application object.&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://stackoverflow.com/questions/12640316/further-understanding-setretaininstancetrue&#34;&gt;Further understanding setRetainInstance(true)&lt;/a&gt;. Retained fragment lifecycle logs.&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://stackoverflow.com/questions/8417885/android-fragments-retaining-an-asynctask-during-screen-rotation-or-configuratio&#34;&gt;Android Fragments. Retaining an AsyncTask during screen rotation or configuration change&lt;/a&gt;. Retained fragment with inner asynctask example and much more. AsyncTask has reference to fragment - it&amp;rsquo;s interesting.&lt;/li&gt;
-&lt;/ul&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>First note</title>
-      <link>http://dddpaul.github.io/blog/2014/07/28/oldest/</link>
-      <pubDate>Mon, 28 Jul 2014 12:00:00 UTC</pubDate>
-      
-      <guid>http://dddpaul.github.io/blog/2014/07/28/oldest/</guid>
-      <description>&lt;p&gt;This blog is based on &lt;a href=&#34;http://hugo.spf13.com/&#34;&gt;Hugo&lt;/a&gt; - static site generator written on Go. GitHub interaction is organized with use of &lt;a href=&#34;http://hugo.spf13.com/tutorials/github_pages_blog&#34;&gt;Hosting on GitHub Pages&lt;/a&gt; tutorial. See &amp;ldquo;Configure git Workflow&amp;rdquo; section specifically.&lt;/p&gt;
-
-&lt;p&gt;And for all of the git 1.7.x (and older) users - you can grab git-subtree from contrib dirertory of &lt;a href=&#34;https://github.com/git/git&#34;&gt;Git repo&lt;/a&gt;. I&amp;rsquo;ve used git-subtree from latest 1.8.x. It&amp;rsquo;s just a shell script, run make, chmod +x and copy it to /usr/lib/git-core.&lt;/p&gt;
 </description>
     </item>
     
