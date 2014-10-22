@@ -30,9 +30,8 @@
  *
  * Update the foundational and global aspects of the page.
  */
-
 html {
-  font-family: "PT Sans", Helvetica, Arial, sans-serif;
+  font-family: Helvetica, Arial, sans-serif;
 }
 @media (min-width: 48rem) {
   html {
@@ -126,9 +125,9 @@ a.sidebar-nav-item:focus {
   padding-bottom: 4rem;
 }
 
-@media (min-width: 48rem) {
+@media (min-width: 58rem) {
   .content {
-    max-width: 44rem;
+    max-width: 54rem;
     margin-left: 20rem;
     margin-right: 2rem;
   }
