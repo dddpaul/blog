@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+  <title> Дистанционное управление Motion с помощью Go &middot; Dev notes </title>
+
+  
+  <link rel="stylesheet" href="http://dddpaul.github.io/blog/css/poole.css">
+  <link rel="stylesheet" href="http://dddpaul.github.io/blog/css/syntax.css">
+  <link rel="stylesheet" href="http://dddpaul.github.io/blog/css/hyde.css">
+
+  
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144-precomposed.png">
+  <link rel="shortcut icon" href="/favicon.ico">
+
+  
+  <link href="" rel="alternate" type="application/rss+xml" title="Dev notes" />
+
+</head>
+
+<body>
+
+<div class="sidebar">
+    <div class="container sidebar-sticky">
+        <div class="sidebar-about">
+            <h1>Dev notes</h1>
+            <p class="lead">
+                 Notes about Android, Java, JavaScript, Go and other technical stuff 
+            </p>
+        </div>
+
+        <ul class="sidebar-nav">
+            <li><a href="/">Home</a> </li>
+            
+            <li><a href="http://github.com/dddpaul"> GitHub </a></li>
+            
+            <li><a href="http://google.com/&#43;PavelDerendyaev1"> Google&#43; </a></li>
+            
+            <li><a href="index.xml"> RSS </a></li>
+            
+        </ul>
+
+        Tags:
+        <ul>
+            
+            
+            <li><a href="/blog/tags/android">android</a> </li>
+            
+            <li><a href="/blog/tags/angularjs">angularjs</a> </li>
+            
+            <li><a href="/blog/tags/git">git</a> </li>
+            
+            <li><a href="/blog/tags/golang">golang</a> </li>
+            
+            <li><a href="/blog/tags/hugo">hugo</a> </li>
+            
+            <li><a href="/blog/tags/java">java</a> </li>
+            
+            <li><a href="/blog/tags/javascript">javascript</a> </li>
+            
+            <li><a href="/blog/tags/linux">linux</a> </li>
+            
+        </ul>
+
+        <p>&copy; 2014. All rights reserved. </p>
+    </div>
+</div>
+
+
+<div class="content container">
+    <div class="post">
+        <h1 class="post-title">Дистанционное управление Motion с помощью Go</h1>
+        <span class="post-date">2014-11-14</span>
+        
+        <p>Цель — сделать удобное управление для сервачка с системой motion detection.  В качестве сервера пригодился классический нетбук Asus Eee PC 701 4-х гигабайтным SSD на борту. На него была установлена Ubuntu 14.04.</p>
+
+<p>Задачи:</p>
+
+<ol>
+<li>Собственно, motion detection (для этого был использован <a href="http://www.lavrsen.dk/foswiki/bin/view/Motion/WebHome">Motion</a>).</li>
+<li>Управление настройками Motion через ИК-пульт.</li>
+<li>Вывод всех сообщений от Motion и сигналов от пульта на консоль (<em>/dev/tty1</em>).</li>
+<li>Минимальное время работы экрана (быстрый переход в энергосберегающйй режим, просыпание по сигналу от пульта).</li>
+</ol>
+
+<p><strong>1.</strong> Motion ставится элементарно — <code>apt-get install motion</code>. Важные настройки:</p>
+
+<pre><code># Максимальный fps
+framerate 5
+
+# Снимать на максимальном fps только во время движения
+webcam_motion on
+
+# Выкрутил в максимум, чтобы избежать срабатывания на включение света
+
+lightswitch 100
+
+# Кол-во кадров с движением, необходимых для генерации события
+minimum_motion_frames 3
+
+# Записать кадры до движения
+pre_capture 5
+
+# Записать кадры после движения
+post_capture 5
+
+# Маска для определения области детекции, легко делается в Gimp'е из снимка с камеры.
+# Области, закрашенные черным, игнорируются.
+mask_file /path/to/mask.pgm
+
+# Время определения окончания движения (если за 15 секунд после начала движения
+# не было никаких поползновений, то считаем, что событие-движение закончилось)
+gap 15
+
+# Отключить создание снимков
+output_normal off
+
+# Обозначать движение прямоугольником 
+locate on
+
+# Запуск скрипта по началу движения (это симлимк, который указывает на реальный скрипт).
+# Изменение симлинка осущестляется по команде с пульта (см. п. 2 про конфиг) 
+on_event_start &quot;/etc/motion/handlers/on_event_start&quot;
+</code></pre>
+
+<p>Для подгонки чувствительности, порога шумов и т.д., нужно использовать setup mode, который активируется при запуске <code>
+motion -s</code>.</p>
+
+<p>При этом в mjpeg-трансляции область детекции будет обозначена черным, шумы — серым, а распознанное движение — синим.</p>
+
+<p><strong>2.</strong> Для управления нетбуком был использован <a href="http://www.dx.com/p/multimedia-ir-remote-controller-with-usb-receiver-for-pc-1-cr2025-26368#.VGYO33WUe24">ИК-пульт с USB-приемником</a>. Подобные пульты есть и на aliexpress, и ebay. USB-приемник эмулирует HID-устройство, по сути — обычную клавиатуру.</p>
+
+<p>Для работы с символьными устройствами ввода в Linux есть подсистема <a href="http://en.wikipedia.org/wiki/Evdev">evdev</a>. Потестить распознавание сигналов с пульта можно с помощью утилиты <a href="http://manpages.ubuntu.com/manpages/trusty/man1/evtest.1.html">evtest</a>.</p>
+
+<p>На гитхабе нашелся <a href="https://github.com/gvalkov/golang-evdev">пакет для работы с evdev на Go</a>. Проект больше не поддерживается, так что я отфоркался от <a href="https://github.com/ungerik/golang-evdev">более свежего форка</a> и сделал rebase на ядро Ubuntu 14.04 (3.13.0-39-generic на данный момент):</p>
+
+<pre><code>cd evdev
+make ecodes.go
+</code></pre>
+
+<p>Поверх golang-evdev я написал <a href="https://github.com/dddpaul/go-evhandler">evhandler</a>. Эта программа запускается от root&rsquo;а и слушает события от input device, указанного в конфиге (как правило, <em>/etc/evhandler.toml</em>).  Мой конфиг:</p>
+
+<pre><code>[params]
+    device = &quot;/dev/input/event9&quot;
+
+[actions]
+    KEY_STOPCD = &quot;service motion stop&quot;
+    KEY_PLAYPAUSE = &quot;service motion start&quot;
+    KEY_PAGEUP = &quot;/etc/motion/handlers/handler-select up&quot;
+    KEY_PAGEDOWN = &quot;/etc/motion/handlers/handler-select down&quot;
+</code></pre>
+
+<p>В разделе <em>actions</em> на кнопки пульта вешаются команды: остановка и запуск motion, и выбор скрипта, который будет запущен при детекции движения. Скрипт <em>handler-select</em> &ldquo;передвигает&rdquo; симлинк <em>on_event_start</em> вверх/вниз, устанавливая, таким образом, реальный скрипт, который будет запускаться. Коллекцию этих скриптов я выложил в <a href="https://github.com/dddpaul/motion-handlers">отдельный проект</a>.</p>
+
+<p>Для чтения и парсинга конфигов я использовал пакет <a href="http://spf13.com/project/viper">Viper</a>. Это очень классная либа от автора <a href="http://gohugo.io/">Hugo</a>, которая умеет:</p>
+
+<ul>
+<li>парсить YAML, TOML и JSON;</li>
+<li>искать конфиги в разных местах (например, сначала в $HOME, а потом в <em>/etc</em>);</li>
+<li>устанавливать значение по-умолчанию и переопределять значения из конфига значениями из CLI.</li>
+</ul>
+
+<p><strong>3.</strong> evhandler должен использовать в качестве стандартного вывода <em>/dev/tty1</em>. Сделать это очень просто.</p>
+
+<p>Сначала отключим ввод с <em>/dev/tty1</em> — <code>rm /etc/init/tty1.conf</code>.</p>
+
+<p>И создадим новый upstart job в <em>/etc/init/evhandler.conf</em>:</p>
+
+<pre><code># evhandler - Simple key press listener and handler written in Go
+
+start on runlevel [2345]
+stop on runlevel [!2345]
+
+respawn
+
+exec /path/to/go-evhandler &gt; /dev/tty1 2&gt;&amp;1
+</code></pre>
+
+<p>Теперь evhandler будет запускаться при загрузке, а также перезапускаться, если его процесс будет прибит. Для ручного запуска — <code>
+start evhandler</code>.</p>
+
+<ol>
+<li>Управлять включением энергосберегающего режима (а именно, гашением экрана) можно з-мя способами:</li>
+<li>указать <code>consoleblank=sss</code> (где sss - секунды) в параметрах ядра (<em>GRUB_CMDLINE_LINUX</em> в <em>/etc/default/grub</em>);</li>
+<li>использовать команду <code>setterm -blank mm</code> (где mm - минуты), для включения — <code>setterm -blank poke</code>;</li>
+<li>использовать специальные ESC-последовательности в команде <code>echo</code>.</li>
+</ol>
+
+<p><code>consoleblank</code> давал странный эффект - после загрузки системы экран становился пустым, но было видно, что подсветка работает. При нажатии клавиш он загорался и полностью погасал через заданное время.</p>
+
+<p><code>setterm</code> через ssh у меня как-то не заработал.</p>
+
+<p>И только управляющая ESC-последовательность для терминала подошла отлично — <code>echo -e '\033[9;X]</code> (где X - минуты).</p>
+
+<p>Для автоматического запуска этой команды создадим job <em>/etc/init/tty1.conf</em>:</p>
+
+<pre><code># tty1 - getty
+#
+# This service is used to maintain a getty on tty1 from the point the system is
+# started until it is shut down again.
+
+start on stopped rc RUNLEVEL=[2345] and (
+            not-container or
+            container CONTAINER=lxc or
+            container CONTAINER=lxc-libvirt)
+
+stop on runlevel [!2345]
+
+# Blank screen after 1 minute timeout
+# See http://www.armadeus.com/wiki/index.php?title=FrameBuffer
+exec echo -ne &quot;\033[9;1]&quot; &gt; /dev/tty1
+</code></pre>
+
+<p>Ссылки:</p>
+
+<ul>
+<li><a href="https://github.com/dddpaul/go-evhandler">Evhandler : Simple key press listener and handler written in Go</a></li>
+<li><a href="http://spf13.com/project/viper">Viper : Go Configuration Management With Fangs</a></li>
+<li><a href="http://superuser.com/a/154388">Change Linux console screen blanking behavior</a></li>
+<li><a href="http://raspberrypi.stackexchange.com/questions/10374/wake-console-screen-with-ssh">Wake console screen with SSH</a></li>
+<li><a href="http://www.armadeus.com/wiki/index.php?title=FrameBuffer">ArmadeusWiki - Framebuffer</a></li>
+</ul>
+
+    </div>
+
+    
+
+    Tags:
+    <ul id="tags">
+        
+        
+        <li><a href="/blog/tags/golang">Golang</a> </li>
+        
+        <li><a href="/blog/tags/linux">Linux</a> </li>
+        
+    </ul>
+
+</div>
+
+</body>
+</html>
+

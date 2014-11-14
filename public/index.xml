@@ -7,7 +7,164 @@
     <language>en-us</language>
     
     
-    <updated>Tue, 21 Oct 2014 14:30:16 UTC</updated>
+    <updated>Fri, 14 Nov 2014 16:04:00 UTC</updated>
+    
+    <item>
+      <title>Дистанционное управление Motion с помощью Go</title>
+      <link>http://dddpaul.github.io/blog/2014/11/14/motion-remote-control/</link>
+      <pubDate>Fri, 14 Nov 2014 16:04:00 UTC</pubDate>
+      
+      <guid>http://dddpaul.github.io/blog/2014/11/14/motion-remote-control/</guid>
+      <description>&lt;p&gt;Цель — сделать удобное управление для сервачка с системой motion detection.  В качестве сервера пригодился классический нетбук Asus Eee PC 701 4-х гигабайтным SSD на борту. На него была установлена Ubuntu 14.04.&lt;/p&gt;
+
+&lt;p&gt;Задачи:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Собственно, motion detection (для этого был использован &lt;a href=&#34;http://www.lavrsen.dk/foswiki/bin/view/Motion/WebHome&#34;&gt;Motion&lt;/a&gt;).&lt;/li&gt;
+&lt;li&gt;Управление настройками Motion через ИК-пульт.&lt;/li&gt;
+&lt;li&gt;Вывод всех сообщений от Motion и сигналов от пульта на консоль (&lt;em&gt;/dev/tty1&lt;/em&gt;).&lt;/li&gt;
+&lt;li&gt;Минимальное время работы экрана (быстрый переход в энергосберегающйй режим, просыпание по сигналу от пульта).&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;&lt;strong&gt;1.&lt;/strong&gt; Motion ставится элементарно — &lt;code&gt;apt-get install motion&lt;/code&gt;. Важные настройки:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;# Максимальный fps
+framerate 5
+
+# Снимать на максимальном fps только во время движения
+webcam_motion on
+
+# Выкрутил в максимум, чтобы избежать срабатывания на включение света
+
+lightswitch 100
+
+# Кол-во кадров с движением, необходимых для генерации события
+minimum_motion_frames 3
+
+# Записать кадры до движения
+pre_capture 5
+
+# Записать кадры после движения
+post_capture 5
+
+# Маска для определения области детекции, легко делается в Gimp&#39;е из снимка с камеры.
+# Области, закрашенные черным, игнорируются.
+mask_file /path/to/mask.pgm
+
+# Время определения окончания движения (если за 15 секунд после начала движения
+# не было никаких поползновений, то считаем, что событие-движение закончилось)
+gap 15
+
+# Отключить создание снимков
+output_normal off
+
+# Обозначать движение прямоугольником 
+locate on
+
+# Запуск скрипта по началу движения (это симлимк, который указывает на реальный скрипт).
+# Изменение симлинка осущестляется по команде с пульта (см. п. 2 про конфиг) 
+on_event_start &amp;quot;/etc/motion/handlers/on_event_start&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Для подгонки чувствительности, порога шумов и т.д., нужно использовать setup mode, который активируется при запуске &lt;code&gt;
+motion -s&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;При этом в mjpeg-трансляции область детекции будет обозначена черным, шумы — серым, а распознанное движение — синим.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;2.&lt;/strong&gt; Для управления нетбуком был использован &lt;a href=&#34;http://www.dx.com/p/multimedia-ir-remote-controller-with-usb-receiver-for-pc-1-cr2025-26368#.VGYO33WUe24&#34;&gt;ИК-пульт с USB-приемником&lt;/a&gt;. Подобные пульты есть и на aliexpress, и ebay. USB-приемник эмулирует HID-устройство, по сути — обычную клавиатуру.&lt;/p&gt;
+
+&lt;p&gt;Для работы с символьными устройствами ввода в Linux есть подсистема &lt;a href=&#34;http://en.wikipedia.org/wiki/Evdev&#34;&gt;evdev&lt;/a&gt;. Потестить распознавание сигналов с пульта можно с помощью утилиты &lt;a href=&#34;http://manpages.ubuntu.com/manpages/trusty/man1/evtest.1.html&#34;&gt;evtest&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;На гитхабе нашелся &lt;a href=&#34;https://github.com/gvalkov/golang-evdev&#34;&gt;пакет для работы с evdev на Go&lt;/a&gt;. Проект больше не поддерживается, так что я отфоркался от &lt;a href=&#34;https://github.com/ungerik/golang-evdev&#34;&gt;более свежего форка&lt;/a&gt; и сделал rebase на ядро Ubuntu 14.04 (3.13.0-39-generic на данный момент):&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;cd evdev
+make ecodes.go
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Поверх golang-evdev я написал &lt;a href=&#34;https://github.com/dddpaul/go-evhandler&#34;&gt;evhandler&lt;/a&gt;. Эта программа запускается от root&amp;rsquo;а и слушает события от input device, указанного в конфиге (как правило, &lt;em&gt;/etc/evhandler.toml&lt;/em&gt;).  Мой конфиг:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;[params]
+    device = &amp;quot;/dev/input/event9&amp;quot;
+
+[actions]
+    KEY_STOPCD = &amp;quot;service motion stop&amp;quot;
+    KEY_PLAYPAUSE = &amp;quot;service motion start&amp;quot;
+    KEY_PAGEUP = &amp;quot;/etc/motion/handlers/handler-select up&amp;quot;
+    KEY_PAGEDOWN = &amp;quot;/etc/motion/handlers/handler-select down&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;В разделе &lt;em&gt;actions&lt;/em&gt; на кнопки пульта вешаются команды: остановка и запуск motion, и выбор скрипта, который будет запущен при детекции движения. Скрипт &lt;em&gt;handler-select&lt;/em&gt; &amp;ldquo;передвигает&amp;rdquo; симлинк &lt;em&gt;on_event_start&lt;/em&gt; вверх/вниз, устанавливая, таким образом, реальный скрипт, который будет запускаться. Коллекцию этих скриптов я выложил в &lt;a href=&#34;https://github.com/dddpaul/motion-handlers&#34;&gt;отдельный проект&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Для чтения и парсинга конфигов я использовал пакет &lt;a href=&#34;http://spf13.com/project/viper&#34;&gt;Viper&lt;/a&gt;. Это очень классная либа от автора &lt;a href=&#34;http://gohugo.io/&#34;&gt;Hugo&lt;/a&gt;, которая умеет:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;парсить YAML, TOML и JSON;&lt;/li&gt;
+&lt;li&gt;искать конфиги в разных местах (например, сначала в $HOME, а потом в &lt;em&gt;/etc&lt;/em&gt;);&lt;/li&gt;
+&lt;li&gt;устанавливать значение по-умолчанию и переопределять значения из конфига значениями из CLI.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;3.&lt;/strong&gt; evhandler должен использовать в качестве стандартного вывода &lt;em&gt;/dev/tty1&lt;/em&gt;. Сделать это очень просто.&lt;/p&gt;
+
+&lt;p&gt;Сначала отключим ввод с &lt;em&gt;/dev/tty1&lt;/em&gt; — &lt;code&gt;rm /etc/init/tty1.conf&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;И создадим новый upstart job в &lt;em&gt;/etc/init/evhandler.conf&lt;/em&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;# evhandler - Simple key press listener and handler written in Go
+
+start on runlevel [2345]
+stop on runlevel [!2345]
+
+respawn
+
+exec /path/to/go-evhandler &amp;gt; /dev/tty1 2&amp;gt;&amp;amp;1
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Теперь evhandler будет запускаться при загрузке, а также перезапускаться, если его процесс будет прибит. Для ручного запуска — &lt;code&gt;
+start evhandler&lt;/code&gt;.&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Управлять включением энергосберегающего режима (а именно, гашением экрана) можно з-мя способами:&lt;/li&gt;
+&lt;li&gt;указать &lt;code&gt;consoleblank=sss&lt;/code&gt; (где sss - секунды) в параметрах ядра (&lt;em&gt;GRUB_CMDLINE_LINUX&lt;/em&gt; в &lt;em&gt;/etc/default/grub&lt;/em&gt;);&lt;/li&gt;
+&lt;li&gt;использовать команду &lt;code&gt;setterm -blank mm&lt;/code&gt; (где mm - минуты), для включения — &lt;code&gt;setterm -blank poke&lt;/code&gt;;&lt;/li&gt;
+&lt;li&gt;использовать специальные ESC-последовательности в команде &lt;code&gt;echo&lt;/code&gt;.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;&lt;code&gt;consoleblank&lt;/code&gt; давал странный эффект - после загрузки системы экран становился пустым, но было видно, что подсветка работает. При нажатии клавиш он загорался и полностью погасал через заданное время.&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;setterm&lt;/code&gt; через ssh у меня как-то не заработал.&lt;/p&gt;
+
+&lt;p&gt;И только управляющая ESC-последовательность для терминала подошла отлично — &lt;code&gt;echo -e &#39;\033[9;X]&lt;/code&gt; (где X - минуты).&lt;/p&gt;
+
+&lt;p&gt;Для автоматического запуска этой команды создадим job &lt;em&gt;/etc/init/tty1.conf&lt;/em&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;# tty1 - getty
+#
+# This service is used to maintain a getty on tty1 from the point the system is
+# started until it is shut down again.
+
+start on stopped rc RUNLEVEL=[2345] and (
+            not-container or
+            container CONTAINER=lxc or
+            container CONTAINER=lxc-libvirt)
+
+stop on runlevel [!2345]
+
+# Blank screen after 1 minute timeout
+# See http://www.armadeus.com/wiki/index.php?title=FrameBuffer
+exec echo -ne &amp;quot;\033[9;1]&amp;quot; &amp;gt; /dev/tty1
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Ссылки:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/dddpaul/go-evhandler&#34;&gt;Evhandler : Simple key press listener and handler written in Go&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://spf13.com/project/viper&#34;&gt;Viper : Go Configuration Management With Fangs&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://superuser.com/a/154388&#34;&gt;Change Linux console screen blanking behavior&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://raspberrypi.stackexchange.com/questions/10374/wake-console-screen-with-ssh&#34;&gt;Wake console screen with SSH&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.armadeus.com/wiki/index.php?title=FrameBuffer&#34;&gt;ArmadeusWiki - Framebuffer&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
     
     <item>
       <title>Борьба с утечками памяти в Android (Badoo)</title>

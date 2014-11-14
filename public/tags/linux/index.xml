@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-      <title>Golang on Dev notes </title>
+      <title>Linux on Dev notes </title>
       <generator uri="https://hugo.spf13.com">Hugo</generator>
-    <link>http://dddpaul.github.io/tags/golang/index.xml</link>
+    <link>http://dddpaul.github.io/tags/linux/index.xml</link>
     <language>en-us</language>
     
     
@@ -163,18 +163,6 @@ exec echo -ne &amp;quot;\033[9;1]&amp;quot; &amp;gt; /dev/tty1
 &lt;li&gt;&lt;a href=&#34;http://raspberrypi.stackexchange.com/questions/10374/wake-console-screen-with-ssh&#34;&gt;Wake console screen with SSH&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;http://www.armadeus.com/wiki/index.php?title=FrameBuffer&#34;&gt;ArmadeusWiki - Framebuffer&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>First note</title>
-      <link>http://dddpaul.github.io/blog/2014/07/28/oldest/</link>
-      <pubDate>Mon, 28 Jul 2014 12:00:00 UTC</pubDate>
-      
-      <guid>http://dddpaul.github.io/blog/2014/07/28/oldest/</guid>
-      <description>&lt;p&gt;This blog is based on &lt;a href=&#34;http://hugo.spf13.com/&#34;&gt;Hugo&lt;/a&gt; - static site generator written on Go. GitHub interaction is organized with use of &lt;a href=&#34;http://hugo.spf13.com/tutorials/github_pages_blog&#34;&gt;Hosting on GitHub Pages&lt;/a&gt; tutorial. See &amp;ldquo;Configure git Workflow&amp;rdquo; section specifically.&lt;/p&gt;
-
-&lt;p&gt;And for all of the git 1.7.x (and older) users - you can grab git-subtree from contrib dirertory of &lt;a href=&#34;https://github.com/git/git&#34;&gt;Git repo&lt;/a&gt;. I&amp;rsquo;ve used git-subtree from latest 1.8.x. It&amp;rsquo;s just a shell script, run make, chmod +x and copy it to /usr/lib/git-core.&lt;/p&gt;
 </description>
     </item>
     
