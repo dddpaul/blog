@@ -90,43 +90,42 @@
 
 <p><strong>1.</strong> Motion ставится элементарно — <code>apt-get install motion</code>. Важные настройки:</p>
 
-<pre><code># Максимальный fps
+<div class="highlight"><pre><span class="c"># Максимальный fps</span>
 framerate 5
 
-# Снимать на максимальном fps только во время движения
+<span class="c"># Снимать на максимальном fps только во время движения</span>
 webcam_motion on
 
-# Выкрутил в максимум, чтобы избежать срабатывания на включение света
-
+<span class="c"># Выкрутил в максимум, чтобы избежать срабатывания на включение света</span>
 lightswitch 100
 
-# Кол-во кадров с движением, необходимых для генерации события
+<span class="c"># Кол-во кадров с движением, необходимых для генерации события</span>
 minimum_motion_frames 3
 
-# Записать кадры до движения
+<span class="c"># Записать кадры до движения</span>
 pre_capture 5
 
-# Записать кадры после движения
+<span class="c"># Записать кадры после движения</span>
 post_capture 5
 
-# Маска для определения области детекции, легко делается в Gimp'е из снимка с камеры.
-# Области, закрашенные черным, игнорируются.
+<span class="c"># Маска для определения области детекции, легко делается в Gimp&#39;е из снимка с камеры.</span>
+<span class="c"># Области, закрашенные черным, игнорируются.</span>
 mask_file /path/to/mask.pgm
 
-# Время определения окончания движения (если за 15 секунд после начала движения
-# не было никаких поползновений, то считаем, что событие-движение закончилось)
+<span class="c"># Время определения окончания движения (если за 15 секунд после начала движения</span>
+<span class="c"># не было никаких поползновений, то считаем, что событие-движение закончилось)</span>
 gap 15
 
-# Отключить создание снимков
+<span class="c"># Отключить создание снимков</span>
 output_normal off
 
-# Обозначать движение прямоугольником 
+<span class="c"># Обозначать движение прямоугольником </span>
 locate on
 
-# Запуск скрипта по началу движения (это симлимк, который указывает на реальный скрипт).
-# Изменение симлинка осущестляется по команде с пульта (см. п. 2 про конфиг) 
-on_event_start &quot;/etc/motion/handlers/on_event_start&quot;
-</code></pre>
+<span class="c"># Запуск скрипта по началу движения (это симлимк, который указывает на реальный скрипт).</span>
+<span class="c"># Изменение симлинка осущестляется по команде с пульта (см. п. 2 про конфиг) </span>
+on_event_start <span class="s2">&quot;/etc/motion/handlers/on_event_start&quot;</span>
+</pre></div>
 
 <p>Для подгонки чувствительности, порога шумов и т.д., нужно использовать setup mode, который активируется при запуске <code>
 motion -s</code>.</p>
@@ -171,15 +170,15 @@ make ecodes.go
 
 <p>И создадим новый upstart job в <em>/etc/init/evhandler.conf</em>:</p>
 
-<pre><code># evhandler - Simple key press listener and handler written in Go
+<div class="highlight"><pre><span class="c"># evhandler - Simple key press listener and handler written in Go</span>
 
-start on runlevel [2345]
-stop on runlevel [!2345]
+start on runlevel <span class="o">[</span>2345<span class="o">]</span>
+stop on runlevel <span class="o">[</span>!2345<span class="o">]</span>
 
 respawn
 
-exec /path/to/go-evhandler &gt; /dev/tty1 2&gt;&amp;1
-</code></pre>
+<span class="nb">exec</span> /path/to/go-evhandler &gt; /dev/tty1 2&gt;<span class="p">&amp;</span>1
+</pre></div>
 
 <p>Теперь evhandler будет запускаться при загрузке, а также перезапускаться, если его процесс будет прибит. Для ручного запуска — <code>
 start evhandler</code>.</p>
@@ -199,22 +198,22 @@ start evhandler</code>.</p>
 
 <p>Для автоматического запуска этой команды создадим job <em>/etc/init/tty1.conf</em>:</p>
 
-<pre><code># tty1 - getty
-#
-# This service is used to maintain a getty on tty1 from the point the system is
-# started until it is shut down again.
+<div class="highlight"><pre><span class="c"># tty1 - getty</span>
+<span class="c">#</span>
+<span class="c"># This service is used to maintain a getty on tty1 from the point the system is</span>
+<span class="c"># started until it is shut down again.</span>
 
-start on stopped rc RUNLEVEL=[2345] and (
+start on stopped rc <span class="nv">RUNLEVEL</span><span class="o">=[</span>2345<span class="o">]</span> and <span class="o">(</span>
             not-container or
-            container CONTAINER=lxc or
-            container CONTAINER=lxc-libvirt)
+            container <span class="nv">CONTAINER</span><span class="o">=</span>lxc or
+            container <span class="nv">CONTAINER</span><span class="o">=</span>lxc-libvirt<span class="o">)</span>
 
-stop on runlevel [!2345]
+stop on runlevel <span class="o">[</span>!2345<span class="o">]</span>
 
-# Blank screen after 1 minute timeout
-# See http://www.armadeus.com/wiki/index.php?title=FrameBuffer
-exec echo -ne &quot;\033[9;1]&quot; &gt; /dev/tty1
-</code></pre>
+<span class="c"># Blank screen after 1 minute timeout</span>
+<span class="c"># See http://www.armadeus.com/wiki/index.php?title=FrameBuffer</span>
+<span class="nb">exec echo</span> -ne <span class="s2">&quot;\033[9;1]&quot;</span> &gt; /dev/tty1
+</pre></div>
 
 <p>Ссылки:</p>
 
@@ -241,6 +240,25 @@ exec echo -ne &quot;\033[9;1]&quot; &gt; /dev/tty1
     </ul>
 
 </div>
+
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+
+(function() {
+    
+    
+    if (window.location.hostname == "localhost")
+        return;
+
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    var disqus_shortname = '';
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
 
 </body>
 </html>
