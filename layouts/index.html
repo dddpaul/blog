@@ -3,24 +3,24 @@
 
 {{ template "partials/sidebar.html" . }}
 
-    <div class="content container">
-<div class="posts">
+<div class="content container">
+    <div class="posts">
 
-      {{ range .Data.Pages }}
-  <div class="post">
-    <h1 class="post-title">
-      <a href="{{ .Permalink }}">
-        {{ .Title }}
-      </a>
-    </h1>
+        {{ range first 10 .Data.Pages }}
+        <div class="post">
+            <h1 class="post-title">
+                <a href="{{ .Permalink }}">
+                    {{ .Title }}
+                </a>
+            </h1>
 
-    <span class="post-date">{{ .Date.Format "2006-01-02" }}</span>
+            <span class="post-date">{{ .Date.Format "2006-01-02" }}</span>
 
-    {{ .Content }}
-  </div>
-  {{ end }}
-</div>
+            {{ .Content }}
+        </div>
+        {{ end }}
+    </div>
 
 
-  </body>
+</body>
 </html>
