@@ -78,6 +78,35 @@
         
         <div class="post">
             <h1 class="post-title">
+                <a href="http://dddpaul.github.io/blog/2014/12/21/method-handle-logger/">
+                    Using method handles to get logger
+                </a>
+            </h1>
+
+            <span class="post-date">2014-12-21</span>
+
+            <p>One more quote from <a href="http://www.manning.com/evans/">The Well-Grounded Java Developer</a> by Benjamin J. Evans and Martijn Verburg about useful feature of <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/invoke/MethodHandle.html">MethodHandle</a>.</p>
+
+<hr />
+
+<p>One additional feature that method handles provide is the ability to determine the current class from a static context. If you’ve ever written logging code (such as for log4j) that looked like this,</p>
+
+<pre><code>Logger lgr = LoggerFactory.getLogger(MyClass.class);
+</code></pre>
+
+<p>you know that this code is fragile. If it’s refactored to move into a superclass or subclass, the explicit class name would cause problems With Java 7, however, you can write this:</p>
+
+<pre><code>Logger lgr = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+</code></pre>
+
+<hr />
+
+<p>It&rsquo;s really works :)</p>
+
+        </div>
+        
+        <div class="post">
+            <h1 class="post-title">
                 <a href="http://dddpaul.github.io/blog/2014/12/06/jmm-1/">
                     Java Memory Model in few words
                 </a>

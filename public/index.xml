@@ -7,7 +7,33 @@
     <language>en-us</language>
     
     
-    <updated>Sat, 06 Dec 2014 18:33:46 UTC</updated>
+    <updated>Sun, 21 Dec 2014 13:36:15 UTC</updated>
+    
+    <item>
+      <title>Using method handles to get logger</title>
+      <link>http://dddpaul.github.io/blog/2014/12/21/method-handle-logger/</link>
+      <pubDate>Sun, 21 Dec 2014 13:36:15 UTC</pubDate>
+      
+      <guid>http://dddpaul.github.io/blog/2014/12/21/method-handle-logger/</guid>
+      <description>&lt;p&gt;One more quote from &lt;a href=&#34;http://www.manning.com/evans/&#34;&gt;The Well-Grounded Java Developer&lt;/a&gt; by Benjamin J. Evans and Martijn Verburg about useful feature of &lt;a href=&#34;http://docs.oracle.com/javase/7/docs/api/java/lang/invoke/MethodHandle.html&#34;&gt;MethodHandle&lt;/a&gt;.&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;One additional feature that method handles provide is the ability to determine the current class from a static context. If you’ve ever written logging code (such as for log4j) that looked like this,&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;Logger lgr = LoggerFactory.getLogger(MyClass.class);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;you know that this code is fragile. If it’s refactored to move into a superclass or subclass, the explicit class name would cause problems With Java 7, however, you can write this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;Logger lgr = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;It&amp;rsquo;s really works :)&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Java Memory Model in few words</title>
