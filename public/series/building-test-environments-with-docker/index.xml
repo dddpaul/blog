@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-      <title>Организация-Тестовых-Окружений-С-Помощью-Docker on Dev notes </title>
+      <title>Building-Test-Environments-With-Docker on Dev notes </title>
       <generator uri="https://hugo.spf13.com">Hugo</generator>
-    <link>http://dddpaul.github.io/series/d0bed180d0b3d0b0d0bdd0b8d0b7d0b0d186d0b8d18f-d182d0b5d181d182d0bed0b2d18bd185-d0bed0bad180d183d0b6d0b5d0bdd0b8d0b9-d181-d0bfd0bed0bcd0bed189d18cd18e-docker/index.xml</link>
+    <link>http://dddpaul.github.io/series/building-test-environments-with-docker/index.xml</link>
     <language>en-us</language>
     
     
@@ -11,10 +11,10 @@
     
     <item>
       <title>Связывание контейнеров</title>
-      <link>http://dddpaul.github.io/blog/2015/01/08/docker-test-env-2/</link>
+      <link>http://dddpaul.github.io/blog/2015/01/08/docker-linking/</link>
       <pubDate>Thu, 08 Jan 2015 13:49:06 UTC</pubDate>
       
-      <guid>http://dddpaul.github.io/blog/2015/01/08/docker-test-env-2/</guid>
+      <guid>http://dddpaul.github.io/blog/2015/01/08/docker-linking/</guid>
       <description>&lt;p&gt;При создании тестовых окружений из нескольких контейнеров неизбежно возникает задача их взаимного связывания. Набивший оскомину пример: контейнеру с приложением нужен контейнер БД. В нашем же случае, контейнеру с балансером нужны контейнеры с апстримами.&lt;/p&gt;
 
 &lt;p&gt;Статья &lt;a href=&#34;https://docs.docker.com/userguide/dockerlinks/&#34;&gt;Linking Containers Together&lt;/a&gt; полностью раскрывает вопрос линковки контейнеров. Осветим вкратце лишь основные моменты:&lt;/p&gt;
@@ -83,10 +83,10 @@ APP1_PORT=tcp://172.17.0.28:22
     
     <item>
       <title>Подготовка и запуск docker-контейнеров</title>
-      <link>http://dddpaul.github.io/blog/2015/01/04/docker-test-env-1/</link>
+      <link>http://dddpaul.github.io/blog/2015/01/04/docker-prepare/</link>
       <pubDate>Sun, 04 Jan 2015 13:49:06 UTC</pubDate>
       
-      <guid>http://dddpaul.github.io/blog/2015/01/04/docker-test-env-1/</guid>
+      <guid>http://dddpaul.github.io/blog/2015/01/04/docker-prepare/</guid>
       <description>
 
 &lt;p&gt;Сразу оговорюсь, что все docker-контейнеры основаны на &lt;a href=&#34;http://phusion.github.io/baseimage-docker/&#34;&gt;baseimage-docker&lt;/a&gt;. Этот образ позволяет запускать в контейнере несколько приложений с помощью супервизора &lt;a href=&#34;http://smarden.org/runit/&#34;&gt;runit&lt;/a&gt; и содержит ssh, cron, syslog &amp;ldquo;из коробки&amp;rdquo;.&lt;/p&gt;
