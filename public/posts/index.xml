@@ -15,7 +15,9 @@
       <pubDate>Thu, 08 Jan 2015 13:49:06 UTC</pubDate>
       
       <guid>http://dddpaul.github.io/blog/2015/01/08/docker-linking/</guid>
-      <description>&lt;p&gt;При создании тестовых окружений из нескольких контейнеров неизбежно возникает задача их взаимного связывания. Набивший оскомину пример: контейнеру с приложением нужен контейнер БД. В нашем же случае, контейнеру с балансером нужны контейнеры с апстримами.&lt;/p&gt;
+      <description>&lt;p&gt;Это вторая статья цикла &lt;a href=&#34;/series/building-test-environments-with-docker&#34;&gt;Building test environments with Docker&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;При создании тестовых окружений из нескольких контейнеров неизбежно возникает задача их взаимного связывания. Набивший оскомину пример: контейнеру с приложением нужен контейнер БД. В нашем же случае, контейнеру с балансером нужны контейнеры с апстримами.&lt;/p&gt;
 
 &lt;p&gt;Статья &lt;a href=&#34;https://docs.docker.com/userguide/dockerlinks/&#34;&gt;Linking Containers Together&lt;/a&gt; полностью раскрывает вопрос линковки контейнеров. Осветим вкратце лишь основные моменты:&lt;/p&gt;
 
@@ -88,6 +90,8 @@ APP1_PORT=tcp://172.17.0.28:22
       
       <guid>http://dddpaul.github.io/blog/2015/01/04/docker-prepare/</guid>
       <description>
+
+&lt;p&gt;Это первая статья цикла &lt;a href=&#34;/series/building-test-environments-with-docker&#34;&gt;Building test environments with Docker&lt;/a&gt;.&lt;/p&gt;
 
 &lt;p&gt;Сразу оговорюсь, что все docker-контейнеры основаны на &lt;a href=&#34;http://phusion.github.io/baseimage-docker/&#34;&gt;baseimage-docker&lt;/a&gt;. Этот образ позволяет запускать в контейнере несколько приложений с помощью супервизора &lt;a href=&#34;http://smarden.org/runit/&#34;&gt;runit&lt;/a&gt; и содержит ssh, cron, syslog &amp;ldquo;из коробки&amp;rdquo;.&lt;/p&gt;
 
