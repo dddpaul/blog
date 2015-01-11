@@ -1,4 +1,4 @@
-baseurl = "http://dddpaul.github.io/blog"
+baseurl = "http://dddpaul.github.io/blog/"
 languageCode = "en-us"
 title = "Dev notes"
 theme = "hyde"
@@ -7,14 +7,13 @@ pygmentsuseclasses = true
 [params]
     Description = "Notes about Android, Java, JavaScript, Go and other technical stuff"
     disqusShortname = "dddpaul-github"
-    Path = "/blog" # Comment out to test tags on localhost
 
 [Taxonomies]
     tag = "tags"
     series = "series"
 
 [permalinks]
-    posts = "/blog/:year/:month/:day/:filename/"
+    posts = "/:year/:month/:day/:filename/"
 
 [[menu.main]]
     Name = "Google+"

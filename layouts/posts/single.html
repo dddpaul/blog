@@ -37,7 +37,7 @@
 
     Tags:
     <ul id="tags">
-        {{ $path := .Site.Params.Path }}
+        {{ $path := .Site.BaseUrl }}
         {{ range .Params.tags }}
         <li><a href="{{ $path }}/tags/{{ . | urlize }}">{{ . }}</a> </li>
         {{ end }}
