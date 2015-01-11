@@ -7,7 +7,7 @@ tags = [ "Android", "Java" ]
 
 +++
 
-На хабре появилась статья [Борьба с утечками памяти в Android. Часть 1](http://habrahabr.ru/company/badoo/blog/240479/) от компании Badoo. Т.к. тема созвучна с моими постами из серии [Memory leaks](/series/memory-leaks), то решил вкратце описать их методы.
+На хабре появилась статья [Борьба с утечками памяти в Android. Часть 1](http://habrahabr.ru/company/badoo/blog/240479/) от компании Badoo. Т.к. тема созвучна с моими постами из серии "Memory leaks", то решил вкратце описать их методы.
 
 Суть проблемы — использование android.os.Handler, в который постится анонимный Runnable с помощью метода [postDelayed](http://developer.android.com/reference/android/os/Handler.html#postDelayed(java.lang.Runnable, long). Для демонстрации, Runnable просто меняет какой-либо TextView (т.е. содержит внутри себя ссылку mTextView), и время до выполнения Runnable берется довольно большим. Так вот, если за этот промежуток времени повернуть девайс несколько раз, то старые активити не будут собираться GC, т.к. в Java любой анонимный класс всегда имеет неявную ссылку на внешний класс.
 
