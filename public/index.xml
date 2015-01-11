@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-      <title>Recent Content on Dev notes </title>
-      <generator uri="https://hugo.spf13.com">Hugo</generator>
-    <link>http://dddpaul.github.io/index.xml</link>
+    <title>Dev notes</title>
+    <link>http://dddpaul.github.io/blog/</link>
+    <description>Recent content on Dev notes</description>
+    <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     
     
-    <updated>Thu, 08 Jan 2015 13:49:06 UTC</updated>
+    <lastBuildDate>Thu, 08 Jan 2015 13:49:06 UTC</lastBuildDate>
+    <atom:link href="http://dddpaul.github.io/blog/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>Связывание контейнеров</title>
@@ -15,7 +17,7 @@
       <pubDate>Thu, 08 Jan 2015 13:49:06 UTC</pubDate>
       
       <guid>http://dddpaul.github.io/blog/2015/01/08/docker-linking/</guid>
-      <description>&lt;p&gt;Это вторая статья цикла &lt;a href=&#34;/series/building-test-environments-with-docker&#34;&gt;Building test environments with Docker&lt;/a&gt;.&lt;/p&gt;
+      <description>&lt;p&gt;Это вторая статья цикла &lt;a href=&#34;http://dddpaul.github.io/blog/series/building-test-environments-with-docker&#34;&gt;Building test environments with Docker&lt;/a&gt;.&lt;/p&gt;
 
 &lt;p&gt;При создании тестовых окружений из нескольких контейнеров неизбежно возникает задача их взаимного связывания. Набивший оскомину пример: контейнеру с приложением нужен контейнер БД. В нашем же случае, контейнеру с балансером нужны контейнеры с апстримами.&lt;/p&gt;
 
@@ -91,7 +93,7 @@ APP1_PORT=tcp://172.17.0.28:22
       <guid>http://dddpaul.github.io/blog/2015/01/04/docker-prepare/</guid>
       <description>
 
-&lt;p&gt;Это первая статья цикла &lt;a href=&#34;/series/building-test-environments-with-docker&#34;&gt;Building test environments with Docker&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Это первая статья цикла &lt;a href=&#34;http://dddpaul.github.io/blog/series/building-test-environments-with-docker&#34;&gt;Building test environments with Docker&lt;/a&gt;.&lt;/p&gt;
 
 &lt;p&gt;Сразу оговорюсь, что все docker-контейнеры основаны на &lt;a href=&#34;http://phusion.github.io/baseimage-docker/&#34;&gt;baseimage-docker&lt;/a&gt;. Этот образ позволяет запускать в контейнере несколько приложений с помощью супервизора &lt;a href=&#34;http://smarden.org/runit/&#34;&gt;runit&lt;/a&gt; и содержит ssh, cron, syslog &amp;ldquo;из коробки&amp;rdquo;.&lt;/p&gt;
 
@@ -99,7 +101,7 @@ APP1_PORT=tcp://172.17.0.28:22
 
 &lt;p&gt;Кроме того, я привык использовать сервера приложений в связке с nginx, и baseimage-docker позволяет легко это сделать.&lt;/p&gt;
 
-&lt;h3 id=&#34;toc_0&#34;&gt;Базовый образ&lt;/h3&gt;
+&lt;h3 id=&#34;базовый-образ:4df06129fe4804053dfd65ac4e205d9e&#34;&gt;Базовый образ&lt;/h3&gt;
 
 &lt;p&gt;При создании базового образа выполняются две вещи:&lt;/p&gt;
 
@@ -134,7 +136,7 @@ CMD [&amp;quot;/sbin/my_init&amp;quot;]
 
 &lt;p&gt;Также на контейнер можно зайти по ssh: &lt;code&gt;ssh -p 2022 root@localhost&lt;/code&gt;.&lt;/p&gt;
 
-&lt;h3 id=&#34;toc_1&#34;&gt;Образ с nginx&lt;/h3&gt;
+&lt;h3 id=&#34;образ-с-nginx:4df06129fe4804053dfd65ac4e205d9e&#34;&gt;Образ с nginx&lt;/h3&gt;
 
 &lt;p&gt;Сборка &lt;a href=&#34;https://github.com/dddpaul/docker-nginx&#34;&gt;docker-nginx&lt;/a&gt;: &lt;code&gt;docker build -t smile/nginx .&lt;/code&gt;&lt;/p&gt;
 
@@ -147,7 +149,7 @@ CMD [&amp;quot;/sbin/my_init&amp;quot;]
 &lt;pre&gt;&lt;code&gt;docker run --privileged --rm -it -p 2022:22 smile/nginx /sbin/my_init -- bash -l
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h3 id=&#34;toc_2&#34;&gt;Остальные образы&lt;/h3&gt;
+&lt;h3 id=&#34;остальные-образы:4df06129fe4804053dfd65ac4e205d9e&#34;&gt;Остальные образы&lt;/h3&gt;
 
 &lt;p&gt;На основе docker-nginx можно строить более сложные образы, такие как &lt;a href=&#34;https://github.com/dddpaul/docker-java7-server&#34;&gt;docker-java7-server&lt;/a&gt; и  &lt;a href=&#34;https://github.com/dddpaul/docker-tomcat7&#34;&gt;docker-tomcat7&lt;/a&gt;. На основе последнего уже строятся образы для конечных приложений.&lt;/p&gt;
 </description>
@@ -241,42 +243,57 @@ CMD [&amp;quot;/sbin/my_init&amp;quot;]
 
 &lt;p&gt;&lt;strong&gt;1.&lt;/strong&gt; Motion ставится элементарно — &lt;code&gt;apt-get install motion&lt;/code&gt;. Важные настройки:&lt;/p&gt;
 
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;span class=&#34;c&#34;&gt;# Максимальный fps&lt;/span&gt;
-framerate 5
+&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&amp;lt;h1 &lt;span class=&#34;nv&#34;&gt;id&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;максимальный-fps:dd5d68c20919ac64bfba0b5fb31117b8&amp;quot;&lt;/span&gt;&amp;gt;Максимальный fps&amp;lt;/h1&amp;gt;
 
-&lt;span class=&#34;c&#34;&gt;# Снимать на максимальном fps только во время движения&lt;/span&gt;
-webcam_motion on
+&amp;lt;p&amp;gt;framerate 5&amp;lt;/p&amp;gt;
 
-&lt;span class=&#34;c&#34;&gt;# Выкрутил в максимум, чтобы избежать срабатывания на включение света&lt;/span&gt;
-lightswitch 100
+&amp;lt;h1 &lt;span class=&#34;nv&#34;&gt;id&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;снимать-на-максимальном-fps-только-во-время-движения:dd5d68c20919ac64bfba0b5fb31117b8&amp;quot;&lt;/span&gt;&amp;gt;Снимать на максимальном fps только во время движения&amp;lt;/h1&amp;gt;
 
-&lt;span class=&#34;c&#34;&gt;# Кол-во кадров с движением, необходимых для генерации события&lt;/span&gt;
-minimum_motion_frames 3
+&amp;lt;p&amp;gt;webcam_motion on&amp;lt;/p&amp;gt;
 
-&lt;span class=&#34;c&#34;&gt;# Записать кадры до движения&lt;/span&gt;
-pre_capture 5
+&amp;lt;h1 &lt;span class=&#34;nv&#34;&gt;id&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;выкрутил-в-максимум-чтобы-избежать-срабатывания-на-включение-света:dd5d68c20919ac64bfba0b5fb31117b8&amp;quot;&lt;/span&gt;&amp;gt;Выкрутил в максимум, чтобы избежать срабатывания на включение света&amp;lt;/h1&amp;gt;
 
-&lt;span class=&#34;c&#34;&gt;# Записать кадры после движения&lt;/span&gt;
-post_capture 5
+&amp;lt;p&amp;gt;lightswitch 100&amp;lt;/p&amp;gt;
 
-&lt;span class=&#34;c&#34;&gt;# Маска для определения области детекции, легко делается в Gimp&amp;#39;е из снимка с камеры.&lt;/span&gt;
-&lt;span class=&#34;c&#34;&gt;# Области, закрашенные черным, игнорируются.&lt;/span&gt;
-mask_file /path/to/mask.pgm
+&amp;lt;h1 &lt;span class=&#34;nv&#34;&gt;id&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;кол-во-кадров-с-движением-необходимых-для-генерации-события:dd5d68c20919ac64bfba0b5fb31117b8&amp;quot;&lt;/span&gt;&amp;gt;Кол-во кадров с движением, необходимых для генерации события&amp;lt;/h1&amp;gt;
 
-&lt;span class=&#34;c&#34;&gt;# Время определения окончания движения (если за 15 секунд после начала движения&lt;/span&gt;
-&lt;span class=&#34;c&#34;&gt;# не было никаких поползновений, то считаем, что событие-движение закончилось)&lt;/span&gt;
-gap 15
+&amp;lt;p&amp;gt;minimum_motion_frames 3&amp;lt;/p&amp;gt;
 
-&lt;span class=&#34;c&#34;&gt;# Отключить создание снимков&lt;/span&gt;
-output_normal off
+&amp;lt;h1 &lt;span class=&#34;nv&#34;&gt;id&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;записать-кадры-до-движения:dd5d68c20919ac64bfba0b5fb31117b8&amp;quot;&lt;/span&gt;&amp;gt;Записать кадры до движения&amp;lt;/h1&amp;gt;
 
-&lt;span class=&#34;c&#34;&gt;# Обозначать движение прямоугольником &lt;/span&gt;
-locate on
+&amp;lt;p&amp;gt;pre_capture 5&amp;lt;/p&amp;gt;
 
-&lt;span class=&#34;c&#34;&gt;# Запуск скрипта по началу движения (это симлимк, который указывает на реальный скрипт).&lt;/span&gt;
-&lt;span class=&#34;c&#34;&gt;# Изменение симлинка осущестляется по команде с пульта (см. п. 2 про конфиг) &lt;/span&gt;
-on_event_start &lt;span class=&#34;s2&#34;&gt;&amp;quot;/etc/motion/handlers/on_event_start&amp;quot;&lt;/span&gt;
+&amp;lt;h1 &lt;span class=&#34;nv&#34;&gt;id&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;записать-кадры-после-движения:dd5d68c20919ac64bfba0b5fb31117b8&amp;quot;&lt;/span&gt;&amp;gt;Записать кадры после движения&amp;lt;/h1&amp;gt;
+
+&amp;lt;p&amp;gt;post_capture 5&amp;lt;/p&amp;gt;
+
+&amp;lt;h1 &lt;span class=&#34;nv&#34;&gt;id&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;маска-для-определения-области-детекции-легко-делается-в-gimp-е-из-снимка-с-камеры:dd5d68c20919ac64bfba0b5fb31117b8&amp;quot;&lt;/span&gt;&amp;gt;Маска для определения области детекции, легко делается в Gimp’е из снимка с камеры.&amp;lt;/h1&amp;gt;
+
+&amp;lt;h1 &lt;span class=&#34;nv&#34;&gt;id&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;области-закрашенные-черным-игнорируются:dd5d68c20919ac64bfba0b5fb31117b8&amp;quot;&lt;/span&gt;&amp;gt;Области, закрашенные черным, игнорируются.&amp;lt;/h1&amp;gt;
+
+&amp;lt;p&amp;gt;mask_file /path/to/mask.pgm&amp;lt;/p&amp;gt;
+
+&amp;lt;h1 &lt;span class=&#34;nv&#34;&gt;id&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;время-определения-окончания-движения-если-за-15-секунд-после-начала-движения:dd5d68c20919ac64bfba0b5fb31117b8&amp;quot;&lt;/span&gt;&amp;gt;Время определения окончания движения &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;если за &lt;span class=&#34;m&#34;&gt;15&lt;/span&gt; секунд после начала движения&amp;lt;/h1&amp;gt;
+
+&amp;lt;h1 &lt;span class=&#34;nv&#34;&gt;id&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;не-было-никаких-поползновений-то-считаем-что-событие-движение-закончилось:dd5d68c20919ac64bfba0b5fb31117b8&amp;quot;&lt;/span&gt;&amp;gt;не было никаких поползновений, то считаем, что событие-движение закончилось&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;&amp;lt;/h1&amp;gt;
+
+&amp;lt;p&amp;gt;gap 15&amp;lt;/p&amp;gt;
+
+&amp;lt;h1 &lt;span class=&#34;nv&#34;&gt;id&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;отключить-создание-снимков:dd5d68c20919ac64bfba0b5fb31117b8&amp;quot;&lt;/span&gt;&amp;gt;Отключить создание снимков&amp;lt;/h1&amp;gt;
+
+&amp;lt;p&amp;gt;output_normal off&amp;lt;/p&amp;gt;
+
+&amp;lt;h1 &lt;span class=&#34;nv&#34;&gt;id&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;обозначать-движение-прямоугольником:dd5d68c20919ac64bfba0b5fb31117b8&amp;quot;&lt;/span&gt;&amp;gt;Обозначать движение прямоугольником&amp;lt;/h1&amp;gt;
+
+&amp;lt;p&amp;gt;locate on&amp;lt;/p&amp;gt;
+
+&amp;lt;h1 &lt;span class=&#34;nv&#34;&gt;id&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;запуск-скрипта-по-началу-движения-это-симлимк-который-указывает-на-реальный-скрипт:dd5d68c20919ac64bfba0b5fb31117b8&amp;quot;&lt;/span&gt;&amp;gt;Запуск скрипта по началу движения &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;это симлимк, который указывает на реальный скрипт&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;.&amp;lt;/h1&amp;gt;
+
+&amp;lt;h1 &lt;span class=&#34;nv&#34;&gt;id&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;изменение-симлинка-осущестляется-по-команде-с-пульта-см-п-2-про-конфиг:dd5d68c20919ac64bfba0b5fb31117b8&amp;quot;&lt;/span&gt;&amp;gt;Изменение симлинка осущестляется по команде с пульта &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;см. п. &lt;span class=&#34;m&#34;&gt;2&lt;/span&gt; про конфиг&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;&amp;lt;/h1&amp;gt;
+
+&amp;lt;p&amp;gt;on_event_start “/etc/motion/handlers/on_event_start”&amp;lt;/p&amp;gt;
 &lt;/pre&gt;&lt;/div&gt;
+&lt;/p&gt;
 
 &lt;p&gt;Для подгонки чувствительности, порога шумов и т.д., нужно использовать setup mode, который активируется при запуске &lt;code&gt;
 motion -s&lt;/code&gt;.&lt;/p&gt;
@@ -321,15 +338,16 @@ make ecodes.go
 
 &lt;p&gt;И создадим новый upstart job в &lt;em&gt;/etc/init/evhandler.conf&lt;/em&gt;:&lt;/p&gt;
 
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;span class=&#34;c&#34;&gt;# evhandler - Simple key press listener and handler written in Go&lt;/span&gt;
+&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&amp;lt;h1 &lt;span class=&#34;nv&#34;&gt;id&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;evhandler-simple-key-press-listener-and-handler-written-in-go:dd5d68c20919ac64bfba0b5fb31117b8&amp;quot;&lt;/span&gt;&amp;gt;evhandler - Simple key press listener and handler written in Go&amp;lt;/h1&amp;gt;
 
-start on runlevel &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;2345&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
-stop on runlevel &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;!2345&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
+&amp;lt;p&amp;gt;start on runlevel &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;2345&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
+stop on runlevel &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;!2345&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;&amp;lt;/p&amp;gt;
 
-respawn
+&amp;lt;p&amp;gt;respawn&amp;lt;/p&amp;gt;
 
-&lt;span class=&#34;nb&#34;&gt;exec&lt;/span&gt; /path/to/go-evhandler &amp;gt; /dev/tty1 2&amp;gt;&lt;span class=&#34;p&#34;&gt;&amp;amp;&lt;/span&gt;1
+&amp;lt;p&amp;gt;exec /path/to/go-evhandler &amp;gt; /dev/tty1 2&amp;gt;&lt;span class=&#34;p&#34;&gt;&amp;amp;&lt;/span&gt;1&amp;lt;/p&amp;gt;
 &lt;/pre&gt;&lt;/div&gt;
+&lt;/p&gt;
 
 &lt;p&gt;Теперь evhandler будет запускаться при загрузке, а также перезапускаться, если его процесс будет прибит. Для ручного запуска — &lt;code&gt;
 start evhandler&lt;/code&gt;.&lt;/p&gt;
@@ -349,22 +367,28 @@ start evhandler&lt;/code&gt;.&lt;/p&gt;
 
 &lt;p&gt;Для автоматического запуска этой команды создадим job &lt;em&gt;/etc/init/tty1.conf&lt;/em&gt;:&lt;/p&gt;
 
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;span class=&#34;c&#34;&gt;# tty1 - getty&lt;/span&gt;
-&lt;span class=&#34;c&#34;&gt;#&lt;/span&gt;
-&lt;span class=&#34;c&#34;&gt;# This service is used to maintain a getty on tty1 from the point the system is&lt;/span&gt;
-&lt;span class=&#34;c&#34;&gt;# started until it is shut down again.&lt;/span&gt;
+&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&amp;lt;h1 &lt;span class=&#34;nv&#34;&gt;id&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;tty1-getty:dd5d68c20919ac64bfba0b5fb31117b8&amp;quot;&lt;/span&gt;&amp;gt;tty1 - getty&amp;lt;/h1&amp;gt;
 
-start on stopped rc &lt;span class=&#34;nv&#34;&gt;RUNLEVEL&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=[&lt;/span&gt;2345&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; and &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;
+&amp;lt;p&amp;gt;#&amp;lt;/p&amp;gt;
+
+&amp;lt;h1 &lt;span class=&#34;nv&#34;&gt;id&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;this-service-is-used-to-maintain-a-getty-on-tty1-from-the-point-the-system-is:dd5d68c20919ac64bfba0b5fb31117b8&amp;quot;&lt;/span&gt;&amp;gt;This service is used to maintain a getty on tty1 from the point the system is&amp;lt;/h1&amp;gt;
+
+&amp;lt;h1 &lt;span class=&#34;nv&#34;&gt;id&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;started-until-it-is-shut-down-again:dd5d68c20919ac64bfba0b5fb31117b8&amp;quot;&lt;/span&gt;&amp;gt;started &lt;span class=&#34;k&#34;&gt;until&lt;/span&gt; it is shut down again.&amp;lt;/h1&amp;gt;
+
+&amp;lt;p&amp;gt;start on stopped rc &lt;span class=&#34;nv&#34;&gt;RUNLEVEL&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=[&lt;/span&gt;2345&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; and &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;
             not-container or
             container &lt;span class=&#34;nv&#34;&gt;CONTAINER&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;lxc or
-            container &lt;span class=&#34;nv&#34;&gt;CONTAINER&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;lxc-libvirt&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
+            container &lt;span class=&#34;nv&#34;&gt;CONTAINER&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;lxc-libvirt&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;&amp;lt;/p&amp;gt;
 
-stop on runlevel &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;!2345&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
+&amp;lt;p&amp;gt;stop on runlevel &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;!2345&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;&amp;lt;/p&amp;gt;
 
-&lt;span class=&#34;c&#34;&gt;# Blank screen after 1 minute timeout&lt;/span&gt;
-&lt;span class=&#34;c&#34;&gt;# See http://www.armadeus.com/wiki/index.php?title=FrameBuffer&lt;/span&gt;
-&lt;span class=&#34;nb&#34;&gt;exec echo&lt;/span&gt; -ne &lt;span class=&#34;s2&#34;&gt;&amp;quot;\033[9;1]&amp;quot;&lt;/span&gt; &amp;gt; /dev/tty1
+&amp;lt;h1 &lt;span class=&#34;nv&#34;&gt;id&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;blank-screen-after-1-minute-timeout:dd5d68c20919ac64bfba0b5fb31117b8&amp;quot;&lt;/span&gt;&amp;gt;Blank screen after &lt;span class=&#34;m&#34;&gt;1&lt;/span&gt; minute timeout&amp;lt;/h1&amp;gt;
+
+&amp;lt;h1 &lt;span class=&#34;nv&#34;&gt;id&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;see-http-www-armadeus-com-wiki-index-php-title-framebuffer:dd5d68c20919ac64bfba0b5fb31117b8&amp;quot;&lt;/span&gt;&amp;gt;See &amp;lt;a &lt;span class=&#34;nv&#34;&gt;href&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;http://www.armadeus.com/wiki/index.php?title=FrameBuffer&amp;quot;&lt;/span&gt;&amp;gt;http://www.armadeus.com/wiki/index.php?title&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;FrameBuffer&amp;lt;/a&amp;gt;&amp;lt;/h1&amp;gt;
+
+&amp;lt;p&amp;gt;exec &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; -ne “&lt;span class=&#34;se&#34;&gt;\0&lt;/span&gt;33&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;9&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;1&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;” &amp;gt; /dev/tty1&amp;lt;/p&amp;gt;
 &lt;/pre&gt;&lt;/div&gt;
+&lt;/p&gt;
 
 &lt;p&gt;Ссылки:&lt;/p&gt;
 
@@ -386,15 +410,15 @@ stop on runlevel &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;!2345&lt;span class
       <guid>http://dddpaul.github.io/blog/2014/10/21/android-memory-leak-badoo/</guid>
       <description>
 
-&lt;p&gt;На хабре появилась статья &lt;a href=&#34;http://habrahabr.ru/company/badoo/blog/240479/&#34;&gt;Борьба с утечками памяти в Android. Часть 1&lt;/a&gt; от компании Badoo. Т.к. тема созвучна с моими постами из серии &lt;a href=&#34;/series/memory-leaks&#34;&gt;Memory leaks&lt;/a&gt;, то решил вкратце описать их методы.&lt;/p&gt;
+&lt;p&gt;На хабре появилась статья &lt;a href=&#34;http://habrahabr.ru/company/badoo/blog/240479/&#34;&gt;Борьба с утечками памяти в Android. Часть 1&lt;/a&gt; от компании Badoo. Т.к. тема созвучна с моими постами из серии &lt;a href=&#34;http://dddpaul.github.io/blog/series/memory-leaks&#34;&gt;Memory leaks&lt;/a&gt;, то решил вкратце описать их методы.&lt;/p&gt;
 
 &lt;p&gt;Суть проблемы — использование android.os.Handler, в который постится анонимный Runnable с помощью метода &lt;a href=&#34;http://developer.android.com/reference/android/os/Handler.html#postDelayed(java.lang.Runnable, long&#34;&gt;postDelayed&lt;/a&gt;. Для демонстрации, Runnable просто меняет какой-либо TextView (т.е. содержит внутри себя ссылку mTextView), и время до выполнения Runnable берется довольно большим. Так вот, если за этот промежуток времени повернуть девайс несколько раз, то старые активити не будут собираться GC, т.к. в Java любой анонимный класс всегда имеет неявную ссылку на внешний класс.&lt;/p&gt;
 
-&lt;h3 id=&#34;toc_0&#34;&gt;Решение с использованием статического класса&lt;/h3&gt;
+&lt;h3 id=&#34;решение-с-использованием-статического-класса:b5ecc8a59da209189d194d532f575ae4&#34;&gt;Решение с использованием статического класса&lt;/h3&gt;
 
 &lt;p&gt;Переделка анонимного класса в статический проблему не решает — Activity сохранен в ссылке mContext из mTextView внутри нашей реализации Runnable.&lt;/p&gt;
 
-&lt;h3 id=&#34;toc_1&#34;&gt;Решение с использованием статического класса и WeakReference&lt;/h3&gt;
+&lt;h3 id=&#34;решение-с-использованием-статического-класса-и-weakreference:b5ecc8a59da209189d194d532f575ae4&#34;&gt;Решение с использованием статического класса и WeakReference&lt;/h3&gt;
 
 &lt;p&gt;В реализации Runnable сохраняем ссылку на TextView в WeakReference. Использование WeakReference требует особой аккуратности: такая ссылка в любой момент может обнулиться. Поэтому сначала сохраняем ссылку в локальную переменную и работаем только с последней, проверив ее на null.&lt;/p&gt;
 
@@ -407,7 +431,7 @@ stop on runlevel &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;!2345&lt;span class
 
 &lt;p&gt;Это решает проблему.&lt;/p&gt;
 
-&lt;h3 id=&#34;toc_2&#34;&gt;Очистка всех сообщений в onDestroy&lt;/h3&gt;
+&lt;h3 id=&#34;очистка-всех-сообщений-в-ondestroy:b5ecc8a59da209189d194d532f575ae4&#34;&gt;Очистка всех сообщений в onDestroy&lt;/h3&gt;
 
 &lt;p&gt;Добавим в onDestroy вызов метода класса Handler &lt;a href=&#34;http://developer.android.com/reference/android/os/Handler.html#removeCallbacksAndMessages(java.lang.Object)&#34;&gt;removeCallbacksAndMessages&lt;/a&gt;. Он удаляет все сообщения, находящиеся в очереди данного Handler&amp;rsquo;а. Это очень хороший способ защититься от утечки памяти, но во-первых, нужно не забыть это сделать, а во-вторых, в комментах к статье пишут, что вызов onDestroy в общем случае не гарантирован.&lt;/p&gt;
 
@@ -417,13 +441,13 @@ stop on runlevel &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;!2345&lt;span class
 &lt;p&gt;When your activity receives a call to the onStop() method, it&amp;rsquo;s no longer visible and should release almost all resources that aren&amp;rsquo;t needed while the user is not using it. Once your activity is stopped, the system might destroy the instance if it needs to recover system memory. In extreme cases, the system might simply kill your app process without calling the activity&amp;rsquo;s final onDestroy() callback, so it&amp;rsquo;s important you use onStop() to release resources that might leak memory.&lt;/p&gt;
 &lt;/blockquote&gt;
 
-&lt;h3 id=&#34;toc_3&#34;&gt;Решение с использованием WeakHandler&lt;/h3&gt;
+&lt;h3 id=&#34;решение-с-использованием-weakhandler:b5ecc8a59da209189d194d532f575ae4&#34;&gt;Решение с использованием WeakHandler&lt;/h3&gt;
 
 &lt;p&gt;Команда Badoo написала свой Handler — &lt;a href=&#34;github.com/badoo/android-weak-handler&#34;&gt;WeakHandler&lt;/a&gt;. Это класс, который ведет себя совершенно как Handler, но исключает утечки памяти за счет использования слабых ссылок.&lt;/p&gt;
 
 &lt;p&gt;Главная идея — держать жесткую ссылку на сообщения или Runnable до тех пор, пока существует жесткая ссылка на WeakHandler. Как только WeakHandler может быть удален из памяти, все остальное должно быть удалено вместе с ним.&lt;/p&gt;
 
-&lt;h3 id=&#34;toc_4&#34;&gt;Выводы&lt;/h3&gt;
+&lt;h3 id=&#34;выводы:b5ecc8a59da209189d194d532f575ae4&#34;&gt;Выводы&lt;/h3&gt;
 
 &lt;p&gt;Отличная и годная статья :)&lt;/p&gt;
 
@@ -466,11 +490,11 @@ stop on runlevel &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;!2345&lt;span class
 
 &lt;p&gt;Опишу в порядке возрастания сложности, на какие подводные камни мне пришлось натолкнуться.&lt;/p&gt;
 
-&lt;h3 id=&#34;toc_0&#34;&gt;Beginner&amp;rsquo;s level&lt;/h3&gt;
+&lt;h3 id=&#34;beginner-s-level:ab7bd6db0fbb770c5dbfe85b3a43d6b3&#34;&gt;Beginner&amp;rsquo;s level&lt;/h3&gt;
 
 &lt;p&gt;Надо сохранять состояние (state) фрагментов. Не сохранил — потерял, т.к. активити и фрагменты будут пересозданы. Если стейт фрагмента сериализуется в строку, то просто переопределяем метод onSaveInstanceState(). Способ описан как в &lt;a href=&#34;http://developer.android.com/guide/components/fragments.html#Lifecycle&#34;&gt;официальной документации&lt;/a&gt;, так и в множестве других мест.&lt;/p&gt;
 
-&lt;h3 id=&#34;toc_1&#34;&gt;Intermediate&lt;/h3&gt;
+&lt;h3 id=&#34;intermediate:ab7bd6db0fbb770c5dbfe85b3a43d6b3&#34;&gt;Intermediate&lt;/h3&gt;
 
 &lt;p&gt;Не забываем про AsyncTask. Их тоже надо сохранять, ибо иначе при смене ориентации мы его потеряем. Или он что-нибудь обвалит :) Для решения этой проблемы придумана такая отличная штука, как retaining fragments. Всего один вызов setRetainInstance(true) продляет жизнь фрагменту и связанному с ним асинктаску (назовем это длинный стейт).&lt;/p&gt;
 
@@ -484,7 +508,7 @@ stop on runlevel &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;!2345&lt;span class
 
 &lt;p&gt;Итого — держим асинктаски в headless-фрагменте, который запускаем из активити. В целом, это отличная схема на все случаи жизни, а не только для приведенного примера.&lt;/p&gt;
 
-&lt;h3 id=&#34;toc_2&#34;&gt;Veteran&lt;/h3&gt;
+&lt;h3 id=&#34;veteran:ab7bd6db0fbb770c5dbfe85b3a43d6b3&#34;&gt;Veteran&lt;/h3&gt;
 
 &lt;p&gt;Копаем в сторону уже вскользь упомянутого multi-pane. Как его сделать правильно на одних фрагментах? Внятно описанный &lt;a href=&#34;http://www.vogella.com/tutorials/AndroidFragments/article.html&#34;&gt;способ от Ларса Вогеля&lt;/a&gt; требует разных активити, а я не хочу плодить сущности.&lt;/p&gt;
 
@@ -503,7 +527,7 @@ stop on runlevel &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;!2345&lt;span class
 
 &lt;p&gt;Плюнув, отказался от второго layout&amp;rsquo;а, теперь ViewPager используется везде. Чтобы показать сразу 2 фрагмента, можно использовать разные &lt;a href=&#34;http://commonsware.com/blog/2012/08/20/multiple-view-viewpager-options.html&#34;&gt;хитрые способы&lt;/a&gt;. Они, в общем, несложные, и, в моем случае, способ с переопределением getPageWidth() даже не внес никаких сайд-эффектов. Правда, определение ширины экрана, когда надо показать multi-pane пришлось вынести в код, получилось чуть менее декларативненько.&lt;/p&gt;
 
-&lt;h3 id=&#34;toc_3&#34;&gt;Hardcore&lt;/h3&gt;
+&lt;h3 id=&#34;hardcore:ab7bd6db0fbb770c5dbfe85b3a43d6b3&#34;&gt;Hardcore&lt;/h3&gt;
 
 &lt;p&gt;Плавно переходим к утечкам памяти :)&lt;/p&gt;
 
@@ -523,7 +547,7 @@ pager.setAdapter( null );
 
 &lt;p&gt;Иначе, каждый раз при rotation старые фрагменты не будут собираться GC. Если у вас приложение с 2-мя фраментами, то после 10 ротаций будет 22, плюс 11 activities. По крайней мере, в 4.1.2. В 4.3 уже можно этим не заморачиваться :)&lt;/p&gt;
 
-&lt;h3 id=&#34;toc_4&#34;&gt;Заключение&lt;/h3&gt;
+&lt;h3 id=&#34;заключение:ab7bd6db0fbb770c5dbfe85b3a43d6b3&#34;&gt;Заключение&lt;/h3&gt;
 
 &lt;p&gt;К чему весь этот пост - выложил обновление &lt;a href=&#34;https://play.google.com/store/apps/details?id=com.github.dddpaul.netcat&#34;&gt;Simple NetCat&lt;/a&gt;. Версия 1.4 поддерживает multi-pane на планшетах, содержит меньше багов (скрестил два пальца) и практически не течет по памяти.&lt;/p&gt;
 </description>

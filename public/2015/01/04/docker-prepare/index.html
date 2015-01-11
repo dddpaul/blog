@@ -49,25 +49,25 @@
         <ul>
             
             
-            <li><a href="/blog/tags/android">android</a> </li>
+            <li><a href="http://dddpaul.github.io/blog/tags/android">android</a> </li>
             
-            <li><a href="/blog/tags/angularjs">angularjs</a> </li>
+            <li><a href="http://dddpaul.github.io/blog/tags/angularjs">angularjs</a> </li>
             
-            <li><a href="/blog/tags/devops">devops</a> </li>
+            <li><a href="http://dddpaul.github.io/blog/tags/devops">devops</a> </li>
             
-            <li><a href="/blog/tags/docker">docker</a> </li>
+            <li><a href="http://dddpaul.github.io/blog/tags/docker">docker</a> </li>
             
-            <li><a href="/blog/tags/git">git</a> </li>
+            <li><a href="http://dddpaul.github.io/blog/tags/git">git</a> </li>
             
-            <li><a href="/blog/tags/golang">golang</a> </li>
+            <li><a href="http://dddpaul.github.io/blog/tags/golang">golang</a> </li>
             
-            <li><a href="/blog/tags/hugo">hugo</a> </li>
+            <li><a href="http://dddpaul.github.io/blog/tags/hugo">hugo</a> </li>
             
-            <li><a href="/blog/tags/java">java</a> </li>
+            <li><a href="http://dddpaul.github.io/blog/tags/java">java</a> </li>
             
-            <li><a href="/blog/tags/javascript">javascript</a> </li>
+            <li><a href="http://dddpaul.github.io/blog/tags/javascript">javascript</a> </li>
             
-            <li><a href="/blog/tags/linux">linux</a> </li>
+            <li><a href="http://dddpaul.github.io/blog/tags/linux">linux</a> </li>
             
         </ul>
 
@@ -94,7 +94,7 @@
 
 <p>Кроме того, я привык использовать сервера приложений в связке с nginx, и baseimage-docker позволяет легко это сделать.</p>
 
-<h3 id="toc_0">Базовый образ</h3>
+<h3 id="базовый-образ:4df06129fe4804053dfd65ac4e205d9e">Базовый образ</h3>
 
 <p>При создании базового образа выполняются две вещи:</p>
 
@@ -129,7 +129,7 @@ CMD [&quot;/sbin/my_init&quot;]
 
 <p>Также на контейнер можно зайти по ssh: <code>ssh -p 2022 root@localhost</code>.</p>
 
-<h3 id="toc_1">Образ с nginx</h3>
+<h3 id="образ-с-nginx:4df06129fe4804053dfd65ac4e205d9e">Образ с nginx</h3>
 
 <p>Сборка <a href="https://github.com/dddpaul/docker-nginx">docker-nginx</a>: <code>docker build -t smile/nginx .</code></p>
 
@@ -142,7 +142,7 @@ CMD [&quot;/sbin/my_init&quot;]
 <pre><code>docker run --privileged --rm -it -p 2022:22 smile/nginx /sbin/my_init -- bash -l
 </code></pre>
 
-<h3 id="toc_2">Остальные образы</h3>
+<h3 id="остальные-образы:4df06129fe4804053dfd65ac4e205d9e">Остальные образы</h3>
 
 <p>На основе docker-nginx можно строить более сложные образы, такие как <a href="https://github.com/dddpaul/docker-java7-server">docker-java7-server</a> и  <a href="https://github.com/dddpaul/docker-tomcat7">docker-tomcat7</a>. На основе последнего уже строятся образы для конечных приложений.</p>
 
@@ -177,9 +177,9 @@ CMD [&quot;/sbin/my_init&quot;]
     <ul id="tags">
         
         
-        <li><a href="/blog/tags/devops">Devops</a> </li>
+        <li><a href="http://dddpaul.github.io/blog/tags/devops">Devops</a> </li>
         
-        <li><a href="/blog/tags/docker">Docker</a> </li>
+        <li><a href="http://dddpaul.github.io/blog/tags/docker">Docker</a> </li>
         
     </ul>
 

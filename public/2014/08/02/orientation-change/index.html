@@ -49,25 +49,25 @@
         <ul>
             
             
-            <li><a href="/blog/tags/android">android</a> </li>
+            <li><a href="http://dddpaul.github.io/blog/tags/android">android</a> </li>
             
-            <li><a href="/blog/tags/angularjs">angularjs</a> </li>
+            <li><a href="http://dddpaul.github.io/blog/tags/angularjs">angularjs</a> </li>
             
-            <li><a href="/blog/tags/devops">devops</a> </li>
+            <li><a href="http://dddpaul.github.io/blog/tags/devops">devops</a> </li>
             
-            <li><a href="/blog/tags/docker">docker</a> </li>
+            <li><a href="http://dddpaul.github.io/blog/tags/docker">docker</a> </li>
             
-            <li><a href="/blog/tags/git">git</a> </li>
+            <li><a href="http://dddpaul.github.io/blog/tags/git">git</a> </li>
             
-            <li><a href="/blog/tags/golang">golang</a> </li>
+            <li><a href="http://dddpaul.github.io/blog/tags/golang">golang</a> </li>
             
-            <li><a href="/blog/tags/hugo">hugo</a> </li>
+            <li><a href="http://dddpaul.github.io/blog/tags/hugo">hugo</a> </li>
             
-            <li><a href="/blog/tags/java">java</a> </li>
+            <li><a href="http://dddpaul.github.io/blog/tags/java">java</a> </li>
             
-            <li><a href="/blog/tags/javascript">javascript</a> </li>
+            <li><a href="http://dddpaul.github.io/blog/tags/javascript">javascript</a> </li>
             
-            <li><a href="/blog/tags/linux">linux</a> </li>
+            <li><a href="http://dddpaul.github.io/blog/tags/linux">linux</a> </li>
             
         </ul>
 
@@ -90,11 +90,11 @@
 
 <p>Опишу в порядке возрастания сложности, на какие подводные камни мне пришлось натолкнуться.</p>
 
-<h3 id="toc_0">Beginner&rsquo;s level</h3>
+<h3 id="beginner-s-level:ab7bd6db0fbb770c5dbfe85b3a43d6b3">Beginner&rsquo;s level</h3>
 
 <p>Надо сохранять состояние (state) фрагментов. Не сохранил — потерял, т.к. активити и фрагменты будут пересозданы. Если стейт фрагмента сериализуется в строку, то просто переопределяем метод onSaveInstanceState(). Способ описан как в <a href="http://developer.android.com/guide/components/fragments.html#Lifecycle">официальной документации</a>, так и в множестве других мест.</p>
 
-<h3 id="toc_1">Intermediate</h3>
+<h3 id="intermediate:ab7bd6db0fbb770c5dbfe85b3a43d6b3">Intermediate</h3>
 
 <p>Не забываем про AsyncTask. Их тоже надо сохранять, ибо иначе при смене ориентации мы его потеряем. Или он что-нибудь обвалит :) Для решения этой проблемы придумана такая отличная штука, как retaining fragments. Всего один вызов setRetainInstance(true) продляет жизнь фрагменту и связанному с ним асинктаску (назовем это длинный стейт).</p>
 
@@ -108,7 +108,7 @@
 
 <p>Итого — держим асинктаски в headless-фрагменте, который запускаем из активити. В целом, это отличная схема на все случаи жизни, а не только для приведенного примера.</p>
 
-<h3 id="toc_2">Veteran</h3>
+<h3 id="veteran:ab7bd6db0fbb770c5dbfe85b3a43d6b3">Veteran</h3>
 
 <p>Копаем в сторону уже вскользь упомянутого multi-pane. Как его сделать правильно на одних фрагментах? Внятно описанный <a href="http://www.vogella.com/tutorials/AndroidFragments/article.html">способ от Ларса Вогеля</a> требует разных активити, а я не хочу плодить сущности.</p>
 
@@ -127,7 +127,7 @@
 
 <p>Плюнув, отказался от второго layout&rsquo;а, теперь ViewPager используется везде. Чтобы показать сразу 2 фрагмента, можно использовать разные <a href="http://commonsware.com/blog/2012/08/20/multiple-view-viewpager-options.html">хитрые способы</a>. Они, в общем, несложные, и, в моем случае, способ с переопределением getPageWidth() даже не внес никаких сайд-эффектов. Правда, определение ширины экрана, когда надо показать multi-pane пришлось вынести в код, получилось чуть менее декларативненько.</p>
 
-<h3 id="toc_3">Hardcore</h3>
+<h3 id="hardcore:ab7bd6db0fbb770c5dbfe85b3a43d6b3">Hardcore</h3>
 
 <p>Плавно переходим к утечкам памяти :)</p>
 
@@ -147,7 +147,7 @@ pager.setAdapter( null );
 
 <p>Иначе, каждый раз при rotation старые фрагменты не будут собираться GC. Если у вас приложение с 2-мя фраментами, то после 10 ротаций будет 22, плюс 11 activities. По крайней мере, в 4.1.2. В 4.3 уже можно этим не заморачиваться :)</p>
 
-<h3 id="toc_4">Заключение</h3>
+<h3 id="заключение:ab7bd6db0fbb770c5dbfe85b3a43d6b3">Заключение</h3>
 
 <p>К чему весь этот пост - выложил обновление <a href="https://play.google.com/store/apps/details?id=com.github.dddpaul.netcat">Simple NetCat</a>. Версия 1.4 поддерживает multi-pane на планшетах, содержит меньше багов (скрестил два пальца) и практически не течет по памяти.</p>
 
@@ -188,9 +188,9 @@ pager.setAdapter( null );
     <ul id="tags">
         
         
-        <li><a href="/blog/tags/android">Android</a> </li>
+        <li><a href="http://dddpaul.github.io/blog/tags/android">Android</a> </li>
         
-        <li><a href="/blog/tags/java">Java</a> </li>
+        <li><a href="http://dddpaul.github.io/blog/tags/java">Java</a> </li>
         
     </ul>
 

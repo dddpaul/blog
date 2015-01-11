@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-      <title>Building-Test-Environments-With-Docker on Dev notes </title>
-      <generator uri="https://hugo.spf13.com">Hugo</generator>
-    <link>http://dddpaul.github.io/series/building-test-environments-with-docker/index.xml</link>
+    <title>Building Test Environments With Docker on Dev notes</title>
+    <link>http://dddpaul.github.io/blog/series/building-test-environments-with-docker/</link>
+    <description>Recent content in Building Test Environments With Docker on Dev notes</description>
+    <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     
     
-    <updated>Thu, 08 Jan 2015 13:49:06 UTC</updated>
+    <lastBuildDate>Thu, 08 Jan 2015 13:49:06 UTC</lastBuildDate>
+    <atom:link href="http://dddpaul.github.io/blog/series/building-test-environments-with-docker/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>Связывание контейнеров</title>
@@ -15,7 +17,7 @@
       <pubDate>Thu, 08 Jan 2015 13:49:06 UTC</pubDate>
       
       <guid>http://dddpaul.github.io/blog/2015/01/08/docker-linking/</guid>
-      <description>&lt;p&gt;Это вторая статья цикла &lt;a href=&#34;/series/building-test-environments-with-docker&#34;&gt;Building test environments with Docker&lt;/a&gt;.&lt;/p&gt;
+      <description>&lt;p&gt;Это вторая статья цикла &lt;a href=&#34;http://dddpaul.github.io/blog/series/building-test-environments-with-docker&#34;&gt;Building test environments with Docker&lt;/a&gt;.&lt;/p&gt;
 
 &lt;p&gt;При создании тестовых окружений из нескольких контейнеров неизбежно возникает задача их взаимного связывания. Набивший оскомину пример: контейнеру с приложением нужен контейнер БД. В нашем же случае, контейнеру с балансером нужны контейнеры с апстримами.&lt;/p&gt;
 
@@ -91,7 +93,7 @@ APP1_PORT=tcp://172.17.0.28:22
       <guid>http://dddpaul.github.io/blog/2015/01/04/docker-prepare/</guid>
       <description>
 
-&lt;p&gt;Это первая статья цикла &lt;a href=&#34;/series/building-test-environments-with-docker&#34;&gt;Building test environments with Docker&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Это первая статья цикла &lt;a href=&#34;http://dddpaul.github.io/blog/series/building-test-environments-with-docker&#34;&gt;Building test environments with Docker&lt;/a&gt;.&lt;/p&gt;
 
 &lt;p&gt;Сразу оговорюсь, что все docker-контейнеры основаны на &lt;a href=&#34;http://phusion.github.io/baseimage-docker/&#34;&gt;baseimage-docker&lt;/a&gt;. Этот образ позволяет запускать в контейнере несколько приложений с помощью супервизора &lt;a href=&#34;http://smarden.org/runit/&#34;&gt;runit&lt;/a&gt; и содержит ssh, cron, syslog &amp;ldquo;из коробки&amp;rdquo;.&lt;/p&gt;
 
@@ -99,7 +101,7 @@ APP1_PORT=tcp://172.17.0.28:22
 
 &lt;p&gt;Кроме того, я привык использовать сервера приложений в связке с nginx, и baseimage-docker позволяет легко это сделать.&lt;/p&gt;
 
-&lt;h3 id=&#34;toc_0&#34;&gt;Базовый образ&lt;/h3&gt;
+&lt;h3 id=&#34;базовый-образ:4df06129fe4804053dfd65ac4e205d9e&#34;&gt;Базовый образ&lt;/h3&gt;
 
 &lt;p&gt;При создании базового образа выполняются две вещи:&lt;/p&gt;
 
@@ -134,7 +136,7 @@ CMD [&amp;quot;/sbin/my_init&amp;quot;]
 
 &lt;p&gt;Также на контейнер можно зайти по ssh: &lt;code&gt;ssh -p 2022 root@localhost&lt;/code&gt;.&lt;/p&gt;
 
-&lt;h3 id=&#34;toc_1&#34;&gt;Образ с nginx&lt;/h3&gt;
+&lt;h3 id=&#34;образ-с-nginx:4df06129fe4804053dfd65ac4e205d9e&#34;&gt;Образ с nginx&lt;/h3&gt;
 
 &lt;p&gt;Сборка &lt;a href=&#34;https://github.com/dddpaul/docker-nginx&#34;&gt;docker-nginx&lt;/a&gt;: &lt;code&gt;docker build -t smile/nginx .&lt;/code&gt;&lt;/p&gt;
 
@@ -147,7 +149,7 @@ CMD [&amp;quot;/sbin/my_init&amp;quot;]
 &lt;pre&gt;&lt;code&gt;docker run --privileged --rm -it -p 2022:22 smile/nginx /sbin/my_init -- bash -l
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h3 id=&#34;toc_2&#34;&gt;Остальные образы&lt;/h3&gt;
+&lt;h3 id=&#34;остальные-образы:4df06129fe4804053dfd65ac4e205d9e&#34;&gt;Остальные образы&lt;/h3&gt;
 
 &lt;p&gt;На основе docker-nginx можно строить более сложные образы, такие как &lt;a href=&#34;https://github.com/dddpaul/docker-java7-server&#34;&gt;docker-java7-server&lt;/a&gt; и  &lt;a href=&#34;https://github.com/dddpaul/docker-tomcat7&#34;&gt;docker-tomcat7&lt;/a&gt;. На основе последнего уже строятся образы для конечных приложений.&lt;/p&gt;
 </description>

@@ -49,25 +49,25 @@
         <ul>
             
             
-            <li><a href="/blog/tags/android">android</a> </li>
+            <li><a href="http://dddpaul.github.io/blog/tags/android">android</a> </li>
             
-            <li><a href="/blog/tags/angularjs">angularjs</a> </li>
+            <li><a href="http://dddpaul.github.io/blog/tags/angularjs">angularjs</a> </li>
             
-            <li><a href="/blog/tags/devops">devops</a> </li>
+            <li><a href="http://dddpaul.github.io/blog/tags/devops">devops</a> </li>
             
-            <li><a href="/blog/tags/docker">docker</a> </li>
+            <li><a href="http://dddpaul.github.io/blog/tags/docker">docker</a> </li>
             
-            <li><a href="/blog/tags/git">git</a> </li>
+            <li><a href="http://dddpaul.github.io/blog/tags/git">git</a> </li>
             
-            <li><a href="/blog/tags/golang">golang</a> </li>
+            <li><a href="http://dddpaul.github.io/blog/tags/golang">golang</a> </li>
             
-            <li><a href="/blog/tags/hugo">hugo</a> </li>
+            <li><a href="http://dddpaul.github.io/blog/tags/hugo">hugo</a> </li>
             
-            <li><a href="/blog/tags/java">java</a> </li>
+            <li><a href="http://dddpaul.github.io/blog/tags/java">java</a> </li>
             
-            <li><a href="/blog/tags/javascript">javascript</a> </li>
+            <li><a href="http://dddpaul.github.io/blog/tags/javascript">javascript</a> </li>
             
-            <li><a href="/blog/tags/linux">linux</a> </li>
+            <li><a href="http://dddpaul.github.io/blog/tags/linux">linux</a> </li>
             
         </ul>
 
@@ -90,11 +90,11 @@
 
 <p>Суть проблемы — использование android.os.Handler, в который постится анонимный Runnable с помощью метода <a href="http://developer.android.com/reference/android/os/Handler.html#postDelayed(java.lang.Runnable, long">postDelayed</a>. Для демонстрации, Runnable просто меняет какой-либо TextView (т.е. содержит внутри себя ссылку mTextView), и время до выполнения Runnable берется довольно большим. Так вот, если за этот промежуток времени повернуть девайс несколько раз, то старые активити не будут собираться GC, т.к. в Java любой анонимный класс всегда имеет неявную ссылку на внешний класс.</p>
 
-<h3 id="toc_0">Решение с использованием статического класса</h3>
+<h3 id="решение-с-использованием-статического-класса:b5ecc8a59da209189d194d532f575ae4">Решение с использованием статического класса</h3>
 
 <p>Переделка анонимного класса в статический проблему не решает — Activity сохранен в ссылке mContext из mTextView внутри нашей реализации Runnable.</p>
 
-<h3 id="toc_1">Решение с использованием статического класса и WeakReference</h3>
+<h3 id="решение-с-использованием-статического-класса-и-weakreference:b5ecc8a59da209189d194d532f575ae4">Решение с использованием статического класса и WeakReference</h3>
 
 <p>В реализации Runnable сохраняем ссылку на TextView в WeakReference. Использование WeakReference требует особой аккуратности: такая ссылка в любой момент может обнулиться. Поэтому сначала сохраняем ссылку в локальную переменную и работаем только с последней, проверив ее на null.</p>
 
@@ -107,7 +107,7 @@
 
 <p>Это решает проблему.</p>
 
-<h3 id="toc_2">Очистка всех сообщений в onDestroy</h3>
+<h3 id="очистка-всех-сообщений-в-ondestroy:b5ecc8a59da209189d194d532f575ae4">Очистка всех сообщений в onDestroy</h3>
 
 <p>Добавим в onDestroy вызов метода класса Handler <a href="http://developer.android.com/reference/android/os/Handler.html#removeCallbacksAndMessages(java.lang.Object)">removeCallbacksAndMessages</a>. Он удаляет все сообщения, находящиеся в очереди данного Handler&rsquo;а. Это очень хороший способ защититься от утечки памяти, но во-первых, нужно не забыть это сделать, а во-вторых, в комментах к статье пишут, что вызов onDestroy в общем случае не гарантирован.</p>
 
@@ -117,13 +117,13 @@
 <p>When your activity receives a call to the onStop() method, it&rsquo;s no longer visible and should release almost all resources that aren&rsquo;t needed while the user is not using it. Once your activity is stopped, the system might destroy the instance if it needs to recover system memory. In extreme cases, the system might simply kill your app process without calling the activity&rsquo;s final onDestroy() callback, so it&rsquo;s important you use onStop() to release resources that might leak memory.</p>
 </blockquote>
 
-<h3 id="toc_3">Решение с использованием WeakHandler</h3>
+<h3 id="решение-с-использованием-weakhandler:b5ecc8a59da209189d194d532f575ae4">Решение с использованием WeakHandler</h3>
 
 <p>Команда Badoo написала свой Handler — <a href="github.com/badoo/android-weak-handler">WeakHandler</a>. Это класс, который ведет себя совершенно как Handler, но исключает утечки памяти за счет использования слабых ссылок.</p>
 
 <p>Главная идея — держать жесткую ссылку на сообщения или Runnable до тех пор, пока существует жесткая ссылка на WeakHandler. Как только WeakHandler может быть удален из памяти, все остальное должно быть удалено вместе с ним.</p>
 
-<h3 id="toc_4">Выводы</h3>
+<h3 id="выводы:b5ecc8a59da209189d194d532f575ae4">Выводы</h3>
 
 <p>Отличная и годная статья :)</p>
 
@@ -171,9 +171,9 @@
     <ul id="tags">
         
         
-        <li><a href="/blog/tags/android">Android</a> </li>
+        <li><a href="http://dddpaul.github.io/blog/tags/android">Android</a> </li>
         
-        <li><a href="/blog/tags/java">Java</a> </li>
+        <li><a href="http://dddpaul.github.io/blog/tags/java">Java</a> </li>
         
     </ul>
 

@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-      <title>Jmm on Dev notes </title>
-      <generator uri="https://hugo.spf13.com">Hugo</generator>
-    <link>http://dddpaul.github.io/series/jmm/index.xml</link>
+    <title>Jmm on Dev notes</title>
+    <link>http://dddpaul.github.io/blog/series/jmm/</link>
+    <description>Recent content in Jmm on Dev notes</description>
+    <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     
     
-    <updated>Sat, 06 Dec 2014 18:33:46 UTC</updated>
+    <lastBuildDate>Sat, 06 Dec 2014 18:33:46 UTC</lastBuildDate>
+    <atom:link href="http://dddpaul.github.io/blog/series/jmm/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>Java Memory Model in few words</title>

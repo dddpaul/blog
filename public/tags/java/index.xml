@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-      <title>Java on Dev notes </title>
-      <generator uri="https://hugo.spf13.com">Hugo</generator>
-    <link>http://dddpaul.github.io/tags/java/index.xml</link>
+    <title>Java on Dev notes</title>
+    <link>http://dddpaul.github.io/blog/tags/java/</link>
+    <description>Recent content in Java on Dev notes</description>
+    <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     
     
-    <updated>Sun, 21 Dec 2014 13:36:15 UTC</updated>
+    <lastBuildDate>Sun, 21 Dec 2014 13:36:15 UTC</lastBuildDate>
+    <atom:link href="http://dddpaul.github.io/blog/tags/java/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>Using method handles to get logger</title>
@@ -86,15 +88,15 @@
       <guid>http://dddpaul.github.io/blog/2014/10/21/android-memory-leak-badoo/</guid>
       <description>
 
-&lt;p&gt;На хабре появилась статья &lt;a href=&#34;http://habrahabr.ru/company/badoo/blog/240479/&#34;&gt;Борьба с утечками памяти в Android. Часть 1&lt;/a&gt; от компании Badoo. Т.к. тема созвучна с моими постами из серии &lt;a href=&#34;/series/memory-leaks&#34;&gt;Memory leaks&lt;/a&gt;, то решил вкратце описать их методы.&lt;/p&gt;
+&lt;p&gt;На хабре появилась статья &lt;a href=&#34;http://habrahabr.ru/company/badoo/blog/240479/&#34;&gt;Борьба с утечками памяти в Android. Часть 1&lt;/a&gt; от компании Badoo. Т.к. тема созвучна с моими постами из серии &lt;a href=&#34;http://dddpaul.github.io/blog/series/memory-leaks&#34;&gt;Memory leaks&lt;/a&gt;, то решил вкратце описать их методы.&lt;/p&gt;
 
 &lt;p&gt;Суть проблемы — использование android.os.Handler, в который постится анонимный Runnable с помощью метода &lt;a href=&#34;http://developer.android.com/reference/android/os/Handler.html#postDelayed(java.lang.Runnable, long&#34;&gt;postDelayed&lt;/a&gt;. Для демонстрации, Runnable просто меняет какой-либо TextView (т.е. содержит внутри себя ссылку mTextView), и время до выполнения Runnable берется довольно большим. Так вот, если за этот промежуток времени повернуть девайс несколько раз, то старые активити не будут собираться GC, т.к. в Java любой анонимный класс всегда имеет неявную ссылку на внешний класс.&lt;/p&gt;
 
-&lt;h3 id=&#34;toc_0&#34;&gt;Решение с использованием статического класса&lt;/h3&gt;
+&lt;h3 id=&#34;решение-с-использованием-статического-класса:b5ecc8a59da209189d194d532f575ae4&#34;&gt;Решение с использованием статического класса&lt;/h3&gt;
 
 &lt;p&gt;Переделка анонимного класса в статический проблему не решает — Activity сохранен в ссылке mContext из mTextView внутри нашей реализации Runnable.&lt;/p&gt;
 
-&lt;h3 id=&#34;toc_1&#34;&gt;Решение с использованием статического класса и WeakReference&lt;/h3&gt;
+&lt;h3 id=&#34;решение-с-использованием-статического-класса-и-weakreference:b5ecc8a59da209189d194d532f575ae4&#34;&gt;Решение с использованием статического класса и WeakReference&lt;/h3&gt;
 
 &lt;p&gt;В реализации Runnable сохраняем ссылку на TextView в WeakReference. Использование WeakReference требует особой аккуратности: такая ссылка в любой момент может обнулиться. Поэтому сначала сохраняем ссылку в локальную переменную и работаем только с последней, проверив ее на null.&lt;/p&gt;
 
@@ -107,7 +109,7 @@
 
 &lt;p&gt;Это решает проблему.&lt;/p&gt;
 
-&lt;h3 id=&#34;toc_2&#34;&gt;Очистка всех сообщений в onDestroy&lt;/h3&gt;
+&lt;h3 id=&#34;очистка-всех-сообщений-в-ondestroy:b5ecc8a59da209189d194d532f575ae4&#34;&gt;Очистка всех сообщений в onDestroy&lt;/h3&gt;
 
 &lt;p&gt;Добавим в onDestroy вызов метода класса Handler &lt;a href=&#34;http://developer.android.com/reference/android/os/Handler.html#removeCallbacksAndMessages(java.lang.Object)&#34;&gt;removeCallbacksAndMessages&lt;/a&gt;. Он удаляет все сообщения, находящиеся в очереди данного Handler&amp;rsquo;а. Это очень хороший способ защититься от утечки памяти, но во-первых, нужно не забыть это сделать, а во-вторых, в комментах к статье пишут, что вызов onDestroy в общем случае не гарантирован.&lt;/p&gt;
 
@@ -117,13 +119,13 @@
 &lt;p&gt;When your activity receives a call to the onStop() method, it&amp;rsquo;s no longer visible and should release almost all resources that aren&amp;rsquo;t needed while the user is not using it. Once your activity is stopped, the system might destroy the instance if it needs to recover system memory. In extreme cases, the system might simply kill your app process without calling the activity&amp;rsquo;s final onDestroy() callback, so it&amp;rsquo;s important you use onStop() to release resources that might leak memory.&lt;/p&gt;
 &lt;/blockquote&gt;
 
-&lt;h3 id=&#34;toc_3&#34;&gt;Решение с использованием WeakHandler&lt;/h3&gt;
+&lt;h3 id=&#34;решение-с-использованием-weakhandler:b5ecc8a59da209189d194d532f575ae4&#34;&gt;Решение с использованием WeakHandler&lt;/h3&gt;
 
 &lt;p&gt;Команда Badoo написала свой Handler — &lt;a href=&#34;github.com/badoo/android-weak-handler&#34;&gt;WeakHandler&lt;/a&gt;. Это класс, который ведет себя совершенно как Handler, но исключает утечки памяти за счет использования слабых ссылок.&lt;/p&gt;
 
 &lt;p&gt;Главная идея — держать жесткую ссылку на сообщения или Runnable до тех пор, пока существует жесткая ссылка на WeakHandler. Как только WeakHandler может быть удален из памяти, все остальное должно быть удалено вместе с ним.&lt;/p&gt;
 
-&lt;h3 id=&#34;toc_4&#34;&gt;Выводы&lt;/h3&gt;
+&lt;h3 id=&#34;выводы:b5ecc8a59da209189d194d532f575ae4&#34;&gt;Выводы&lt;/h3&gt;
 
 &lt;p&gt;Отличная и годная статья :)&lt;/p&gt;
 
@@ -148,11 +150,11 @@
 
 &lt;p&gt;Опишу в порядке возрастания сложности, на какие подводные камни мне пришлось натолкнуться.&lt;/p&gt;
 
-&lt;h3 id=&#34;toc_0&#34;&gt;Beginner&amp;rsquo;s level&lt;/h3&gt;
+&lt;h3 id=&#34;beginner-s-level:ab7bd6db0fbb770c5dbfe85b3a43d6b3&#34;&gt;Beginner&amp;rsquo;s level&lt;/h3&gt;
 
 &lt;p&gt;Надо сохранять состояние (state) фрагментов. Не сохранил — потерял, т.к. активити и фрагменты будут пересозданы. Если стейт фрагмента сериализуется в строку, то просто переопределяем метод onSaveInstanceState(). Способ описан как в &lt;a href=&#34;http://developer.android.com/guide/components/fragments.html#Lifecycle&#34;&gt;официальной документации&lt;/a&gt;, так и в множестве других мест.&lt;/p&gt;
 
-&lt;h3 id=&#34;toc_1&#34;&gt;Intermediate&lt;/h3&gt;
+&lt;h3 id=&#34;intermediate:ab7bd6db0fbb770c5dbfe85b3a43d6b3&#34;&gt;Intermediate&lt;/h3&gt;
 
 &lt;p&gt;Не забываем про AsyncTask. Их тоже надо сохранять, ибо иначе при смене ориентации мы его потеряем. Или он что-нибудь обвалит :) Для решения этой проблемы придумана такая отличная штука, как retaining fragments. Всего один вызов setRetainInstance(true) продляет жизнь фрагменту и связанному с ним асинктаску (назовем это длинный стейт).&lt;/p&gt;
 
@@ -166,7 +168,7 @@
 
 &lt;p&gt;Итого — держим асинктаски в headless-фрагменте, который запускаем из активити. В целом, это отличная схема на все случаи жизни, а не только для приведенного примера.&lt;/p&gt;
 
-&lt;h3 id=&#34;toc_2&#34;&gt;Veteran&lt;/h3&gt;
+&lt;h3 id=&#34;veteran:ab7bd6db0fbb770c5dbfe85b3a43d6b3&#34;&gt;Veteran&lt;/h3&gt;
 
 &lt;p&gt;Копаем в сторону уже вскользь упомянутого multi-pane. Как его сделать правильно на одних фрагментах? Внятно описанный &lt;a href=&#34;http://www.vogella.com/tutorials/AndroidFragments/article.html&#34;&gt;способ от Ларса Вогеля&lt;/a&gt; требует разных активити, а я не хочу плодить сущности.&lt;/p&gt;
 
@@ -185,7 +187,7 @@
 
 &lt;p&gt;Плюнув, отказался от второго layout&amp;rsquo;а, теперь ViewPager используется везде. Чтобы показать сразу 2 фрагмента, можно использовать разные &lt;a href=&#34;http://commonsware.com/blog/2012/08/20/multiple-view-viewpager-options.html&#34;&gt;хитрые способы&lt;/a&gt;. Они, в общем, несложные, и, в моем случае, способ с переопределением getPageWidth() даже не внес никаких сайд-эффектов. Правда, определение ширины экрана, когда надо показать multi-pane пришлось вынести в код, получилось чуть менее декларативненько.&lt;/p&gt;
 
-&lt;h3 id=&#34;toc_3&#34;&gt;Hardcore&lt;/h3&gt;
+&lt;h3 id=&#34;hardcore:ab7bd6db0fbb770c5dbfe85b3a43d6b3&#34;&gt;Hardcore&lt;/h3&gt;
 
 &lt;p&gt;Плавно переходим к утечкам памяти :)&lt;/p&gt;
 
@@ -205,7 +207,7 @@ pager.setAdapter( null );
 
 &lt;p&gt;Иначе, каждый раз при rotation старые фрагменты не будут собираться GC. Если у вас приложение с 2-мя фраментами, то после 10 ротаций будет 22, плюс 11 activities. По крайней мере, в 4.1.2. В 4.3 уже можно этим не заморачиваться :)&lt;/p&gt;
 
-&lt;h3 id=&#34;toc_4&#34;&gt;Заключение&lt;/h3&gt;
+&lt;h3 id=&#34;заключение:ab7bd6db0fbb770c5dbfe85b3a43d6b3&#34;&gt;Заключение&lt;/h3&gt;
 
 &lt;p&gt;К чему весь этот пост - выложил обновление &lt;a href=&#34;https://play.google.com/store/apps/details?id=com.github.dddpaul.netcat&#34;&gt;Simple NetCat&lt;/a&gt;. Версия 1.4 поддерживает multi-pane на планшетах, содержит меньше багов (скрестил два пальца) и практически не течет по памяти.&lt;/p&gt;
 </description>
