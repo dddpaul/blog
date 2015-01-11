@@ -1,6 +1,6 @@
 +++
 date = 2015-01-08T13:49:06Z
-draft = true
+draft = false
 title = "Связывание контейнеров"
 Tags = ["Devops", "Docker"]
 series = ["Организация тестовых окружений с помощью Docker"]

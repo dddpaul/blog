@@ -7,7 +7,79 @@
     <language>en-us</language>
     
     
-    <updated>Sun, 04 Jan 2015 13:49:06 UTC</updated>
+    <updated>Thu, 08 Jan 2015 13:49:06 UTC</updated>
+    
+    <item>
+      <title>Связывание контейнеров</title>
+      <link>http://dddpaul.github.io/blog/2015/01/08/docker-test-env-2/</link>
+      <pubDate>Thu, 08 Jan 2015 13:49:06 UTC</pubDate>
+      
+      <guid>http://dddpaul.github.io/blog/2015/01/08/docker-test-env-2/</guid>
+      <description>&lt;p&gt;При создании тестовых окружений из нескольких контейнеров неизбежно возникает задача их взаимного связывания. Набивший оскомину пример: контейнеру с приложением нужен контейнер БД. В нашем же случае, контейнеру с балансером нужны контейнеры с апстримами.&lt;/p&gt;
+
+&lt;p&gt;Статья &lt;a href=&#34;https://docs.docker.com/userguide/dockerlinks/&#34;&gt;Linking Containers Together&lt;/a&gt; полностью раскрывает вопрос линковки контейнеров. Осветим вкратце лишь основные моменты:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;каждый контейнер необходимо как-то назвать с помощью опции &lt;code&gt;--name&lt;/code&gt;;&lt;/li&gt;
+&lt;li&gt;ссылка на контейнер-зависимость обозначается опцией &lt;code&gt;--link&lt;/code&gt;;&lt;/li&gt;
+&lt;li&gt;в итоге, внутри зависимого контейнера, инициализируется множество переменных окружения, содержащих параметры контейнера-зависимости, а также в &lt;em&gt;/etc/hosts&lt;/em&gt; заносится IP-адрес контейнера-зависимости.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Например, так выглядит последовательный запуск 3-х контейнеров, причем 3-й зависит от первых двух:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;docker run -d --privileged -p 2021:22 -p 8081:80 --name app1 smile/tomcat7
+docker run -d --privileged -p 2022:22 -p 8082:80 --name app2 smile/tomcat7
+docker run -d --privileged -p 2020:22 -p 80:80 --name gate --link app1:app1 --link app2:app2 smile/gate
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Опция &lt;code&gt;-d (detach mode)&lt;/code&gt; здесь необходима, чтобы контейнеры запускались в фоновом режиме и не захватывали консоль.&lt;/p&gt;
+
+&lt;p&gt;Теперь, если зайти в контейнер gate (&lt;code&gt;ssh -p 2020 root@localhost&lt;/code&gt;) и посмотреть переменные окружения, то будет ясно, что gate &amp;ldquo;видит&amp;rdquo; exposed-порты и IP-адрес контейнера-зависимости:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;root@aba982937531:~# env | grep APP1
+APP1_NAME=/gate/app1
+APP1_PORT_22_TCP=tcp://172.17.0.28:22
+APP1_PORT_80_TCP=tcp://172.17.0.28:80
+APP1_PORT_22_TCP_ADDR=172.17.0.28
+APP1_PORT_80_TCP_ADDR=172.17.0.28
+APP1_PORT_22_TCP_PORT=22
+APP1_PORT_80_TCP_PORT=80
+APP1_PORT_80_TCP_PROTO=tcp
+APP1_PORT_22_TCP_PROTO=tcp
+APP1_PORT=tcp://172.17.0.28:22
+...
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Еще лучше дела обстоят с &lt;em&gt;/etc/hosts&lt;/em&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;root@aba982937531:~# grep app1 /etc/hosts
+172.17.0.28	app1
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Модификация &lt;em&gt;/etc/hosts&lt;/em&gt;, например, дает возможность писать следующие кофиги Nginx:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;server {
+    listen 80 default_server;
+    server_name _;
+
+    location /app1 {
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; #
+        proxy_pass http://app1:80/app1;                              # app1 host here
+        proxy_redirect http://127.0.0.1:8081/app1 /app1;             #
+    }
+
+    location /app2 {
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; #
+        proxy_pass http://app2:80/app2;                              # and app2 host here
+        proxy_redirect http://127.0.0.1:8082/app2 /app2;             #
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Таким образом, в первом приближении, встроенная возможность связывания контейнеров в Docker решает наши проблемы.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Подготовка и запуск docker-контейнеров</title>
