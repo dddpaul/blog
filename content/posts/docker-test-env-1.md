@@ -3,7 +3,7 @@ date = 2015-01-04T13:49:06Z
 draft = false
 title = "Подготовка и запуск docker-контейнеров"
 Tags = ["Devops", "Docker"]
-series = ["Организация тестовых окружений с помощью Docker"]
+series = ["Building test environments with Docker"]
 
 +++
 
