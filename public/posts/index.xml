@@ -105,6 +105,13 @@ docker run -d --privileged -p 2022:22 -p 8082:80 --name app2 smile/tomcat7
 docker run -d --privileged -p 2020:22 -p 80:80 --name gate --link app1:app1 --link app2:app2 smile/gate
 &lt;/code&gt;&lt;/pre&gt;
 
+&lt;p&gt;Для проверки можно использовать вывод &lt;code&gt;docker inspect&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;docker inspect -f &amp;quot;{{ .HostConfig.Links }}&amp;quot; gate
+
+[/app1:/gate/app1 /app2:/gate/app2]
+&lt;/code&gt;&lt;/pre&gt;
+
 &lt;p&gt;Опция &lt;code&gt;-d (detach mode)&lt;/code&gt; здесь необходима, чтобы контейнеры запускались в фоновом режиме и не захватывали консоль.&lt;/p&gt;
 
 &lt;p&gt;Теперь, если зайти в контейнер gate (&lt;code&gt;ssh -p 2020 root@localhost&lt;/code&gt;) и посмотреть переменные окружения, то будет ясно, что gate &amp;ldquo;видит&amp;rdquo; exposed-порты и IP-адрес контейнера-зависимости:&lt;/p&gt;

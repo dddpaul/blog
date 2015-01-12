@@ -23,6 +23,13 @@ docker run -d --privileged -p 2022:22 -p 8082:80 --name app2 smile/tomcat7
 docker run -d --privileged -p 2020:22 -p 80:80 --name gate --link app1:app1 --link app2:app2 smile/gate
 ```
 
+Для проверки можно использовать вывод ```docker inspect```:
+```
+docker inspect -f "{{ .HostConfig.Links }}" gate
+
+[/app1:/gate/app1 /app2:/gate/app2]
+```
+
 Опция ```-d (detach mode)``` здесь необходима, чтобы контейнеры запускались в фоновом режиме и не захватывали консоль.
 
 Теперь, если зайти в контейнер gate (```ssh -p 2020 root@localhost```) и посмотреть переменные окружения, то будет ясно, что gate "видит" exposed-порты и IP-адрес контейнера-зависимости:
