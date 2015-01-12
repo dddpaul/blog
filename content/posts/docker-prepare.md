@@ -6,7 +6,7 @@ Tags = ["Devops", "Docker"]
 series = ["Building test environments with Docker"]
 
 +++
-Это первая статья цикла "Building test environments with Docker".
+Это первая статья цикла {{% link section="series" title="Building test environments with Docker" %}}.
 
 Сразу оговорюсь, что все docker-контейнеры основаны на [baseimage-docker](http://phusion.github.io/baseimage-docker/). Этот образ позволяет запускать в контейнере несколько приложений с помощью супервизора [runit](http://smarden.org/runit/) и содержит ssh, cron, syslog "из коробки".
 

@@ -6,7 +6,7 @@ Tags = ["Devops", "Docker"]
 series = ["Building test environments with Docker"]
 
 +++
-Это вторая статья цикла "Building test environments with Docker".
+Это вторая статья цикла {{% link section="series" title="Building test environments with Docker" %}}.
 
 При создании тестовых окружений из нескольких контейнеров неизбежно возникает задача их взаимного связывания. Набивший оскомину пример: контейнеру с приложением нужен контейнер БД. В нашем же случае, контейнеру с балансером нужны контейнеры с апстримами.
 
