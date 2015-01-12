@@ -89,7 +89,8 @@
 
             <span class="post-date">2015-01-08</span>
 
-            <p>Это вторая статья цикла &ldquo;Building test environments with Docker&rdquo;.</p>
+            <p>Это вторая статья цикла 
+<a href='http://dddpaul.github.io/blog/series/building-test-environments-with-docker'>Building test environments with Docker</a>.</p>
 
 <p>При создании тестовых окружений из нескольких контейнеров неизбежно возникает задача их взаимного связывания. Набивший оскомину пример: контейнеру с приложением нужен контейнер БД. В нашем же случае, контейнеру с балансером нужны контейнеры с апстримами.</p>
 
@@ -168,7 +169,8 @@ APP1_PORT=tcp://172.17.0.28:22
 
             
 
-<p>Это первая статья цикла &ldquo;Building test environments with Docker&rdquo;.</p>
+<p>Это первая статья цикла 
+<a href='http://dddpaul.github.io/blog/series/building-test-environments-with-docker'>Building test environments with Docker</a>.</p>
 
 <p>Сразу оговорюсь, что все docker-контейнеры основаны на <a href="http://phusion.github.io/baseimage-docker/">baseimage-docker</a>. Этот образ позволяет запускать в контейнере несколько приложений с помощью супервизора <a href="http://smarden.org/runit/">runit</a> и содержит ssh, cron, syslog &ldquo;из коробки&rdquo;.</p>
 
@@ -497,7 +499,8 @@ start evhandler</code>.</p>
 
             
 
-<p>На хабре появилась статья <a href="http://habrahabr.ru/company/badoo/blog/240479/">Борьба с утечками памяти в Android. Часть 1</a> от компании Badoo. Т.к. тема созвучна с моими постами из серии &ldquo;Memory leaks&rdquo;, то решил вкратце описать их методы.</p>
+<p>На хабре появилась статья <a href="http://habrahabr.ru/company/badoo/blog/240479/">Борьба с утечками памяти в Android. Часть 1</a> от компании Badoo. Т.к. тема созвучна с моими постами из серии 
+<a href='http://dddpaul.github.io/blog/series/memory-leaks'>Memory leaks</a>, то решил вкратце описать их методы.</p>
 
 <p>Суть проблемы — использование android.os.Handler, в который постится анонимный Runnable с помощью метода <a href="http://developer.android.com/reference/android/os/Handler.html#postDelayed(java.lang.Runnable, long">postDelayed</a>. Для демонстрации, Runnable просто меняет какой-либо TextView (т.е. содержит внутри себя ссылку mTextView), и время до выполнения Runnable берется довольно большим. Так вот, если за этот промежуток времени повернуть девайс несколько раз, то старые активити не будут собираться GC, т.к. в Java любой анонимный класс всегда имеет неявную ссылку на внешний класс.</p>
 
