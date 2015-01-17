@@ -8,8 +8,51 @@
     <language>en-us</language>
     
     
-    <lastBuildDate>Tue, 21 Oct 2014 14:30:16 UTC</lastBuildDate>
+    <lastBuildDate>Sat, 17 Jan 2015 22:35:49 MSK</lastBuildDate>
     <atom:link href="http://dddpaul.github.io/blog/series/memory-leaks/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>List of memory leaks articles</title>
+      <link>http://dddpaul.github.io/blog/2015/01/17/memory-leaks-articles/</link>
+      <pubDate>Sat, 17 Jan 2015 22:35:49 MSK</pubDate>
+      
+      <guid>http://dddpaul.github.io/blog/2015/01/17/memory-leaks-articles/</guid>
+      <description>&lt;p&gt;&amp;ldquo;Solving OutOfMemoryError&amp;rdquo; series from Nikita Salnikov-Tarnovsky:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://plumbr.eu/blog/solving-outofmemoryerror-story-of-a-developer&#34;&gt;Solving OutOfMemoryError (part 1) – story of a developer&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://plumbr.eu/blog/solving-outofmemoryerror-why-didnt-operations-solve-it&#34;&gt;Solving OutOfMemoryError (part 2) - why didn’t operations solve it?&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://plumbr.eu/blog/solving-outofmemoryerror-where-do-you-start&#34;&gt;Solving OutOfMemoryError (part 3) – where do you start?&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://plumbr.eu/blog/solving-outofmemoryerror-memory-profilers&#34;&gt;Solving OutOfMemoryError (part 4) – memory profilers&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://plumbr.eu/blog/solving-outofmemoryerror-jdk-tools&#34;&gt;Solving OutOfMemoryError (part 5) – JDK Tools&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&amp;ldquo;Classloader leaks&amp;rdquo; series from Mattias Jiderhamn:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://java.jiderhamn.se/2011/12/11/classloader-leaks-i-how-to-find-classloader-leaks-with-eclipse-memory-analyser-mat/&#34;&gt;Classloader leaks I – How to find classloader leaks with Eclipse Memory Analyser (MAT)&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://java.jiderhamn.se/2012/01/01/classloader-leaks-ii-find-and-work-around-unwanted-references/&#34;&gt;Classloader leaks II – Find and work around unwanted references&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://java.jiderhamn.se/2012/01/15/classloader-leaks-iii-die-thread-die/&#34;&gt;Classloader leaks III – “Die Thread, die!”&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://java.jiderhamn.se/2012/01/29/classloader-leaks-iv-threadlocal-dangers-and-why-threadglobal-may-have-been-a-more-appropriate-name/&#34;&gt;Classloader leaks IV – ThreadLocal dangers and why ThreadGlobal may have been a more appropriate name&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://java.jiderhamn.se/2012/02/26/classloader-leaks-v-common-mistakes-and-known-offenders/&#34;&gt;Classloader leaks V – Common mistakes and Known offenders&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://java.jiderhamn.se/2012/03/04/classloader-leaks-vi-this-means-war-leak-prevention-library/&#34;&gt;Classloader leaks VI – “This means war!” (leak prevention library)&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Tomcat specific articles:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://java.dzone.com/articles/memory-leak-protection-tomcat&#34;&gt;Memory Leak Protection in Tomcat 7&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://wiki.apache.org/tomcat/MemoryLeakProtection&#34;&gt;Tomcat Wiki - MemoryLeakProtection&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Other articles:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://frankkieviet.blogspot.se/2006/10/classloader-leaks-dreaded-permgen-space.html&#34;&gt;Classloader leaks: the dreaded &amp;ldquo;java.lang.OutOfMemoryError: PermGen space&amp;rdquo; exception&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://plumbr.eu/permgen&#34;&gt;The Guide to Solving Permgen Leaks&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
     
     <item>
       <title>Борьба с утечками памяти в Android (Badoo)</title>
