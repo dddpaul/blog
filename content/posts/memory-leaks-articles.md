@@ -9,11 +9,13 @@ tags = [ "Java" ]
 "Solving OutOfMemoryError" series from Nikita Salnikov-Tarnovsky:
 
 * [Solving OutOfMemoryError (part 1) – story of a developer](https://plumbr.eu/blog/solving-outofmemoryerror-story-of-a-developer)
-* [Solving OutOfMemoryError (part 2) - why didn’t operations solve it?](https://plumbr.eu/blog/solving-outofmemoryerror-why-didnt-operations-solve-it)
+* [Solving OutOfMemoryError (part 2) – why didn’t operations solve it?](https://plumbr.eu/blog/solving-outofmemoryerror-why-didnt-operations-solve-it)
 * [Solving OutOfMemoryError (part 3) – where do you start?](https://plumbr.eu/blog/solving-outofmemoryerror-where-do-you-start)
 * [Solving OutOfMemoryError (part 4) – memory profilers](https://plumbr.eu/blog/solving-outofmemoryerror-memory-profilers)
 * [Solving OutOfMemoryError (part 5) – JDK Tools](https://plumbr.eu/blog/solving-outofmemoryerror-jdk-tools)
 * [Solving OutOfMemoryError (part 6) – Dump is not a waste](https://plumbr.eu/blog/solving-outofmemoryerror-dump-is-not-a-waste)
+
+***
 
 "Classloader leaks" series from Mattias Jiderhamn:
 
@@ -24,10 +26,18 @@ tags = [ "Java" ]
 * [Classloader leaks V – Common mistakes and Known offenders](http://java.jiderhamn.se/2012/02/26/classloader-leaks-v-common-mistakes-and-known-offenders/)
 * [Classloader leaks VI – “This means war!” (leak prevention library)](http://java.jiderhamn.se/2012/03/04/classloader-leaks-vi-this-means-war-leak-prevention-library/)
 
+Object, class and classloader relationships are illustrated by this graph from [What is a PermGen leak?](https://plumbr.eu/blog/what-is-a-permgen-leak) article.
+
+{{% figure src="media/object-class-classloader.png" title="" %}}
+
+***
+
 Tomcat specific articles:
 
 * [Memory Leak Protection in Tomcat 7](http://java.dzone.com/articles/memory-leak-protection-tomcat)
 * [Tomcat Wiki - MemoryLeakProtection](http://wiki.apache.org/tomcat/MemoryLeakProtection)
+
+***
 
 Other articles:
 
