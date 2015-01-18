@@ -13,6 +13,7 @@ tags = [ "Java" ]
 * [Solving OutOfMemoryError (part 3) – where do you start?](https://plumbr.eu/blog/solving-outofmemoryerror-where-do-you-start)
 * [Solving OutOfMemoryError (part 4) – memory profilers](https://plumbr.eu/blog/solving-outofmemoryerror-memory-profilers)
 * [Solving OutOfMemoryError (part 5) – JDK Tools](https://plumbr.eu/blog/solving-outofmemoryerror-jdk-tools)
+* [Solving OutOfMemoryError (part 6) – Dump is not a waste](https://plumbr.eu/blog/solving-outofmemoryerror-dump-is-not-a-waste)
 
 "Classloader leaks" series from Mattias Jiderhamn:
 
@@ -30,5 +31,7 @@ Tomcat specific articles:
 
 Other articles:
 
-* [Classloader leaks: the dreaded "java.lang.OutOfMemoryError: PermGen space" exception](http://frankkieviet.blogspot.se/2006/10/classloader-leaks-dreaded-permgen-space.html)
+* [What is a memory leak?](https://plumbr.eu/blog/what-is-a-memory-leak)
+* [What is a PermGen leak?](https://plumbr.eu/blog/what-is-a-permgen-leak)
 * [The Guide to Solving Permgen Leaks](https://plumbr.eu/permgen)
+* [Classloader leaks: the dreaded "java.lang.OutOfMemoryError: PermGen space" exception](http://frankkieviet.blogspot.se/2006/10/classloader-leaks-dreaded-permgen-space.html)
