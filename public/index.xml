@@ -25,6 +25,7 @@
 &lt;li&gt;&lt;a href=&#34;https://plumbr.eu/blog/solving-outofmemoryerror-where-do-you-start&#34;&gt;Solving OutOfMemoryError (part 3) – where do you start?&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;https://plumbr.eu/blog/solving-outofmemoryerror-memory-profilers&#34;&gt;Solving OutOfMemoryError (part 4) – memory profilers&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;https://plumbr.eu/blog/solving-outofmemoryerror-jdk-tools&#34;&gt;Solving OutOfMemoryError (part 5) – JDK Tools&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://plumbr.eu/blog/solving-outofmemoryerror-dump-is-not-a-waste&#34;&gt;Solving OutOfMemoryError (part 6) – Dump is not a waste&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;p&gt;&amp;ldquo;Classloader leaks&amp;rdquo; series from Mattias Jiderhamn:&lt;/p&gt;
@@ -48,8 +49,10 @@
 &lt;p&gt;Other articles:&lt;/p&gt;
 
 &lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;http://frankkieviet.blogspot.se/2006/10/classloader-leaks-dreaded-permgen-space.html&#34;&gt;Classloader leaks: the dreaded &amp;ldquo;java.lang.OutOfMemoryError: PermGen space&amp;rdquo; exception&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://plumbr.eu/blog/what-is-a-memory-leak&#34;&gt;What is a memory leak?&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://plumbr.eu/blog/what-is-a-permgen-leak&#34;&gt;What is a PermGen leak?&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;https://plumbr.eu/permgen&#34;&gt;The Guide to Solving Permgen Leaks&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://frankkieviet.blogspot.se/2006/10/classloader-leaks-dreaded-permgen-space.html&#34;&gt;Classloader leaks: the dreaded &amp;ldquo;java.lang.OutOfMemoryError: PermGen space&amp;rdquo; exception&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 </description>
     </item>
