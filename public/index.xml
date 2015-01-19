@@ -44,12 +44,7 @@
 &lt;p&gt;Object, class and classloader relationships are illustrated by this graph from &lt;a href=&#34;https://plumbr.eu/blog/what-is-a-permgen-leak&#34;&gt;What is a PermGen leak?&lt;/a&gt; article.&lt;/p&gt;
 
 &lt;p&gt;
-&lt;figure &gt;
-    
-        &lt;img src=&#34;media/object-class-classloader.png&#34; /&gt;
-    
-    
-&lt;/figure&gt;
+&lt;img src=&#39;http://dddpaul.github.io/blog/media/object-class-classloader.png&#39;/&gt;
 &lt;/p&gt;
 
 &lt;hr /&gt;
