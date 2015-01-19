@@ -6,7 +6,7 @@ series = [ "Memory leaks" ]
 tags = [ "Java" ]
 +++
 
-"Solving OutOfMemoryError" series from Nikita Salnikov-Tarnovsky:
+"Solving OutOfMemoryError" series from Nikita Salnikov-Tarnovsky and Vladimir Šor:
 
 * [Solving OutOfMemoryError (part 1) – story of a developer](https://plumbr.eu/blog/solving-outofmemoryerror-story-of-a-developer)
 * [Solving OutOfMemoryError (part 2) – why didn’t operations solve it?](https://plumbr.eu/blog/solving-outofmemoryerror-why-didnt-operations-solve-it)
