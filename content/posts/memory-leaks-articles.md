@@ -28,7 +28,7 @@ tags = [ "Java" ]
 
 Object, class and classloader relationships are illustrated by this graph from [What is a PermGen leak?](https://plumbr.eu/blog/what-is-a-permgen-leak) article.
 
-{{% figure src="media/object-class-classloader.png" title="" %}}
+{{% img src="media/object-class-classloader.png" %}}
 
 ***
 
