@@ -94,55 +94,41 @@
 
 <p><strong>1.</strong> Motion ставится элементарно — <code>apt-get install motion</code>. Важные настройки:</p>
 
-<p><div class="highlight"><pre>&lt;h1 <span class="nv">id</span><span class="o">=</span><span class="s2">&quot;максимальный-fps:dd5d68c20919ac64bfba0b5fb31117b8&quot;</span>&gt;Максимальный fps&lt;/h1&gt;
+<p><div class="highlight"><pre><span class="c"># Максимальный fps</span>
+framerate 5
 
-&lt;p&gt;framerate 5&lt;/p&gt;
+<span class="c"># Снимать на максимальном fps только во время движения</span>
+webcam_motion on
 
-&lt;h1 <span class="nv">id</span><span class="o">=</span><span class="s2">&quot;снимать-на-максимальном-fps-только-во-время-движения:dd5d68c20919ac64bfba0b5fb31117b8&quot;</span>&gt;Снимать на максимальном fps только во время движения&lt;/h1&gt;
+<span class="c"># Выкрутил в максимум, чтобы избежать срабатывания на включение света</span>
+lightswitch 100
 
-&lt;p&gt;webcam_motion on&lt;/p&gt;
+<span class="c"># Кол-во кадров с движением, необходимых для генерации события</span>
+minimum_motion_frames 3
 
-&lt;h1 <span class="nv">id</span><span class="o">=</span><span class="s2">&quot;выкрутил-в-максимум-чтобы-избежать-срабатывания-на-включение-света:dd5d68c20919ac64bfba0b5fb31117b8&quot;</span>&gt;Выкрутил в максимум, чтобы избежать срабатывания на включение света&lt;/h1&gt;
+<span class="c"># Записать кадры до движения</span>
+pre_capture 5
 
-&lt;p&gt;lightswitch 100&lt;/p&gt;
+<span class="c"># Записать кадры после движения</span>
+post_capture 5
 
-&lt;h1 <span class="nv">id</span><span class="o">=</span><span class="s2">&quot;кол-во-кадров-с-движением-необходимых-для-генерации-события:dd5d68c20919ac64bfba0b5fb31117b8&quot;</span>&gt;Кол-во кадров с движением, необходимых для генерации события&lt;/h1&gt;
+<span class="c"># Маска для определения области детекции, легко делается в Gimp&#39;е из снимка с камеры.</span>
+<span class="c"># Области, закрашенные черным, игнорируются.</span>
+mask_file /path/to/mask.pgm
 
-&lt;p&gt;minimum_motion_frames 3&lt;/p&gt;
+<span class="c"># Время определения окончания движения (если за 15 секунд после начала движения</span>
+<span class="c"># не было никаких поползновений, то считаем, что событие-движение закончилось)</span>
+gap 15
 
-&lt;h1 <span class="nv">id</span><span class="o">=</span><span class="s2">&quot;записать-кадры-до-движения:dd5d68c20919ac64bfba0b5fb31117b8&quot;</span>&gt;Записать кадры до движения&lt;/h1&gt;
+<span class="c"># Отключить создание снимков</span>
+output_normal off
 
-&lt;p&gt;pre_capture 5&lt;/p&gt;
+<span class="c"># Обозначать движение прямоугольником </span>
+locate on
 
-&lt;h1 <span class="nv">id</span><span class="o">=</span><span class="s2">&quot;записать-кадры-после-движения:dd5d68c20919ac64bfba0b5fb31117b8&quot;</span>&gt;Записать кадры после движения&lt;/h1&gt;
-
-&lt;p&gt;post_capture 5&lt;/p&gt;
-
-&lt;h1 <span class="nv">id</span><span class="o">=</span><span class="s2">&quot;маска-для-определения-области-детекции-легко-делается-в-gimp-е-из-снимка-с-камеры:dd5d68c20919ac64bfba0b5fb31117b8&quot;</span>&gt;Маска для определения области детекции, легко делается в Gimp’е из снимка с камеры.&lt;/h1&gt;
-
-&lt;h1 <span class="nv">id</span><span class="o">=</span><span class="s2">&quot;области-закрашенные-черным-игнорируются:dd5d68c20919ac64bfba0b5fb31117b8&quot;</span>&gt;Области, закрашенные черным, игнорируются.&lt;/h1&gt;
-
-&lt;p&gt;mask_file /path/to/mask.pgm&lt;/p&gt;
-
-&lt;h1 <span class="nv">id</span><span class="o">=</span><span class="s2">&quot;время-определения-окончания-движения-если-за-15-секунд-после-начала-движения:dd5d68c20919ac64bfba0b5fb31117b8&quot;</span>&gt;Время определения окончания движения <span class="o">(</span>если за <span class="m">15</span> секунд после начала движения&lt;/h1&gt;
-
-&lt;h1 <span class="nv">id</span><span class="o">=</span><span class="s2">&quot;не-было-никаких-поползновений-то-считаем-что-событие-движение-закончилось:dd5d68c20919ac64bfba0b5fb31117b8&quot;</span>&gt;не было никаких поползновений, то считаем, что событие-движение закончилось<span class="o">)</span>&lt;/h1&gt;
-
-&lt;p&gt;gap 15&lt;/p&gt;
-
-&lt;h1 <span class="nv">id</span><span class="o">=</span><span class="s2">&quot;отключить-создание-снимков:dd5d68c20919ac64bfba0b5fb31117b8&quot;</span>&gt;Отключить создание снимков&lt;/h1&gt;
-
-&lt;p&gt;output_normal off&lt;/p&gt;
-
-&lt;h1 <span class="nv">id</span><span class="o">=</span><span class="s2">&quot;обозначать-движение-прямоугольником:dd5d68c20919ac64bfba0b5fb31117b8&quot;</span>&gt;Обозначать движение прямоугольником&lt;/h1&gt;
-
-&lt;p&gt;locate on&lt;/p&gt;
-
-&lt;h1 <span class="nv">id</span><span class="o">=</span><span class="s2">&quot;запуск-скрипта-по-началу-движения-это-симлимк-который-указывает-на-реальный-скрипт:dd5d68c20919ac64bfba0b5fb31117b8&quot;</span>&gt;Запуск скрипта по началу движения <span class="o">(</span>это симлимк, который указывает на реальный скрипт<span class="o">)</span>.&lt;/h1&gt;
-
-&lt;h1 <span class="nv">id</span><span class="o">=</span><span class="s2">&quot;изменение-симлинка-осущестляется-по-команде-с-пульта-см-п-2-про-конфиг:dd5d68c20919ac64bfba0b5fb31117b8&quot;</span>&gt;Изменение симлинка осущестляется по команде с пульта <span class="o">(</span>см. п. <span class="m">2</span> про конфиг<span class="o">)</span>&lt;/h1&gt;
-
-&lt;p&gt;on_event_start “/etc/motion/handlers/on_event_start”&lt;/p&gt;
+<span class="c"># Запуск скрипта по началу движения (это симлимк, который указывает на реальный скрипт).</span>
+<span class="c"># Изменение симлинка осущестляется по команде с пульта (см. п. 2 про конфиг) </span>
+on_event_start <span class="s2">&quot;/etc/motion/handlers/on_event_start&quot;</span>
 </pre></div>
 </p>
 
@@ -189,14 +175,14 @@ make ecodes.go
 
 <p>И создадим новый upstart job в <em>/etc/init/evhandler.conf</em>:</p>
 
-<p><div class="highlight"><pre>&lt;h1 <span class="nv">id</span><span class="o">=</span><span class="s2">&quot;evhandler-simple-key-press-listener-and-handler-written-in-go:dd5d68c20919ac64bfba0b5fb31117b8&quot;</span>&gt;evhandler - Simple key press listener and handler written in Go&lt;/h1&gt;
+<p><div class="highlight"><pre><span class="c"># evhandler - Simple key press listener and handler written in Go</span>
 
-&lt;p&gt;start on runlevel <span class="o">[</span>2345<span class="o">]</span>
-stop on runlevel <span class="o">[</span>!2345<span class="o">]</span>&lt;/p&gt;
+start on runlevel <span class="o">[</span>2345<span class="o">]</span>
+stop on runlevel <span class="o">[</span>!2345<span class="o">]</span>
 
-&lt;p&gt;respawn&lt;/p&gt;
+respawn
 
-&lt;p&gt;exec /path/to/go-evhandler &gt; /dev/tty1 2&gt;<span class="p">&amp;</span>1&lt;/p&gt;
+<span class="nb">exec</span> /path/to/go-evhandler &gt; /dev/tty1 2&gt;<span class="p">&amp;</span>1
 </pre></div>
 </p>
 
@@ -218,26 +204,21 @@ start evhandler</code>.</p>
 
 <p>Для автоматического запуска этой команды создадим job <em>/etc/init/tty1.conf</em>:</p>
 
-<p><div class="highlight"><pre>&lt;h1 <span class="nv">id</span><span class="o">=</span><span class="s2">&quot;tty1-getty:dd5d68c20919ac64bfba0b5fb31117b8&quot;</span>&gt;tty1 - getty&lt;/h1&gt;
+<p><div class="highlight"><pre><span class="c"># tty1 - getty</span>
+<span class="c">#</span>
+<span class="c"># This service is used to maintain a getty on tty1 from the point the system is</span>
+<span class="c"># started until it is shut down again.</span>
 
-&lt;p&gt;#&lt;/p&gt;
-
-&lt;h1 <span class="nv">id</span><span class="o">=</span><span class="s2">&quot;this-service-is-used-to-maintain-a-getty-on-tty1-from-the-point-the-system-is:dd5d68c20919ac64bfba0b5fb31117b8&quot;</span>&gt;This service is used to maintain a getty on tty1 from the point the system is&lt;/h1&gt;
-
-&lt;h1 <span class="nv">id</span><span class="o">=</span><span class="s2">&quot;started-until-it-is-shut-down-again:dd5d68c20919ac64bfba0b5fb31117b8&quot;</span>&gt;started <span class="k">until</span> it is shut down again.&lt;/h1&gt;
-
-&lt;p&gt;start on stopped rc <span class="nv">RUNLEVEL</span><span class="o">=[</span>2345<span class="o">]</span> and <span class="o">(</span>
+start on stopped rc <span class="nv">RUNLEVEL</span><span class="o">=[</span>2345<span class="o">]</span> and <span class="o">(</span>
             not-container or
             container <span class="nv">CONTAINER</span><span class="o">=</span>lxc or
-            container <span class="nv">CONTAINER</span><span class="o">=</span>lxc-libvirt<span class="o">)</span>&lt;/p&gt;
+            container <span class="nv">CONTAINER</span><span class="o">=</span>lxc-libvirt<span class="o">)</span>
 
-&lt;p&gt;stop on runlevel <span class="o">[</span>!2345<span class="o">]</span>&lt;/p&gt;
+stop on runlevel <span class="o">[</span>!2345<span class="o">]</span>
 
-&lt;h1 <span class="nv">id</span><span class="o">=</span><span class="s2">&quot;blank-screen-after-1-minute-timeout:dd5d68c20919ac64bfba0b5fb31117b8&quot;</span>&gt;Blank screen after <span class="m">1</span> minute timeout&lt;/h1&gt;
-
-&lt;h1 <span class="nv">id</span><span class="o">=</span><span class="s2">&quot;see-http-www-armadeus-com-wiki-index-php-title-framebuffer:dd5d68c20919ac64bfba0b5fb31117b8&quot;</span>&gt;See &lt;a <span class="nv">href</span><span class="o">=</span><span class="s2">&quot;http://www.armadeus.com/wiki/index.php?title=FrameBuffer&quot;</span>&gt;http://www.armadeus.com/wiki/index.php?title<span class="o">=</span>FrameBuffer&lt;/a&gt;&lt;/h1&gt;
-
-&lt;p&gt;exec <span class="nb">echo</span> -ne “<span class="se">\0</span>33<span class="o">[</span>9<span class="p">;</span>1<span class="o">]</span>” &gt; /dev/tty1&lt;/p&gt;
+<span class="c"># Blank screen after 1 minute timeout</span>
+<span class="c"># See http://www.armadeus.com/wiki/index.php?title=FrameBuffer</span>
+<span class="nb">exec echo</span> -ne <span class="s2">&quot;\033[9;1]&quot;</span> &gt; /dev/tty1
 </pre></div>
 </p>
 

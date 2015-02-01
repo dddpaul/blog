@@ -418,55 +418,41 @@ CMD [&amp;quot;/sbin/my_init&amp;quot;]
 
 &lt;p&gt;&lt;strong&gt;1.&lt;/strong&gt; Motion ставится элементарно — &lt;code&gt;apt-get install motion&lt;/code&gt;. Важные настройки:&lt;/p&gt;
 
-&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&amp;lt;h1 &lt;span class=&#34;nv&#34;&gt;id&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;максимальный-fps:dd5d68c20919ac64bfba0b5fb31117b8&amp;quot;&lt;/span&gt;&amp;gt;Максимальный fps&amp;lt;/h1&amp;gt;
+&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;span class=&#34;c&#34;&gt;# Максимальный fps&lt;/span&gt;
+framerate 5
 
-&amp;lt;p&amp;gt;framerate 5&amp;lt;/p&amp;gt;
+&lt;span class=&#34;c&#34;&gt;# Снимать на максимальном fps только во время движения&lt;/span&gt;
+webcam_motion on
 
-&amp;lt;h1 &lt;span class=&#34;nv&#34;&gt;id&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;снимать-на-максимальном-fps-только-во-время-движения:dd5d68c20919ac64bfba0b5fb31117b8&amp;quot;&lt;/span&gt;&amp;gt;Снимать на максимальном fps только во время движения&amp;lt;/h1&amp;gt;
+&lt;span class=&#34;c&#34;&gt;# Выкрутил в максимум, чтобы избежать срабатывания на включение света&lt;/span&gt;
+lightswitch 100
 
-&amp;lt;p&amp;gt;webcam_motion on&amp;lt;/p&amp;gt;
+&lt;span class=&#34;c&#34;&gt;# Кол-во кадров с движением, необходимых для генерации события&lt;/span&gt;
+minimum_motion_frames 3
 
-&amp;lt;h1 &lt;span class=&#34;nv&#34;&gt;id&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;выкрутил-в-максимум-чтобы-избежать-срабатывания-на-включение-света:dd5d68c20919ac64bfba0b5fb31117b8&amp;quot;&lt;/span&gt;&amp;gt;Выкрутил в максимум, чтобы избежать срабатывания на включение света&amp;lt;/h1&amp;gt;
+&lt;span class=&#34;c&#34;&gt;# Записать кадры до движения&lt;/span&gt;
+pre_capture 5
 
-&amp;lt;p&amp;gt;lightswitch 100&amp;lt;/p&amp;gt;
+&lt;span class=&#34;c&#34;&gt;# Записать кадры после движения&lt;/span&gt;
+post_capture 5
 
-&amp;lt;h1 &lt;span class=&#34;nv&#34;&gt;id&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;кол-во-кадров-с-движением-необходимых-для-генерации-события:dd5d68c20919ac64bfba0b5fb31117b8&amp;quot;&lt;/span&gt;&amp;gt;Кол-во кадров с движением, необходимых для генерации события&amp;lt;/h1&amp;gt;
+&lt;span class=&#34;c&#34;&gt;# Маска для определения области детекции, легко делается в Gimp&amp;#39;е из снимка с камеры.&lt;/span&gt;
+&lt;span class=&#34;c&#34;&gt;# Области, закрашенные черным, игнорируются.&lt;/span&gt;
+mask_file /path/to/mask.pgm
 
-&amp;lt;p&amp;gt;minimum_motion_frames 3&amp;lt;/p&amp;gt;
+&lt;span class=&#34;c&#34;&gt;# Время определения окончания движения (если за 15 секунд после начала движения&lt;/span&gt;
+&lt;span class=&#34;c&#34;&gt;# не было никаких поползновений, то считаем, что событие-движение закончилось)&lt;/span&gt;
+gap 15
 
-&amp;lt;h1 &lt;span class=&#34;nv&#34;&gt;id&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;записать-кадры-до-движения:dd5d68c20919ac64bfba0b5fb31117b8&amp;quot;&lt;/span&gt;&amp;gt;Записать кадры до движения&amp;lt;/h1&amp;gt;
+&lt;span class=&#34;c&#34;&gt;# Отключить создание снимков&lt;/span&gt;
+output_normal off
 
-&amp;lt;p&amp;gt;pre_capture 5&amp;lt;/p&amp;gt;
+&lt;span class=&#34;c&#34;&gt;# Обозначать движение прямоугольником &lt;/span&gt;
+locate on
 
-&amp;lt;h1 &lt;span class=&#34;nv&#34;&gt;id&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;записать-кадры-после-движения:dd5d68c20919ac64bfba0b5fb31117b8&amp;quot;&lt;/span&gt;&amp;gt;Записать кадры после движения&amp;lt;/h1&amp;gt;
-
-&amp;lt;p&amp;gt;post_capture 5&amp;lt;/p&amp;gt;
-
-&amp;lt;h1 &lt;span class=&#34;nv&#34;&gt;id&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;маска-для-определения-области-детекции-легко-делается-в-gimp-е-из-снимка-с-камеры:dd5d68c20919ac64bfba0b5fb31117b8&amp;quot;&lt;/span&gt;&amp;gt;Маска для определения области детекции, легко делается в Gimp’е из снимка с камеры.&amp;lt;/h1&amp;gt;
-
-&amp;lt;h1 &lt;span class=&#34;nv&#34;&gt;id&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;области-закрашенные-черным-игнорируются:dd5d68c20919ac64bfba0b5fb31117b8&amp;quot;&lt;/span&gt;&amp;gt;Области, закрашенные черным, игнорируются.&amp;lt;/h1&amp;gt;
-
-&amp;lt;p&amp;gt;mask_file /path/to/mask.pgm&amp;lt;/p&amp;gt;
-
-&amp;lt;h1 &lt;span class=&#34;nv&#34;&gt;id&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;время-определения-окончания-движения-если-за-15-секунд-после-начала-движения:dd5d68c20919ac64bfba0b5fb31117b8&amp;quot;&lt;/span&gt;&amp;gt;Время определения окончания движения &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;если за &lt;span class=&#34;m&#34;&gt;15&lt;/span&gt; секунд после начала движения&amp;lt;/h1&amp;gt;
-
-&amp;lt;h1 &lt;span class=&#34;nv&#34;&gt;id&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;не-было-никаких-поползновений-то-считаем-что-событие-движение-закончилось:dd5d68c20919ac64bfba0b5fb31117b8&amp;quot;&lt;/span&gt;&amp;gt;не было никаких поползновений, то считаем, что событие-движение закончилось&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;&amp;lt;/h1&amp;gt;
-
-&amp;lt;p&amp;gt;gap 15&amp;lt;/p&amp;gt;
-
-&amp;lt;h1 &lt;span class=&#34;nv&#34;&gt;id&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;отключить-создание-снимков:dd5d68c20919ac64bfba0b5fb31117b8&amp;quot;&lt;/span&gt;&amp;gt;Отключить создание снимков&amp;lt;/h1&amp;gt;
-
-&amp;lt;p&amp;gt;output_normal off&amp;lt;/p&amp;gt;
-
-&amp;lt;h1 &lt;span class=&#34;nv&#34;&gt;id&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;обозначать-движение-прямоугольником:dd5d68c20919ac64bfba0b5fb31117b8&amp;quot;&lt;/span&gt;&amp;gt;Обозначать движение прямоугольником&amp;lt;/h1&amp;gt;
-
-&amp;lt;p&amp;gt;locate on&amp;lt;/p&amp;gt;
-
-&amp;lt;h1 &lt;span class=&#34;nv&#34;&gt;id&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;запуск-скрипта-по-началу-движения-это-симлимк-который-указывает-на-реальный-скрипт:dd5d68c20919ac64bfba0b5fb31117b8&amp;quot;&lt;/span&gt;&amp;gt;Запуск скрипта по началу движения &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;это симлимк, который указывает на реальный скрипт&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;.&amp;lt;/h1&amp;gt;
-
-&amp;lt;h1 &lt;span class=&#34;nv&#34;&gt;id&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;изменение-симлинка-осущестляется-по-команде-с-пульта-см-п-2-про-конфиг:dd5d68c20919ac64bfba0b5fb31117b8&amp;quot;&lt;/span&gt;&amp;gt;Изменение симлинка осущестляется по команде с пульта &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;см. п. &lt;span class=&#34;m&#34;&gt;2&lt;/span&gt; про конфиг&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;&amp;lt;/h1&amp;gt;
-
-&amp;lt;p&amp;gt;on_event_start “/etc/motion/handlers/on_event_start”&amp;lt;/p&amp;gt;
+&lt;span class=&#34;c&#34;&gt;# Запуск скрипта по началу движения (это симлимк, который указывает на реальный скрипт).&lt;/span&gt;
+&lt;span class=&#34;c&#34;&gt;# Изменение симлинка осущестляется по команде с пульта (см. п. 2 про конфиг) &lt;/span&gt;
+on_event_start &lt;span class=&#34;s2&#34;&gt;&amp;quot;/etc/motion/handlers/on_event_start&amp;quot;&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/p&gt;
 
@@ -513,14 +499,14 @@ make ecodes.go
 
 &lt;p&gt;И создадим новый upstart job в &lt;em&gt;/etc/init/evhandler.conf&lt;/em&gt;:&lt;/p&gt;
 
-&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&amp;lt;h1 &lt;span class=&#34;nv&#34;&gt;id&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;evhandler-simple-key-press-listener-and-handler-written-in-go:dd5d68c20919ac64bfba0b5fb31117b8&amp;quot;&lt;/span&gt;&amp;gt;evhandler - Simple key press listener and handler written in Go&amp;lt;/h1&amp;gt;
+&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;span class=&#34;c&#34;&gt;# evhandler - Simple key press listener and handler written in Go&lt;/span&gt;
 
-&amp;lt;p&amp;gt;start on runlevel &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;2345&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
-stop on runlevel &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;!2345&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;&amp;lt;/p&amp;gt;
+start on runlevel &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;2345&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
+stop on runlevel &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;!2345&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
 
-&amp;lt;p&amp;gt;respawn&amp;lt;/p&amp;gt;
+respawn
 
-&amp;lt;p&amp;gt;exec /path/to/go-evhandler &amp;gt; /dev/tty1 2&amp;gt;&lt;span class=&#34;p&#34;&gt;&amp;amp;&lt;/span&gt;1&amp;lt;/p&amp;gt;
+&lt;span class=&#34;nb&#34;&gt;exec&lt;/span&gt; /path/to/go-evhandler &amp;gt; /dev/tty1 2&amp;gt;&lt;span class=&#34;p&#34;&gt;&amp;amp;&lt;/span&gt;1
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/p&gt;
 
@@ -542,26 +528,21 @@ start evhandler&lt;/code&gt;.&lt;/p&gt;
 
 &lt;p&gt;Для автоматического запуска этой команды создадим job &lt;em&gt;/etc/init/tty1.conf&lt;/em&gt;:&lt;/p&gt;
 
-&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&amp;lt;h1 &lt;span class=&#34;nv&#34;&gt;id&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;tty1-getty:dd5d68c20919ac64bfba0b5fb31117b8&amp;quot;&lt;/span&gt;&amp;gt;tty1 - getty&amp;lt;/h1&amp;gt;
+&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;span class=&#34;c&#34;&gt;# tty1 - getty&lt;/span&gt;
+&lt;span class=&#34;c&#34;&gt;#&lt;/span&gt;
+&lt;span class=&#34;c&#34;&gt;# This service is used to maintain a getty on tty1 from the point the system is&lt;/span&gt;
+&lt;span class=&#34;c&#34;&gt;# started until it is shut down again.&lt;/span&gt;
 
-&amp;lt;p&amp;gt;#&amp;lt;/p&amp;gt;
-
-&amp;lt;h1 &lt;span class=&#34;nv&#34;&gt;id&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;this-service-is-used-to-maintain-a-getty-on-tty1-from-the-point-the-system-is:dd5d68c20919ac64bfba0b5fb31117b8&amp;quot;&lt;/span&gt;&amp;gt;This service is used to maintain a getty on tty1 from the point the system is&amp;lt;/h1&amp;gt;
-
-&amp;lt;h1 &lt;span class=&#34;nv&#34;&gt;id&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;started-until-it-is-shut-down-again:dd5d68c20919ac64bfba0b5fb31117b8&amp;quot;&lt;/span&gt;&amp;gt;started &lt;span class=&#34;k&#34;&gt;until&lt;/span&gt; it is shut down again.&amp;lt;/h1&amp;gt;
-
-&amp;lt;p&amp;gt;start on stopped rc &lt;span class=&#34;nv&#34;&gt;RUNLEVEL&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=[&lt;/span&gt;2345&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; and &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;
+start on stopped rc &lt;span class=&#34;nv&#34;&gt;RUNLEVEL&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=[&lt;/span&gt;2345&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; and &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;
             not-container or
             container &lt;span class=&#34;nv&#34;&gt;CONTAINER&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;lxc or
-            container &lt;span class=&#34;nv&#34;&gt;CONTAINER&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;lxc-libvirt&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;&amp;lt;/p&amp;gt;
+            container &lt;span class=&#34;nv&#34;&gt;CONTAINER&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;lxc-libvirt&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
 
-&amp;lt;p&amp;gt;stop on runlevel &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;!2345&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;&amp;lt;/p&amp;gt;
+stop on runlevel &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;!2345&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
 
-&amp;lt;h1 &lt;span class=&#34;nv&#34;&gt;id&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;blank-screen-after-1-minute-timeout:dd5d68c20919ac64bfba0b5fb31117b8&amp;quot;&lt;/span&gt;&amp;gt;Blank screen after &lt;span class=&#34;m&#34;&gt;1&lt;/span&gt; minute timeout&amp;lt;/h1&amp;gt;
-
-&amp;lt;h1 &lt;span class=&#34;nv&#34;&gt;id&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;see-http-www-armadeus-com-wiki-index-php-title-framebuffer:dd5d68c20919ac64bfba0b5fb31117b8&amp;quot;&lt;/span&gt;&amp;gt;See &amp;lt;a &lt;span class=&#34;nv&#34;&gt;href&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;http://www.armadeus.com/wiki/index.php?title=FrameBuffer&amp;quot;&lt;/span&gt;&amp;gt;http://www.armadeus.com/wiki/index.php?title&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;FrameBuffer&amp;lt;/a&amp;gt;&amp;lt;/h1&amp;gt;
-
-&amp;lt;p&amp;gt;exec &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; -ne “&lt;span class=&#34;se&#34;&gt;\0&lt;/span&gt;33&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;9&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;1&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;” &amp;gt; /dev/tty1&amp;lt;/p&amp;gt;
+&lt;span class=&#34;c&#34;&gt;# Blank screen after 1 minute timeout&lt;/span&gt;
+&lt;span class=&#34;c&#34;&gt;# See http://www.armadeus.com/wiki/index.php?title=FrameBuffer&lt;/span&gt;
+&lt;span class=&#34;nb&#34;&gt;exec echo&lt;/span&gt; -ne &lt;span class=&#34;s2&#34;&gt;&amp;quot;\033[9;1]&amp;quot;&lt;/span&gt; &amp;gt; /dev/tty1
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/p&gt;
 
