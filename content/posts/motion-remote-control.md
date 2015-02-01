@@ -17,7 +17,7 @@ tags = [ "Golang", "Linux" ]
 
 **1.** Motion ставится элементарно — ```apt-get install motion```. Важные настройки:
 
-{{% highlight shell %}}
+{{< highlight shell >}}
 # Максимальный fps
 framerate 5
 
@@ -53,7 +53,7 @@ locate on
 # Запуск скрипта по началу движения (это симлимк, который указывает на реальный скрипт).
 # Изменение симлинка осущестляется по команде с пульта (см. п. 2 про конфиг) 
 on_event_start "/etc/motion/handlers/on_event_start"
-{{% /highlight %}}
+{{< /highlight >}}
 
 Для подгонки чувствительности, порога шумов и т.д., нужно использовать setup mode, который активируется при запуске ```
 motion -s```.
@@ -98,7 +98,7 @@ make ecodes.go
 
 И создадим новый upstart job в */etc/init/evhandler.conf*:
 
-{{% highlight shell %}}
+{{< highlight shell >}}
 # evhandler - Simple key press listener and handler written in Go
 
 start on runlevel [2345]
@@ -107,7 +107,7 @@ stop on runlevel [!2345]
 respawn
 
 exec /path/to/go-evhandler > /dev/tty1 2>&1
-{{% /highlight %}}
+{{< /highlight >}}
 
 Теперь evhandler будет запускаться при загрузке, а также перезапускаться, если его процесс будет прибит. Для ручного запуска — ```
 start evhandler```.
@@ -125,7 +125,7 @@ start evhandler```.
 
 Для автоматического запуска этой команды создадим job */etc/init/tty1.conf*:
 
-{{% highlight shell %}}
+{{< highlight shell >}}
 # tty1 - getty
 #
 # This service is used to maintain a getty on tty1 from the point the system is
@@ -141,7 +141,7 @@ stop on runlevel [!2345]
 # Blank screen after 1 minute timeout
 # See http://www.armadeus.com/wiki/index.php?title=FrameBuffer
 exec echo -ne "\033[9;1]" > /dev/tty1
-{{% /highlight %}}
+{{< /highlight >}}
 
 Ссылки:
 
