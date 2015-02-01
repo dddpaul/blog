@@ -6,15 +6,13 @@
     <description>Recent content in Android on Dev notes</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    
-    
-    <lastBuildDate>Tue, 21 Oct 2014 14:30:16 UTC</lastBuildDate>
+    <lastBuildDate>Tue, 21 Oct 2014 14:30:16 +0000</lastBuildDate>
     <atom:link href="http://dddpaul.github.io/blog/tags/android/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>Борьба с утечками памяти в Android (Badoo)</title>
       <link>http://dddpaul.github.io/blog/2014/10/21/android-memory-leak-badoo/</link>
-      <pubDate>Tue, 21 Oct 2014 14:30:16 UTC</pubDate>
+      <pubDate>Tue, 21 Oct 2014 14:30:16 +0000</pubDate>
       
       <guid>http://dddpaul.github.io/blog/2014/10/21/android-memory-leak-badoo/</guid>
       <description>
@@ -73,7 +71,7 @@
     <item>
       <title>Подводные камни смены ориентации в Android</title>
       <link>http://dddpaul.github.io/blog/2014/08/02/orientation-change/</link>
-      <pubDate>Sat, 02 Aug 2014 13:32:33 UTC</pubDate>
+      <pubDate>Sat, 02 Aug 2014 13:32:33 +0000</pubDate>
       
       <guid>http://dddpaul.github.io/blog/2014/08/02/orientation-change/</guid>
       <description>
@@ -148,7 +146,7 @@ pager.setAdapter( null );
     <item>
       <title>Android memory leaks</title>
       <link>http://dddpaul.github.io/blog/2014/08/01/android-memory-leaks/</link>
-      <pubDate>Fri, 01 Aug 2014 13:34:16 UTC</pubDate>
+      <pubDate>Fri, 01 Aug 2014 13:34:16 +0000</pubDate>
       
       <guid>http://dddpaul.github.io/blog/2014/08/01/android-memory-leaks/</guid>
       <description>&lt;p&gt;Articles:&lt;/p&gt;
@@ -193,7 +191,7 @@ pager.setAdapter( null );
     <item>
       <title>Multi-pane layout for tablets</title>
       <link>http://dddpaul.github.io/blog/2014/07/30/multi-pane/</link>
-      <pubDate>Wed, 30 Jul 2014 07:14:41 UTC</pubDate>
+      <pubDate>Wed, 30 Jul 2014 07:14:41 +0000</pubDate>
       
       <guid>http://dddpaul.github.io/blog/2014/07/30/multi-pane/</guid>
       <description>&lt;p&gt;Some articles:&lt;/p&gt;
@@ -216,7 +214,7 @@ pager.setAdapter( null );
     <item>
       <title>Retaining state with headless fragments</title>
       <link>http://dddpaul.github.io/blog/2014/07/29/headless-fragments/</link>
-      <pubDate>Tue, 29 Jul 2014 07:55:41 UTC</pubDate>
+      <pubDate>Tue, 29 Jul 2014 07:55:41 +0000</pubDate>
       
       <guid>http://dddpaul.github.io/blog/2014/07/29/headless-fragments/</guid>
       <description>&lt;p&gt;Some articles:&lt;/p&gt;

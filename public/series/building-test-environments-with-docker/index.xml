@@ -6,15 +6,13 @@
     <description>Recent content in Building Test Environments With Docker on Dev notes</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    
-    
-    <lastBuildDate>Mon, 12 Jan 2015 10:42:00 UTC</lastBuildDate>
+    <lastBuildDate>Mon, 12 Jan 2015 10:42:00 +0000</lastBuildDate>
     <atom:link href="http://dddpaul.github.io/blog/series/building-test-environments-with-docker/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>Запуск контейнеров с помощью Fig</title>
       <link>http://dddpaul.github.io/blog/2015/01/12/docker-fig/</link>
-      <pubDate>Mon, 12 Jan 2015 10:42:00 UTC</pubDate>
+      <pubDate>Mon, 12 Jan 2015 10:42:00 +0000</pubDate>
       
       <guid>http://dddpaul.github.io/blog/2015/01/12/docker-fig/</guid>
       <description>
@@ -82,7 +80,7 @@ end script
     <item>
       <title>Связывание контейнеров</title>
       <link>http://dddpaul.github.io/blog/2015/01/08/docker-linking/</link>
-      <pubDate>Thu, 08 Jan 2015 13:49:06 UTC</pubDate>
+      <pubDate>Thu, 08 Jan 2015 13:49:06 +0000</pubDate>
       
       <guid>http://dddpaul.github.io/blog/2015/01/08/docker-linking/</guid>
       <description>&lt;p&gt;Это вторая статья цикла 
@@ -164,7 +162,7 @@ APP1_PORT=tcp://172.17.0.28:22
     <item>
       <title>Подготовка и запуск docker-контейнеров</title>
       <link>http://dddpaul.github.io/blog/2015/01/04/docker-prepare/</link>
-      <pubDate>Sun, 04 Jan 2015 13:49:06 UTC</pubDate>
+      <pubDate>Sun, 04 Jan 2015 13:49:06 +0000</pubDate>
       
       <guid>http://dddpaul.github.io/blog/2015/01/04/docker-prepare/</guid>
       <description>

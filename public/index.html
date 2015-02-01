@@ -82,6 +82,51 @@
         
         <div class="post">
             <h1 class="post-title">
+                <a href="http://dddpaul.github.io/blog/2015/02/01/java-listeners/">
+                    Java network listeners
+                </a>
+            </h1>
+
+            <span class="post-date">2015-02-01</span>
+
+            <p>I&rsquo;ve written a small <a href="https://github.com/dddpaul/java-network-listeners">listeners library</a> today. It allows to create Callables which can be submitted to <a href="http://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ExecutorService.html">ExecutorService</a>. The callable itself implements creating server socket and binding it to local port.</p>
+
+<p>There two principal type of listeners: blocking and non-blocking (thanks to <a href="http://en.wikipedia.org/wiki/Non-blocking_I/O_(Java">Java NIO</a>).</p>
+
+<hr />
+
+<p>Blocking listener is very simple but in can&rsquo;t be interrupted by calling thread. So there&rsquo;s no point in that:</p>
+
+<p><div class="highlight"><pre><span class="n">Future</span><span class="o">&lt;</span><span class="n">Socket</span><span class="o">&gt;</span> <span class="n">future</span> <span class="o">=</span> <span class="n">executor</span><span class="o">.</span><span class="na">submit</span><span class="o">(</span> <span class="n">Listeners</span><span class="o">.</span><span class="na">createListener</span><span class="o">(</span> <span class="n">PORT</span> <span class="o">)</span> <span class="o">);</span>
+<span class="k">try</span> <span class="o">{</span>
+    <span class="n">Socket</span> <span class="n">socket</span> <span class="o">=</span> <span class="n">future</span><span class="o">.</span><span class="na">get</span><span class="o">(</span> <span class="mi">1</span><span class="o">,</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="na">SECONDS</span> <span class="o">);</span>
+<span class="o">}</span> <span class="k">catch</span><span class="o">(</span> <span class="n">TimeoutException</span> <span class="n">e</span> <span class="o">)</span> <span class="o">{</span>
+    <span class="n">future</span><span class="o">.</span><span class="na">cancel</span><span class="o">(</span> <span class="kc">true</span> <span class="o">);</span>
+<span class="o">}</span>
+</pre></div>
+</p>
+
+<p>Listener will stay active and PORT will be bound still. The reason is in usage of the uninterruptible <a href="http://docs.oracle.com/javase/7/docs/api/java/net/ServerSocket.html#accept(">ServerSocket.accept()</a>).</p>
+
+<hr />
+
+<p>In contrary non-blocking listener is more sophisticated but it can be interrupted by calling thread. So you can do that:</p>
+
+<p><div class="highlight"><pre><span class="n">Future</span><span class="o">&lt;</span><span class="n">Socket</span><span class="o">&gt;</span> <span class="n">future</span> <span class="o">=</span> <span class="n">executor</span><span class="o">.</span><span class="na">submit</span><span class="o">(</span> <span class="n">Listeners</span><span class="o">.</span><span class="na">createListener</span><span class="o">(</span> <span class="n">PORT</span> <span class="o">)</span> <span class="o">);</span>
+<span class="k">try</span> <span class="o">{</span>
+    <span class="n">Socket</span> <span class="n">socket</span> <span class="o">=</span> <span class="n">future</span><span class="o">.</span><span class="na">get</span><span class="o">(</span> <span class="mi">1</span><span class="o">,</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="na">SECONDS</span> <span class="o">);</span>
+<span class="o">}</span> <span class="k">catch</span><span class="o">(</span> <span class="n">TimeoutException</span> <span class="n">e</span> <span class="o">)</span> <span class="o">{</span>
+    <span class="n">future</span><span class="o">.</span><span class="na">cancel</span><span class="o">(</span> <span class="kc">true</span> <span class="o">);</span>
+<span class="o">}</span>
+</pre></div>
+</p>
+
+<p>Listener will be terminated and PORT will be freed.</p>
+
+        </div>
+        
+        <div class="post">
+            <h1 class="post-title">
                 <a href="http://dddpaul.github.io/blog/2015/01/17/memory-leaks-articles/">
                     List of memory leaks articles
                 </a>
@@ -707,84 +752,6 @@ start evhandler</code>.</p>
 <li><a href="http://odetocode.com/blogs/scott/archive/2013/09/11/moving-data-in-an-angularjs-directive.aspx">Moving Data In An AngularJS Directive</a>. Передача данных в директиву.</li>
 <li><a href="http://www.undefinednull.com/2014/02/11/mastering-the-scope-of-a-directive-in-angularjs/">Mastering the Scope of the Directives in AngularJS</a>. Очень подробно разжевано про scope в директивах.</li>
 </ul>
-
-        </div>
-        
-        <div class="post">
-            <h1 class="post-title">
-                <a href="http://dddpaul.github.io/blog/2014/08/02/orientation-change/">
-                    Подводные камни смены ориентации в Android
-                </a>
-            </h1>
-
-            <span class="post-date">2014-08-02</span>
-
-            
-
-<p>После нескольких дней отладки приложения пришел к выводу, что смена ориентации (rotation, orientation change) требует к себе особого внимания. Наконец-то я понял тех разработчиков, которые напрочь запрещают смену ориентации в своем софте. Ведь, не зная некоторых неочевидных нюансов, можно легко получить крах приложения или утечку памяти.</p>
-
-<p>Опишу в порядке возрастания сложности, на какие подводные камни мне пришлось натолкнуться.</p>
-
-<h3 id="beginner-s-level:ab7bd6db0fbb770c5dbfe85b3a43d6b3">Beginner&rsquo;s level</h3>
-
-<p>Надо сохранять состояние (state) фрагментов. Не сохранил — потерял, т.к. активити и фрагменты будут пересозданы. Если стейт фрагмента сериализуется в строку, то просто переопределяем метод onSaveInstanceState(). Способ описан как в <a href="http://developer.android.com/guide/components/fragments.html#Lifecycle">официальной документации</a>, так и в множестве других мест.</p>
-
-<h3 id="intermediate:ab7bd6db0fbb770c5dbfe85b3a43d6b3">Intermediate</h3>
-
-<p>Не забываем про AsyncTask. Их тоже надо сохранять, ибо иначе при смене ориентации мы его потеряем. Или он что-нибудь обвалит :) Для решения этой проблемы придумана такая отличная штука, как retaining fragments. Всего один вызов setRetainInstance(true) продляет жизнь фрагменту и связанному с ним асинктаску (назовем это длинный стейт).</p>
-
-<p>Тут и начинаются подводные камни. Что если мы хотим в портретном режиме свайпить фрагменты (через ViewPager), а в landscape — просто показать их всех в линеечку (с помощью LinearLayout безо всякого ViewPager)? Запустим приложение в portrait mode, перевернем, и получим &ldquo;IllegalArgumentException: No view found&rdquo;.</p>
-
-<p>Суть в том, что изначальный фрагмент с портретного режима останется и даже сохранит ссылку на ViewPager, которого в landscape layout уже просто нет :) Отсюда вывод - использовать для сохранения длинного стейта нужно headless fragments, т.е. фрагменты без UI. Тогда получается красиво: в &ldquo;обычных&rdquo; фрагментах формочки и кнопочки, а асинктаски — в отдельных, которые ничего про UI не знают.</p>
-
-<p>Остался последний вопрос — как этот headless fragment создать/запустить? В android-samples есть пример <a href="https://android.googlesource.com/platform/development/+/master/samples/ApiDemos/src/com/example/android/apis/app/FragmentRetainInstance.java">FragmentRetainInstance.java</a>, в котором используется способ матрешки - активити запускает parent fragment, parent запускает worker fragment, внутри которого сидит асинктаск.</p>
-
-<p>Вроде хорошая схема, но если вы, не дай бог, возьмете Robolectric и напишите юнит-тест для родительского фрагмента, то получите что-то типа recursive transaction exception. Суть в том, что роболектрик создает тестируемый фрагмент обычным способом (через транзакцию), а внутри запускается новая транзакция (для worker fragment). А так нельзя, это вам не JPA какой-нибудь :)</p>
-
-<p>Итого — держим асинктаски в headless-фрагменте, который запускаем из активити. В целом, это отличная схема на все случаи жизни, а не только для приведенного примера.</p>
-
-<h3 id="veteran:ab7bd6db0fbb770c5dbfe85b3a43d6b3">Veteran</h3>
-
-<p>Копаем в сторону уже вскользь упомянутого multi-pane. Как его сделать правильно на одних фрагментах? Внятно описанный <a href="http://www.vogella.com/tutorials/AndroidFragments/article.html">способ от Ларса Вогеля</a> требует разных активити, а я не хочу плодить сущности.</p>
-
-<p>Используем уже описанный метод с двумя layout&rsquo;ами (ведь мы же за декларативный подход!):</p>
-
-<ul>
-<li>1-й layout состоит из одного ViewPager&rsquo;а;</li>
-<li>2-й — LinearLayout с двумя фрагментами.</li>
-</ul>
-
-<p>В чем прелесть подхода — 2-й layout можно положить в папочку, например, layout-w600dp и он будет автоматически использован, если ширина экрана больше 600dp. Красота!</p>
-
-<p>Оно даже работает и не падает. Правда, появился какой-то странный глюк с <a href="http://github.com/greenrobot/EventBus">EventBus</a>: иногда фрагмент получает два сообщения вместо одного. При более пристальном изучении оказалось наоборот - два одинаковых фрагмента получают одно сообщение. Откуда они берутся? А кто его знает :)</p>
-
-<p>Была убита куча времени в DDMS/VisualVM/MAT, в результате чего появился <a href="https://github.com/dddpaul/android-ViewPagerBug">тестовый проект</a>, также описал симптомы на <a href="http://stackoverflow.com/questions/25033824/dublicate-fragment-allocation-when-using-viewpager-with-different-layouts">StackOverflow</a>. Вкратце, именно при использовании такого варианта multi-pane (когда в одном layout есть ViewPager, а в другом нет), фрагменты при перевороте создаются ДВАЖДЫ. Причем, оба в RESUMED state, поэтому они оба и ловят сообщения по EventBus.</p>
-
-<p>Плюнув, отказался от второго layout&rsquo;а, теперь ViewPager используется везде. Чтобы показать сразу 2 фрагмента, можно использовать разные <a href="http://commonsware.com/blog/2012/08/20/multiple-view-viewpager-options.html">хитрые способы</a>. Они, в общем, несложные, и, в моем случае, способ с переопределением getPageWidth() даже не внес никаких сайд-эффектов. Правда, определение ширины экрана, когда надо показать multi-pane пришлось вынести в код, получилось чуть менее декларативненько.</p>
-
-<h3 id="hardcore:ab7bd6db0fbb770c5dbfe85b3a43d6b3">Hardcore</h3>
-
-<p>Плавно переходим к утечкам памяти :)</p>
-
-<p>Очень веселая ситуация, когда после, например, после 10 ротаций эмулятора и нескольких запусков GC в хипе болтаются 11 activities. Решив идти до конца, вооружившись методом исключения и вырезав почти весь код и вьюхи, удалось докопаться до причины. Утекал компонент TextView с опцией <a href="http://stackoverflow.com/questions/22990634/textview-with-id-and-textisselectable-true-causes-leaking-of-the-activity-obje">textIsSelectable=&ldquo;true&rdquo;</a>. Очень порадовало начало топика &ldquo;It took me three days to narrow my problem &hellip;&rdquo; :)</p>
-
-<p>Убрал одну строчку в layout, утечка исчезла, ура. Вернулся в основную ветку, вставил этот коммит, прогнал тест (10 ротаций), получил 10 activities. Уже лучше :)</p>
-
-<p>Оказалось, компонент EditText также замечательно утекает. Причина, вроде бы в том, что он слишком умный (у него по-умолчанию включен спеллчекер). Если отключить, то утечка может пропасть, а может и нет. Прогнал тест на разных эмуляторах, оказалось, что в 4.3 баг починен, уже хорошо! А я все тестил на 4.1.2.</p>
-
-<p>Раз версия 4.3 такая замечательная, может быть, там починена утечка textIsSelectable? А то вдруг понадобится эта опция? Нет, все без изменений. Версия 4.4.2? А вот фиг вам - <a href="https://code.google.com/p/android/issues/detail?id=61671">баг в эмуляторе</a>. Вы не можете повернуть эмулятор с этой версией Андроида :) Тест запустить не удалось.</p>
-
-<p>Фрагменты также могут утекать. В сети полно примеров организации свайпа с ViewPager (это где фрагменты создаются в классе-потомке FragmentPagerAdapter и т.д.) Все замечательно, но не забываем вставлять в onDestroy():</p>
-
-<pre><code>pager.removeAllViews();
-pager.setAdapter( null );
-</code></pre>
-
-<p>Иначе, каждый раз при rotation старые фрагменты не будут собираться GC. Если у вас приложение с 2-мя фраментами, то после 10 ротаций будет 22, плюс 11 activities. По крайней мере, в 4.1.2. В 4.3 уже можно этим не заморачиваться :)</p>
-
-<h3 id="заключение:ab7bd6db0fbb770c5dbfe85b3a43d6b3">Заключение</h3>
-
-<p>К чему весь этот пост - выложил обновление <a href="https://play.google.com/store/apps/details?id=com.github.dddpaul.netcat">Simple NetCat</a>. Версия 1.4 поддерживает multi-pane на планшетах, содержит меньше багов (скрестил два пальца) и практически не течет по памяти.</p>
 
         </div>
         

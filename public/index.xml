@@ -6,15 +6,55 @@
     <description>Recent content on Dev notes</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    
-    
-    <lastBuildDate>Sat, 17 Jan 2015 22:35:49 MSK</lastBuildDate>
+    <lastBuildDate>Sun, 01 Feb 2015 18:44:06 +0300</lastBuildDate>
     <atom:link href="http://dddpaul.github.io/blog/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Java network listeners</title>
+      <link>http://dddpaul.github.io/blog/2015/02/01/java-listeners/</link>
+      <pubDate>Sun, 01 Feb 2015 18:44:06 +0300</pubDate>
+      
+      <guid>http://dddpaul.github.io/blog/2015/02/01/java-listeners/</guid>
+      <description>&lt;p&gt;I&amp;rsquo;ve written a small &lt;a href=&#34;https://github.com/dddpaul/java-network-listeners&#34;&gt;listeners library&lt;/a&gt; today. It allows to create Callables which can be submitted to &lt;a href=&#34;http://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ExecutorService.html&#34;&gt;ExecutorService&lt;/a&gt;. The callable itself implements creating server socket and binding it to local port.&lt;/p&gt;
+
+&lt;p&gt;There two principal type of listeners: blocking and non-blocking (thanks to &lt;a href=&#34;http://en.wikipedia.org/wiki/Non-blocking_I/O_(Java&#34;&gt;Java NIO&lt;/a&gt;).&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;Blocking listener is very simple but in can&amp;rsquo;t be interrupted by calling thread. So there&amp;rsquo;s no point in that:&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;span class=&#34;n&#34;&gt;Future&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;Socket&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;future&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;executor&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;submit&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Listeners&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;createListener&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;PORT&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;try&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;Socket&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;socket&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;future&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;get&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;TimeUnit&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;SECONDS&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;catch&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;TimeoutException&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;e&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;future&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;cancel&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt; &lt;span class=&#34;kc&#34;&gt;true&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;p&gt;Listener will stay active and PORT will be bound still. The reason is in usage of the uninterruptible &lt;a href=&#34;http://docs.oracle.com/javase/7/docs/api/java/net/ServerSocket.html#accept(&#34;&gt;ServerSocket.accept()&lt;/a&gt;).&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;In contrary non-blocking listener is more sophisticated but it can be interrupted by calling thread. So you can do that:&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;span class=&#34;n&#34;&gt;Future&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;Socket&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;future&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;executor&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;submit&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Listeners&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;createListener&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;PORT&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;try&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;Socket&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;socket&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;future&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;get&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;TimeUnit&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;SECONDS&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;catch&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;TimeoutException&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;e&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;future&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;cancel&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt; &lt;span class=&#34;kc&#34;&gt;true&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;p&gt;Listener will be terminated and PORT will be freed.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>List of memory leaks articles</title>
       <link>http://dddpaul.github.io/blog/2015/01/17/memory-leaks-articles/</link>
-      <pubDate>Sat, 17 Jan 2015 22:35:49 MSK</pubDate>
+      <pubDate>Sat, 17 Jan 2015 22:35:49 +0300</pubDate>
       
       <guid>http://dddpaul.github.io/blog/2015/01/17/memory-leaks-articles/</guid>
       <description>&lt;p&gt;&amp;ldquo;Solving OutOfMemoryError&amp;rdquo; series from Nikita Salnikov-Tarnovsky and Vladimir Šor:&lt;/p&gt;
@@ -72,7 +112,7 @@
     <item>
       <title>Запуск контейнеров с помощью Fig</title>
       <link>http://dddpaul.github.io/blog/2015/01/12/docker-fig/</link>
-      <pubDate>Mon, 12 Jan 2015 10:42:00 UTC</pubDate>
+      <pubDate>Mon, 12 Jan 2015 10:42:00 +0000</pubDate>
       
       <guid>http://dddpaul.github.io/blog/2015/01/12/docker-fig/</guid>
       <description>
@@ -140,7 +180,7 @@ end script
     <item>
       <title>Связывание контейнеров</title>
       <link>http://dddpaul.github.io/blog/2015/01/08/docker-linking/</link>
-      <pubDate>Thu, 08 Jan 2015 13:49:06 UTC</pubDate>
+      <pubDate>Thu, 08 Jan 2015 13:49:06 +0000</pubDate>
       
       <guid>http://dddpaul.github.io/blog/2015/01/08/docker-linking/</guid>
       <description>&lt;p&gt;Это вторая статья цикла 
@@ -222,7 +262,7 @@ APP1_PORT=tcp://172.17.0.28:22
     <item>
       <title>Подготовка и запуск docker-контейнеров</title>
       <link>http://dddpaul.github.io/blog/2015/01/04/docker-prepare/</link>
-      <pubDate>Sun, 04 Jan 2015 13:49:06 UTC</pubDate>
+      <pubDate>Sun, 04 Jan 2015 13:49:06 +0000</pubDate>
       
       <guid>http://dddpaul.github.io/blog/2015/01/04/docker-prepare/</guid>
       <description>
@@ -293,7 +333,7 @@ CMD [&amp;quot;/sbin/my_init&amp;quot;]
     <item>
       <title>Using method handles to get logger</title>
       <link>http://dddpaul.github.io/blog/2014/12/21/method-handle-logger/</link>
-      <pubDate>Sun, 21 Dec 2014 13:36:15 UTC</pubDate>
+      <pubDate>Sun, 21 Dec 2014 13:36:15 +0000</pubDate>
       
       <guid>http://dddpaul.github.io/blog/2014/12/21/method-handle-logger/</guid>
       <description>&lt;p&gt;One more quote from &lt;a href=&#34;http://www.manning.com/evans/&#34;&gt;The Well-Grounded Java Developer&lt;/a&gt; by Benjamin J. Evans and Martijn Verburg about useful feature of &lt;a href=&#34;http://docs.oracle.com/javase/7/docs/api/java/lang/invoke/MethodHandle.html&#34;&gt;MethodHandle&lt;/a&gt;.&lt;/p&gt;
@@ -319,7 +359,7 @@ CMD [&amp;quot;/sbin/my_init&amp;quot;]
     <item>
       <title>Java Memory Model in few words</title>
       <link>http://dddpaul.github.io/blog/2014/12/06/jmm-1/</link>
-      <pubDate>Sat, 06 Dec 2014 18:33:46 UTC</pubDate>
+      <pubDate>Sat, 06 Dec 2014 18:33:46 +0000</pubDate>
       
       <guid>http://dddpaul.github.io/blog/2014/12/06/jmm-1/</guid>
       <description>&lt;p&gt;This article is mostly consist of quotes from &lt;a href=&#34;http://www.manning.com/evans/&#34;&gt;The Well-Grounded Java Developer&lt;/a&gt; by Benjamin J. Evans and Martijn Verburg. I like simplicity and brevity of their explanation approach.&lt;/p&gt;
@@ -362,7 +402,7 @@ CMD [&amp;quot;/sbin/my_init&amp;quot;]
     <item>
       <title>Дистанционное управление Motion с помощью Go</title>
       <link>http://dddpaul.github.io/blog/2014/11/14/motion-remote-control/</link>
-      <pubDate>Fri, 14 Nov 2014 16:04:00 UTC</pubDate>
+      <pubDate>Fri, 14 Nov 2014 16:04:00 +0000</pubDate>
       
       <guid>http://dddpaul.github.io/blog/2014/11/14/motion-remote-control/</guid>
       <description>&lt;p&gt;Цель — сделать удобное управление для сервачка с системой motion detection.  В качестве сервера пригодился классический нетбук Asus Eee PC 701 4-х гигабайтным SSD на борту. На него была установлена Ubuntu 14.04.&lt;/p&gt;
@@ -540,7 +580,7 @@ start evhandler&lt;/code&gt;.&lt;/p&gt;
     <item>
       <title>Борьба с утечками памяти в Android (Badoo)</title>
       <link>http://dddpaul.github.io/blog/2014/10/21/android-memory-leak-badoo/</link>
-      <pubDate>Tue, 21 Oct 2014 14:30:16 UTC</pubDate>
+      <pubDate>Tue, 21 Oct 2014 14:30:16 +0000</pubDate>
       
       <guid>http://dddpaul.github.io/blog/2014/10/21/android-memory-leak-badoo/</guid>
       <description>
@@ -599,7 +639,7 @@ start evhandler&lt;/code&gt;.&lt;/p&gt;
     <item>
       <title>Директивы AngularJS</title>
       <link>http://dddpaul.github.io/blog/2014/10/16/angularjs-directive/</link>
-      <pubDate>Thu, 16 Oct 2014 11:26:00 UTC</pubDate>
+      <pubDate>Thu, 16 Oct 2014 11:26:00 +0000</pubDate>
       
       <guid>http://dddpaul.github.io/blog/2014/10/16/angularjs-directive/</guid>
       <description>&lt;p&gt;Статьи:&lt;/p&gt;
@@ -617,7 +657,7 @@ start evhandler&lt;/code&gt;.&lt;/p&gt;
     <item>
       <title>Подводные камни смены ориентации в Android</title>
       <link>http://dddpaul.github.io/blog/2014/08/02/orientation-change/</link>
-      <pubDate>Sat, 02 Aug 2014 13:32:33 UTC</pubDate>
+      <pubDate>Sat, 02 Aug 2014 13:32:33 +0000</pubDate>
       
       <guid>http://dddpaul.github.io/blog/2014/08/02/orientation-change/</guid>
       <description>
@@ -692,7 +732,7 @@ pager.setAdapter( null );
     <item>
       <title>Android memory leaks</title>
       <link>http://dddpaul.github.io/blog/2014/08/01/android-memory-leaks/</link>
-      <pubDate>Fri, 01 Aug 2014 13:34:16 UTC</pubDate>
+      <pubDate>Fri, 01 Aug 2014 13:34:16 +0000</pubDate>
       
       <guid>http://dddpaul.github.io/blog/2014/08/01/android-memory-leaks/</guid>
       <description>&lt;p&gt;Articles:&lt;/p&gt;
@@ -737,7 +777,7 @@ pager.setAdapter( null );
     <item>
       <title>Multi-pane layout for tablets</title>
       <link>http://dddpaul.github.io/blog/2014/07/30/multi-pane/</link>
-      <pubDate>Wed, 30 Jul 2014 07:14:41 UTC</pubDate>
+      <pubDate>Wed, 30 Jul 2014 07:14:41 +0000</pubDate>
       
       <guid>http://dddpaul.github.io/blog/2014/07/30/multi-pane/</guid>
       <description>&lt;p&gt;Some articles:&lt;/p&gt;
@@ -760,7 +800,7 @@ pager.setAdapter( null );
     <item>
       <title>Retaining state with headless fragments</title>
       <link>http://dddpaul.github.io/blog/2014/07/29/headless-fragments/</link>
-      <pubDate>Tue, 29 Jul 2014 07:55:41 UTC</pubDate>
+      <pubDate>Tue, 29 Jul 2014 07:55:41 +0000</pubDate>
       
       <guid>http://dddpaul.github.io/blog/2014/07/29/headless-fragments/</guid>
       <description>&lt;p&gt;Some articles:&lt;/p&gt;
@@ -788,7 +828,7 @@ pager.setAdapter( null );
     <item>
       <title>First note</title>
       <link>http://dddpaul.github.io/blog/2014/07/28/oldest/</link>
-      <pubDate>Mon, 28 Jul 2014 12:00:00 UTC</pubDate>
+      <pubDate>Mon, 28 Jul 2014 12:00:00 +0000</pubDate>
       
       <guid>http://dddpaul.github.io/blog/2014/07/28/oldest/</guid>
       <description>&lt;p&gt;This blog is based on &lt;a href=&#34;http://hugo.spf13.com/&#34;&gt;Hugo&lt;/a&gt; - static site generator written on Go. GitHub interaction is organized with use of &lt;a href=&#34;http://hugo.spf13.com/tutorials/github_pages_blog&#34;&gt;Hosting on GitHub Pages&lt;/a&gt; tutorial. See &amp;ldquo;Configure git Workflow&amp;rdquo; section specifically.&lt;/p&gt;

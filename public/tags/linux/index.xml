@@ -6,15 +6,13 @@
     <description>Recent content in Linux on Dev notes</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    
-    
-    <lastBuildDate>Fri, 14 Nov 2014 16:04:00 UTC</lastBuildDate>
+    <lastBuildDate>Fri, 14 Nov 2014 16:04:00 +0000</lastBuildDate>
     <atom:link href="http://dddpaul.github.io/blog/tags/linux/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>Дистанционное управление Motion с помощью Go</title>
       <link>http://dddpaul.github.io/blog/2014/11/14/motion-remote-control/</link>
-      <pubDate>Fri, 14 Nov 2014 16:04:00 UTC</pubDate>
+      <pubDate>Fri, 14 Nov 2014 16:04:00 +0000</pubDate>
       
       <guid>http://dddpaul.github.io/blog/2014/11/14/motion-remote-control/</guid>
       <description>&lt;p&gt;Цель — сделать удобное управление для сервачка с системой motion detection.  В качестве сервера пригодился классический нетбук Asus Eee PC 701 4-х гигабайтным SSD на борту. На него была установлена Ubuntu 14.04.&lt;/p&gt;
