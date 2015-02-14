@@ -82,6 +82,55 @@
         
         <div class="post">
             <h1 class="post-title">
+                <a href="http://dddpaul.github.io/blog/2015/02/14/oracle-connectivity/">
+                    Oracle connectivity in Java
+                </a>
+            </h1>
+
+            <span class="post-date">2015-02-14</span>
+
+            <p>A new small <a href="https://github.com/dddpaul/java-oracle-connectivity">test project</a> is intended to answer the question - what is the proper way to specify network timeout for database connection?</p>
+
+<p>There so many ways in JDBC API:</p>
+
+<ul>
+<li><a href="http://docs.oracle.com/javase/7/docs/api/javax/sql/CommonDataSource.html#setLoginTimeout(int)">CommonDataSource.setLoginTimeout</a></li>
+<li><a href="http://docs.oracle.com/javase/7/docs/api/java/sql/Connection.html#setNetworkTimeout(java.util.concurrent.Executor,%20int)">Connection.setNetworkTimeout</a></li>
+<li><a href="http://docs.oracle.com/javase/7/docs/api/java/sql/Statement.html#setQueryTimeout(int)">Statement.setQueryTimeout</a></li>
+</ul>
+
+<p>And every database has it&rsquo;s own non-standard ways in addition.</p>
+
+<p>But these tests bring to a single conclusion - you must specify driver-level timeouts to handle network timeouts. All these JDBC stuff isn&rsquo;t enough for Oracle database.</p>
+
+<p>This code is suitable for <a href="http://tomcat.apache.org/tomcat-7.0-doc/jdbc-pool.html">Tomcat JDBC Connection Pool</a>:</p>
+
+<p><div class="highlight"><pre><span class="c1">// Get datasource some way</span>
+<span class="n">Datasource</span> <span class="n">ds</span> <span class="o">=</span> <span class="n">createDataSource</span><span class="o">(</span><span class="n">host</span><span class="o">);</span>
+
+<span class="c1">// Set connect (login) timeout</span>
+<span class="n">ds</span><span class="o">.</span><span class="na">setConnectionProperties</span><span class="o">(</span><span class="n">OracleConnection</span><span class="o">.</span><span class="na">CONNECTION_PROPERTY_THIN_NET_CONNECT_TIMEOUT</span> <span class="o">+</span> <span class="s">&quot;=3000&quot;</span><span class="o">);</span>
+
+<span class="c1">// Set common network read timeout</span>
+<span class="n">ds</span><span class="o">.</span><span class="na">setConnectionProperties</span><span class="o">(</span><span class="n">OracleConnection</span><span class="o">.</span><span class="na">CONNECTION_PROPERTY_THIN_READ_TIMEOUT</span> <span class="o">+</span> <span class="s">&quot;=3000&quot;</span><span class="o">);</span>
+</pre></div>
+</p>
+
+<p>The proper way to specify these timeouts in <a href="http://tomcat.apache.org/tomcat-7.0-doc/jndi-datasource-examples-howto.html">JNDI Datasource configuration</a>:</p>
+
+<p><div class="highlight"><pre><span class="nt">&lt;Resource</span> <span class="na">name=</span><span class="s">&quot;jdbc/oracle&quot;</span>
+    <span class="na">driverClassName=</span><span class="s">&quot;oracle.jdbc.OracleDriver&quot;</span>
+    <span class="na">factory=</span><span class="s">&quot;org.apache.tomcat.jdbc.pool.DataSourceFactory&quot;</span>
+    <span class="na">connectionProperties=</span><span class="s">&quot;oracle.net.CONNECT_TIMEOUT=3000;oracle.jdbc.ReadTimeout=3000&quot;</span>
+    <span class="err">...</span>
+    <span class="nt">/&gt;</span>
+</pre></div>
+</p>
+
+        </div>
+        
+        <div class="post">
+            <h1 class="post-title">
                 <a href="http://dddpaul.github.io/blog/2015/02/01/java-listeners/">
                     Java network listeners
                 </a>
@@ -711,27 +760,6 @@ stop on runlevel <span class="o">[</span>!2345<span class="o">]</span>
 <ul>
 <li><a href="http://corner.squareup.com/2013/10/android-main-thread-1.html">A journey on the Android Main Thread - PSVM</a>. Рассказ про про внутренности Main Thread: Loopers, Handlers и т.д.</li>
 <li><a href="http://corner.squareup.com/2013/12/android-main-thread-2.html">A journey on the Android Main Thread - Lifecycle bits</a>. Продолжение — про lifecycle и orientation change.</li>
-</ul>
-
-        </div>
-        
-        <div class="post">
-            <h1 class="post-title">
-                <a href="http://dddpaul.github.io/blog/2014/10/16/angularjs-directive/">
-                    Директивы AngularJS
-                </a>
-            </h1>
-
-            <span class="post-date">2014-10-16</span>
-
-            <p>Статьи:</p>
-
-<ul>
-<li><a href="http://statelessprime.blogspot.ru/2013/04/angularjs-directive-overview.html">AngularJS directive: Overview</a>. Очень крутой сборник статей про директивы. Помогает понять, как правильно создать шаблон директивы вручную (через функции compile и link), а также, как навесить watches.</li>
-<li><a href="http://www.benlesh.com/2013/08/angularjs-watch-digest-and-apply-oh-my.html">AngularJS: $watch, $digest and $apply</a>. Еще раз об этих базовых функциях AngularJS почитать никогда не вредно.</li>
-<li>A Practical Guide to AngularJS Directives - <a href="http://www.sitepoint.com/practical-guide-angularjs-directives/">Part 1</a>, <a href="http://www.sitepoint.com/practical-guide-angularjs-directives-part-two/">Part 2</a>. Подробно про директивы.</li>
-<li><a href="http://odetocode.com/blogs/scott/archive/2013/09/11/moving-data-in-an-angularjs-directive.aspx">Moving Data In An AngularJS Directive</a>. Передача данных в директиву.</li>
-<li><a href="http://www.undefinednull.com/2014/02/11/mastering-the-scope-of-a-directive-in-angularjs/">Mastering the Scope of the Directives in AngularJS</a>. Очень подробно разжевано про scope в директивах.</li>
 </ul>
 
         </div>
