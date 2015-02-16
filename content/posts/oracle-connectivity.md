@@ -16,7 +16,7 @@ There so many ways in JDBC API:
 
 And every database has it's own non-standard ways in addition.
 
-But these tests bring to a single conclusion - you must specify driver-level timeouts to handle network timeouts. All these JDBC stuff isn't enough for Oracle database.
+But these tests have been lead us to a single conclusion — you must specify network timeouts on driver level. All these JDBC stuff isn't enough for Oracle database.
 
 This code is suitable for [Tomcat JDBC Connection Pool](http://tomcat.apache.org/tomcat-7.0-doc/jdbc-pool.html):
 
