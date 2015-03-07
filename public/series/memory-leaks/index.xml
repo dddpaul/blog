@@ -64,6 +64,12 @@
 &lt;li&gt;&lt;a href=&#34;https://plumbr.eu/permgen&#34;&gt;The Guide to Solving Permgen Leaks&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;http://frankkieviet.blogspot.se/2006/10/classloader-leaks-dreaded-permgen-space.html&#34;&gt;Classloader leaks: the dreaded &amp;ldquo;java.lang.OutOfMemoryError: PermGen space&amp;rdquo; exception&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;And the summary:&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;The memory leak is caused by objects that live longer than expected.&lt;/em&gt;&lt;/p&gt;
 </description>
     </item>
     
