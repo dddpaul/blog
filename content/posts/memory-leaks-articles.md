@@ -45,3 +45,9 @@ Other articles:
 * [What is a PermGen leak?](https://plumbr.eu/blog/what-is-a-permgen-leak)
 * [The Guide to Solving Permgen Leaks](https://plumbr.eu/permgen)
 * [Classloader leaks: the dreaded "java.lang.OutOfMemoryError: PermGen space" exception](http://frankkieviet.blogspot.se/2006/10/classloader-leaks-dreaded-permgen-space.html)
+
+***
+
+And the summary:
+
+*The memory leak is caused by objects that live longer than expected.*
