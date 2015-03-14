@@ -75,7 +75,7 @@ make ecodes.go
 
 ```
 [params]
-    device = "/dev/input/event9"
+    device = "/dev/input/eventXXX"
 
 [actions]
     KEY_STOPCD = "service motion stop"
@@ -92,7 +92,45 @@ make ecodes.go
  * искать конфиги в разных местах (например, сначала в $HOME, а потом в */etc*);
  * устанавливать значение по-умолчанию и переопределять значения из конфига значениями из CLI. 
 
-**3.** evhandler должен использовать в качестве стандартного вывода */dev/tty1*. Сделать это очень просто.
+**3.** Имя устройства неплохо бы зафиксировать, т.к. оно назначается udev'ом и может меняться при перетыках из порта в порт, а также при перезагрузках. Но для начала надо узнать текущее имя устройства.
+
+```
+# lsusb
+...
+Bus 003 Device 002: ID 073a:2230 Chaplet Systems, Inc. infrared dongle for remote
+
+# evtest 2>&1 | grep "073a:2230"
+/dev/input/event10:	HID 073a:2230
+```
+
+Итак, имя устройства в системе — */dev/input/event10*. Получим необходимую информацию для построения udev-правила:
+
+```
+# udevadm info -a -p $(udevadm info -q path -n /dev/input/event10)
+...
+  looking at device '/devices/pci0000:00/0000:00:1d.1/usb3/3-2/3-2:1.0/input/input12/event10':
+    KERNEL=="event10"
+    SUBSYSTEM=="input"
+    DRIVER==""
+
+  looking at parent device '/devices/pci0000:00/0000:00:1d.1/usb3/3-2/3-2:1.0/input/input12':
+    KERNELS=="input12"
+    SUBSYSTEMS=="input"
+    DRIVERS==""
+    ATTRS{name}=="HID 073a:2230"
+...
+```
+
+Теперь можно навесить на устройство фиксированный симлинк:
+
+```
+# cat > /etc/udev/rules.d/10-local.rules
+KERNEL=="event*", SUBSYSTEM=="input", ATTRS{name}=="HID 073a:2230", SYMLINK+="input/event100"
+```
+
+Для проверки нужно воспользоваться командой ```udevadm trigger``` или перезагрузиться. Даже если исходное имя устройства изменится (например, на */dev/input/event11*), наш симлинк */dev/input/event100* будет указывать на него.
+
+**4.** evhandler должен использовать в качестве стандартного вывода */dev/tty1*. Сделать это очень просто.
 
 Сначала отключим ввод с */dev/tty1* — ```rm /etc/init/tty1.conf```.
 
@@ -150,3 +188,4 @@ exec echo -ne "\033[9;1]" > /dev/tty1
 * [Change Linux console screen blanking behavior](http://superuser.com/a/154388)
 * [Wake console screen with SSH](http://raspberrypi.stackexchange.com/questions/10374/wake-console-screen-with-ssh)
 * [ArmadeusWiki - Framebuffer](http://www.armadeus.com/wiki/index.php?title=FrameBuffer)
+* [Writing udev rules](https://wiki.archlinux.org/index.php/Udev#Writing_udev_rules)
