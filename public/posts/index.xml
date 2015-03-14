@@ -526,7 +526,7 @@ make ecodes.go
 &lt;p&gt;Поверх golang-evdev я написал &lt;a href=&#34;https://github.com/dddpaul/go-evhandler&#34;&gt;evhandler&lt;/a&gt;. Эта программа запускается от root&amp;rsquo;а и слушает события от input device, указанного в конфиге (как правило, &lt;em&gt;/etc/evhandler.toml&lt;/em&gt;).  Мой конфиг:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code&gt;[params]
-    device = &amp;quot;/dev/input/event9&amp;quot;
+    device = &amp;quot;/dev/input/eventXXX&amp;quot;
 
 [actions]
     KEY_STOPCD = &amp;quot;service motion stop&amp;quot;
@@ -545,7 +545,42 @@ make ecodes.go
 &lt;li&gt;устанавливать значение по-умолчанию и переопределять значения из конфига значениями из CLI.&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;&lt;strong&gt;3.&lt;/strong&gt; evhandler должен использовать в качестве стандартного вывода &lt;em&gt;/dev/tty1&lt;/em&gt;. Сделать это очень просто.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;3.&lt;/strong&gt; Имя устройства неплохо бы зафиксировать, т.к. оно назначается udev&amp;rsquo;ом и может меняться при перетыках из порта в порт, а также при перезагрузках. Но для начала надо узнать текущее имя устройства.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;# lsusb
+...
+Bus 003 Device 002: ID 073a:2230 Chaplet Systems, Inc. infrared dongle for remote
+
+# evtest 2&amp;gt;&amp;amp;1 | grep &amp;quot;073a:2230&amp;quot;
+/dev/input/event10:	HID 073a:2230
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Итак, имя устройства в системе — &lt;em&gt;/dev/input/event10&lt;/em&gt;. Получим необходимую информацию для построения udev-правила:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;# udevadm info -a -p $(udevadm info -q path -n /dev/input/event10)
+...
+  looking at device &#39;/devices/pci0000:00/0000:00:1d.1/usb3/3-2/3-2:1.0/input/input12/event10&#39;:
+    KERNEL==&amp;quot;event10&amp;quot;
+    SUBSYSTEM==&amp;quot;input&amp;quot;
+    DRIVER==&amp;quot;&amp;quot;
+
+  looking at parent device &#39;/devices/pci0000:00/0000:00:1d.1/usb3/3-2/3-2:1.0/input/input12&#39;:
+    KERNELS==&amp;quot;input12&amp;quot;
+    SUBSYSTEMS==&amp;quot;input&amp;quot;
+    DRIVERS==&amp;quot;&amp;quot;
+    ATTRS{name}==&amp;quot;HID 073a:2230&amp;quot;
+...
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Теперь можно навесить на устройство фиксированный симлинк:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;# cat &amp;gt; /etc/udev/rules.d/10-local.rules
+KERNEL==&amp;quot;event*&amp;quot;, SUBSYSTEM==&amp;quot;input&amp;quot;, ATTRS{name}==&amp;quot;HID 073a:2230&amp;quot;, SYMLINK+=&amp;quot;input/event100&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Для проверки нужно воспользоваться командой &lt;code&gt;udevadm trigger&lt;/code&gt; или перезагрузиться. Даже если исходное имя устройства изменится (например, на &lt;em&gt;/dev/input/event11&lt;/em&gt;), наш симлинк &lt;em&gt;/dev/input/event100&lt;/em&gt; будет указывать на него.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;4.&lt;/strong&gt; evhandler должен использовать в качестве стандартного вывода &lt;em&gt;/dev/tty1&lt;/em&gt;. Сделать это очень просто.&lt;/p&gt;
 
 &lt;p&gt;Сначала отключим ввод с &lt;em&gt;/dev/tty1&lt;/em&gt; — &lt;code&gt;rm /etc/init/tty1.conf&lt;/code&gt;.&lt;/p&gt;
 
@@ -606,6 +641,7 @@ stop on runlevel &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;!2345&lt;span class
 &lt;li&gt;&lt;a href=&#34;http://superuser.com/a/154388&#34;&gt;Change Linux console screen blanking behavior&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;http://raspberrypi.stackexchange.com/questions/10374/wake-console-screen-with-ssh&#34;&gt;Wake console screen with SSH&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;http://www.armadeus.com/wiki/index.php?title=FrameBuffer&#34;&gt;ArmadeusWiki - Framebuffer&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://wiki.archlinux.org/index.php/Udev#Writing_udev_rules&#34;&gt;Writing udev rules&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 </description>
     </item>

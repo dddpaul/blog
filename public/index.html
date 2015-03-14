@@ -624,7 +624,7 @@ make ecodes.go
 <p>Поверх golang-evdev я написал <a href="https://github.com/dddpaul/go-evhandler">evhandler</a>. Эта программа запускается от root&rsquo;а и слушает события от input device, указанного в конфиге (как правило, <em>/etc/evhandler.toml</em>).  Мой конфиг:</p>
 
 <pre><code>[params]
-    device = &quot;/dev/input/event9&quot;
+    device = &quot;/dev/input/eventXXX&quot;
 
 [actions]
     KEY_STOPCD = &quot;service motion stop&quot;
@@ -643,7 +643,42 @@ make ecodes.go
 <li>устанавливать значение по-умолчанию и переопределять значения из конфига значениями из CLI.</li>
 </ul>
 
-<p><strong>3.</strong> evhandler должен использовать в качестве стандартного вывода <em>/dev/tty1</em>. Сделать это очень просто.</p>
+<p><strong>3.</strong> Имя устройства неплохо бы зафиксировать, т.к. оно назначается udev&rsquo;ом и может меняться при перетыках из порта в порт, а также при перезагрузках. Но для начала надо узнать текущее имя устройства.</p>
+
+<pre><code># lsusb
+...
+Bus 003 Device 002: ID 073a:2230 Chaplet Systems, Inc. infrared dongle for remote
+
+# evtest 2&gt;&amp;1 | grep &quot;073a:2230&quot;
+/dev/input/event10:	HID 073a:2230
+</code></pre>
+
+<p>Итак, имя устройства в системе — <em>/dev/input/event10</em>. Получим необходимую информацию для построения udev-правила:</p>
+
+<pre><code># udevadm info -a -p $(udevadm info -q path -n /dev/input/event10)
+...
+  looking at device '/devices/pci0000:00/0000:00:1d.1/usb3/3-2/3-2:1.0/input/input12/event10':
+    KERNEL==&quot;event10&quot;
+    SUBSYSTEM==&quot;input&quot;
+    DRIVER==&quot;&quot;
+
+  looking at parent device '/devices/pci0000:00/0000:00:1d.1/usb3/3-2/3-2:1.0/input/input12':
+    KERNELS==&quot;input12&quot;
+    SUBSYSTEMS==&quot;input&quot;
+    DRIVERS==&quot;&quot;
+    ATTRS{name}==&quot;HID 073a:2230&quot;
+...
+</code></pre>
+
+<p>Теперь можно навесить на устройство фиксированный симлинк:</p>
+
+<pre><code># cat &gt; /etc/udev/rules.d/10-local.rules
+KERNEL==&quot;event*&quot;, SUBSYSTEM==&quot;input&quot;, ATTRS{name}==&quot;HID 073a:2230&quot;, SYMLINK+=&quot;input/event100&quot;
+</code></pre>
+
+<p>Для проверки нужно воспользоваться командой <code>udevadm trigger</code> или перезагрузиться. Даже если исходное имя устройства изменится (например, на <em>/dev/input/event11</em>), наш симлинк <em>/dev/input/event100</em> будет указывать на него.</p>
+
+<p><strong>4.</strong> evhandler должен использовать в качестве стандартного вывода <em>/dev/tty1</em>. Сделать это очень просто.</p>
 
 <p>Сначала отключим ввод с <em>/dev/tty1</em> — <code>rm /etc/init/tty1.conf</code>.</p>
 
@@ -704,6 +739,7 @@ stop on runlevel <span class="o">[</span>!2345<span class="o">]</span>
 <li><a href="http://superuser.com/a/154388">Change Linux console screen blanking behavior</a></li>
 <li><a href="http://raspberrypi.stackexchange.com/questions/10374/wake-console-screen-with-ssh">Wake console screen with SSH</a></li>
 <li><a href="http://www.armadeus.com/wiki/index.php?title=FrameBuffer">ArmadeusWiki - Framebuffer</a></li>
+<li><a href="https://wiki.archlinux.org/index.php/Udev#Writing_udev_rules">Writing udev rules</a></li>
 </ul>
 
         </div>
