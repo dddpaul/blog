@@ -10,7 +10,7 @@
 <!--
         {{if .Params.series}}
         {{ $name := index .Params.series 0 }}
-        <p class="seriesname">Series: <a href="{{.Site.BaseUrl}}/series/{{$name | urlize}}">{{$name}}</a></p>
+        <p class="seriesname">Series: <a href="{{.Site.BaseURL}}/series/{{$name | urlize}}">{{$name}}</a></p>
         {{end}}
 -->
         {{ .Content }}
@@ -39,7 +39,7 @@
 
     Tags:
     <ul id="tags">
-        {{ $path := .Site.BaseUrl }}
+        {{ $path := .Site.BaseURL }}
         {{ range .Params.tags }}
         <li><a href="{{ $path }}/tags/{{ . | urlize }}">{{ . }}</a> </li>
         {{ end }}
