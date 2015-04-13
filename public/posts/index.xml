@@ -6,8 +6,38 @@
     <description>Recent content in Posts on Dev notes</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 14 Feb 2015 22:11:00 +0300</lastBuildDate>
+    <lastBuildDate>Sun, 12 Apr 2015 12:15:00 +0300</lastBuildDate>
     <atom:link href="http://dddpaul.github.io/blog/posts/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Java builders</title>
+      <link>http://dddpaul.github.io/blog/2015/04/12/java-builders/</link>
+      <pubDate>Sun, 12 Apr 2015 12:15:00 +0300</pubDate>
+      
+      <guid>http://dddpaul.github.io/blog/2015/04/12/java-builders/</guid>
+      <description>&lt;p&gt;So it&amp;rsquo;s time to scrutinize &lt;a href=&#34;http://en.wikipedia.org/wiki/Builder_pattern&#34;&gt;a builder pattern&lt;/a&gt;. There are bunch of options to implement builder pattern in Java:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://habrahabr.ru/post/86252/&#34;&gt;classic&lt;/a&gt; builder;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://habrahabr.ru/post/244521/&#34;&gt;elegant&lt;/a&gt; builder;&lt;/li&gt;
+&lt;li&gt;classic builder with &lt;a href=&#34;https://github.com/analytically/innerbuilder&#34;&gt;IntelliJ IDEA plugin&lt;/a&gt;;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/google/auto/tree/master/value&#34;&gt;Google AutoValue&lt;/a&gt; builder;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://projectlombok.org/features/Builder.html&#34;&gt;Project Lombok&lt;/a&gt; builder;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://immutables.github.io/&#34;&gt;Immutables&lt;/a&gt; builder.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;All of these variants have been examined in &lt;a href=&#34;https://github.com/dddpaul/java-builders&#34;&gt;Java builders&lt;/a&gt; GitHub project.&lt;/p&gt;
+
+&lt;p&gt;The winners are (and this a tough IMHO):&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;IDEA InnerBuilder plugin if you use builder class from frameworks like &lt;a href=&#34;http://spring.io/&#34;&gt;Spring/Spring MVC&lt;/a&gt; or &lt;a href=&#34;https://www.playframework.com/&#34;&gt;Play&lt;/a&gt;. You can&amp;rsquo;t pass validation annotations to generated class. Despite everything if there is a way to do this I&amp;rsquo;ll be happy to mistake.&lt;/li&gt;
+&lt;li&gt;Immutables.org builder in all other cases. It&amp;rsquo;s features rich and generates beautiful code.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;But do not forget about AutoValue because it&amp;rsquo;s backed by Google itself.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Oracle connectivity in Java</title>
@@ -130,7 +160,7 @@
 &lt;p&gt;Object, class and classloader relationships are illustrated by this graph from &lt;a href=&#34;https://plumbr.eu/blog/what-is-a-permgen-leak&#34;&gt;What is a PermGen leak?&lt;/a&gt; article.&lt;/p&gt;
 
 &lt;p&gt;
-&lt;img src=&#39;http://dddpaul.github.io/blog/media/object-class-classloader.png&#39;/&gt;
+&lt;img src=&#39;http://dddpaul.github.io/blog//media/object-class-classloader.png&#39;/&gt;
 &lt;/p&gt;
 
 &lt;hr /&gt;
@@ -170,7 +200,7 @@
       <description>
 
 &lt;p&gt;Это третья статья цикла 
-&lt;a href=&#39;http://dddpaul.github.io/blog/series/building-test-environments-with-docker&#39;&gt;Building test environments with Docker&lt;/a&gt;.&lt;/p&gt;
+&lt;a href=&#39;http://dddpaul.github.io/blog//series/building-test-environments-with-docker&#39;&gt;Building test environments with Docker&lt;/a&gt;.&lt;/p&gt;
 
 &lt;p&gt;Как мы уже убедились, запуск контейнеров с помощью &lt;code&gt;docker run&lt;/code&gt; — занятие весьма муторное, т.к. необходимо указывать множество опций. При запуске же нескольких контейнеров ситуация только ухудшается, т.к. теперь нужно задавать имена и линки.&lt;/p&gt;
 
@@ -236,7 +266,7 @@ end script
       
       <guid>http://dddpaul.github.io/blog/2015/01/08/docker-linking/</guid>
       <description>&lt;p&gt;Это вторая статья цикла 
-&lt;a href=&#39;http://dddpaul.github.io/blog/series/building-test-environments-with-docker&#39;&gt;Building test environments with Docker&lt;/a&gt;.&lt;/p&gt;
+&lt;a href=&#39;http://dddpaul.github.io/blog//series/building-test-environments-with-docker&#39;&gt;Building test environments with Docker&lt;/a&gt;.&lt;/p&gt;
 
 &lt;p&gt;При создании тестовых окружений из нескольких контейнеров неизбежно возникает задача их взаимного связывания. Набивший оскомину пример: контейнеру с приложением нужен контейнер БД. В нашем же случае, контейнеру с балансером нужны контейнеры с апстримами.&lt;/p&gt;
 
@@ -320,7 +350,7 @@ APP1_PORT=tcp://172.17.0.28:22
       <description>
 
 &lt;p&gt;Это первая статья цикла 
-&lt;a href=&#39;http://dddpaul.github.io/blog/series/building-test-environments-with-docker&#39;&gt;Building test environments with Docker&lt;/a&gt;.&lt;/p&gt;
+&lt;a href=&#39;http://dddpaul.github.io/blog//series/building-test-environments-with-docker&#39;&gt;Building test environments with Docker&lt;/a&gt;.&lt;/p&gt;
 
 &lt;p&gt;Сразу оговорюсь, что все docker-контейнеры основаны на &lt;a href=&#34;http://phusion.github.io/baseimage-docker/&#34;&gt;baseimage-docker&lt;/a&gt;. Этот образ позволяет запускать в контейнере несколько приложений с помощью супервизора &lt;a href=&#34;http://smarden.org/runit/&#34;&gt;runit&lt;/a&gt; и содержит ssh, cron, syslog &amp;ldquo;из коробки&amp;rdquo;.&lt;/p&gt;
 
@@ -655,7 +685,7 @@ stop on runlevel &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;!2345&lt;span class
       <description>
 
 &lt;p&gt;На хабре появилась статья &lt;a href=&#34;http://habrahabr.ru/company/badoo/blog/240479/&#34;&gt;Борьба с утечками памяти в Android. Часть 1&lt;/a&gt; от компании Badoo. Т.к. тема созвучна с моими постами из серии 
-&lt;a href=&#39;http://dddpaul.github.io/blog/series/memory-leaks&#39;&gt;Memory leaks&lt;/a&gt;, то решил вкратце описать их методы.&lt;/p&gt;
+&lt;a href=&#39;http://dddpaul.github.io/blog//series/memory-leaks&#39;&gt;Memory leaks&lt;/a&gt;, то решил вкратце описать их методы.&lt;/p&gt;
 
 &lt;p&gt;Суть проблемы — использование android.os.Handler, в который постится анонимный Runnable с помощью метода &lt;a href=&#34;http://developer.android.com/reference/android/os/Handler.html#postDelayed(java.lang.Runnable, long&#34;&gt;postDelayed&lt;/a&gt;. Для демонстрации, Runnable просто меняет какой-либо TextView (т.е. содержит внутри себя ссылку mTextView), и время до выполнения Runnable берется довольно большим. Так вот, если за этот промежуток времени повернуть девайс несколько раз, то старые активити не будут собираться GC, т.к. в Java любой анонимный класс всегда имеет неявную ссылку на внешний класс.&lt;/p&gt;
 
@@ -862,34 +892,6 @@ pager.setAdapter( null );
 &lt;li&gt;&lt;a href=&#34;http://stackoverflow.com/questions/9468581/can-viewpager-have-multiple-views-in-per-page&#34;&gt;Can ViewPager have multiple views in per page?&lt;/a&gt;. There are links to CommonsWare article and description of method used for some Dutch newspaper app. Looks nice but it display one full page and part of another - it&amp;rsquo;s not what I need now.&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;http://stackoverflow.com/questions/23149850/viewpager-with-different-adapters-for-portrait-and-landscape&#34;&gt;ViewPager with different adapters for portrait and landscape&lt;/a&gt;. Dude wants to show A,B,C fragments in portrait mode and A,C only in landscape. Not my case but interesting.&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;http://stackoverflow.com/questions/6465680/how-to-determine-the-screen-width-in-terms-of-dp-or-dip-at-runtime-in-android&#34;&gt;How to determine the screen width in terms of dp or dip at runtime in Android?&lt;/a&gt;. Describe how to calculate screen size in &amp;ldquo;density-independent pixels&amp;rdquo;. It&amp;rsquo;s useful for decide when which layout to use programmatically.&lt;/li&gt;
-&lt;/ul&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Retaining state with headless fragments</title>
-      <link>http://dddpaul.github.io/blog/2014/07/29/headless-fragments/</link>
-      <pubDate>Tue, 29 Jul 2014 07:55:41 +0000</pubDate>
-      
-      <guid>http://dddpaul.github.io/blog/2014/07/29/headless-fragments/</guid>
-      <description>&lt;p&gt;Some articles:&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;Official &lt;a href=&#34;http://developer.android.com/guide/components/fragments.html&#34;&gt;Fragments guide&lt;/a&gt;. Has some clues for headless fragments (see &amp;ldquo;Adding a fragment without a UI&amp;rdquo;).&lt;/li&gt;
-&lt;li&gt;Superb &lt;a href=&#34;http://www.vogella.com/tutorials/AndroidFragments/article.html&#34;&gt;multi-pane fragments tutorial&lt;/a&gt; from Lars Vogel. Contains some tips for &lt;a href=&#34;http://www.vogella.com/tutorials/AndroidFragments/article.html#headlessfragments&#34;&gt;headless fragments&lt;/a&gt;.&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://techbandhu.wordpress.com/2013/07/02/android-headless-fragment/&#34;&gt;Android best tip to work with fragments and orientation change&lt;/a&gt;. More detailed headless fragments technique description.&lt;/li&gt;
-&lt;li&gt;Headless fragment example - &lt;a href=&#34;https://android.googlesource.com/platform/development/+/master/samples/ApiDemos/src/com/example/android/apis/app/FragmentRetainInstance.java&#34;&gt;FragmentRetainInstance.java&lt;/a&gt;. In this code headless fragment is created from other fragment. In my case it&amp;rsquo;s inappropriate because of Robolectric testing (recursive fragment transactions).&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://www.intertech.com/Blog/saving-and-retrieving-android-instance-state-part-2/&#34;&gt;Saving (And Retrieving) Android Instance State – Part 2&lt;/a&gt;. Details about retained fragments. Neat retained fragment lifecycle.&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://www.androiddesignpatterns.com/2013/04/retaining-objects-across-config-changes.html&#34;&gt;Handling Configuration Changes with Fragments&lt;/a&gt;. Main advice - Manage the Object Inside a Retained Fragment.&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://ideaventure.blogspot.com.au/2014/01/android-activityfragment-life-cycle.html&#34;&gt;Android Activity/Fragment life cycle analysis&lt;/a&gt;. Full logging of all lifecycle method calls in different situations.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;And StackOverflow discussions:&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;http://stackoverflow.com/questions/11591302/unable-to-use-fragment-setretaininstance-as-a-replacement-for-activity-onretai&#34;&gt;Unable to use Fragment.setRetainInstance() as a replacement for Activity.onRetainNonConfigurationInstance()&lt;/a&gt;. How to preserve fragments with WebViews and AsyncTasks. One of the answers is to override Fragment.onDestroy() and save asynctasks to Application object.&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://stackoverflow.com/questions/12640316/further-understanding-setretaininstancetrue&#34;&gt;Further understanding setRetainInstance(true)&lt;/a&gt;. Retained fragment lifecycle logs.&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://stackoverflow.com/questions/8417885/android-fragments-retaining-an-asynctask-during-screen-rotation-or-configuratio&#34;&gt;Android Fragments. Retaining an AsyncTask during screen rotation or configuration change&lt;/a&gt;. Retained fragment with inner asynctask example and much more. AsyncTask has reference to fragment - it&amp;rsquo;s interesting.&lt;/li&gt;
 &lt;/ul&gt;
 </description>
     </item>

@@ -10,9 +10,9 @@
   <title> Dev notes &middot; Dev notes </title>
 
   
-  <link rel="stylesheet" href="http://dddpaul.github.io/blog/css/poole.css">
-  <link rel="stylesheet" href="http://dddpaul.github.io/blog/css/syntax.css">
-  <link rel="stylesheet" href="http://dddpaul.github.io/blog/css/hyde.css">
+  <link rel="stylesheet" href="http://dddpaul.github.io/blog//css/poole.css">
+  <link rel="stylesheet" href="http://dddpaul.github.io/blog//css/syntax.css">
+  <link rel="stylesheet" href="http://dddpaul.github.io/blog//css/hyde.css">
 
   
   <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144-precomposed.png">
@@ -49,25 +49,25 @@
         <ul>
             
             
-            <li><a href="http://dddpaul.github.io/blog/tags/android">android</a> </li>
+            <li><a href="http://dddpaul.github.io/blog//tags/android">android</a> </li>
             
-            <li><a href="http://dddpaul.github.io/blog/tags/angularjs">angularjs</a> </li>
+            <li><a href="http://dddpaul.github.io/blog//tags/angularjs">angularjs</a> </li>
             
-            <li><a href="http://dddpaul.github.io/blog/tags/devops">devops</a> </li>
+            <li><a href="http://dddpaul.github.io/blog//tags/devops">devops</a> </li>
             
-            <li><a href="http://dddpaul.github.io/blog/tags/docker">docker</a> </li>
+            <li><a href="http://dddpaul.github.io/blog//tags/docker">docker</a> </li>
             
-            <li><a href="http://dddpaul.github.io/blog/tags/git">git</a> </li>
+            <li><a href="http://dddpaul.github.io/blog//tags/git">git</a> </li>
             
-            <li><a href="http://dddpaul.github.io/blog/tags/golang">golang</a> </li>
+            <li><a href="http://dddpaul.github.io/blog//tags/golang">golang</a> </li>
             
-            <li><a href="http://dddpaul.github.io/blog/tags/hugo">hugo</a> </li>
+            <li><a href="http://dddpaul.github.io/blog//tags/hugo">hugo</a> </li>
             
-            <li><a href="http://dddpaul.github.io/blog/tags/java">java</a> </li>
+            <li><a href="http://dddpaul.github.io/blog//tags/java">java</a> </li>
             
-            <li><a href="http://dddpaul.github.io/blog/tags/javascript">javascript</a> </li>
+            <li><a href="http://dddpaul.github.io/blog//tags/javascript">javascript</a> </li>
             
-            <li><a href="http://dddpaul.github.io/blog/tags/linux">linux</a> </li>
+            <li><a href="http://dddpaul.github.io/blog//tags/linux">linux</a> </li>
             
         </ul>
 
@@ -79,6 +79,39 @@
 <div class="content container">
     <div class="posts">
 
+        
+        <div class="post">
+            <h1 class="post-title">
+                <a href="http://dddpaul.github.io/blog/2015/04/12/java-builders/">
+                    Java builders
+                </a>
+            </h1>
+
+            <span class="post-date">2015-04-12</span>
+
+            <p>So it&rsquo;s time to scrutinize <a href="http://en.wikipedia.org/wiki/Builder_pattern">a builder pattern</a>. There are bunch of options to implement builder pattern in Java:</p>
+
+<ul>
+<li><a href="http://habrahabr.ru/post/86252/">classic</a> builder;</li>
+<li><a href="http://habrahabr.ru/post/244521/">elegant</a> builder;</li>
+<li>classic builder with <a href="https://github.com/analytically/innerbuilder">IntelliJ IDEA plugin</a>;</li>
+<li><a href="https://github.com/google/auto/tree/master/value">Google AutoValue</a> builder;</li>
+<li><a href="http://projectlombok.org/features/Builder.html">Project Lombok</a> builder;</li>
+<li><a href="http://immutables.github.io/">Immutables</a> builder.</li>
+</ul>
+
+<p>All of these variants have been examined in <a href="https://github.com/dddpaul/java-builders">Java builders</a> GitHub project.</p>
+
+<p>The winners are (and this a tough IMHO):</p>
+
+<ul>
+<li>IDEA InnerBuilder plugin if you use builder class from frameworks like <a href="http://spring.io/">Spring/Spring MVC</a> or <a href="https://www.playframework.com/">Play</a>. You can&rsquo;t pass validation annotations to generated class. Despite everything if there is a way to do this I&rsquo;ll be happy to mistake.</li>
+<li>Immutables.org builder in all other cases. It&rsquo;s features rich and generates beautiful code.</li>
+</ul>
+
+<p>But do not forget about AutoValue because it&rsquo;s backed by Google itself.</p>
+
+        </div>
         
         <div class="post">
             <h1 class="post-title">
@@ -210,7 +243,7 @@
 <p>Object, class and classloader relationships are illustrated by this graph from <a href="https://plumbr.eu/blog/what-is-a-permgen-leak">What is a PermGen leak?</a> article.</p>
 
 <p>
-<img src='http://dddpaul.github.io/blog/media/object-class-classloader.png'/>
+<img src='http://dddpaul.github.io/blog//media/object-class-classloader.png'/>
 </p>
 
 <hr />
@@ -253,7 +286,7 @@
             
 
 <p>Это третья статья цикла 
-<a href='http://dddpaul.github.io/blog/series/building-test-environments-with-docker'>Building test environments with Docker</a>.</p>
+<a href='http://dddpaul.github.io/blog//series/building-test-environments-with-docker'>Building test environments with Docker</a>.</p>
 
 <p>Как мы уже убедились, запуск контейнеров с помощью <code>docker run</code> — занятие весьма муторное, т.к. необходимо указывать множество опций. При запуске же нескольких контейнеров ситуация только ухудшается, т.к. теперь нужно задавать имена и линки.</p>
 
@@ -322,7 +355,7 @@ end script
             <span class="post-date">2015-01-08</span>
 
             <p>Это вторая статья цикла 
-<a href='http://dddpaul.github.io/blog/series/building-test-environments-with-docker'>Building test environments with Docker</a>.</p>
+<a href='http://dddpaul.github.io/blog//series/building-test-environments-with-docker'>Building test environments with Docker</a>.</p>
 
 <p>При создании тестовых окружений из нескольких контейнеров неизбежно возникает задача их взаимного связывания. Набивший оскомину пример: контейнеру с приложением нужен контейнер БД. В нашем же случае, контейнеру с балансером нужны контейнеры с апстримами.</p>
 
@@ -409,7 +442,7 @@ APP1_PORT=tcp://172.17.0.28:22
             
 
 <p>Это первая статья цикла 
-<a href='http://dddpaul.github.io/blog/series/building-test-environments-with-docker'>Building test environments with Docker</a>.</p>
+<a href='http://dddpaul.github.io/blog//series/building-test-environments-with-docker'>Building test environments with Docker</a>.</p>
 
 <p>Сразу оговорюсь, что все docker-контейнеры основаны на <a href="http://phusion.github.io/baseimage-docker/">baseimage-docker</a>. Этот образ позволяет запускать в контейнере несколько приложений с помощью супервизора <a href="http://smarden.org/runit/">runit</a> и содержит ssh, cron, syslog &ldquo;из коробки&rdquo;.</p>
 
@@ -740,68 +773,6 @@ stop on runlevel <span class="o">[</span>!2345<span class="o">]</span>
 <li><a href="http://raspberrypi.stackexchange.com/questions/10374/wake-console-screen-with-ssh">Wake console screen with SSH</a></li>
 <li><a href="http://www.armadeus.com/wiki/index.php?title=FrameBuffer">ArmadeusWiki - Framebuffer</a></li>
 <li><a href="https://wiki.archlinux.org/index.php/Udev#Writing_udev_rules">Writing udev rules</a></li>
-</ul>
-
-        </div>
-        
-        <div class="post">
-            <h1 class="post-title">
-                <a href="http://dddpaul.github.io/blog/2014/10/21/android-memory-leak-badoo/">
-                    Борьба с утечками памяти в Android (Badoo)
-                </a>
-            </h1>
-
-            <span class="post-date">2014-10-21</span>
-
-            
-
-<p>На хабре появилась статья <a href="http://habrahabr.ru/company/badoo/blog/240479/">Борьба с утечками памяти в Android. Часть 1</a> от компании Badoo. Т.к. тема созвучна с моими постами из серии 
-<a href='http://dddpaul.github.io/blog/series/memory-leaks'>Memory leaks</a>, то решил вкратце описать их методы.</p>
-
-<p>Суть проблемы — использование android.os.Handler, в который постится анонимный Runnable с помощью метода <a href="http://developer.android.com/reference/android/os/Handler.html#postDelayed(java.lang.Runnable, long">postDelayed</a>. Для демонстрации, Runnable просто меняет какой-либо TextView (т.е. содержит внутри себя ссылку mTextView), и время до выполнения Runnable берется довольно большим. Так вот, если за этот промежуток времени повернуть девайс несколько раз, то старые активити не будут собираться GC, т.к. в Java любой анонимный класс всегда имеет неявную ссылку на внешний класс.</p>
-
-<h3 id="решение-с-использованием-статического-класса:b5ecc8a59da209189d194d532f575ae4">Решение с использованием статического класса</h3>
-
-<p>Переделка анонимного класса в статический проблему не решает — Activity сохранен в ссылке mContext из mTextView внутри нашей реализации Runnable.</p>
-
-<h3 id="решение-с-использованием-статического-класса-и-weakreference:b5ecc8a59da209189d194d532f575ae4">Решение с использованием статического класса и WeakReference</h3>
-
-<p>В реализации Runnable сохраняем ссылку на TextView в WeakReference. Использование WeakReference требует особой аккуратности: такая ссылка в любой момент может обнулиться. Поэтому сначала сохраняем ссылку в локальную переменную и работаем только с последней, проверив ее на null.</p>
-
-<p>Для использования данного подхода нам необходимо:</p>
-
-<ul>
-<li>использовать статический внутренний или внешний класс;</li>
-<li>использовать WeakReference для всех объектов, на которые мы ссылаемся.</li>
-</ul>
-
-<p>Это решает проблему.</p>
-
-<h3 id="очистка-всех-сообщений-в-ondestroy:b5ecc8a59da209189d194d532f575ae4">Очистка всех сообщений в onDestroy</h3>
-
-<p>Добавим в onDestroy вызов метода класса Handler <a href="http://developer.android.com/reference/android/os/Handler.html#removeCallbacksAndMessages(java.lang.Object)">removeCallbacksAndMessages</a>. Он удаляет все сообщения, находящиеся в очереди данного Handler&rsquo;а. Это очень хороший способ защититься от утечки памяти, но во-первых, нужно не забыть это сделать, а во-вторых, в комментах к статье пишут, что вызов onDestroy в общем случае не гарантирован.</p>
-
-<p>Цитата из документации — <a href="http://developer.android.com/training/basics/activity-lifecycle/stopping.html">Stopping and Restarting an Activity</a>:</p>
-
-<blockquote>
-<p>When your activity receives a call to the onStop() method, it&rsquo;s no longer visible and should release almost all resources that aren&rsquo;t needed while the user is not using it. Once your activity is stopped, the system might destroy the instance if it needs to recover system memory. In extreme cases, the system might simply kill your app process without calling the activity&rsquo;s final onDestroy() callback, so it&rsquo;s important you use onStop() to release resources that might leak memory.</p>
-</blockquote>
-
-<h3 id="решение-с-использованием-weakhandler:b5ecc8a59da209189d194d532f575ae4">Решение с использованием WeakHandler</h3>
-
-<p>Команда Badoo написала свой Handler — <a href="github.com/badoo/android-weak-handler">WeakHandler</a>. Это класс, который ведет себя совершенно как Handler, но исключает утечки памяти за счет использования слабых ссылок.</p>
-
-<p>Главная идея — держать жесткую ссылку на сообщения или Runnable до тех пор, пока существует жесткая ссылка на WeakHandler. Как только WeakHandler может быть удален из памяти, все остальное должно быть удалено вместе с ним.</p>
-
-<h3 id="выводы:b5ecc8a59da209189d194d532f575ae4">Выводы</h3>
-
-<p>Отличная и годная статья :)</p>
-
-<p>Ссылки:</p>
-
-<ul>
-<li><a href="http://corner.squareup.com/2013/10/android-main-thread-1.html">A journey on the Android Main Thread - PSVM</a>. Рассказ про про внутренности Main Thread: Loopers, Handlers и т.д.</li>
-<li><a href="http://corner.squareup.com/2013/12/android-main-thread-2.html">A journey on the Android Main Thread - Lifecycle bits</a>. Продолжение — про lifecycle и orientation change.</li>
 </ul>
 
         </div>

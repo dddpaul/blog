@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
 
-  <title> First note &middot; Dev notes </title>
+  <title> Java builders &middot; Dev notes </title>
 
   
   <link rel="stylesheet" href="http://dddpaul.github.io/blog//css/poole.css">
@@ -78,12 +78,30 @@
 
 <div class="content container">
     <div class="post">
-        <h1 class="post-title">First note</h1>
-        <span class="post-date">2014-07-28</span>
+        <h1 class="post-title">Java builders</h1>
+        <span class="post-date">2015-04-12</span>
 
-        <p>This blog is based on <a href="http://hugo.spf13.com/">Hugo</a> - static site generator written on Go. GitHub interaction is organized with use of <a href="http://hugo.spf13.com/tutorials/github_pages_blog">Hosting on GitHub Pages</a> tutorial. See &ldquo;Configure git Workflow&rdquo; section specifically.</p>
+        <p>So it&rsquo;s time to scrutinize <a href="http://en.wikipedia.org/wiki/Builder_pattern">a builder pattern</a>. There are bunch of options to implement builder pattern in Java:</p>
 
-<p>And for all of the git 1.7.x (and older) users - you can grab <em>git-subtree</em> from <em>contrib</em> directory of <a href="https://github.com/git/git">Git repo</a>. I&rsquo;ve used <em>git-subtree</em> from latest 1.8.x. It&rsquo;s just a shell script, run <code>make</code>, <code>chmod +x git-subtree</code> and copy it to <em>/usr/lib/git-core</em>.</p>
+<ul>
+<li><a href="http://habrahabr.ru/post/86252/">classic</a> builder;</li>
+<li><a href="http://habrahabr.ru/post/244521/">elegant</a> builder;</li>
+<li>classic builder with <a href="https://github.com/analytically/innerbuilder">IntelliJ IDEA plugin</a>;</li>
+<li><a href="https://github.com/google/auto/tree/master/value">Google AutoValue</a> builder;</li>
+<li><a href="http://projectlombok.org/features/Builder.html">Project Lombok</a> builder;</li>
+<li><a href="http://immutables.github.io/">Immutables</a> builder.</li>
+</ul>
+
+<p>All of these variants have been examined in <a href="https://github.com/dddpaul/java-builders">Java builders</a> GitHub project.</p>
+
+<p>The winners are (and this a tough IMHO):</p>
+
+<ul>
+<li>IDEA InnerBuilder plugin if you use builder class from frameworks like <a href="http://spring.io/">Spring/Spring MVC</a> or <a href="https://www.playframework.com/">Play</a>. You can&rsquo;t pass validation annotations to generated class. Despite everything if there is a way to do this I&rsquo;ll be happy to mistake.</li>
+<li>Immutables.org builder in all other cases. It&rsquo;s features rich and generates beautiful code.</li>
+</ul>
+
+<p>But do not forget about AutoValue because it&rsquo;s backed by Google itself.</p>
 
     </div>
 
@@ -93,11 +111,7 @@
     <ul id="tags">
         
         
-        <li><a href="http://dddpaul.github.io/blog//tags/hugo">Hugo</a> </li>
-        
-        <li><a href="http://dddpaul.github.io/blog//tags/golang">Golang</a> </li>
-        
-        <li><a href="http://dddpaul.github.io/blog//tags/git">Git</a> </li>
+        <li><a href="http://dddpaul.github.io/blog//tags/java">Java</a> </li>
         
     </ul>
 
@@ -112,9 +126,9 @@
 
     var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
     var disqus_shortname = 'dddpaul-github';
-    var disqus_identifier = 'http:\/\/dddpaul.github.io\/blog\/2014\/07\/28\/oldest\/';
-    var disqus_title = 'First note';
-    var disqus_url = 'http:\/\/dddpaul.github.io\/blog\/2014\/07\/28\/oldest\/';
+    var disqus_identifier = 'http:\/\/dddpaul.github.io\/blog\/2015\/04\/12\/java-builders\/';
+    var disqus_title = 'Java builders';
+    var disqus_url = 'http:\/\/dddpaul.github.io\/blog\/2015\/04\/12\/java-builders\/';
     dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
     (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
 })();
