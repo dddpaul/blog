@@ -6,8 +6,29 @@
     <description>Recent content in Java on Dev notes</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 12 Apr 2015 12:15:00 +0300</lastBuildDate>
+    <lastBuildDate>Fri, 15 May 2015 08:27:00 +0300</lastBuildDate>
     <atom:link href="http://dddpaul.github.io/blog/tags/java/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>RabbitMQ links</title>
+      <link>http://dddpaul.github.io/blog/2015/05/15/rabbitmq-links/</link>
+      <pubDate>Fri, 15 May 2015 08:27:00 +0300</pubDate>
+      
+      <guid>http://dddpaul.github.io/blog/2015/05/15/rabbitmq-links/</guid>
+      <description>&lt;p&gt;RabbitMQ confirms, transactions, reply-to functionality and Spring integration:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://docs.spring.io/spring-amqp/reference/html/amqp.html&#34;&gt;Using Spring AMQP&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.rabbitmq.com/blog/2011/02/10/introducing-publisher-confirms/&#34;&gt;Introducing Publisher Confirms&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://kishanthan.wordpress.com/2013/05/05/transaction-support-with-rabbitmq/&#34;&gt;Transaction support with RabbitMQ&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.rabbitmq.com/confirms.html&#34;&gt;Confirms (aka Publisher Acknowledgements)&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.rabbitmq.com/direct-reply-to.html&#34;&gt;Direct reply-to&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.rabbitmq.com/tutorials/tutorial-six-java.html&#34;&gt;Remote procedure call (RPC)&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://gist.github.com/scvalex/613157&#34;&gt;TxDontLoseMessages.java&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://raw.githubusercontent.com/rabbitmq/rabbitmq-java-client/master/test/src/com/rabbitmq/examples/ConfirmDontLoseMessages.java&#34;&gt;ConfirmDontLoseMessages.java&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
     
     <item>
       <title>Java builders</title>

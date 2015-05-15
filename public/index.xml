@@ -6,8 +6,29 @@
     <description>Recent content on Dev notes</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 12 Apr 2015 12:15:00 +0300</lastBuildDate>
+    <lastBuildDate>Fri, 15 May 2015 08:27:00 +0300</lastBuildDate>
     <atom:link href="http://dddpaul.github.io/blog/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>RabbitMQ links</title>
+      <link>http://dddpaul.github.io/blog/2015/05/15/rabbitmq-links/</link>
+      <pubDate>Fri, 15 May 2015 08:27:00 +0300</pubDate>
+      
+      <guid>http://dddpaul.github.io/blog/2015/05/15/rabbitmq-links/</guid>
+      <description>&lt;p&gt;RabbitMQ confirms, transactions, reply-to functionality and Spring integration:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://docs.spring.io/spring-amqp/reference/html/amqp.html&#34;&gt;Using Spring AMQP&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.rabbitmq.com/blog/2011/02/10/introducing-publisher-confirms/&#34;&gt;Introducing Publisher Confirms&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://kishanthan.wordpress.com/2013/05/05/transaction-support-with-rabbitmq/&#34;&gt;Transaction support with RabbitMQ&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.rabbitmq.com/confirms.html&#34;&gt;Confirms (aka Publisher Acknowledgements)&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.rabbitmq.com/direct-reply-to.html&#34;&gt;Direct reply-to&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.rabbitmq.com/tutorials/tutorial-six-java.html&#34;&gt;Remote procedure call (RPC)&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://gist.github.com/scvalex/613157&#34;&gt;TxDontLoseMessages.java&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://raw.githubusercontent.com/rabbitmq/rabbitmq-java-client/master/test/src/com/rabbitmq/examples/ConfirmDontLoseMessages.java&#34;&gt;ConfirmDontLoseMessages.java&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
     
     <item>
       <title>Java builders</title>
@@ -869,29 +890,6 @@ pager.setAdapter( null );
 
 &lt;ul&gt;
 &lt;li&gt;&lt;a href=&#34;http://www.youtube.com/watch?v=_CruQY55HOk&#34;&gt; Google I/O 2011: Memory management for Android Apps &lt;/a&gt;. Presentation by &lt;a href=&#34;http://dubroy.com&#34;&gt;Patrick Dubroy&lt;/a&gt;.&lt;/li&gt;
-&lt;/ul&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Multi-pane layout for tablets</title>
-      <link>http://dddpaul.github.io/blog/2014/07/30/multi-pane/</link>
-      <pubDate>Wed, 30 Jul 2014 07:14:41 +0000</pubDate>
-      
-      <guid>http://dddpaul.github.io/blog/2014/07/30/multi-pane/</guid>
-      <description>&lt;p&gt;Some articles:&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;http://commonsware.com/blog/2012/08/20/multiple-view-viewpager-options.html&#34;&gt;Multiple-View ViewPager Options&lt;/a&gt;. It&amp;rsquo;s a brilliant set of methods to display several fragments simultaneously using ViewPager. I&amp;rsquo;ve personally used first method (overriding getPageWidth() in PagerAdapter) - it works for me.&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://shashikawlp.wordpress.com/2012/12/13/android-viewpager-with-multiple-views/&#34;&gt;Android ViewPager with Multiple Views&lt;/a&gt;. Looks like third method from previous article.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;And StackOverflow discussions:&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;http://stackoverflow.com/questions/9468581/can-viewpager-have-multiple-views-in-per-page&#34;&gt;Can ViewPager have multiple views in per page?&lt;/a&gt;. There are links to CommonsWare article and description of method used for some Dutch newspaper app. Looks nice but it display one full page and part of another - it&amp;rsquo;s not what I need now.&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://stackoverflow.com/questions/23149850/viewpager-with-different-adapters-for-portrait-and-landscape&#34;&gt;ViewPager with different adapters for portrait and landscape&lt;/a&gt;. Dude wants to show A,B,C fragments in portrait mode and A,C only in landscape. Not my case but interesting.&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://stackoverflow.com/questions/6465680/how-to-determine-the-screen-width-in-terms-of-dp-or-dip-at-runtime-in-android&#34;&gt;How to determine the screen width in terms of dp or dip at runtime in Android?&lt;/a&gt;. Describe how to calculate screen size in &amp;ldquo;density-independent pixels&amp;rdquo;. It&amp;rsquo;s useful for decide when which layout to use programmatically.&lt;/li&gt;
 &lt;/ul&gt;
 </description>
     </item>
