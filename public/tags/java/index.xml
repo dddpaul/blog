@@ -6,8 +6,82 @@
     <description>Recent content in Java on Dev notes</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 30 Jun 2015 13:27:00 +0300</lastBuildDate>
+    <lastBuildDate>Sun, 12 Jul 2015 18:30:00 +0300</lastBuildDate>
     <atom:link href="http://dddpaul.github.io/blog/tags/java/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Тонкости использования аннотации @Value в Spring Boot</title>
+      <link>http://dddpaul.github.io/blog/2015/07/12/spring-boot-value/</link>
+      <pubDate>Sun, 12 Jul 2015 18:30:00 +0300</pubDate>
+      
+      <guid>http://dddpaul.github.io/blog/2015/07/12/spring-boot-value/</guid>
+      <description>&lt;p&gt;Аннотация &lt;a href=&#34;http://docs.spring.io/spring/docs/current/javadoc-api/org/springframework/beans/factory/annotation/Value.html&#34;&gt;@Value&lt;/a&gt; - это самый простой способ для &amp;ldquo;впрыскивания&amp;rdquo; значений из конфигурации Spring Boot в код. При этом также можно задать значение по-умолчанию.&lt;/p&gt;
+
+&lt;p&gt;Однако, стоит учитывать, что резолвинг значения будет выполняться для каждой аннотации @Value. Например, если аннотировать @Value два поля (в одном или разных классах - не суть важно) вот так:&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;span class=&#34;nd&#34;&gt;@Value&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;${unique-param}&amp;quot;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;kd&#34;&gt;private&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;String&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;param1&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;;&lt;/span&gt;
+
+&lt;span class=&#34;nd&#34;&gt;@Value&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;${unique-param}&amp;quot;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;kd&#34;&gt;private&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;String&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;param2&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;p&gt;, то в debug-логе мы увидим:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;TRACE 23601 --- [lication.main()] o.s.c.e.PropertySourcesPropertyResolver  : getProperty(&amp;quot;unique-param&amp;quot;, String)
+DEBUG 23601 --- [lication.main()] o.s.c.e.PropertySourcesPropertyResolver  : Searching for key &#39;unique-param&#39; in [environmentProperties]
+...
+TRACE 23601 --- [lication.main()] o.s.c.e.PropertySourcesPropertyResolver  : getProperty(&amp;quot;unique-param&amp;quot;, String)
+DEBUG 23601 --- [lication.main()] o.s.c.e.PropertySourcesPropertyResolver  : Searching for key &#39;unique-param&#39; in [environmentProperties]
+...
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Т.е. поиск (резолвинг) был проведен дважды. Конечно, это слишком мизерная операция, чтобы хоть как-то замедлить старт приложения, но знать об этом стоит.&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;Еще более неоднозначная штука связана с передачей дефолтного значения через @Value.&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;span class=&#34;nd&#34;&gt;@Value&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;${unique-param:DefaultValue}&amp;quot;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;kd&#34;&gt;private&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;String&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;param&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;p&gt;При резолвинге значения будет сначала проведен поиск параметра &amp;ldquo;unique-param:DefaultValue&amp;rdquo;, а уже потом - &amp;ldquo;unique-param&amp;rdquo;. Таким образом, если в конфигурации указать:&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;span class=&#34;na&#34;&gt;unique-param\:DefaultValue&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;Another value&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;p&gt;, то param в коде будет равен &amp;ldquo;Another value&amp;rdquo;.&lt;/p&gt;
+
+&lt;p&gt;Такая логика прописана в org.springframework.util.PropertyPlaceholderHelper#parseStringValue.&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;Оба этих нюанса могут ответить на вопрос - почему debug-лог приложения на Spring Boot такой большой.&lt;/p&gt;
+
+&lt;p&gt;Мораль - используйте &lt;a href=&#34;http://docs.spring.io/autorepo/docs/spring-boot/current/api/org/springframework/boot/context/properties/ConfigurationProperties.html&#34;&gt;ConfigurationProperties&lt;/a&gt;, что, в конце-концов, и советуется в &lt;a href=&#34;http://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-external-config.html&#34;&gt;23. Externalized Configuration&lt;/a&gt;, раздел &amp;ldquo;23.7 Typesafe Configuration Properties&amp;rdquo;.&lt;/p&gt;
+
+&lt;p&gt;Например:&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;span class=&#34;nd&#34;&gt;@ConfigurationProperties&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;prefix&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;quot;params&amp;quot;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;kd&#34;&gt;public&lt;/span&gt; &lt;span class=&#34;kd&#34;&gt;class&lt;/span&gt; &lt;span class=&#34;nc&#34;&gt;Config&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+    &lt;span class=&#34;kd&#34;&gt;private&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;String&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;uniqueParam&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;quot;Default value&amp;quot;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;;&lt;/span&gt;
+
+    &lt;span class=&#34;c1&#34;&gt;// Getters are mandatory. Setters are mandatory for immutable types (such as String).&lt;/span&gt;
+ &lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;p&gt;Конфигурация:&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;span class=&#34;na&#34;&gt;params.unique-param&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;Another value&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Логирование HTTP-запросов в Tomcat</title>

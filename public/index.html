@@ -82,6 +82,83 @@
         
         <div class="post">
             <h1 class="post-title">
+                <a href="http://dddpaul.github.io/blog/2015/07/12/spring-boot-value/">
+                    Тонкости использования аннотации @Value в Spring Boot
+                </a>
+            </h1>
+
+            <span class="post-date">2015-07-12</span>
+
+            <p>Аннотация <a href="http://docs.spring.io/spring/docs/current/javadoc-api/org/springframework/beans/factory/annotation/Value.html">@Value</a> - это самый простой способ для &ldquo;впрыскивания&rdquo; значений из конфигурации Spring Boot в код. При этом также можно задать значение по-умолчанию.</p>
+
+<p>Однако, стоит учитывать, что резолвинг значения будет выполняться для каждой аннотации @Value. Например, если аннотировать @Value два поля (в одном или разных классах - не суть важно) вот так:</p>
+
+<p><div class="highlight"><pre><span class="nd">@Value</span><span class="o">(</span><span class="s">&quot;${unique-param}&quot;</span><span class="o">)</span>
+<span class="kd">private</span> <span class="n">String</span> <span class="n">param1</span><span class="o">;</span>
+
+<span class="nd">@Value</span><span class="o">(</span><span class="s">&quot;${unique-param}&quot;</span><span class="o">)</span>
+<span class="kd">private</span> <span class="n">String</span> <span class="n">param2</span><span class="o">;</span>
+</pre></div>
+</p>
+
+<p>, то в debug-логе мы увидим:</p>
+
+<pre><code>TRACE 23601 --- [lication.main()] o.s.c.e.PropertySourcesPropertyResolver  : getProperty(&quot;unique-param&quot;, String)
+DEBUG 23601 --- [lication.main()] o.s.c.e.PropertySourcesPropertyResolver  : Searching for key 'unique-param' in [environmentProperties]
+...
+TRACE 23601 --- [lication.main()] o.s.c.e.PropertySourcesPropertyResolver  : getProperty(&quot;unique-param&quot;, String)
+DEBUG 23601 --- [lication.main()] o.s.c.e.PropertySourcesPropertyResolver  : Searching for key 'unique-param' in [environmentProperties]
+...
+</code></pre>
+
+<p>Т.е. поиск (резолвинг) был проведен дважды. Конечно, это слишком мизерная операция, чтобы хоть как-то замедлить старт приложения, но знать об этом стоит.</p>
+
+<hr />
+
+<p>Еще более неоднозначная штука связана с передачей дефолтного значения через @Value.</p>
+
+<p><div class="highlight"><pre><span class="nd">@Value</span><span class="o">(</span><span class="s">&quot;${unique-param:DefaultValue}&quot;</span><span class="o">)</span>
+<span class="kd">private</span> <span class="n">String</span> <span class="n">param</span><span class="o">;</span>
+</pre></div>
+</p>
+
+<p>При резолвинге значения будет сначала проведен поиск параметра &ldquo;unique-param:DefaultValue&rdquo;, а уже потом - &ldquo;unique-param&rdquo;. Таким образом, если в конфигурации указать:</p>
+
+<p><div class="highlight"><pre><span class="na">unique-param\:DefaultValue</span> <span class="o">=</span> <span class="s">Another value</span>
+</pre></div>
+</p>
+
+<p>, то param в коде будет равен &ldquo;Another value&rdquo;.</p>
+
+<p>Такая логика прописана в org.springframework.util.PropertyPlaceholderHelper#parseStringValue.</p>
+
+<hr />
+
+<p>Оба этих нюанса могут ответить на вопрос - почему debug-лог приложения на Spring Boot такой большой.</p>
+
+<p>Мораль - используйте <a href="http://docs.spring.io/autorepo/docs/spring-boot/current/api/org/springframework/boot/context/properties/ConfigurationProperties.html">ConfigurationProperties</a>, что, в конце-концов, и советуется в <a href="http://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-external-config.html">23. Externalized Configuration</a>, раздел &ldquo;23.7 Typesafe Configuration Properties&rdquo;.</p>
+
+<p>Например:</p>
+
+<p><div class="highlight"><pre><span class="nd">@ConfigurationProperties</span><span class="o">(</span><span class="n">prefix</span> <span class="o">=</span> <span class="s">&quot;params&quot;</span><span class="o">)</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Config</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">uniqueParam</span> <span class="o">=</span> <span class="s">&quot;Default value&quot;</span><span class="o">;</span>
+
+    <span class="c1">// Getters are mandatory. Setters are mandatory for immutable types (such as String).</span>
+ <span class="o">}</span>
+</pre></div>
+</p>
+
+<p>Конфигурация:</p>
+
+<p><div class="highlight"><pre><span class="na">params.unique-param</span> <span class="o">=</span> <span class="s">Another value</span>
+</pre></div>
+</p>
+
+        </div>
+        
+        <div class="post">
+            <h1 class="post-title">
                 <a href="http://dddpaul.github.io/blog/2015/06/30/tomcat-http-logging/">
                     Логирование HTTP-запросов в Tomcat
                 </a>
@@ -694,35 +771,6 @@ CMD [&quot;/sbin/my_init&quot;]
 <h3 id="остальные-образы:4df06129fe4804053dfd65ac4e205d9e">Остальные образы</h3>
 
 <p>На основе docker-nginx можно строить более сложные образы, такие как <a href="https://github.com/dddpaul/docker-java7-server">docker-java7-server</a> и  <a href="https://github.com/dddpaul/docker-tomcat7">docker-tomcat7</a>. На основе последнего уже строятся образы для конечных приложений.</p>
-
-        </div>
-        
-        <div class="post">
-            <h1 class="post-title">
-                <a href="http://dddpaul.github.io/blog/2014/12/21/method-handle-logger/">
-                    Using method handles to get logger
-                </a>
-            </h1>
-
-            <span class="post-date">2014-12-21</span>
-
-            <p>One more quote from <a href="http://www.manning.com/evans/">The Well-Grounded Java Developer</a> by Benjamin J. Evans and Martijn Verburg about useful feature of <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/invoke/MethodHandle.html">MethodHandle</a>.</p>
-
-<hr />
-
-<p>One additional feature that method handles provide is the ability to determine the current class from a static context. If you’ve ever written logging code (such as for log4j) that looked like this,</p>
-
-<pre><code>Logger lgr = LoggerFactory.getLogger(MyClass.class);
-</code></pre>
-
-<p>you know that this code is fragile. If it’s refactored to move into a superclass or subclass, the explicit class name would cause problems With Java 7, however, you can write this:</p>
-
-<pre><code>Logger lgr = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-</code></pre>
-
-<hr />
-
-<p>It&rsquo;s really works :)</p>
 
         </div>
         
