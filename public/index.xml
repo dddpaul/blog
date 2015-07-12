@@ -285,6 +285,7 @@ DEBUG 23601 --- [lication.main()] o.s.c.e.PropertySourcesPropertyResolver  : Sea
 &lt;li&gt;classic builder with &lt;a href=&#34;https://github.com/analytically/innerbuilder&#34;&gt;IntelliJ IDEA plugin&lt;/a&gt;;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;https://github.com/google/auto/tree/master/value&#34;&gt;Google AutoValue&lt;/a&gt; builder;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;http://projectlombok.org/features/Builder.html&#34;&gt;Project Lombok&lt;/a&gt; builder;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/mkarneim/pojobuilder&#34;&gt;POJO&lt;/a&gt; builder;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;http://immutables.github.io/&#34;&gt;Immutables&lt;/a&gt; builder.&lt;/li&gt;
 &lt;/ul&gt;
 
