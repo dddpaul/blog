@@ -13,6 +13,7 @@ So it's time to scrutinize [a builder pattern](http://en.wikipedia.org/wiki/Buil
 * classic builder with [IntelliJ IDEA plugin](https://github.com/analytically/innerbuilder);
 * [Google AutoValue](https://github.com/google/auto/tree/master/value) builder;
 * [Project Lombok](http://projectlombok.org/features/Builder.html) builder;
+* [POJO](https://github.com/mkarneim/pojobuilder) builder;
 * [Immutables](http://immutables.github.io/) builder.
 
 All of these variants have been examined in [Java builders](https://github.com/dddpaul/java-builders) GitHub project.
