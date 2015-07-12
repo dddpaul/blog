@@ -16,3 +16,4 @@ RabbitMQ confirms, transactions, reply-to functionality and Spring integration:
 * [Remote procedure call (RPC)](http://www.rabbitmq.com/tutorials/tutorial-six-java.html)
 * [TxDontLoseMessages.java](https://gist.github.com/scvalex/613157)
 * [ConfirmDontLoseMessages.java](https://raw.githubusercontent.com/rabbitmq/rabbitmq-java-client/master/test/src/com/rabbitmq/examples/ConfirmDontLoseMessages.java)
+* [RabbitMQ Spring tutorial](http://habrahabr.ru/post/262069/) & [rabbitmq-examples](https://github.com/Dmitry-Shweikus/rabbitmq-examples)
