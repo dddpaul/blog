@@ -266,6 +266,7 @@ DEBUG 23601 --- [lication.main()] o.s.c.e.PropertySourcesPropertyResolver  : Sea
 &lt;li&gt;&lt;a href=&#34;http://www.rabbitmq.com/tutorials/tutorial-six-java.html&#34;&gt;Remote procedure call (RPC)&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;https://gist.github.com/scvalex/613157&#34;&gt;TxDontLoseMessages.java&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;https://raw.githubusercontent.com/rabbitmq/rabbitmq-java-client/master/test/src/com/rabbitmq/examples/ConfirmDontLoseMessages.java&#34;&gt;ConfirmDontLoseMessages.java&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://habrahabr.ru/post/262069/&#34;&gt;RabbitMQ Spring tutorial&lt;/a&gt; &amp;amp; &lt;a href=&#34;https://github.com/Dmitry-Shweikus/rabbitmq-examples&#34;&gt;rabbitmq-examples&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 </description>
     </item>
