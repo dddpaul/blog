@@ -2,19 +2,19 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Jmm on Dev notes</title>
-    <link>http://dddpaul.github.io/blog/series/jmm/</link>
+    <link>https://dddpaul.github.io/blog/series/jmm/</link>
     <description>Recent content in Jmm on Dev notes</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Sat, 06 Dec 2014 18:33:46 +0000</lastBuildDate>
-    <atom:link href="http://dddpaul.github.io/blog/series/jmm/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://dddpaul.github.io/blog/series/jmm/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>Java Memory Model in few words</title>
-      <link>http://dddpaul.github.io/blog/2014/12/06/jmm-1/</link>
+      <link>https://dddpaul.github.io/blog/2014/12/06/jmm-1/</link>
       <pubDate>Sat, 06 Dec 2014 18:33:46 +0000</pubDate>
       
-      <guid>http://dddpaul.github.io/blog/2014/12/06/jmm-1/</guid>
+      <guid>https://dddpaul.github.io/blog/2014/12/06/jmm-1/</guid>
       <description>&lt;p&gt;This article is mostly consist of quotes from &lt;a href=&#34;http://www.manning.com/evans/&#34;&gt;The Well-Grounded Java Developer&lt;/a&gt; by Benjamin J. Evans and Martijn Verburg. I like simplicity and brevity of their explanation approach.&lt;/p&gt;
 
 &lt;p&gt;And that&amp;rsquo;s how &lt;em&gt;Happens-Before&lt;/em&gt; and &lt;em&gt;Synchronizes-With&lt;/em&gt; relationships are explained.&lt;/p&gt;

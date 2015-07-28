@@ -2,19 +2,19 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Dev notes</title>
-    <link>http://dddpaul.github.io/blog/</link>
+    <link>https://dddpaul.github.io/blog/</link>
     <description>Recent content on Dev notes</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Tue, 28 Jul 2015 10:45:00 +0300</lastBuildDate>
-    <atom:link href="http://dddpaul.github.io/blog/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://dddpaul.github.io/blog/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>Bind interfaces to multiple zones with Firewalld on CentOS-7</title>
-      <link>http://dddpaul.github.io/blog/2015/07/28/firewalld-zones/</link>
+      <link>https://dddpaul.github.io/blog/2015/07/28/firewalld-zones/</link>
       <pubDate>Tue, 28 Jul 2015 10:45:00 +0300</pubDate>
       
-      <guid>http://dddpaul.github.io/blog/2015/07/28/firewalld-zones/</guid>
+      <guid>https://dddpaul.github.io/blog/2015/07/28/firewalld-zones/</guid>
       <description>&lt;p&gt;As you can expect from &lt;a href=&#34;http://linuxmanpages.net/manpages/fedora20/man1/firewall-cmd.1.html&#34;&gt;man firewall-cmd&lt;/a&gt; interface binding to zone other than default (public) could be achieved with the following command sequence:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code&gt;firewall-cmd --zone public --remove-interface eth1 --permanent
@@ -47,10 +47,10 @@ ZONE=internal
     
     <item>
       <title>Тонкости использования аннотации @Value в Spring Boot</title>
-      <link>http://dddpaul.github.io/blog/2015/07/12/spring-boot-value/</link>
+      <link>https://dddpaul.github.io/blog/2015/07/12/spring-boot-value/</link>
       <pubDate>Sun, 12 Jul 2015 18:30:00 +0300</pubDate>
       
-      <guid>http://dddpaul.github.io/blog/2015/07/12/spring-boot-value/</guid>
+      <guid>https://dddpaul.github.io/blog/2015/07/12/spring-boot-value/</guid>
       <description>&lt;p&gt;Аннотация &lt;a href=&#34;http://docs.spring.io/spring/docs/current/javadoc-api/org/springframework/beans/factory/annotation/Value.html&#34;&gt;@Value&lt;/a&gt; - это самый простой способ для &amp;ldquo;впрыскивания&amp;rdquo; значений из конфигурации Spring Boot в код. При этом также можно задать значение по-умолчанию.&lt;/p&gt;
 
 &lt;p&gt;Однако, стоит учитывать, что резолвинг значения будет выполняться для каждой аннотации @Value. Например, если аннотировать @Value два поля (в одном или разных классах - не суть важно) вот так:&lt;/p&gt;
@@ -121,10 +121,10 @@ DEBUG 23601 --- [lication.main()] o.s.c.e.PropertySourcesPropertyResolver  : Sea
     
     <item>
       <title>Логирование HTTP-запросов в Tomcat</title>
-      <link>http://dddpaul.github.io/blog/2015/06/30/tomcat-http-logging/</link>
+      <link>https://dddpaul.github.io/blog/2015/06/30/tomcat-http-logging/</link>
       <pubDate>Tue, 30 Jun 2015 13:27:00 +0300</pubDate>
       
-      <guid>http://dddpaul.github.io/blog/2015/06/30/tomcat-http-logging/</guid>
+      <guid>https://dddpaul.github.io/blog/2015/06/30/tomcat-http-logging/</guid>
       <description>
 
 &lt;h2 id=&#34;apache-tomcat-request-dumper-filter:e82678ac23d6d6c6d716963b71ef486f&#34;&gt;Apache Tomcat Request Dumper Filter&lt;/h2&gt;
@@ -287,10 +287,10 @@ DEBUG 23601 --- [lication.main()] o.s.c.e.PropertySourcesPropertyResolver  : Sea
     
     <item>
       <title>RabbitMQ links</title>
-      <link>http://dddpaul.github.io/blog/2015/05/15/rabbitmq-links/</link>
+      <link>https://dddpaul.github.io/blog/2015/05/15/rabbitmq-links/</link>
       <pubDate>Fri, 15 May 2015 08:27:00 +0300</pubDate>
       
-      <guid>http://dddpaul.github.io/blog/2015/05/15/rabbitmq-links/</guid>
+      <guid>https://dddpaul.github.io/blog/2015/05/15/rabbitmq-links/</guid>
       <description>&lt;p&gt;RabbitMQ confirms, transactions, reply-to functionality and Spring integration:&lt;/p&gt;
 
 &lt;ul&gt;
@@ -309,10 +309,10 @@ DEBUG 23601 --- [lication.main()] o.s.c.e.PropertySourcesPropertyResolver  : Sea
     
     <item>
       <title>Java builders</title>
-      <link>http://dddpaul.github.io/blog/2015/04/12/java-builders/</link>
+      <link>https://dddpaul.github.io/blog/2015/04/12/java-builders/</link>
       <pubDate>Sun, 12 Apr 2015 12:15:00 +0300</pubDate>
       
-      <guid>http://dddpaul.github.io/blog/2015/04/12/java-builders/</guid>
+      <guid>https://dddpaul.github.io/blog/2015/04/12/java-builders/</guid>
       <description>&lt;p&gt;So it&amp;rsquo;s time to scrutinize &lt;a href=&#34;http://en.wikipedia.org/wiki/Builder_pattern&#34;&gt;a builder pattern&lt;/a&gt;. There are bunch of options to implement builder pattern in Java:&lt;/p&gt;
 
 &lt;ul&gt;
@@ -340,10 +340,10 @@ DEBUG 23601 --- [lication.main()] o.s.c.e.PropertySourcesPropertyResolver  : Sea
     
     <item>
       <title>Oracle connectivity in Java</title>
-      <link>http://dddpaul.github.io/blog/2015/02/14/oracle-connectivity/</link>
+      <link>https://dddpaul.github.io/blog/2015/02/14/oracle-connectivity/</link>
       <pubDate>Sat, 14 Feb 2015 22:11:00 +0300</pubDate>
       
-      <guid>http://dddpaul.github.io/blog/2015/02/14/oracle-connectivity/</guid>
+      <guid>https://dddpaul.github.io/blog/2015/02/14/oracle-connectivity/</guid>
       <description>&lt;p&gt;A new small &lt;a href=&#34;https://github.com/dddpaul/java-oracle-connectivity&#34;&gt;test project&lt;/a&gt; is intended to answer the question - what is the proper way to specify network timeout for database connection?&lt;/p&gt;
 
 &lt;p&gt;There so many ways in JDBC API:&lt;/p&gt;
@@ -386,10 +386,10 @@ DEBUG 23601 --- [lication.main()] o.s.c.e.PropertySourcesPropertyResolver  : Sea
     
     <item>
       <title>Java network listeners</title>
-      <link>http://dddpaul.github.io/blog/2015/02/01/java-listeners/</link>
+      <link>https://dddpaul.github.io/blog/2015/02/01/java-listeners/</link>
       <pubDate>Sun, 01 Feb 2015 18:44:06 +0300</pubDate>
       
-      <guid>http://dddpaul.github.io/blog/2015/02/01/java-listeners/</guid>
+      <guid>https://dddpaul.github.io/blog/2015/02/01/java-listeners/</guid>
       <description>&lt;p&gt;I&amp;rsquo;ve written a small &lt;a href=&#34;https://github.com/dddpaul/java-network-listeners&#34;&gt;listeners library&lt;/a&gt; today. It allows to create Callables which can be submitted to &lt;a href=&#34;http://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ExecutorService.html&#34;&gt;ExecutorService&lt;/a&gt;. The callable itself implements creating server socket and binding it to local port.&lt;/p&gt;
 
 &lt;p&gt;There two principal type of listeners: blocking and non-blocking (thanks to &lt;a href=&#34;http://en.wikipedia.org/wiki/Non-blocking_I/O_(Java&#34;&gt;Java NIO&lt;/a&gt;).&lt;/p&gt;
@@ -428,10 +428,10 @@ DEBUG 23601 --- [lication.main()] o.s.c.e.PropertySourcesPropertyResolver  : Sea
     
     <item>
       <title>List of memory leaks articles</title>
-      <link>http://dddpaul.github.io/blog/2015/01/17/memory-leaks-articles/</link>
+      <link>https://dddpaul.github.io/blog/2015/01/17/memory-leaks-articles/</link>
       <pubDate>Sat, 17 Jan 2015 22:35:49 +0300</pubDate>
       
-      <guid>http://dddpaul.github.io/blog/2015/01/17/memory-leaks-articles/</guid>
+      <guid>https://dddpaul.github.io/blog/2015/01/17/memory-leaks-articles/</guid>
       <description>&lt;p&gt;&amp;ldquo;Solving OutOfMemoryError&amp;rdquo; series from Nikita Salnikov-Tarnovsky and Vladimir Šor:&lt;/p&gt;
 
 &lt;ul&gt;
@@ -459,7 +459,7 @@ DEBUG 23601 --- [lication.main()] o.s.c.e.PropertySourcesPropertyResolver  : Sea
 &lt;p&gt;Object, class and classloader relationships are illustrated by this graph from &lt;a href=&#34;https://plumbr.eu/blog/what-is-a-permgen-leak&#34;&gt;What is a PermGen leak?&lt;/a&gt; article.&lt;/p&gt;
 
 &lt;p&gt;
-&lt;img src=&#39;http://dddpaul.github.io/blog//media/object-class-classloader.png&#39;/&gt;
+&lt;img src=&#39;https://dddpaul.github.io/blog//media/object-class-classloader.png&#39;/&gt;
 &lt;/p&gt;
 
 &lt;hr /&gt;
@@ -492,14 +492,14 @@ DEBUG 23601 --- [lication.main()] o.s.c.e.PropertySourcesPropertyResolver  : Sea
     
     <item>
       <title>Запуск контейнеров с помощью Fig</title>
-      <link>http://dddpaul.github.io/blog/2015/01/12/docker-fig/</link>
+      <link>https://dddpaul.github.io/blog/2015/01/12/docker-fig/</link>
       <pubDate>Mon, 12 Jan 2015 10:42:00 +0000</pubDate>
       
-      <guid>http://dddpaul.github.io/blog/2015/01/12/docker-fig/</guid>
+      <guid>https://dddpaul.github.io/blog/2015/01/12/docker-fig/</guid>
       <description>
 
 &lt;p&gt;Это третья статья цикла 
-&lt;a href=&#39;http://dddpaul.github.io/blog//series/building-test-environments-with-docker&#39;&gt;Building test environments with Docker&lt;/a&gt;.&lt;/p&gt;
+&lt;a href=&#39;https://dddpaul.github.io/blog//series/building-test-environments-with-docker&#39;&gt;Building test environments with Docker&lt;/a&gt;.&lt;/p&gt;
 
 &lt;p&gt;Как мы уже убедились, запуск контейнеров с помощью &lt;code&gt;docker run&lt;/code&gt; — занятие весьма муторное, т.к. необходимо указывать множество опций. При запуске же нескольких контейнеров ситуация только ухудшается, т.к. теперь нужно задавать имена и линки.&lt;/p&gt;
 
@@ -560,12 +560,12 @@ end script
     
     <item>
       <title>Связывание контейнеров</title>
-      <link>http://dddpaul.github.io/blog/2015/01/08/docker-linking/</link>
+      <link>https://dddpaul.github.io/blog/2015/01/08/docker-linking/</link>
       <pubDate>Thu, 08 Jan 2015 13:49:06 +0000</pubDate>
       
-      <guid>http://dddpaul.github.io/blog/2015/01/08/docker-linking/</guid>
+      <guid>https://dddpaul.github.io/blog/2015/01/08/docker-linking/</guid>
       <description>&lt;p&gt;Это вторая статья цикла 
-&lt;a href=&#39;http://dddpaul.github.io/blog//series/building-test-environments-with-docker&#39;&gt;Building test environments with Docker&lt;/a&gt;.&lt;/p&gt;
+&lt;a href=&#39;https://dddpaul.github.io/blog//series/building-test-environments-with-docker&#39;&gt;Building test environments with Docker&lt;/a&gt;.&lt;/p&gt;
 
 &lt;p&gt;При создании тестовых окружений из нескольких контейнеров неизбежно возникает задача их взаимного связывания. Набивший оскомину пример: контейнеру с приложением нужен контейнер БД. В нашем же случае, контейнеру с балансером нужны контейнеры с апстримами.&lt;/p&gt;
 
@@ -642,14 +642,14 @@ APP1_PORT=tcp://172.17.0.28:22
     
     <item>
       <title>Подготовка и запуск docker-контейнеров</title>
-      <link>http://dddpaul.github.io/blog/2015/01/04/docker-prepare/</link>
+      <link>https://dddpaul.github.io/blog/2015/01/04/docker-prepare/</link>
       <pubDate>Sun, 04 Jan 2015 13:49:06 +0000</pubDate>
       
-      <guid>http://dddpaul.github.io/blog/2015/01/04/docker-prepare/</guid>
+      <guid>https://dddpaul.github.io/blog/2015/01/04/docker-prepare/</guid>
       <description>
 
 &lt;p&gt;Это первая статья цикла 
-&lt;a href=&#39;http://dddpaul.github.io/blog//series/building-test-environments-with-docker&#39;&gt;Building test environments with Docker&lt;/a&gt;.&lt;/p&gt;
+&lt;a href=&#39;https://dddpaul.github.io/blog//series/building-test-environments-with-docker&#39;&gt;Building test environments with Docker&lt;/a&gt;.&lt;/p&gt;
 
 &lt;p&gt;Сразу оговорюсь, что все docker-контейнеры основаны на &lt;a href=&#34;http://phusion.github.io/baseimage-docker/&#34;&gt;baseimage-docker&lt;/a&gt;. Этот образ позволяет запускать в контейнере несколько приложений с помощью супервизора &lt;a href=&#34;http://smarden.org/runit/&#34;&gt;runit&lt;/a&gt; и содержит ssh, cron, syslog &amp;ldquo;из коробки&amp;rdquo;.&lt;/p&gt;
 
@@ -713,10 +713,10 @@ CMD [&amp;quot;/sbin/my_init&amp;quot;]
     
     <item>
       <title>Using method handles to get logger</title>
-      <link>http://dddpaul.github.io/blog/2014/12/21/method-handle-logger/</link>
+      <link>https://dddpaul.github.io/blog/2014/12/21/method-handle-logger/</link>
       <pubDate>Sun, 21 Dec 2014 13:36:15 +0000</pubDate>
       
-      <guid>http://dddpaul.github.io/blog/2014/12/21/method-handle-logger/</guid>
+      <guid>https://dddpaul.github.io/blog/2014/12/21/method-handle-logger/</guid>
       <description>&lt;p&gt;One more quote from &lt;a href=&#34;http://www.manning.com/evans/&#34;&gt;The Well-Grounded Java Developer&lt;/a&gt; by Benjamin J. Evans and Martijn Verburg about useful feature of &lt;a href=&#34;http://docs.oracle.com/javase/7/docs/api/java/lang/invoke/MethodHandle.html&#34;&gt;MethodHandle&lt;/a&gt;.&lt;/p&gt;
 
 &lt;hr /&gt;
@@ -739,10 +739,10 @@ CMD [&amp;quot;/sbin/my_init&amp;quot;]
     
     <item>
       <title>Java Memory Model in few words</title>
-      <link>http://dddpaul.github.io/blog/2014/12/06/jmm-1/</link>
+      <link>https://dddpaul.github.io/blog/2014/12/06/jmm-1/</link>
       <pubDate>Sat, 06 Dec 2014 18:33:46 +0000</pubDate>
       
-      <guid>http://dddpaul.github.io/blog/2014/12/06/jmm-1/</guid>
+      <guid>https://dddpaul.github.io/blog/2014/12/06/jmm-1/</guid>
       <description>&lt;p&gt;This article is mostly consist of quotes from &lt;a href=&#34;http://www.manning.com/evans/&#34;&gt;The Well-Grounded Java Developer&lt;/a&gt; by Benjamin J. Evans and Martijn Verburg. I like simplicity and brevity of their explanation approach.&lt;/p&gt;
 
 &lt;p&gt;And that&amp;rsquo;s how &lt;em&gt;Happens-Before&lt;/em&gt; and &lt;em&gt;Synchronizes-With&lt;/em&gt; relationships are explained.&lt;/p&gt;
@@ -782,10 +782,10 @@ CMD [&amp;quot;/sbin/my_init&amp;quot;]
     
     <item>
       <title>Дистанционное управление Motion с помощью Go</title>
-      <link>http://dddpaul.github.io/blog/2014/11/14/motion-remote-control/</link>
+      <link>https://dddpaul.github.io/blog/2014/11/14/motion-remote-control/</link>
       <pubDate>Fri, 14 Nov 2014 16:04:00 +0000</pubDate>
       
-      <guid>http://dddpaul.github.io/blog/2014/11/14/motion-remote-control/</guid>
+      <guid>https://dddpaul.github.io/blog/2014/11/14/motion-remote-control/</guid>
       <description>&lt;p&gt;Цель — сделать удобное управление для сервачка с системой motion detection.  В качестве сервера пригодился классический нетбук Asus Eee PC 701 4-х гигабайтным SSD на борту. На него была установлена Ubuntu 14.04.&lt;/p&gt;
 
 &lt;p&gt;Задачи:&lt;/p&gt;
@@ -977,14 +977,14 @@ stop on runlevel &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;!2345&lt;span class
     
     <item>
       <title>Борьба с утечками памяти в Android (Badoo)</title>
-      <link>http://dddpaul.github.io/blog/2014/10/21/android-memory-leak-badoo/</link>
+      <link>https://dddpaul.github.io/blog/2014/10/21/android-memory-leak-badoo/</link>
       <pubDate>Tue, 21 Oct 2014 14:30:16 +0000</pubDate>
       
-      <guid>http://dddpaul.github.io/blog/2014/10/21/android-memory-leak-badoo/</guid>
+      <guid>https://dddpaul.github.io/blog/2014/10/21/android-memory-leak-badoo/</guid>
       <description>
 
 &lt;p&gt;На хабре появилась статья &lt;a href=&#34;http://habrahabr.ru/company/badoo/blog/240479/&#34;&gt;Борьба с утечками памяти в Android. Часть 1&lt;/a&gt; от компании Badoo. Т.к. тема созвучна с моими постами из серии 
-&lt;a href=&#39;http://dddpaul.github.io/blog//series/memory-leaks&#39;&gt;Memory leaks&lt;/a&gt;, то решил вкратце описать их методы.&lt;/p&gt;
+&lt;a href=&#39;https://dddpaul.github.io/blog//series/memory-leaks&#39;&gt;Memory leaks&lt;/a&gt;, то решил вкратце описать их методы.&lt;/p&gt;
 
 &lt;p&gt;Суть проблемы — использование android.os.Handler, в который постится анонимный Runnable с помощью метода &lt;a href=&#34;http://developer.android.com/reference/android/os/Handler.html#postDelayed(java.lang.Runnable, long&#34;&gt;postDelayed&lt;/a&gt;. Для демонстрации, Runnable просто меняет какой-либо TextView (т.е. содержит внутри себя ссылку mTextView), и время до выполнения Runnable берется довольно большим. Так вот, если за этот промежуток времени повернуть девайс несколько раз, то старые активити не будут собираться GC, т.к. в Java любой анонимный класс всегда имеет неявную ссылку на внешний класс.&lt;/p&gt;
 

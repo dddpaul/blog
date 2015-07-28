@@ -2,19 +2,19 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Javascript on Dev notes</title>
-    <link>http://dddpaul.github.io/blog/tags/javascript/</link>
+    <link>https://dddpaul.github.io/blog/tags/javascript/</link>
     <description>Recent content in Javascript on Dev notes</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Thu, 16 Oct 2014 11:26:00 +0000</lastBuildDate>
-    <atom:link href="http://dddpaul.github.io/blog/tags/javascript/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://dddpaul.github.io/blog/tags/javascript/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>Директивы AngularJS</title>
-      <link>http://dddpaul.github.io/blog/2014/10/16/angularjs-directive/</link>
+      <link>https://dddpaul.github.io/blog/2014/10/16/angularjs-directive/</link>
       <pubDate>Thu, 16 Oct 2014 11:26:00 +0000</pubDate>
       
-      <guid>http://dddpaul.github.io/blog/2014/10/16/angularjs-directive/</guid>
+      <guid>https://dddpaul.github.io/blog/2014/10/16/angularjs-directive/</guid>
       <description>&lt;p&gt;Статьи:&lt;/p&gt;
 
 &lt;ul&gt;

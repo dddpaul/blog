@@ -2,23 +2,23 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Devops on Dev notes</title>
-    <link>http://dddpaul.github.io/blog/tags/devops/</link>
+    <link>https://dddpaul.github.io/blog/tags/devops/</link>
     <description>Recent content in Devops on Dev notes</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Mon, 12 Jan 2015 10:42:00 +0000</lastBuildDate>
-    <atom:link href="http://dddpaul.github.io/blog/tags/devops/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://dddpaul.github.io/blog/tags/devops/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>Запуск контейнеров с помощью Fig</title>
-      <link>http://dddpaul.github.io/blog/2015/01/12/docker-fig/</link>
+      <link>https://dddpaul.github.io/blog/2015/01/12/docker-fig/</link>
       <pubDate>Mon, 12 Jan 2015 10:42:00 +0000</pubDate>
       
-      <guid>http://dddpaul.github.io/blog/2015/01/12/docker-fig/</guid>
+      <guid>https://dddpaul.github.io/blog/2015/01/12/docker-fig/</guid>
       <description>
 
 &lt;p&gt;Это третья статья цикла 
-&lt;a href=&#39;http://dddpaul.github.io/blog//series/building-test-environments-with-docker&#39;&gt;Building test environments with Docker&lt;/a&gt;.&lt;/p&gt;
+&lt;a href=&#39;https://dddpaul.github.io/blog//series/building-test-environments-with-docker&#39;&gt;Building test environments with Docker&lt;/a&gt;.&lt;/p&gt;
 
 &lt;p&gt;Как мы уже убедились, запуск контейнеров с помощью &lt;code&gt;docker run&lt;/code&gt; — занятие весьма муторное, т.к. необходимо указывать множество опций. При запуске же нескольких контейнеров ситуация только ухудшается, т.к. теперь нужно задавать имена и линки.&lt;/p&gt;
 
@@ -79,12 +79,12 @@ end script
     
     <item>
       <title>Связывание контейнеров</title>
-      <link>http://dddpaul.github.io/blog/2015/01/08/docker-linking/</link>
+      <link>https://dddpaul.github.io/blog/2015/01/08/docker-linking/</link>
       <pubDate>Thu, 08 Jan 2015 13:49:06 +0000</pubDate>
       
-      <guid>http://dddpaul.github.io/blog/2015/01/08/docker-linking/</guid>
+      <guid>https://dddpaul.github.io/blog/2015/01/08/docker-linking/</guid>
       <description>&lt;p&gt;Это вторая статья цикла 
-&lt;a href=&#39;http://dddpaul.github.io/blog//series/building-test-environments-with-docker&#39;&gt;Building test environments with Docker&lt;/a&gt;.&lt;/p&gt;
+&lt;a href=&#39;https://dddpaul.github.io/blog//series/building-test-environments-with-docker&#39;&gt;Building test environments with Docker&lt;/a&gt;.&lt;/p&gt;
 
 &lt;p&gt;При создании тестовых окружений из нескольких контейнеров неизбежно возникает задача их взаимного связывания. Набивший оскомину пример: контейнеру с приложением нужен контейнер БД. В нашем же случае, контейнеру с балансером нужны контейнеры с апстримами.&lt;/p&gt;
 
@@ -161,14 +161,14 @@ APP1_PORT=tcp://172.17.0.28:22
     
     <item>
       <title>Подготовка и запуск docker-контейнеров</title>
-      <link>http://dddpaul.github.io/blog/2015/01/04/docker-prepare/</link>
+      <link>https://dddpaul.github.io/blog/2015/01/04/docker-prepare/</link>
       <pubDate>Sun, 04 Jan 2015 13:49:06 +0000</pubDate>
       
-      <guid>http://dddpaul.github.io/blog/2015/01/04/docker-prepare/</guid>
+      <guid>https://dddpaul.github.io/blog/2015/01/04/docker-prepare/</guid>
       <description>
 
 &lt;p&gt;Это первая статья цикла 
-&lt;a href=&#39;http://dddpaul.github.io/blog//series/building-test-environments-with-docker&#39;&gt;Building test environments with Docker&lt;/a&gt;.&lt;/p&gt;
+&lt;a href=&#39;https://dddpaul.github.io/blog//series/building-test-environments-with-docker&#39;&gt;Building test environments with Docker&lt;/a&gt;.&lt;/p&gt;
 
 &lt;p&gt;Сразу оговорюсь, что все docker-контейнеры основаны на &lt;a href=&#34;http://phusion.github.io/baseimage-docker/&#34;&gt;baseimage-docker&lt;/a&gt;. Этот образ позволяет запускать в контейнере несколько приложений с помощью супервизора &lt;a href=&#34;http://smarden.org/runit/&#34;&gt;runit&lt;/a&gt; и содержит ssh, cron, syslog &amp;ldquo;из коробки&amp;rdquo;.&lt;/p&gt;
 

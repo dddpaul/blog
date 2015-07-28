@@ -2,19 +2,19 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Linux on Dev notes</title>
-    <link>http://dddpaul.github.io/blog/tags/linux/</link>
+    <link>https://dddpaul.github.io/blog/tags/linux/</link>
     <description>Recent content in Linux on Dev notes</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Tue, 28 Jul 2015 10:45:00 +0300</lastBuildDate>
-    <atom:link href="http://dddpaul.github.io/blog/tags/linux/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://dddpaul.github.io/blog/tags/linux/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>Bind interfaces to multiple zones with Firewalld on CentOS-7</title>
-      <link>http://dddpaul.github.io/blog/2015/07/28/firewalld-zones/</link>
+      <link>https://dddpaul.github.io/blog/2015/07/28/firewalld-zones/</link>
       <pubDate>Tue, 28 Jul 2015 10:45:00 +0300</pubDate>
       
-      <guid>http://dddpaul.github.io/blog/2015/07/28/firewalld-zones/</guid>
+      <guid>https://dddpaul.github.io/blog/2015/07/28/firewalld-zones/</guid>
       <description>&lt;p&gt;As you can expect from &lt;a href=&#34;http://linuxmanpages.net/manpages/fedora20/man1/firewall-cmd.1.html&#34;&gt;man firewall-cmd&lt;/a&gt; interface binding to zone other than default (public) could be achieved with the following command sequence:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code&gt;firewall-cmd --zone public --remove-interface eth1 --permanent
@@ -47,10 +47,10 @@ ZONE=internal
     
     <item>
       <title>Дистанционное управление Motion с помощью Go</title>
-      <link>http://dddpaul.github.io/blog/2014/11/14/motion-remote-control/</link>
+      <link>https://dddpaul.github.io/blog/2014/11/14/motion-remote-control/</link>
       <pubDate>Fri, 14 Nov 2014 16:04:00 +0000</pubDate>
       
-      <guid>http://dddpaul.github.io/blog/2014/11/14/motion-remote-control/</guid>
+      <guid>https://dddpaul.github.io/blog/2014/11/14/motion-remote-control/</guid>
       <description>&lt;p&gt;Цель — сделать удобное управление для сервачка с системой motion detection.  В качестве сервера пригодился классический нетбук Asus Eee PC 701 4-х гигабайтным SSD на борту. На него была установлена Ubuntu 14.04.&lt;/p&gt;
 
 &lt;p&gt;Задачи:&lt;/p&gt;
