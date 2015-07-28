@@ -6,8 +6,44 @@
     <description>Recent content on Dev notes</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 12 Jul 2015 18:30:00 +0300</lastBuildDate>
+    <lastBuildDate>Tue, 28 Jul 2015 10:45:00 +0300</lastBuildDate>
     <atom:link href="http://dddpaul.github.io/blog/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Bind interfaces to multiple zones with Firewalld on CentOS-7</title>
+      <link>http://dddpaul.github.io/blog/2015/07/28/firewalld-zones/</link>
+      <pubDate>Tue, 28 Jul 2015 10:45:00 +0300</pubDate>
+      
+      <guid>http://dddpaul.github.io/blog/2015/07/28/firewalld-zones/</guid>
+      <description>&lt;p&gt;As you can expect from &lt;a href=&#34;http://linuxmanpages.net/manpages/fedora20/man1/firewall-cmd.1.html&#34;&gt;man firewall-cmd&lt;/a&gt; interface binding to zone other than default (public) could be achieved with the following command sequence:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;firewall-cmd --zone public --remove-interface eth1 --permanent
+firewall-cmd --zone internal --add-interface eth1 --permanent
+firewall-cmd --reload
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Seems like it&amp;rsquo;s done:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;firewall-cmd --get-zone-of-interface=eth1
+internal
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;But after firewalld restart or server reboot things aren&amp;rsquo;t so bright:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;firewall-cmd --get-zone-of-interface=eth1
+public
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The reason is in this &lt;a href=&#34;https://bugs.centos.org/view.php?id=7526&#34;&gt;CentOS-7 bug&lt;/a&gt;. The only workaround is to specify zone in &lt;em&gt;/etc/sysconfig/network-scripts/ifcfg-eth1&lt;/em&gt; file:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;TYPE=Ethernet
+NAME=&amp;quot;eth1&amp;quot;
+IPADDR=x.x.x.x
+...
+ZONE=internal
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
     
     <item>
       <title>Тонкости использования аннотации @Value в Spring Boot</title>
@@ -994,24 +1030,6 @@ stop on runlevel &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;!2345&lt;span class
 &lt;ul&gt;
 &lt;li&gt;&lt;a href=&#34;http://corner.squareup.com/2013/10/android-main-thread-1.html&#34;&gt;A journey on the Android Main Thread - PSVM&lt;/a&gt;. Рассказ про про внутренности Main Thread: Loopers, Handlers и т.д.&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;http://corner.squareup.com/2013/12/android-main-thread-2.html&#34;&gt;A journey on the Android Main Thread - Lifecycle bits&lt;/a&gt;. Продолжение — про lifecycle и orientation change.&lt;/li&gt;
-&lt;/ul&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Директивы AngularJS</title>
-      <link>http://dddpaul.github.io/blog/2014/10/16/angularjs-directive/</link>
-      <pubDate>Thu, 16 Oct 2014 11:26:00 +0000</pubDate>
-      
-      <guid>http://dddpaul.github.io/blog/2014/10/16/angularjs-directive/</guid>
-      <description>&lt;p&gt;Статьи:&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;http://statelessprime.blogspot.ru/2013/04/angularjs-directive-overview.html&#34;&gt;AngularJS directive: Overview&lt;/a&gt;. Очень крутой сборник статей про директивы. Помогает понять, как правильно создать шаблон директивы вручную (через функции compile и link), а также, как навесить watches.&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://www.benlesh.com/2013/08/angularjs-watch-digest-and-apply-oh-my.html&#34;&gt;AngularJS: $watch, $digest and $apply&lt;/a&gt;. Еще раз об этих базовых функциях AngularJS почитать никогда не вредно.&lt;/li&gt;
-&lt;li&gt;A Practical Guide to AngularJS Directives - &lt;a href=&#34;http://www.sitepoint.com/practical-guide-angularjs-directives/&#34;&gt;Part 1&lt;/a&gt;, &lt;a href=&#34;http://www.sitepoint.com/practical-guide-angularjs-directives-part-two/&#34;&gt;Part 2&lt;/a&gt;. Подробно про директивы.&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://odetocode.com/blogs/scott/archive/2013/09/11/moving-data-in-an-angularjs-directive.aspx&#34;&gt;Moving Data In An AngularJS Directive&lt;/a&gt;. Передача данных в директиву.&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://www.undefinednull.com/2014/02/11/mastering-the-scope-of-a-directive-in-angularjs/&#34;&gt;Mastering the Scope of the Directives in AngularJS&lt;/a&gt;. Очень подробно разжевано про scope в директивах.&lt;/li&gt;
 &lt;/ul&gt;
 </description>
     </item>

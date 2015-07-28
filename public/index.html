@@ -82,6 +82,45 @@
         
         <div class="post">
             <h1 class="post-title">
+                <a href="http://dddpaul.github.io/blog/2015/07/28/firewalld-zones/">
+                    Bind interfaces to multiple zones with Firewalld on CentOS-7
+                </a>
+            </h1>
+
+            <span class="post-date">2015-07-28</span>
+
+            <p>As you can expect from <a href="http://linuxmanpages.net/manpages/fedora20/man1/firewall-cmd.1.html">man firewall-cmd</a> interface binding to zone other than default (public) could be achieved with the following command sequence:</p>
+
+<pre><code>firewall-cmd --zone public --remove-interface eth1 --permanent
+firewall-cmd --zone internal --add-interface eth1 --permanent
+firewall-cmd --reload
+</code></pre>
+
+<p>Seems like it&rsquo;s done:</p>
+
+<pre><code>firewall-cmd --get-zone-of-interface=eth1
+internal
+</code></pre>
+
+<p>But after firewalld restart or server reboot things aren&rsquo;t so bright:</p>
+
+<pre><code>firewall-cmd --get-zone-of-interface=eth1
+public
+</code></pre>
+
+<p>The reason is in this <a href="https://bugs.centos.org/view.php?id=7526">CentOS-7 bug</a>. The only workaround is to specify zone in <em>/etc/sysconfig/network-scripts/ifcfg-eth1</em> file:</p>
+
+<pre><code>TYPE=Ethernet
+NAME=&quot;eth1&quot;
+IPADDR=x.x.x.x
+...
+ZONE=internal
+</code></pre>
+
+        </div>
+        
+        <div class="post">
+            <h1 class="post-title">
                 <a href="http://dddpaul.github.io/blog/2015/07/12/spring-boot-value/">
                     Тонкости использования аннотации @Value в Spring Boot
                 </a>
@@ -699,80 +738,6 @@ APP1_PORT=tcp://172.17.0.28:22
 </code></pre>
 
 <p>Таким образом, в первом приближении, встроенная возможность связывания контейнеров в Docker решает наши проблемы.</p>
-
-        </div>
-        
-        <div class="post">
-            <h1 class="post-title">
-                <a href="http://dddpaul.github.io/blog/2015/01/04/docker-prepare/">
-                    Подготовка и запуск docker-контейнеров
-                </a>
-            </h1>
-
-            <span class="post-date">2015-01-04</span>
-
-            
-
-<p>Это первая статья цикла 
-<a href='http://dddpaul.github.io/blog//series/building-test-environments-with-docker'>Building test environments with Docker</a>.</p>
-
-<p>Сразу оговорюсь, что все docker-контейнеры основаны на <a href="http://phusion.github.io/baseimage-docker/">baseimage-docker</a>. Этот образ позволяет запускать в контейнере несколько приложений с помощью супервизора <a href="http://smarden.org/runit/">runit</a> и содержит ssh, cron, syslog &ldquo;из коробки&rdquo;.</p>
-
-<p>Хотя подобный подход <a href="http://jpetazzo.github.io/2014/06/23/docker-ssh-considered-evil/">не рекомендуется разработчиками Docker</a>, он очень удобен в эксплуатации и не принуждает разработчика к своему &ldquo;proper way&rdquo;. Всегда можно использовать канонический подход от Docker с volumes и nsenter, а, при желании, подключаться к контейнерам по ssh.</p>
-
-<p>Кроме того, я привык использовать сервера приложений в связке с nginx, и baseimage-docker позволяет легко это сделать.</p>
-
-<h3 id="базовый-образ:4df06129fe4804053dfd65ac4e205d9e">Базовый образ</h3>
-
-<p>При создании базового образа выполняются две вещи:</p>
-
-<ul>
-<li>публичный ssh-ключ добавляется в список разрешенных для суперпользователя контейнера;</li>
-<li>задается локаль.</li>
-</ul>
-
-<p><em>Dockerfile</em> базового образа:</p>
-
-<pre><code>FROM phusion/baseimage:0.9.15
-
-# Add public SSH keys
-ADD my_rsa_public_key /tmp/my_rsa_public_key
-RUN cat /tmp/my_rsa_public_key &gt;&gt; /root/.ssh/authorized_keys &amp;&amp; rm -f /tmp/my_rsa_public_key
-
-# Locale
-ENV LANG=en_US.utf8
-
-# Use baseimage-docker's init system
-CMD [&quot;/sbin/my_init&quot;]
-</code></pre>
-
-<p>Свой публичный ssh-ключ, естественно, надо положить в <em>my_rsa_public_key</em> рядом с <em>Dockerfile</em>.</p>
-
-<p>Сборка: <code>docker build -t smile/base .</code> и запуск:</p>
-
-<pre><code>docker run --rm -it -p 2022:22 smile/base /sbin/my_init -- bash -l
-</code></pre>
-
-<p><code>--rm</code> используется для удаления контейнера после его остановки, <code>-it</code> — для терминального интеракивного режима, а <code>-- bash -l</code> — для запуска шелла после запуска всех сервисов.</p>
-
-<p>Также на контейнер можно зайти по ssh: <code>ssh -p 2022 root@localhost</code>.</p>
-
-<h3 id="образ-с-nginx:4df06129fe4804053dfd65ac4e205d9e">Образ с nginx</h3>
-
-<p>Сборка <a href="https://github.com/dddpaul/docker-nginx">docker-nginx</a>: <code>docker build -t smile/nginx .</code></p>
-
-<p>Основная особенность этого образа в том, что при запуске контейнера отключается IPv6.</p>
-
-<p>Сделано это для того, чтобы обойти известную проблему с проксированием Nginx. Т.к. демон висит на tcp6, то апстрим иногда видит запрос от 127.0.0.1, а иногда от 0:0:0:0:0:0:0:1. Это принуждает к изменению ACL на сервере приложений, что не всегда удобно.</p>
-
-<p>IPv6 отключается после выполнения серии sysctl-команд, которые требуют, чтобы контейнер был запущен в привилегированном режиме, т.е. команда запуска слегка усложняется:</p>
-
-<pre><code>docker run --privileged --rm -it -p 2022:22 smile/nginx /sbin/my_init -- bash -l
-</code></pre>
-
-<h3 id="остальные-образы:4df06129fe4804053dfd65ac4e205d9e">Остальные образы</h3>
-
-<p>На основе docker-nginx можно строить более сложные образы, такие как <a href="https://github.com/dddpaul/docker-java7-server">docker-java7-server</a> и  <a href="https://github.com/dddpaul/docker-tomcat7">docker-tomcat7</a>. На основе последнего уже строятся образы для конечных приложений.</p>
 
         </div>
         

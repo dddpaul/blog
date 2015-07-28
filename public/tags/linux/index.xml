@@ -6,8 +6,44 @@
     <description>Recent content in Linux on Dev notes</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 14 Nov 2014 16:04:00 +0000</lastBuildDate>
+    <lastBuildDate>Tue, 28 Jul 2015 10:45:00 +0300</lastBuildDate>
     <atom:link href="http://dddpaul.github.io/blog/tags/linux/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Bind interfaces to multiple zones with Firewalld on CentOS-7</title>
+      <link>http://dddpaul.github.io/blog/2015/07/28/firewalld-zones/</link>
+      <pubDate>Tue, 28 Jul 2015 10:45:00 +0300</pubDate>
+      
+      <guid>http://dddpaul.github.io/blog/2015/07/28/firewalld-zones/</guid>
+      <description>&lt;p&gt;As you can expect from &lt;a href=&#34;http://linuxmanpages.net/manpages/fedora20/man1/firewall-cmd.1.html&#34;&gt;man firewall-cmd&lt;/a&gt; interface binding to zone other than default (public) could be achieved with the following command sequence:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;firewall-cmd --zone public --remove-interface eth1 --permanent
+firewall-cmd --zone internal --add-interface eth1 --permanent
+firewall-cmd --reload
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Seems like it&amp;rsquo;s done:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;firewall-cmd --get-zone-of-interface=eth1
+internal
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;But after firewalld restart or server reboot things aren&amp;rsquo;t so bright:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;firewall-cmd --get-zone-of-interface=eth1
+public
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The reason is in this &lt;a href=&#34;https://bugs.centos.org/view.php?id=7526&#34;&gt;CentOS-7 bug&lt;/a&gt;. The only workaround is to specify zone in &lt;em&gt;/etc/sysconfig/network-scripts/ifcfg-eth1&lt;/em&gt; file:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;TYPE=Ethernet
+NAME=&amp;quot;eth1&amp;quot;
+IPADDR=x.x.x.x
+...
+ZONE=internal
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
     
     <item>
       <title>Дистанционное управление Motion с помощью Go</title>
