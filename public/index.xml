@@ -499,7 +499,7 @@ DEBUG 23601 --- [lication.main()] o.s.c.e.PropertySourcesPropertyResolver  : Sea
       <description>
 
 &lt;p&gt;Это третья статья цикла 
-&lt;a href=&#39;https://dddpaul.github.io/blog//series/building-test-environments-with-docker&#39;&gt;Building test environments with Docker&lt;/a&gt;.&lt;/p&gt;
+&lt;a href=&#39;https://dddpaul.github.io/blog//series/building-test-environments-with-docker/&#39;&gt;Building test environments with Docker&lt;/a&gt;.&lt;/p&gt;
 
 &lt;p&gt;Как мы уже убедились, запуск контейнеров с помощью &lt;code&gt;docker run&lt;/code&gt; — занятие весьма муторное, т.к. необходимо указывать множество опций. При запуске же нескольких контейнеров ситуация только ухудшается, т.к. теперь нужно задавать имена и линки.&lt;/p&gt;
 
@@ -565,7 +565,7 @@ end script
       
       <guid>https://dddpaul.github.io/blog/2015/01/08/docker-linking/</guid>
       <description>&lt;p&gt;Это вторая статья цикла 
-&lt;a href=&#39;https://dddpaul.github.io/blog//series/building-test-environments-with-docker&#39;&gt;Building test environments with Docker&lt;/a&gt;.&lt;/p&gt;
+&lt;a href=&#39;https://dddpaul.github.io/blog//series/building-test-environments-with-docker/&#39;&gt;Building test environments with Docker&lt;/a&gt;.&lt;/p&gt;
 
 &lt;p&gt;При создании тестовых окружений из нескольких контейнеров неизбежно возникает задача их взаимного связывания. Набивший оскомину пример: контейнеру с приложением нужен контейнер БД. В нашем же случае, контейнеру с балансером нужны контейнеры с апстримами.&lt;/p&gt;
 
@@ -649,7 +649,7 @@ APP1_PORT=tcp://172.17.0.28:22
       <description>
 
 &lt;p&gt;Это первая статья цикла 
-&lt;a href=&#39;https://dddpaul.github.io/blog//series/building-test-environments-with-docker&#39;&gt;Building test environments with Docker&lt;/a&gt;.&lt;/p&gt;
+&lt;a href=&#39;https://dddpaul.github.io/blog//series/building-test-environments-with-docker/&#39;&gt;Building test environments with Docker&lt;/a&gt;.&lt;/p&gt;
 
 &lt;p&gt;Сразу оговорюсь, что все docker-контейнеры основаны на &lt;a href=&#34;http://phusion.github.io/baseimage-docker/&#34;&gt;baseimage-docker&lt;/a&gt;. Этот образ позволяет запускать в контейнере несколько приложений с помощью супервизора &lt;a href=&#34;http://smarden.org/runit/&#34;&gt;runit&lt;/a&gt; и содержит ssh, cron, syslog &amp;ldquo;из коробки&amp;rdquo;.&lt;/p&gt;
 
@@ -984,7 +984,7 @@ stop on runlevel &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;!2345&lt;span class
       <description>
 
 &lt;p&gt;На хабре появилась статья &lt;a href=&#34;http://habrahabr.ru/company/badoo/blog/240479/&#34;&gt;Борьба с утечками памяти в Android. Часть 1&lt;/a&gt; от компании Badoo. Т.к. тема созвучна с моими постами из серии 
-&lt;a href=&#39;https://dddpaul.github.io/blog//series/memory-leaks&#39;&gt;Memory leaks&lt;/a&gt;, то решил вкратце описать их методы.&lt;/p&gt;
+&lt;a href=&#39;https://dddpaul.github.io/blog//series/memory-leaks/&#39;&gt;Memory leaks&lt;/a&gt;, то решил вкратце описать их методы.&lt;/p&gt;
 
 &lt;p&gt;Суть проблемы — использование android.os.Handler, в который постится анонимный Runnable с помощью метода &lt;a href=&#34;http://developer.android.com/reference/android/os/Handler.html#postDelayed(java.lang.Runnable, long&#34;&gt;postDelayed&lt;/a&gt;. Для демонстрации, Runnable просто меняет какой-либо TextView (т.е. содержит внутри себя ссылку mTextView), и время до выполнения Runnable берется довольно большим. Так вот, если за этот промежуток времени повернуть девайс несколько раз, то старые активити не будут собираться GC, т.к. в Java любой анонимный класс всегда имеет неявную ссылку на внешний класс.&lt;/p&gt;
 

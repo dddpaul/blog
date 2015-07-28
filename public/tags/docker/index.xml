@@ -18,7 +18,7 @@
       <description>
 
 &lt;p&gt;Это третья статья цикла 
-&lt;a href=&#39;https://dddpaul.github.io/blog//series/building-test-environments-with-docker&#39;&gt;Building test environments with Docker&lt;/a&gt;.&lt;/p&gt;
+&lt;a href=&#39;https://dddpaul.github.io/blog//series/building-test-environments-with-docker/&#39;&gt;Building test environments with Docker&lt;/a&gt;.&lt;/p&gt;
 
 &lt;p&gt;Как мы уже убедились, запуск контейнеров с помощью &lt;code&gt;docker run&lt;/code&gt; — занятие весьма муторное, т.к. необходимо указывать множество опций. При запуске же нескольких контейнеров ситуация только ухудшается, т.к. теперь нужно задавать имена и линки.&lt;/p&gt;
 
@@ -84,7 +84,7 @@ end script
       
       <guid>https://dddpaul.github.io/blog/2015/01/08/docker-linking/</guid>
       <description>&lt;p&gt;Это вторая статья цикла 
-&lt;a href=&#39;https://dddpaul.github.io/blog//series/building-test-environments-with-docker&#39;&gt;Building test environments with Docker&lt;/a&gt;.&lt;/p&gt;
+&lt;a href=&#39;https://dddpaul.github.io/blog//series/building-test-environments-with-docker/&#39;&gt;Building test environments with Docker&lt;/a&gt;.&lt;/p&gt;
 
 &lt;p&gt;При создании тестовых окружений из нескольких контейнеров неизбежно возникает задача их взаимного связывания. Набивший оскомину пример: контейнеру с приложением нужен контейнер БД. В нашем же случае, контейнеру с балансером нужны контейнеры с апстримами.&lt;/p&gt;
 
@@ -168,7 +168,7 @@ APP1_PORT=tcp://172.17.0.28:22
       <description>
 
 &lt;p&gt;Это первая статья цикла 
-&lt;a href=&#39;https://dddpaul.github.io/blog//series/building-test-environments-with-docker&#39;&gt;Building test environments with Docker&lt;/a&gt;.&lt;/p&gt;
+&lt;a href=&#39;https://dddpaul.github.io/blog//series/building-test-environments-with-docker/&#39;&gt;Building test environments with Docker&lt;/a&gt;.&lt;/p&gt;
 
 &lt;p&gt;Сразу оговорюсь, что все docker-контейнеры основаны на &lt;a href=&#34;http://phusion.github.io/baseimage-docker/&#34;&gt;baseimage-docker&lt;/a&gt;. Этот образ позволяет запускать в контейнере несколько приложений с помощью супервизора &lt;a href=&#34;http://smarden.org/runit/&#34;&gt;runit&lt;/a&gt; и содержит ssh, cron, syslog &amp;ldquo;из коробки&amp;rdquo;.&lt;/p&gt;
 
