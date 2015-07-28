@@ -18,7 +18,7 @@
         <ul>
             {{ $path := .Site.BaseURL }}
             {{ range $key, $taxonomy := .Site.Taxonomies.tags }}
-            <li><a href="{{ $path }}/tags/{{ $key | urlize }}">{{ $key }}</a> </li>
+            <li><a href="{{ $path }}/tags/{{ $key | urlize }}/">{{ $key }}</a> </li>
             {{ end }}
         </ul>
 
