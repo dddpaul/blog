@@ -1,4 +1,4 @@
-baseurl = "http://dddpaul.github.io/blog/"
+baseurl = "https://dddpaul.github.io/blog/"
 languageCode = "en-us"
 title = "Dev notes"
 theme = "hyde"
