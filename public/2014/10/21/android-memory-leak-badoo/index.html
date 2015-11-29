@@ -11,9 +11,9 @@
   <title> Борьба с утечками памяти в Android (Badoo) &middot; Dev notes </title>
 
   
-  <link rel="stylesheet" href="https://dddpaul.github.io/blogcss/poole.css">
-  <link rel="stylesheet" href="https://dddpaul.github.io/blogcss/syntax.css">
-  <link rel="stylesheet" href="https://dddpaul.github.io/blogcss/hyde.css">
+  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/poole.css">
+  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/syntax.css">
+  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/hyde.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
 
   
@@ -50,29 +50,29 @@
         <ul>
             
             
-            <li><a href="https://dddpaul.github.io/blog/tags/android/">android</a> </li>
+            <li><a href="https://dddpaul.github.io/blog//tags/android/">android</a> </li>
             
-            <li><a href="https://dddpaul.github.io/blog/tags/angularjs/">angularjs</a> </li>
+            <li><a href="https://dddpaul.github.io/blog//tags/angularjs/">angularjs</a> </li>
             
-            <li><a href="https://dddpaul.github.io/blog/tags/ansible/">ansible</a> </li>
+            <li><a href="https://dddpaul.github.io/blog//tags/ansible/">ansible</a> </li>
             
-            <li><a href="https://dddpaul.github.io/blog/tags/devops/">devops</a> </li>
+            <li><a href="https://dddpaul.github.io/blog//tags/devops/">devops</a> </li>
             
-            <li><a href="https://dddpaul.github.io/blog/tags/docker/">docker</a> </li>
+            <li><a href="https://dddpaul.github.io/blog//tags/docker/">docker</a> </li>
             
-            <li><a href="https://dddpaul.github.io/blog/tags/git/">git</a> </li>
+            <li><a href="https://dddpaul.github.io/blog//tags/git/">git</a> </li>
             
-            <li><a href="https://dddpaul.github.io/blog/tags/golang/">golang</a> </li>
+            <li><a href="https://dddpaul.github.io/blog//tags/golang/">golang</a> </li>
             
-            <li><a href="https://dddpaul.github.io/blog/tags/hugo/">hugo</a> </li>
+            <li><a href="https://dddpaul.github.io/blog//tags/hugo/">hugo</a> </li>
             
-            <li><a href="https://dddpaul.github.io/blog/tags/java/">java</a> </li>
+            <li><a href="https://dddpaul.github.io/blog//tags/java/">java</a> </li>
             
-            <li><a href="https://dddpaul.github.io/blog/tags/javascript/">javascript</a> </li>
+            <li><a href="https://dddpaul.github.io/blog//tags/javascript/">javascript</a> </li>
             
-            <li><a href="https://dddpaul.github.io/blog/tags/linux/">linux</a> </li>
+            <li><a href="https://dddpaul.github.io/blog//tags/linux/">linux</a> </li>
             
-            <li><a href="https://dddpaul.github.io/blog/tags/python/">python</a> </li>
+            <li><a href="https://dddpaul.github.io/blog//tags/python/">python</a> </li>
             
         </ul>
 
@@ -89,7 +89,7 @@
         
 
 <p>На хабре появилась статья <a href="http://habrahabr.ru/company/badoo/blog/240479/">Борьба с утечками памяти в Android. Часть 1</a> от компании Badoo. Т.к. тема созвучна с моими постами из серии 
-<a href='https://dddpaul.github.io/blog/series/memory-leaks/'>Memory leaks</a>, то решил вкратце описать их методы.</p>
+<a href='https://dddpaul.github.io/blog//series/memory-leaks/'>Memory leaks</a>, то решил вкратце описать их методы.</p>
 
 <p>Суть проблемы — использование android.os.Handler, в который постится анонимный Runnable с помощью метода <a href="http://developer.android.com/reference/android/os/Handler.html#postDelayed(java.lang.Runnable, long">postDelayed</a>. Для демонстрации, Runnable просто меняет какой-либо TextView (т.е. содержит внутри себя ссылку mTextView), и время до выполнения Runnable берется довольно большим. Так вот, если за этот промежуток времени повернуть девайс несколько раз, то старые активити не будут собираться GC, т.к. в Java любой анонимный класс всегда имеет неявную ссылку на внешний класс.</p>
 
@@ -180,9 +180,9 @@
     <ul id="tags">
         
         
-        <li><a href="https://dddpaul.github.io/blog/tags/android">Android</a> </li>
+        <li><a href="https://dddpaul.github.io/blog//tags/android">Android</a> </li>
         
-        <li><a href="https://dddpaul.github.io/blog/tags/java">Java</a> </li>
+        <li><a href="https://dddpaul.github.io/blog//tags/java">Java</a> </li>
         
     </ul>
 
