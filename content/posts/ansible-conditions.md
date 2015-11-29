@@ -6,38 +6,15 @@ tags = ["Ansible", "Python"]
 
 +++
 
-**1.** First, a quote from http://docs.ansible.com/ansible/playbooks_conditionals.html:
-
----
-
-...
-
-This is easy to do in Ansible, with the when clause, which **contains a Jinja2 expression** (see [Variables](http://docs.ansible.com/ansible/playbooks_variables.html)).
-
-...
-
-If a required variable has not been set, you can skip or fail using Jinja2’s defined test. For example:
-
-```
-tasks:
-    - shell: echo "I've got '{{ foo }}' and am not afraid to use it!"
-      when: foo is defined
-
-    - fail: msg="Bailing out. this play requires 'bar'"
-      when: bar is undefined
-```
-
----
-
-**2.** Second, a quote from [Ansible: Up And Running](http://shop.oreilly.com/product/0636920035626.do), page 41:
+First of all, the Ansible "when" clause contains a Jinja2 expression (see [Ansible playbook conditionals](http://docs.ansible.com/ansible/playbooks_conditionals.html)). It's confirmed with a quote from [Ansible: Up And Running](http://shop.oreilly.com/product/0636920035626.do), page 41:
 
 > Ansible also uses the **Jinja2 template engine** to evaluate variables in playbooks.
 
-**3.** Then, conditions for [Jinja2]:http://jinja.pocoo.org/docs/dev/templates/
+Secondly, that how [Jinja2](http://jinja.pocoo.org/docs/dev/templates/) interprets the "if" condition:
 
 > The if statement in Jinja is comparable with the Python if statement. In the simplest form, you can use it to test if **a variable is defined, not empty or not false**.
 
-**4.** At last, Python - https://www.python.org/dev/peps/pep-0008/:
+At last, a bit of truth about [Python](https://www.python.org/dev/peps/pep-0008/):
                   
 > For sequences, (strings, lists, tuples), use the fact that **empty sequences are false**.
 
@@ -60,11 +37,13 @@ Why all of these are important? Because there are plenty of redundant "if" and "
          (item.0 is defined and item.0))
 ```
 
-See that overbloated "when" condition? Wouldn't be that simpler with ```when: nginx_local_servers and item.0```? It's not a complete equivalent because it evaluates to False when nginx_local_servers is defined and empty. But it's definitely correct behaviour — surely we have no usage for empty servers string.
+See that overbloated "when" condition? Wouldn't be that simpler with ```when: nginx_local_servers and item.0```?
+ 
+Though it's not a complete equivalent because it evaluates to False when nginx_local_servers **is defined and empty**. But it's definitely correct behaviour — surely we have no usage for the empty servers string.
   
-It's all just mere words without proper testing, so lets test long version **str is defined and str**:
+It's all just mere words without proper testing, so let's test long version ```str is defined and str```:
 
-```
+{{< highlight python >}}
 >>> from jinja2 import Template
 >>> tmpl = Template('{% if str is defined and str %} True {% else %} False {% endif %}')
 >>> print tmpl.render()
@@ -77,11 +56,11 @@ It's all just mere words without proper testing, so lets test long version **str
  True 
 >>> print tmpl.render(str=' ')
  True 
-```
+{{< /highlight >}}
 
-And the short version - just **str**:
+And the short version — ```str```:
 
-```
+{{< highlight python >}}
 >>> from jinja2 import Template
 >>> tmpl = Template('{% if str %} True {% else %} False {% endif %}')
 >>> print tmpl.render()
@@ -94,6 +73,23 @@ And the short version - just **str**:
  True 
 >>> print tmpl.render(str=' ')
  True 
-```
+{{< /highlight >}}
 
-So there are no differences at all.
+So there are no differences at all. For the sake of thrust, let's test ```str is defined```:
+
+{{< highlight python >}}
+>>> from jinja2 import Template
+>>> tmpl = Template('{% if str is defined %} True {% else %} False {% endif %}')
+>>> print tmpl.render()
+ False 
+>>> print tmpl.render(str=None)
+ True 
+>>> print tmpl.render(str='')
+ True 
+>>> print tmpl.render(str='abc')
+ True 
+>>> print tmpl.render(str=' ')
+ True 
+{{< /highlight >}}
+
+So just use ```str``` and not ```str is defined and str```, Luke!
