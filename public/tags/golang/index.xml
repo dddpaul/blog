@@ -28,7 +28,7 @@
 
 &lt;p&gt;&lt;strong&gt;1.&lt;/strong&gt; Motion ставится элементарно — &lt;code&gt;apt-get install motion&lt;/code&gt;. Важные настройки:&lt;/p&gt;
 
-&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;span class=&#34;c&#34;&gt;# Максимальный fps&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;c&#34;&gt;# Максимальный fps&lt;/span&gt;
 framerate 5
 
 &lt;span class=&#34;c&#34;&gt;# Снимать на максимальном fps только во время движения&lt;/span&gt;
@@ -63,8 +63,8 @@ locate on
 &lt;span class=&#34;c&#34;&gt;# Запуск скрипта по началу движения (это симлимк, который указывает на реальный скрипт).&lt;/span&gt;
 &lt;span class=&#34;c&#34;&gt;# Изменение симлинка осущестляется по команде с пульта (см. п. 2 про конфиг) &lt;/span&gt;
 on_event_start &lt;span class=&#34;s2&#34;&gt;&amp;quot;/etc/motion/handlers/on_event_start&amp;quot;&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-&lt;/p&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
 
 &lt;p&gt;Для подгонки чувствительности, порога шумов и т.д., нужно использовать setup mode, который активируется при запуске &lt;code&gt;
 motion -s&lt;/code&gt;.&lt;/p&gt;
@@ -144,7 +144,7 @@ KERNEL==&amp;quot;event*&amp;quot;, SUBSYSTEM==&amp;quot;input&amp;quot;, ATTRS{
 
 &lt;p&gt;И создадим новый upstart job в &lt;em&gt;/etc/init/evhandler.conf&lt;/em&gt;:&lt;/p&gt;
 
-&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;span class=&#34;c&#34;&gt;# evhandler - Simple key press listener and handler written in Go&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;c&#34;&gt;# evhandler - Simple key press listener and handler written in Go&lt;/span&gt;
 
 start on runlevel &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;2345&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
 stop on runlevel &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;!2345&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
@@ -152,8 +152,8 @@ stop on runlevel &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;!2345&lt;span class
 respawn
 
 &lt;span class=&#34;nb&#34;&gt;exec&lt;/span&gt; /path/to/go-evhandler &amp;gt; /dev/tty1 2&amp;gt;&lt;span class=&#34;p&#34;&gt;&amp;amp;&lt;/span&gt;1
-&lt;/pre&gt;&lt;/div&gt;
-&lt;/p&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
 
 &lt;p&gt;Теперь evhandler будет запускаться при загрузке, а также перезапускаться, если его процесс будет прибит. Для ручного запуска — &lt;code&gt;
 start evhandler&lt;/code&gt;.&lt;/p&gt;
@@ -173,7 +173,7 @@ start evhandler&lt;/code&gt;.&lt;/p&gt;
 
 &lt;p&gt;Для автоматического запуска этой команды создадим job &lt;em&gt;/etc/init/tty1.conf&lt;/em&gt;:&lt;/p&gt;
 
-&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;span class=&#34;c&#34;&gt;# tty1 - getty&lt;/span&gt;
+&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;c&#34;&gt;# tty1 - getty&lt;/span&gt;
 &lt;span class=&#34;c&#34;&gt;#&lt;/span&gt;
 &lt;span class=&#34;c&#34;&gt;# This service is used to maintain a getty on tty1 from the point the system is&lt;/span&gt;
 &lt;span class=&#34;c&#34;&gt;# started until it is shut down again.&lt;/span&gt;
@@ -188,7 +188,7 @@ stop on runlevel &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;!2345&lt;span class
 &lt;span class=&#34;c&#34;&gt;# Blank screen after 1 minute timeout&lt;/span&gt;
 &lt;span class=&#34;c&#34;&gt;# See http://www.armadeus.com/wiki/index.php?title=FrameBuffer&lt;/span&gt;
 &lt;span class=&#34;nb&#34;&gt;exec echo&lt;/span&gt; -ne &lt;span class=&#34;s2&#34;&gt;&amp;quot;\033[9;1]&amp;quot;&lt;/span&gt; &amp;gt; /dev/tty1
-&lt;/pre&gt;&lt;/div&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;/p&gt;
 
 &lt;p&gt;Ссылки:&lt;/p&gt;

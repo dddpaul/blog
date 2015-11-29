@@ -3,6 +3,7 @@
 <head>
   <link href="http://gmpg.org/xfn/11" rel="profile">
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="generator" content="Hugo 0.16-DEV" />
 
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
@@ -10,17 +11,17 @@
   <title> Логирование HTTP-запросов в Tomcat &middot; Dev notes </title>
 
   
-  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/poole.css">
-  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/syntax.css">
-  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/hyde.css">
+  <link rel="stylesheet" href="https://dddpaul.github.io/blogcss/poole.css">
+  <link rel="stylesheet" href="https://dddpaul.github.io/blogcss/syntax.css">
+  <link rel="stylesheet" href="https://dddpaul.github.io/blogcss/hyde.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
 
   
   <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144-precomposed.png">
-  <link rel="shortcut icon" href="/favicon.ico">
+  <link rel="shortcut icon" href="/favicon.png">
 
   
   <link href="" rel="alternate" type="application/rss+xml" title="Dev notes" />
-
 </head>
 
 <body>
@@ -53,6 +54,8 @@
             
             <li><a href="https://dddpaul.github.io/blog/tags/angularjs/">angularjs</a> </li>
             
+            <li><a href="https://dddpaul.github.io/blog/tags/ansible/">ansible</a> </li>
+            
             <li><a href="https://dddpaul.github.io/blog/tags/devops/">devops</a> </li>
             
             <li><a href="https://dddpaul.github.io/blog/tags/docker/">docker</a> </li>
@@ -68,6 +71,8 @@
             <li><a href="https://dddpaul.github.io/blog/tags/javascript/">javascript</a> </li>
             
             <li><a href="https://dddpaul.github.io/blog/tags/linux/">linux</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog/tags/python/">python</a> </li>
             
         </ul>
 
@@ -91,12 +96,12 @@
 
 <p>Достаточно поместить вот такой bean в класс, аннотированный @Configuration:</p>
 
-<p><div class="highlight"><pre><span class="nd">@Bean</span>
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="nd">@Bean</span>
 <span class="n">RequestDumperFilter</span> <span class="nf">requestDumper</span><span class="o">()</span> <span class="o">{</span>
     <span class="k">return</span> <span class="k">new</span> <span class="n">RequestDumperFilter</span><span class="o">();</span>
 <span class="o">}</span>
-</pre></div>
-</p>
+</code></pre></div>
+
 
 <p>Вывод дампа запросов в отдельный лог здесь не рассматриваем.</p>
 
@@ -104,7 +109,7 @@
 
 <p>Стандартный способ конфигурации фильтра — server.xml / context.xml / web.xml, в зависимости от того, какой scope нам нужен. Для логирования запросов в рамках одного приложения — web.xml.</p>
 
-<p><div class="highlight"><pre><span class="nt">&lt;filter&gt;</span>
+<div class="highlight"><pre><code class="language-xml" data-lang="xml"><span class="nt">&lt;filter&gt;</span>
     <span class="nt">&lt;filter-name&gt;</span>RequestDumper<span class="nt">&lt;/filter-name&gt;</span>
     <span class="nt">&lt;filter-class&gt;</span>org.apache.catalina.filters.RequestDumperFilter<span class="nt">&lt;/filter-class&gt;</span>
 <span class="nt">&lt;/filter&gt;</span>
@@ -113,12 +118,12 @@
     <span class="nt">&lt;filter-name&gt;</span>RequestDumper<span class="nt">&lt;/filter-name&gt;</span>
     <span class="nt">&lt;url-pattern&gt;</span>*<span class="nt">&lt;/url-pattern&gt;</span>
 <span class="nt">&lt;/filter-mapping&gt;</span>
-</pre></div>
-</p>
+</code></pre></div>
+
 
 <p>Для логирования в отдельный файл нужно сконфигурировать <a href="https://tomcat.apache.org/tomcat-7.0-doc/logging.html">Tomcat JULI</a>. По-идее, можно логировать через Apache Commons Logging, но в доке дается пример для JULI. Поэтому, вот такой logging.properties можно смело кидать в webapp/WEB-INF/classes:</p>
 
-<p><div class="highlight"><pre><span class="c1"># Uncomment to dump HTTP request data, see http://tomcat.apache.org/tomcat-7.0-doc/config/filter.html#Request_Dumper_Filter</span>
+<div class="highlight"><pre><code class="language-ini" data-lang="ini"><span class="c1"># Uncomment to dump HTTP request data, see http://tomcat.apache.org/tomcat-7.0-doc/config/filter.html#Request_Dumper_Filter</span>
 <span class="c1">#handlers = 1request-dumper.org.apache.juli.FileHandler</span>
 
 <span class="c1"># To this configuration below, 1request-dumper.org.apache.juli.FileHandler</span>
@@ -129,8 +134,8 @@
 <span class="na">1request-dumper.org.apache.juli.FileHandler.formatter</span> <span class="o">=</span> <span class="s">org.apache.juli.VerbatimFormatter</span>
 <span class="na">org.apache.catalina.filters.RequestDumperFilter.level</span> <span class="o">=</span> <span class="s">INFO</span>
 <span class="na">org.apache.catalina.filters.RequestDumperFilter.handlers</span> <span class="o">=</span> <span class="s">1request-dumper.org.apache.juli.FileHandler</span>
-</pre></div>
-</p>
+</code></pre></div>
+
 
 <p>Получился почти production-ready вариант, для включения логирования можно раскомментировать строчку с handlers и перезапустить приложение. Совсем по-хорошему это нужно сделать через JMX, тогда, быть может, получится избежать перезапуска приложения.</p>
 
@@ -140,9 +145,9 @@
 
 <p>Для включения дампа нужно просто вставить строчку в server.xml (в блоки Engine или Host) и перезапустить сервер Tomcat:</p>
 
-<p><div class="highlight"><pre><span class="nt">&lt;Valve</span> <span class="na">className=</span><span class="s">&quot;org.apache.catalina.valves.RequestDumperValve&quot;</span><span class="nt">/&gt;</span>
-</pre></div>
-</p>
+<div class="highlight"><pre><code class="language-xml" data-lang="xml"><span class="nt">&lt;Valve</span> <span class="na">className=</span><span class="s">&quot;org.apache.catalina.valves.RequestDumperValve&quot;</span><span class="nt">/&gt;</span>
+</code></pre></div>
+
 
 <p>В первом случае (Engine) дамп будет выдаваться в catalina.out, а во втором (Host) - в localhost.log.</p>
 
@@ -187,7 +192,7 @@
 
 <p>Конфигурация logback-access.xml кладется в $TOMCAT_HOME/conf/:</p>
 
-<p><div class="highlight"><pre><span class="nt">&lt;configuration&gt;</span>
+<p><div class="highlight"><pre><code class="language-xml" data-lang="xml"><span class="nt">&lt;configuration&gt;</span>
     <span class="c">&lt;!-- Tomcat&#39;s lib folder must contain logback-core.jar and logback-access.jar to dump HTTP requests and responses --&gt;</span>
     <span class="nt">&lt;appender</span> <span class="na">name=</span><span class="s">&quot;DUMPER&quot;</span> <span class="na">class=</span><span class="s">&quot;ch.qos.logback.core.rolling.RollingFileAppender&quot;</span><span class="nt">&gt;</span>
         <span class="c">&lt;!-- Tomcat&#39;s lib folder must contain janino.jar and commons-compiler.jar to filter which HTTP requests and responses to dump --&gt;</span>
@@ -215,20 +220,20 @@
     <span class="nt">&lt;/appender&gt;</span>
     <span class="nt">&lt;appender-ref</span> <span class="na">ref=</span><span class="s">&quot;DUMPER&quot;</span><span class="nt">/&gt;</span>
 <span class="nt">&lt;/configuration&gt;</span>
-</pre></div>
+</code></pre></div>
 </p>
 
 <p>Эта конфигурация устанавливает логирование всех HTTP-запросов на /webapp без HTTP-заголовка X-Logging-Disabled.</p>
 
 <p>Также, должен быть активирован LogbackAccessValve в $TOMCAT_HOME/conf/server.xml (в блоке Host):</p>
 
-<p><div class="highlight"><pre><span class="nt">&lt;Valve</span> <span class="na">className=</span><span class="s">&quot;ch.qos.logback.access.tomcat.LogbackValve&quot;</span><span class="nt">/&gt;</span>
-</pre></div>
+<p><div class="highlight"><pre><code class="language-xml" data-lang="xml"><span class="nt">&lt;Valve</span> <span class="na">className=</span><span class="s">&quot;ch.qos.logback.access.tomcat.LogbackValve&quot;</span><span class="nt">/&gt;</span>
+</code></pre></div>
 </p>
 
 <p>Последний штрих — объявление фильтра <a href="http://logback.qos.ch/apidocs/ch/qos/logback/access/servlet/TeeFilter.html">TeeFilter</a>. В Spring Boot это делается элементарно:</p>
 
-<p><div class="highlight"><pre><span class="cm">/**</span>
+<p><div class="highlight"><pre><code class="language-java" data-lang="java"><span class="cm">/**</span>
 <span class="cm"> * Enable HTTP response logging, see &lt;a href=&quot;http://logback.qos.ch/recipes/captureHttp.html&quot;&gt;Capturing HTTP requests and responses&lt;/a&gt;.</span>
 <span class="cm"> * Tomcat&#39;s lib folder must contain logback-core.jar and logback-access.jar.</span>
 <span class="cm"> */</span>
@@ -236,7 +241,7 @@
 <span class="n">Filter</span> <span class="nf">httpRequestAndResponseDumper</span><span class="o">()</span> <span class="o">{</span>
     <span class="k">return</span> <span class="k">new</span> <span class="n">TeeFilter</span><span class="o">();</span>
 <span class="o">}</span>
-</pre></div>
+</code></pre></div>
 </p>
 
     </div>

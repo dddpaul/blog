@@ -3,6 +3,7 @@
 <head>
   <link href="http://gmpg.org/xfn/11" rel="profile">
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="generator" content="Hugo 0.16-DEV" />
 
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
@@ -10,17 +11,17 @@
   <title> Dev notes &middot; Dev notes </title>
 
   
-  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/poole.css">
-  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/syntax.css">
-  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/hyde.css">
+  <link rel="stylesheet" href="https://dddpaul.github.io/blogcss/poole.css">
+  <link rel="stylesheet" href="https://dddpaul.github.io/blogcss/syntax.css">
+  <link rel="stylesheet" href="https://dddpaul.github.io/blogcss/hyde.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
 
   
   <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144-precomposed.png">
-  <link rel="shortcut icon" href="/favicon.ico">
+  <link rel="shortcut icon" href="/favicon.png">
 
   
   <link href="https://dddpaul.github.io/blog/index.xml" rel="alternate" type="application/rss+xml" title="Dev notes" />
-
 </head>
 
 <body>
@@ -53,6 +54,8 @@
             
             <li><a href="https://dddpaul.github.io/blog/tags/angularjs/">angularjs</a> </li>
             
+            <li><a href="https://dddpaul.github.io/blog/tags/ansible/">ansible</a> </li>
+            
             <li><a href="https://dddpaul.github.io/blog/tags/devops/">devops</a> </li>
             
             <li><a href="https://dddpaul.github.io/blog/tags/docker/">docker</a> </li>
@@ -69,6 +72,8 @@
             
             <li><a href="https://dddpaul.github.io/blog/tags/linux/">linux</a> </li>
             
+            <li><a href="https://dddpaul.github.io/blog/tags/python/">python</a> </li>
+            
         </ul>
 
         <p>&copy; 2015. All rights reserved. </p>
@@ -79,6 +84,110 @@
 <div class="content container">
     <div class="posts">
 
+        
+        <div class="post">
+            <h1 class="post-title">
+                <a href="https://dddpaul.github.io/blog/2015/11/29/ansible-conditions/">
+                    Proper conditions in Ansible playbooks
+                </a>
+            </h1>
+
+            <span class="post-date">2015-11-29</span>
+
+            <p>First of all, the Ansible &ldquo;when&rdquo; clause contains a Jinja2 expression (see <a href="http://docs.ansible.com/ansible/playbooks_conditionals.html">Ansible playbook conditionals</a>). It&rsquo;s confirmed with a quote from <a href="http://shop.oreilly.com/product/0636920035626.do">Ansible: Up And Running</a>, page 41:</p>
+
+<blockquote>
+<p>Ansible also uses the <strong>Jinja2 template engine</strong> to evaluate variables in playbooks.</p>
+</blockquote>
+
+<p>Secondly, that how <a href="http://jinja.pocoo.org/docs/dev/templates/">Jinja2</a> interprets the &ldquo;if&rdquo; condition:</p>
+
+<blockquote>
+<p>The if statement in Jinja is comparable with the Python if statement. In the simplest form, you can use it to test if <strong>a variable is defined, not empty or not false</strong>.</p>
+</blockquote>
+
+<p>At last, a bit of truth about <a href="https://www.python.org/dev/peps/pep-0008/">Python</a>:</p>
+
+<blockquote>
+<p>For sequences, (strings, lists, tuples), use the fact that <strong>empty sequences are false</strong>.</p>
+</blockquote>
+
+<p>Why all of these are important? Because there are plenty of redundant &ldquo;if&rdquo; and &ldquo;when&rdquo; conditionals usage in Ansible playbooks and templates. For example in <a href="https://github.com/debops/ansible-nginx/blob/master/tasks/main.yml">debops/ansible-nginx</a>:</p>
+
+<pre><code>- name: Manage local server definitions - create symlinks
+  file:
+    src: '/etc/nginx/sites-local/{{ item.0 }}'
+    path: '/etc/nginx/sites-enabled/{{ item.1 }}'
+    state: 'link'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+  with_together:
+    - '{{ nginx_local_servers.values() }}'
+    - '{{ nginx_local_servers.keys() }}'
+  notify: [ 'Test nginx and reload' ]
+  when: ((nginx_local_servers is defined and nginx_local_servers) and
+         (item.0 is defined and item.0))
+</code></pre>
+
+<p>See that overbloated &ldquo;when&rdquo; condition? Wouldn&rsquo;t be that simpler with <code>when: nginx_local_servers and item.0</code>?</p>
+
+<p>Though it&rsquo;s not a complete equivalent because it evaluates to False when nginx_local_servers <strong>is defined and empty</strong>. But it&rsquo;s definitely correct behaviour — surely we have no usage for the empty servers string.</p>
+
+<p>It&rsquo;s all just mere words without proper testing, so let&rsquo;s test long version <code>str is defined and str</code>:</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Template</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">tmpl</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s">&#39;{</span><span class="si">% i</span><span class="s">f str is defined and str %} True {</span><span class="si">% e</span><span class="s">lse %} False {</span><span class="si">% e</span><span class="s">ndif %}&#39;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">()</span>
+ <span class="bp">False</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="nb">str</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+ <span class="bp">False</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="nb">str</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">)</span>
+ <span class="bp">False</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="nb">str</span><span class="o">=</span><span class="s">&#39;abc&#39;</span><span class="p">)</span>
+ <span class="bp">True</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="nb">str</span><span class="o">=</span><span class="s">&#39; &#39;</span><span class="p">)</span>
+ <span class="bp">True</span> 
+</code></pre></div>
+
+
+<p>And the short version — <code>str</code>:</p>
+
+<p><div class="highlight"><pre><code class="language-python" data-lang="python"><span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Template</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">tmpl</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s">&#39;{</span><span class="si">% i</span><span class="s">f str %} True {</span><span class="si">% e</span><span class="s">lse %} False {</span><span class="si">% e</span><span class="s">ndif %}&#39;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">()</span>
+ <span class="bp">False</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="nb">str</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+ <span class="bp">False</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="nb">str</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">)</span>
+ <span class="bp">False</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="nb">str</span><span class="o">=</span><span class="s">&#39;abc&#39;</span><span class="p">)</span>
+ <span class="bp">True</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="nb">str</span><span class="o">=</span><span class="s">&#39; &#39;</span><span class="p">)</span>
+ <span class="bp">True</span> 
+</code></pre></div>
+</p>
+
+<p>So there are no differences at all. For the sake of thrust, let&rsquo;s test <code>str is defined</code>:</p>
+
+<p><div class="highlight"><pre><code class="language-python" data-lang="python"><span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Template</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">tmpl</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s">&#39;{</span><span class="si">% i</span><span class="s">f str is defined %} True {</span><span class="si">% e</span><span class="s">lse %} False {</span><span class="si">% e</span><span class="s">ndif %}&#39;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">()</span>
+ <span class="bp">False</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="nb">str</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+ <span class="bp">True</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="nb">str</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">)</span>
+ <span class="bp">True</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="nb">str</span><span class="o">=</span><span class="s">&#39;abc&#39;</span><span class="p">)</span>
+ <span class="bp">True</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="nb">str</span><span class="o">=</span><span class="s">&#39; &#39;</span><span class="p">)</span>
+ <span class="bp">True</span> 
+</code></pre></div>
+</p>
+
+<p>So just use <code>str</code> and not <code>str is defined and str</code>, Luke!</p>
+
+        </div>
         
         <div class="post">
             <h1 class="post-title">
@@ -132,13 +241,13 @@ ZONE=internal
 
 <p>Однако, стоит учитывать, что резолвинг значения будет выполняться для каждой аннотации @Value. Например, если аннотировать @Value два поля (в одном или разных классах - не суть важно) вот так:</p>
 
-<p><div class="highlight"><pre><span class="nd">@Value</span><span class="o">(</span><span class="s">&quot;${unique-param}&quot;</span><span class="o">)</span>
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="nd">@Value</span><span class="o">(</span><span class="s">&quot;${unique-param}&quot;</span><span class="o">)</span>
 <span class="kd">private</span> <span class="n">String</span> <span class="n">param1</span><span class="o">;</span>
 
 <span class="nd">@Value</span><span class="o">(</span><span class="s">&quot;${unique-param}&quot;</span><span class="o">)</span>
 <span class="kd">private</span> <span class="n">String</span> <span class="n">param2</span><span class="o">;</span>
-</pre></div>
-</p>
+</code></pre></div>
+
 
 <p>, то в debug-логе мы увидим:</p>
 
@@ -156,16 +265,16 @@ DEBUG 23601 --- [lication.main()] o.s.c.e.PropertySourcesPropertyResolver  : Sea
 
 <p>Еще более неоднозначная штука связана с передачей дефолтного значения через @Value.</p>
 
-<p><div class="highlight"><pre><span class="nd">@Value</span><span class="o">(</span><span class="s">&quot;${unique-param:DefaultValue}&quot;</span><span class="o">)</span>
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="nd">@Value</span><span class="o">(</span><span class="s">&quot;${unique-param:DefaultValue}&quot;</span><span class="o">)</span>
 <span class="kd">private</span> <span class="n">String</span> <span class="n">param</span><span class="o">;</span>
-</pre></div>
-</p>
+</code></pre></div>
+
 
 <p>При резолвинге значения будет сначала проведен поиск параметра &ldquo;unique-param:DefaultValue&rdquo;, а уже потом - &ldquo;unique-param&rdquo;. Таким образом, если в конфигурации указать:</p>
 
-<p><div class="highlight"><pre><span class="na">unique-param\:DefaultValue</span> <span class="o">=</span> <span class="s">Another value</span>
-</pre></div>
-</p>
+<div class="highlight"><pre><code class="language-ini" data-lang="ini"><span class="na">unique-param\:DefaultValue</span> <span class="o">=</span> <span class="s">Another value</span>
+</code></pre></div>
+
 
 <p>, то param в коде будет равен &ldquo;Another value&rdquo;.</p>
 
@@ -179,19 +288,19 @@ DEBUG 23601 --- [lication.main()] o.s.c.e.PropertySourcesPropertyResolver  : Sea
 
 <p>Например:</p>
 
-<p><div class="highlight"><pre><span class="nd">@ConfigurationProperties</span><span class="o">(</span><span class="n">prefix</span> <span class="o">=</span> <span class="s">&quot;params&quot;</span><span class="o">)</span>
+<p><div class="highlight"><pre><code class="language-java" data-lang="java"><span class="nd">@ConfigurationProperties</span><span class="o">(</span><span class="n">prefix</span> <span class="o">=</span> <span class="s">&quot;params&quot;</span><span class="o">)</span>
 <span class="kd">public</span> <span class="kd">class</span> <span class="nc">Config</span> <span class="o">{</span>
     <span class="kd">private</span> <span class="n">String</span> <span class="n">uniqueParam</span> <span class="o">=</span> <span class="s">&quot;Default value&quot;</span><span class="o">;</span>
 
     <span class="c1">// Getters are mandatory. Setters are mandatory for immutable types (such as String).</span>
  <span class="o">}</span>
-</pre></div>
+</code></pre></div>
 </p>
 
 <p>Конфигурация:</p>
 
-<p><div class="highlight"><pre><span class="na">params.unique-param</span> <span class="o">=</span> <span class="s">Another value</span>
-</pre></div>
+<p><div class="highlight"><pre><code class="language-ini" data-lang="ini"><span class="na">params.unique-param</span> <span class="o">=</span> <span class="s">Another value</span>
+</code></pre></div>
 </p>
 
         </div>
@@ -215,12 +324,12 @@ DEBUG 23601 --- [lication.main()] o.s.c.e.PropertySourcesPropertyResolver  : Sea
 
 <p>Достаточно поместить вот такой bean в класс, аннотированный @Configuration:</p>
 
-<p><div class="highlight"><pre><span class="nd">@Bean</span>
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="nd">@Bean</span>
 <span class="n">RequestDumperFilter</span> <span class="nf">requestDumper</span><span class="o">()</span> <span class="o">{</span>
     <span class="k">return</span> <span class="k">new</span> <span class="n">RequestDumperFilter</span><span class="o">();</span>
 <span class="o">}</span>
-</pre></div>
-</p>
+</code></pre></div>
+
 
 <p>Вывод дампа запросов в отдельный лог здесь не рассматриваем.</p>
 
@@ -228,7 +337,7 @@ DEBUG 23601 --- [lication.main()] o.s.c.e.PropertySourcesPropertyResolver  : Sea
 
 <p>Стандартный способ конфигурации фильтра — server.xml / context.xml / web.xml, в зависимости от того, какой scope нам нужен. Для логирования запросов в рамках одного приложения — web.xml.</p>
 
-<p><div class="highlight"><pre><span class="nt">&lt;filter&gt;</span>
+<div class="highlight"><pre><code class="language-xml" data-lang="xml"><span class="nt">&lt;filter&gt;</span>
     <span class="nt">&lt;filter-name&gt;</span>RequestDumper<span class="nt">&lt;/filter-name&gt;</span>
     <span class="nt">&lt;filter-class&gt;</span>org.apache.catalina.filters.RequestDumperFilter<span class="nt">&lt;/filter-class&gt;</span>
 <span class="nt">&lt;/filter&gt;</span>
@@ -237,12 +346,12 @@ DEBUG 23601 --- [lication.main()] o.s.c.e.PropertySourcesPropertyResolver  : Sea
     <span class="nt">&lt;filter-name&gt;</span>RequestDumper<span class="nt">&lt;/filter-name&gt;</span>
     <span class="nt">&lt;url-pattern&gt;</span>*<span class="nt">&lt;/url-pattern&gt;</span>
 <span class="nt">&lt;/filter-mapping&gt;</span>
-</pre></div>
-</p>
+</code></pre></div>
+
 
 <p>Для логирования в отдельный файл нужно сконфигурировать <a href="https://tomcat.apache.org/tomcat-7.0-doc/logging.html">Tomcat JULI</a>. По-идее, можно логировать через Apache Commons Logging, но в доке дается пример для JULI. Поэтому, вот такой logging.properties можно смело кидать в webapp/WEB-INF/classes:</p>
 
-<p><div class="highlight"><pre><span class="c1"># Uncomment to dump HTTP request data, see http://tomcat.apache.org/tomcat-7.0-doc/config/filter.html#Request_Dumper_Filter</span>
+<div class="highlight"><pre><code class="language-ini" data-lang="ini"><span class="c1"># Uncomment to dump HTTP request data, see http://tomcat.apache.org/tomcat-7.0-doc/config/filter.html#Request_Dumper_Filter</span>
 <span class="c1">#handlers = 1request-dumper.org.apache.juli.FileHandler</span>
 
 <span class="c1"># To this configuration below, 1request-dumper.org.apache.juli.FileHandler</span>
@@ -253,8 +362,8 @@ DEBUG 23601 --- [lication.main()] o.s.c.e.PropertySourcesPropertyResolver  : Sea
 <span class="na">1request-dumper.org.apache.juli.FileHandler.formatter</span> <span class="o">=</span> <span class="s">org.apache.juli.VerbatimFormatter</span>
 <span class="na">org.apache.catalina.filters.RequestDumperFilter.level</span> <span class="o">=</span> <span class="s">INFO</span>
 <span class="na">org.apache.catalina.filters.RequestDumperFilter.handlers</span> <span class="o">=</span> <span class="s">1request-dumper.org.apache.juli.FileHandler</span>
-</pre></div>
-</p>
+</code></pre></div>
+
 
 <p>Получился почти production-ready вариант, для включения логирования можно раскомментировать строчку с handlers и перезапустить приложение. Совсем по-хорошему это нужно сделать через JMX, тогда, быть может, получится избежать перезапуска приложения.</p>
 
@@ -264,9 +373,9 @@ DEBUG 23601 --- [lication.main()] o.s.c.e.PropertySourcesPropertyResolver  : Sea
 
 <p>Для включения дампа нужно просто вставить строчку в server.xml (в блоки Engine или Host) и перезапустить сервер Tomcat:</p>
 
-<p><div class="highlight"><pre><span class="nt">&lt;Valve</span> <span class="na">className=</span><span class="s">&quot;org.apache.catalina.valves.RequestDumperValve&quot;</span><span class="nt">/&gt;</span>
-</pre></div>
-</p>
+<div class="highlight"><pre><code class="language-xml" data-lang="xml"><span class="nt">&lt;Valve</span> <span class="na">className=</span><span class="s">&quot;org.apache.catalina.valves.RequestDumperValve&quot;</span><span class="nt">/&gt;</span>
+</code></pre></div>
+
 
 <p>В первом случае (Engine) дамп будет выдаваться в catalina.out, а во втором (Host) - в localhost.log.</p>
 
@@ -311,7 +420,7 @@ DEBUG 23601 --- [lication.main()] o.s.c.e.PropertySourcesPropertyResolver  : Sea
 
 <p>Конфигурация logback-access.xml кладется в $TOMCAT_HOME/conf/:</p>
 
-<p><div class="highlight"><pre><span class="nt">&lt;configuration&gt;</span>
+<p><div class="highlight"><pre><code class="language-xml" data-lang="xml"><span class="nt">&lt;configuration&gt;</span>
     <span class="c">&lt;!-- Tomcat&#39;s lib folder must contain logback-core.jar and logback-access.jar to dump HTTP requests and responses --&gt;</span>
     <span class="nt">&lt;appender</span> <span class="na">name=</span><span class="s">&quot;DUMPER&quot;</span> <span class="na">class=</span><span class="s">&quot;ch.qos.logback.core.rolling.RollingFileAppender&quot;</span><span class="nt">&gt;</span>
         <span class="c">&lt;!-- Tomcat&#39;s lib folder must contain janino.jar and commons-compiler.jar to filter which HTTP requests and responses to dump --&gt;</span>
@@ -339,20 +448,20 @@ DEBUG 23601 --- [lication.main()] o.s.c.e.PropertySourcesPropertyResolver  : Sea
     <span class="nt">&lt;/appender&gt;</span>
     <span class="nt">&lt;appender-ref</span> <span class="na">ref=</span><span class="s">&quot;DUMPER&quot;</span><span class="nt">/&gt;</span>
 <span class="nt">&lt;/configuration&gt;</span>
-</pre></div>
+</code></pre></div>
 </p>
 
 <p>Эта конфигурация устанавливает логирование всех HTTP-запросов на /webapp без HTTP-заголовка X-Logging-Disabled.</p>
 
 <p>Также, должен быть активирован LogbackAccessValve в $TOMCAT_HOME/conf/server.xml (в блоке Host):</p>
 
-<p><div class="highlight"><pre><span class="nt">&lt;Valve</span> <span class="na">className=</span><span class="s">&quot;ch.qos.logback.access.tomcat.LogbackValve&quot;</span><span class="nt">/&gt;</span>
-</pre></div>
+<p><div class="highlight"><pre><code class="language-xml" data-lang="xml"><span class="nt">&lt;Valve</span> <span class="na">className=</span><span class="s">&quot;ch.qos.logback.access.tomcat.LogbackValve&quot;</span><span class="nt">/&gt;</span>
+</code></pre></div>
 </p>
 
 <p>Последний штрих — объявление фильтра <a href="http://logback.qos.ch/apidocs/ch/qos/logback/access/servlet/TeeFilter.html">TeeFilter</a>. В Spring Boot это делается элементарно:</p>
 
-<p><div class="highlight"><pre><span class="cm">/**</span>
+<p><div class="highlight"><pre><code class="language-java" data-lang="java"><span class="cm">/**</span>
 <span class="cm"> * Enable HTTP response logging, see &lt;a href=&quot;http://logback.qos.ch/recipes/captureHttp.html&quot;&gt;Capturing HTTP requests and responses&lt;/a&gt;.</span>
 <span class="cm"> * Tomcat&#39;s lib folder must contain logback-core.jar and logback-access.jar.</span>
 <span class="cm"> */</span>
@@ -360,7 +469,7 @@ DEBUG 23601 --- [lication.main()] o.s.c.e.PropertySourcesPropertyResolver  : Sea
 <span class="n">Filter</span> <span class="nf">httpRequestAndResponseDumper</span><span class="o">()</span> <span class="o">{</span>
     <span class="k">return</span> <span class="k">new</span> <span class="n">TeeFilter</span><span class="o">();</span>
 <span class="o">}</span>
-</pre></div>
+</code></pre></div>
 </p>
 
         </div>
@@ -449,7 +558,7 @@ DEBUG 23601 --- [lication.main()] o.s.c.e.PropertySourcesPropertyResolver  : Sea
 
 <p>This code is suitable for <a href="http://tomcat.apache.org/tomcat-7.0-doc/jdbc-pool.html">Tomcat JDBC Connection Pool</a>:</p>
 
-<p><div class="highlight"><pre><span class="c1">// Get datasource some way</span>
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="c1">// Get datasource some way</span>
 <span class="n">Datasource</span> <span class="n">ds</span> <span class="o">=</span> <span class="n">createDataSource</span><span class="o">(</span><span class="n">host</span><span class="o">);</span>
 
 <span class="c1">// Set connect (login) timeout</span>
@@ -457,18 +566,18 @@ DEBUG 23601 --- [lication.main()] o.s.c.e.PropertySourcesPropertyResolver  : Sea
 
 <span class="c1">// Set common network read timeout</span>
 <span class="n">ds</span><span class="o">.</span><span class="na">setConnectionProperties</span><span class="o">(</span><span class="n">OracleConnection</span><span class="o">.</span><span class="na">CONNECTION_PROPERTY_THIN_READ_TIMEOUT</span> <span class="o">+</span> <span class="s">&quot;=3000&quot;</span><span class="o">);</span>
-</pre></div>
-</p>
+</code></pre></div>
+
 
 <p>The proper way to specify these timeouts in <a href="http://tomcat.apache.org/tomcat-7.0-doc/jndi-datasource-examples-howto.html">JNDI Datasource configuration</a>:</p>
 
-<p><div class="highlight"><pre><span class="nt">&lt;Resource</span> <span class="na">name=</span><span class="s">&quot;jdbc/oracle&quot;</span>
+<p><div class="highlight"><pre><code class="language-xml" data-lang="xml"><span class="nt">&lt;Resource</span> <span class="na">name=</span><span class="s">&quot;jdbc/oracle&quot;</span>
     <span class="na">driverClassName=</span><span class="s">&quot;oracle.jdbc.OracleDriver&quot;</span>
     <span class="na">factory=</span><span class="s">&quot;org.apache.tomcat.jdbc.pool.DataSourceFactory&quot;</span>
     <span class="na">connectionProperties=</span><span class="s">&quot;oracle.net.CONNECT_TIMEOUT=3000;oracle.jdbc.ReadTimeout=3000&quot;</span>
     <span class="err">...</span>
     <span class="nt">/&gt;</span>
-</pre></div>
+</code></pre></div>
 </p>
 
         </div>
@@ -490,14 +599,14 @@ DEBUG 23601 --- [lication.main()] o.s.c.e.PropertySourcesPropertyResolver  : Sea
 
 <p>Blocking listener is very simple but in can&rsquo;t be interrupted by calling thread. So there&rsquo;s no point in that:</p>
 
-<p><div class="highlight"><pre><span class="n">Future</span><span class="o">&lt;</span><span class="n">Socket</span><span class="o">&gt;</span> <span class="n">future</span> <span class="o">=</span> <span class="n">executor</span><span class="o">.</span><span class="na">submit</span><span class="o">(</span> <span class="n">Listeners</span><span class="o">.</span><span class="na">createListener</span><span class="o">(</span> <span class="n">PORT</span> <span class="o">)</span> <span class="o">);</span>
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="n">Future</span><span class="o">&lt;</span><span class="n">Socket</span><span class="o">&gt;</span> <span class="n">future</span> <span class="o">=</span> <span class="n">executor</span><span class="o">.</span><span class="na">submit</span><span class="o">(</span> <span class="n">Listeners</span><span class="o">.</span><span class="na">createListener</span><span class="o">(</span> <span class="n">PORT</span> <span class="o">)</span> <span class="o">);</span>
 <span class="k">try</span> <span class="o">{</span>
     <span class="n">Socket</span> <span class="n">socket</span> <span class="o">=</span> <span class="n">future</span><span class="o">.</span><span class="na">get</span><span class="o">(</span> <span class="mi">1</span><span class="o">,</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="na">SECONDS</span> <span class="o">);</span>
 <span class="o">}</span> <span class="k">catch</span><span class="o">(</span> <span class="n">TimeoutException</span> <span class="n">e</span> <span class="o">)</span> <span class="o">{</span>
     <span class="n">future</span><span class="o">.</span><span class="na">cancel</span><span class="o">(</span> <span class="kc">true</span> <span class="o">);</span>
 <span class="o">}</span>
-</pre></div>
-</p>
+</code></pre></div>
+
 
 <p>Listener will stay active and PORT will be bound still. The reason is in usage of the uninterruptible <a href="http://docs.oracle.com/javase/7/docs/api/java/net/ServerSocket.html#accept(">ServerSocket.accept()</a>).</p>
 
@@ -505,13 +614,13 @@ DEBUG 23601 --- [lication.main()] o.s.c.e.PropertySourcesPropertyResolver  : Sea
 
 <p>In contrary non-blocking listener is more sophisticated but it can be interrupted by calling thread. So you can do that:</p>
 
-<p><div class="highlight"><pre><span class="n">Future</span><span class="o">&lt;</span><span class="n">Socket</span><span class="o">&gt;</span> <span class="n">future</span> <span class="o">=</span> <span class="n">executor</span><span class="o">.</span><span class="na">submit</span><span class="o">(</span> <span class="n">Listeners</span><span class="o">.</span><span class="na">createListener</span><span class="o">(</span> <span class="n">PORT</span> <span class="o">)</span> <span class="o">);</span>
+<p><div class="highlight"><pre><code class="language-java" data-lang="java"><span class="n">Future</span><span class="o">&lt;</span><span class="n">Socket</span><span class="o">&gt;</span> <span class="n">future</span> <span class="o">=</span> <span class="n">executor</span><span class="o">.</span><span class="na">submit</span><span class="o">(</span> <span class="n">Listeners</span><span class="o">.</span><span class="na">createListener</span><span class="o">(</span> <span class="n">PORT</span> <span class="o">)</span> <span class="o">);</span>
 <span class="k">try</span> <span class="o">{</span>
     <span class="n">Socket</span> <span class="n">socket</span> <span class="o">=</span> <span class="n">future</span><span class="o">.</span><span class="na">get</span><span class="o">(</span> <span class="mi">1</span><span class="o">,</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="na">SECONDS</span> <span class="o">);</span>
 <span class="o">}</span> <span class="k">catch</span><span class="o">(</span> <span class="n">TimeoutException</span> <span class="n">e</span> <span class="o">)</span> <span class="o">{</span>
     <span class="n">future</span><span class="o">.</span><span class="na">cancel</span><span class="o">(</span> <span class="kc">true</span> <span class="o">);</span>
 <span class="o">}</span>
-</pre></div>
+</code></pre></div>
 </p>
 
 <p>Listener will be terminated and PORT will be freed.</p>
@@ -553,9 +662,9 @@ DEBUG 23601 --- [lication.main()] o.s.c.e.PropertySourcesPropertyResolver  : Sea
 
 <p>Object, class and classloader relationships are illustrated by this graph from <a href="https://plumbr.eu/blog/what-is-a-permgen-leak">What is a PermGen leak?</a> article.</p>
 
-<p>
+
 <img src='https://dddpaul.github.io/blog/media/object-class-classloader.png'/>
-</p>
+
 
 <hr />
 
@@ -653,91 +762,6 @@ end script
 </code></pre>
 
 <p>Теперь можно запустить тестовое окружение из любого места командой <code>start fig-test-env</code>, а остановить — <code>stop fig-test-env</code>.</p>
-
-        </div>
-        
-        <div class="post">
-            <h1 class="post-title">
-                <a href="https://dddpaul.github.io/blog/2015/01/08/docker-linking/">
-                    Связывание контейнеров
-                </a>
-            </h1>
-
-            <span class="post-date">2015-01-08</span>
-
-            <p>Это вторая статья цикла 
-<a href='https://dddpaul.github.io/blog/series/building-test-environments-with-docker/'>Building test environments with Docker</a>.</p>
-
-<p>При создании тестовых окружений из нескольких контейнеров неизбежно возникает задача их взаимного связывания. Набивший оскомину пример: контейнеру с приложением нужен контейнер БД. В нашем же случае, контейнеру с балансером нужны контейнеры с апстримами.</p>
-
-<p>Статья <a href="https://docs.docker.com/userguide/dockerlinks/">Linking Containers Together</a> полностью раскрывает вопрос линковки контейнеров. Осветим вкратце лишь основные моменты:</p>
-
-<ul>
-<li>каждый контейнер необходимо как-то назвать с помощью опции <code>--name</code>;</li>
-<li>ссылка на контейнер-зависимость обозначается опцией <code>--link</code>;</li>
-<li>в итоге, внутри зависимого контейнера, инициализируется множество переменных окружения, содержащих параметры контейнера-зависимости, а также в <em>/etc/hosts</em> заносится IP-адрес контейнера-зависимости.</li>
-</ul>
-
-<p>Например, так выглядит последовательный запуск 3-х контейнеров, причем 3-й зависит от первых двух:</p>
-
-<pre><code>docker run -d --privileged -p 2021:22 -p 8081:80 --name app1 smile/tomcat7
-docker run -d --privileged -p 2022:22 -p 8082:80 --name app2 smile/tomcat7
-docker run -d --privileged -p 2020:22 -p 80:80 --name gate --link app1:app1 --link app2:app2 smile/gate
-</code></pre>
-
-<p>Для проверки можно использовать вывод <code>docker inspect</code>:</p>
-
-<pre><code>docker inspect -f &quot;{{ .HostConfig.Links }}&quot; gate
-
-[/app1:/gate/app1 /app2:/gate/app2]
-</code></pre>
-
-<p>Опция <code>-d (detach mode)</code> здесь необходима, чтобы контейнеры запускались в фоновом режиме и не захватывали консоль.</p>
-
-<p>Теперь, если зайти в контейнер gate (<code>ssh -p 2020 root@localhost</code>) и посмотреть переменные окружения, то будет ясно, что gate &ldquo;видит&rdquo; exposed-порты и IP-адрес контейнера-зависимости:</p>
-
-<pre><code>root@aba982937531:~# env | grep APP1
-APP1_NAME=/gate/app1
-APP1_PORT_22_TCP=tcp://172.17.0.28:22
-APP1_PORT_80_TCP=tcp://172.17.0.28:80
-APP1_PORT_22_TCP_ADDR=172.17.0.28
-APP1_PORT_80_TCP_ADDR=172.17.0.28
-APP1_PORT_22_TCP_PORT=22
-APP1_PORT_80_TCP_PORT=80
-APP1_PORT_80_TCP_PROTO=tcp
-APP1_PORT_22_TCP_PROTO=tcp
-APP1_PORT=tcp://172.17.0.28:22
-...
-</code></pre>
-
-<p>Еще лучше дела обстоят с <em>/etc/hosts</em>:</p>
-
-<pre><code>root@aba982937531:~# grep app1 /etc/hosts
-172.17.0.28	app1
-
-</code></pre>
-
-<p>Модификация <em>/etc/hosts</em>, например, дает возможность писать следующие кофиги Nginx:</p>
-
-<pre><code>server {
-    listen 80 default_server;
-    server_name _;
-
-    location /app1 {
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; #
-        proxy_pass http://app1:80/app1;                              # app1 host here
-        proxy_redirect http://127.0.0.1:8081/app1 /app1;             #
-    }
-
-    location /app2 {
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; #
-        proxy_pass http://app2:80/app2;                              # and app2 host here
-        proxy_redirect http://127.0.0.1:8082/app2 /app2;             #
-    }
-}
-</code></pre>
-
-<p>Таким образом, в первом приближении, встроенная возможность связывания контейнеров в Docker решает наши проблемы.</p>
 
         </div>
         
