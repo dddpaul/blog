@@ -7,7 +7,7 @@ tags = ["Ansible", "Python"]
 
 +++
 
-There plenty of ```bool``` and ```default``` filters usage in Ansible playbooks and templates. For example, in [debops/ansible-docker](https://github.com/debops/ansible-docker/blob/master/tasks/main.yml): ```when: docker_upstream| d() | bool```.
+There are plenty of ```bool``` and ```default``` filters usage in Ansible playbooks and templates. For example, in [debops/ansible-docker](https://github.com/debops/ansible-docker/blob/master/tasks/main.yml): ```when: docker_upstream| d() | bool```.
 
 Where ```docker_upstream``` is an YAML boolean: ```docker_upstream: False```. It seems like "when" condition is [overbloated again]({{< ref "posts/ansible-conditions.md" >}}) :)  
 
