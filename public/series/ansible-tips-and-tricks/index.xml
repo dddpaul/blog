@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Python on Dev notes</title>
-    <link>https://dddpaul.github.io/blog/tags/python/</link>
-    <description>Recent content in Python on Dev notes</description>
+    <title>Ansible Tips And Tricks on Dev notes</title>
+    <link>https://dddpaul.github.io/blog/series/ansible-tips-and-tricks/</link>
+    <description>Recent content in Ansible Tips And Tricks on Dev notes</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Mon, 30 Nov 2015 10:45:00 +0300</lastBuildDate>
-    <atom:link href="https://dddpaul.github.io/blog/tags/python/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://dddpaul.github.io/blog/series/ansible-tips-and-tricks/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>Proper filters in Ansible playbooks</title>

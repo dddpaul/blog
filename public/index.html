@@ -87,6 +87,186 @@
         
         <div class="post">
             <h1 class="post-title">
+                <a href="https://dddpaul.github.io/blog/2015/11/30/ansible-filters/">
+                    Proper filters in Ansible playbooks
+                </a>
+            </h1>
+
+            <span class="post-date">2015-11-30</span>
+
+            
+
+<p>There plenty of <code>bool</code> and <code>default</code> filters usage in Ansible playbooks and templates. For example, in <a href="https://github.com/debops/ansible-docker/blob/master/tasks/main.yml">debops/ansible-docker</a>: <code>when: docker_upstream| d() | bool</code>.</p>
+
+<p>Where <code>docker_upstream</code> is an YAML boolean: <code>docker_upstream: False</code>. It seems like &ldquo;when&rdquo; condition is <a href="https://dddpaul.github.io/blog/2015/11/29/ansible-conditions/">overbloated again</a> :)</p>
+
+<p>The <code>var | d() | bool</code> construction is spread all over the place, for example, in <a href="https://github.com/debops/ansible-docker/blob/master/templates/etc/default/docker.j2">docker config template</a>:</p>
+
+<pre><code>{% if docker_listen | d() | bool %}
+</code></pre>
+
+<p>Where <code>docker_listen</code> is an YAML list: <code>docker_listen: [ '{{ docker_tcp_listen }}' ]</code>.</p>
+
+<p>Is there a more simpler way to express things? Maybe <code>when: docker_upstream</code> or <code>%{ if docker_listen %}</code> will be enough?</p>
+
+<hr />
+
+<p>First of all, <code>d</code> is an alias for <code>default</code>, and <code>default</code> filter is defined in <a href="https://github.com/mitsuhiko/jinja2/blob/master/jinja2/filters.py">jinja2/filters.py</a>:</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">do_default</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">default_value</span><span class="o">=</span><span class="s">u&#39;&#39;</span><span class="p">,</span> <span class="n">boolean</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;If the value is undefined it will return the passed default value,</span>
+<span class="sd">    otherwise the value of the variable:</span>
+
+<span class="sd">    .. sourcecode:: jinja</span>
+
+<span class="sd">        {{ my_variable|default(&#39;my_variable is not defined&#39;) }}</span>
+
+<span class="sd">    This will output the value of ``my_variable`` if the variable was</span>
+<span class="sd">    defined, otherwise ``&#39;my_variable is not defined&#39;``. If you want</span>
+<span class="sd">    to use default with variables that evaluate to false you have to</span>
+<span class="sd">    set the second parameter to `true`:</span>
+
+<span class="sd">    .. sourcecode:: jinja</span>
+
+<span class="sd">        {{ &#39;&#39;|default(&#39;the string was empty&#39;, true) }}</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Undefined</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">boolean</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">default_value</span>
+    <span class="k">return</span> <span class="n">value</span>
+</code></pre></div>
+
+
+<p>So, the default &ldquo;default value&rdquo; is an empty string.</p>
+
+<h3 id="str-d-test:f6ea4677c774e8193442f7b251f1468e">&ldquo;str | d()&rdquo; test</h3>
+
+<p>With <code>default</code> filter:
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Template</span>
+<span class="n">tmpl</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s">&#39;{{ str | d() }}&#39;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">()</span>
+                                  <span class="c"># An empty string</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="nb">str</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+<span class="bp">None</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="nb">str</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">)</span>
+                                  <span class="c"># An empty string</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="nb">str</span><span class="o">=</span><span class="s">&#39;abc&#39;</span><span class="p">)</span>
+<span class="n">abc</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="nb">str</span><span class="o">=</span><span class="s">&#39; &#39;</span><span class="p">)</span>
+                                  <span class="c"># A space</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="nb">str</span><span class="o">=</span><span class="p">[])</span>
+<span class="p">[]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="nb">str</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;list&#39;</span><span class="p">])</span>
+<span class="p">[</span><span class="s">&#39;list&#39;</span><span class="p">]</span>
+</code></pre></div>
+</p>
+
+<p>Without <code>default</code> filter:
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Template</span>
+<span class="n">tmpl</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s">&#39;{{ str }}&#39;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">()</span>
+                                  <span class="c"># An empty string</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="nb">str</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+<span class="bp">None</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="nb">str</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">)</span>
+                                  <span class="c"># An empty string</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="nb">str</span><span class="o">=</span><span class="s">&#39;abc&#39;</span><span class="p">)</span>
+<span class="n">abc</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="nb">str</span><span class="o">=</span><span class="s">&#39; &#39;</span><span class="p">)</span>
+                                  <span class="c"># A space</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="nb">str</span><span class="o">=</span><span class="p">[])</span>
+<span class="p">[]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="nb">str</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;list&#39;</span><span class="p">])</span>
+<span class="p">[</span><span class="s">&#39;list&#39;</span><span class="p">]</span>
+</code></pre></div>
+</p>
+
+<p>Pretty same, eh?</p>
+
+<h3 id="str-d-bool-test:f6ea4677c774e8193442f7b251f1468e">&ldquo;str | d() | bool&rdquo; test</h3>
+
+<p>With <code>default</code> filter:
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Template</span>
+<span class="kn">from</span> <span class="nn">ansible.runner.filter_plugins.core</span> <span class="kn">import</span> <span class="nb">bool</span>
+<span class="n">Template</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">filters</span><span class="p">[</span><span class="s">&#39;bool&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">bool</span>
+<span class="n">tmpl</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s">&#39;{{ str | d() | bool }}&#39;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">()</span>
+<span class="bp">False</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="nb">str</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+<span class="bp">None</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="nb">str</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">)</span>
+<span class="bp">False</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="nb">str</span><span class="o">=</span><span class="s">&#39;abc&#39;</span><span class="p">)</span>
+<span class="bp">False</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="nb">str</span><span class="o">=</span><span class="s">&#39; &#39;</span><span class="p">)</span>
+<span class="bp">False</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="nb">str</span><span class="o">=</span><span class="s">&#39;True&#39;</span><span class="p">)</span>
+<span class="bp">True</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="nb">str</span><span class="o">=</span><span class="p">[])</span>
+<span class="bp">False</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="nb">str</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;list&#39;</span><span class="p">])</span>
+<span class="bp">False</span>
+</code></pre></div>
+</p>
+
+<p>Without <code>default</code> filter:
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Template</span>
+<span class="kn">from</span> <span class="nn">ansible.runner.filter_plugins.core</span> <span class="kn">import</span> <span class="nb">bool</span>
+<span class="n">Template</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">filters</span><span class="p">[</span><span class="s">&#39;bool&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">bool</span>
+<span class="n">tmpl</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s">&#39;{{ str | bool }}&#39;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">()</span>
+<span class="bp">False</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="nb">str</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+<span class="bp">None</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="nb">str</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">)</span>
+<span class="bp">False</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="nb">str</span><span class="o">=</span><span class="s">&#39;abc&#39;</span><span class="p">)</span>
+<span class="bp">False</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="nb">str</span><span class="o">=</span><span class="s">&#39; &#39;</span><span class="p">)</span>
+<span class="bp">False</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="nb">str</span><span class="o">=</span><span class="s">&#39;True&#39;</span><span class="p">)</span>
+<span class="bp">True</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="nb">str</span><span class="o">=</span><span class="p">[])</span>
+<span class="bp">False</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="nb">str</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;list&#39;</span><span class="p">])</span>
+<span class="bp">False</span>
+</code></pre></div>
+</p>
+
+<p>Pretty same again. <strong>So, it seems that <code>default()</code> or <code>d()</code> usage in conditions has no sense at all</strong>.</p>
+
+<hr />
+
+<p>And what about <code>bool</code> filter?</p>
+
+<p>Remember <code>when: docker_upstream | d() | bool</code>, where <code>docker_upstream</code> is an YAML boolean.</p>
+
+<p>Or <code>{% if docker_listen | d() | bool %}</code>, where <code>docker_listen</code> is an YAML list.</p>
+
+<p>The <code>bool</code> filter is the part of <a href="https://github.com/ansible/ansible/blob/devel/lib/ansible/plugins/filter/core.py">Ansible plugins</a>:</p>
+
+<p><div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">bool</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; return a bool for the arg &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="n">a</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">==</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">a</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="ow">in</span> <span class="n">types</span><span class="o">.</span><span class="n">StringTypes</span><span class="p">:</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">a</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&#39;yes&#39;</span><span class="p">,</span> <span class="s">&#39;on&#39;</span><span class="p">,</span> <span class="s">&#39;1&#39;</span><span class="p">,</span> <span class="s">&#39;true&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">True</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">False</span>
+</code></pre></div>
+</p>
+
+<p><strong>You can use <code>when: docker_upstream</code> instead of <code>when: docker_upstream | d() | bool</code> without any doubts when <code>docker_upstream</code> is a boolean.</strong></p>
+
+<p>But you can clearly see from <code>bool</code> function implementation that <code>{% if docker_listen | d() | bool %}</code> results in <code>True</code> only if <code>docker_listen: True</code>. If <code>docker_listen</code> is an arbitrary string or a list (as expected) <code>{% if docker_listen | d() | bool %}</code> results in <code>False</code> always.</p>
+
+<p><strong>Therefore <code>{% if docker_listen %}</code> gives us a correct behaviour.</strong></p>
+
+        </div>
+        
+        <div class="post">
+            <h1 class="post-title">
                 <a href="https://dddpaul.github.io/blog/2015/11/29/ansible-conditions/">
                     Proper conditions in Ansible playbooks
                 </a>
@@ -94,13 +274,15 @@
 
             <span class="post-date">2015-11-29</span>
 
-            <p>First of all, the Ansible &ldquo;when&rdquo; clause contains a Jinja2 expression (see <a href="http://docs.ansible.com/ansible/playbooks_conditionals.html">Ansible playbook conditionals</a>). It&rsquo;s confirmed with a quote from <a href="http://shop.oreilly.com/product/0636920035626.do">Ansible: Up And Running</a>, page 41:</p>
+            <p>Some hidden knowledge for the start:</p>
+
+<p>First of all, the Ansible <code>when</code> clause contains a Jinja2 expression (see <a href="http://docs.ansible.com/ansible/playbooks_conditionals.html">Ansible playbook conditionals</a>). It&rsquo;s confirmed with a quote from <a href="http://shop.oreilly.com/product/0636920035626.do">Ansible: Up And Running</a>, page 41:</p>
 
 <blockquote>
 <p>Ansible also uses the <strong>Jinja2 template engine</strong> to evaluate variables in playbooks.</p>
 </blockquote>
 
-<p>Secondly, that how <a href="http://jinja.pocoo.org/docs/dev/templates/">Jinja2</a> interprets the &ldquo;if&rdquo; condition:</p>
+<p>Secondly, that how <a href="http://jinja.pocoo.org/docs/dev/templates/">Jinja2</a> interprets the <code>if</code> condition:</p>
 
 <blockquote>
 <p>The if statement in Jinja is comparable with the Python if statement. In the simplest form, you can use it to test if <strong>a variable is defined, not empty or not false</strong>.</p>
@@ -112,7 +294,7 @@
 <p>For sequences, (strings, lists, tuples), use the fact that <strong>empty sequences are false</strong>.</p>
 </blockquote>
 
-<p>Why all of these are important? Because there are plenty of redundant &ldquo;if&rdquo; and &ldquo;when&rdquo; conditionals usage in Ansible playbooks and templates. For example in <a href="https://github.com/debops/ansible-nginx/blob/master/tasks/main.yml">debops/ansible-nginx</a>:</p>
+<p>Why all of these are important? Because there are plenty of redundant <code>if</code> and <code>when</code> conditionals usage in Ansible playbooks and templates. For example in <a href="https://github.com/debops/ansible-nginx/blob/master/tasks/main.yml">debops/ansible-nginx</a>:</p>
 
 <pre><code>- name: Manage local server definitions - create symlinks
   file:
@@ -130,14 +312,14 @@
          (item.0 is defined and item.0))
 </code></pre>
 
-<p>See that overbloated &ldquo;when&rdquo; condition? Wouldn&rsquo;t be that simpler with <code>when: nginx_local_servers and item.0</code>?</p>
+<p>See that overbloated <code>when</code> condition? Wouldn&rsquo;t be that simpler with <code>when: nginx_local_servers and item.0</code>?</p>
 
 <p>Though it&rsquo;s not a complete equivalent because it evaluates to False when nginx_local_servers <strong>is defined and empty</strong>. But it&rsquo;s definitely correct behaviour — surely we have no usage for the empty servers string.</p>
 
 <p>It&rsquo;s all just mere words without proper testing, so let&rsquo;s test long version <code>str is defined and str</code>:</p>
 
-<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Template</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">tmpl</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s">&#39;{</span><span class="si">% i</span><span class="s">f str is defined and str %} True {</span><span class="si">% e</span><span class="s">lse %} False {</span><span class="si">% e</span><span class="s">ndif %}&#39;</span><span class="p">)</span>
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Template</span>
+<span class="n">tmpl</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s">&#39;{</span><span class="si">% i</span><span class="s">f str is defined and str %} True {</span><span class="si">% e</span><span class="s">lse %} False {</span><span class="si">% e</span><span class="s">ndif %}&#39;</span><span class="p">)</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">()</span>
  <span class="bp">False</span> 
 <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="nb">str</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
@@ -153,8 +335,8 @@
 
 <p>And the short version — <code>str</code>:</p>
 
-<p><div class="highlight"><pre><code class="language-python" data-lang="python"><span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Template</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">tmpl</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s">&#39;{</span><span class="si">% i</span><span class="s">f str %} True {</span><span class="si">% e</span><span class="s">lse %} False {</span><span class="si">% e</span><span class="s">ndif %}&#39;</span><span class="p">)</span>
+<p><div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Template</span>
+<span class="n">tmpl</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s">&#39;{</span><span class="si">% i</span><span class="s">f str %} True {</span><span class="si">% e</span><span class="s">lse %} False {</span><span class="si">% e</span><span class="s">ndif %}&#39;</span><span class="p">)</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">()</span>
  <span class="bp">False</span> 
 <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="nb">str</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
@@ -170,8 +352,8 @@
 
 <p>So there are no differences at all. For the sake of thrust, let&rsquo;s test <code>str is defined</code>:</p>
 
-<p><div class="highlight"><pre><code class="language-python" data-lang="python"><span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Template</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">tmpl</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s">&#39;{</span><span class="si">% i</span><span class="s">f str is defined %} True {</span><span class="si">% e</span><span class="s">lse %} False {</span><span class="si">% e</span><span class="s">ndif %}&#39;</span><span class="p">)</span>
+<p><div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Template</span>
+<span class="n">tmpl</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s">&#39;{</span><span class="si">% i</span><span class="s">f str is defined %} True {</span><span class="si">% e</span><span class="s">lse %} False {</span><span class="si">% e</span><span class="s">ndif %}&#39;</span><span class="p">)</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">()</span>
  <span class="bp">False</span> 
 <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="nb">str</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
@@ -691,77 +873,6 @@ DEBUG 23601 --- [lication.main()] o.s.c.e.PropertySourcesPropertyResolver  : Sea
 <p>And the summary:</p>
 
 <p><em>The memory leak is caused by objects that live longer than expected.</em></p>
-
-        </div>
-        
-        <div class="post">
-            <h1 class="post-title">
-                <a href="https://dddpaul.github.io/blog/2015/01/12/docker-fig/">
-                    Запуск контейнеров с помощью Fig
-                </a>
-            </h1>
-
-            <span class="post-date">2015-01-12</span>
-
-            
-
-<p>Это третья статья цикла 
-<a href='https://dddpaul.github.io/blog//series/building-test-environments-with-docker/'>Building test environments with Docker</a>.</p>
-
-<p>Как мы уже убедились, запуск контейнеров с помощью <code>docker run</code> — занятие весьма муторное, т.к. необходимо указывать множество опций. При запуске же нескольких контейнеров ситуация только ухудшается, т.к. теперь нужно задавать имена и линки.</p>
-
-<p>Эту проблему решает инструмент <a href="http://www.fig.sh/">Fig</a>, который может запустить/остановить целое тестовое окружение, состоящее из набора контейнеров. Описание контейнеров задано в YAML-файле. Таким образом, этот YAML-файл представляет собой конфигурацию тестового окружения.</p>
-
-<p>Конфигурация нашего тестового окружения <em>test-env/fig.yml</em>:</p>
-
-<pre><code>app1:
-  image: smile/app1
-  ports: ['2021:22', '8081:80']
-  privileged: true
-
-app2:
-  image: smile/app2
-  ports: ['2022:22', '8082:80']
-  privileged: true
-
-gate:
-  image: smile/gate
-  links: [app1, app2]
-  ports: ['2020:22', '80:80']
-  privileged: true
-</code></pre>
-
-<p>Запуск тестового окружения (находясь в каталоге с файлом <em>fig.yml</em>): <code>fig up</code>.</p>
-
-<p>По-умолчанию, Fig захватывает консоль и мультиплексирует вывод всех контейнеров. Для запуска в detached mode нужно использовать опцию <code>-d</code>. Посмотреть вывод контейнеров в этом режиме можно с помощью команды <code>fig logs</code>.</p>
-
-<p>Статус тестового окружения: <code>fig ps</code>.</p>
-
-<p>Остановка тестового окружения: <code>fig stop</code>.</p>
-
-<h3 id="запуск-тестового-окружения-с-помощью-upstart:d4c1615d910942891ab8ffffd8a5f2e3">Запуск тестового окружения с помощью Upstart</h3>
-
-<p>Job <em>/etc/init/fig-test-env.conf</em> создан на основе <a href="https://gist.github.com/HeyImAlex/9649374">HeyImAlex/fig.conf</a>. Для отключения автостарта нужно закомментировать вторую строчку (&ldquo;start on &hellip;&rdquo;).</p>
-
-<pre><code>description &quot;Test environment runner&quot;
-start on filesystem and started docker
-stop on runlevel [!2345]
-respawn
-chdir /path/to/test-env
-script
-  # Wait for docker to finish starting up first.
-  FILE=/var/run/docker.sock
-  while [ ! -e $FILE ] ; do
-    inotifywait -t 2 -e create $(dirname $FILE)
-  done
-  /usr/local/bin/fig up
-end script
-post-stop script
- /usr/local/bin/fig stop
-end script
-</code></pre>
-
-<p>Теперь можно запустить тестовое окружение из любого места командой <code>start fig-test-env</code>, а остановить — <code>stop fig-test-env</code>.</p>
 
         </div>
         

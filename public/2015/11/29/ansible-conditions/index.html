@@ -86,13 +86,15 @@
         <h1 class="post-title">Proper conditions in Ansible playbooks</h1>
         <span class="post-date">2015-11-29</span>
 
-        <p>First of all, the Ansible &ldquo;when&rdquo; clause contains a Jinja2 expression (see <a href="http://docs.ansible.com/ansible/playbooks_conditionals.html">Ansible playbook conditionals</a>). It&rsquo;s confirmed with a quote from <a href="http://shop.oreilly.com/product/0636920035626.do">Ansible: Up And Running</a>, page 41:</p>
+        <p>Some hidden knowledge for the start:</p>
+
+<p>First of all, the Ansible <code>when</code> clause contains a Jinja2 expression (see <a href="http://docs.ansible.com/ansible/playbooks_conditionals.html">Ansible playbook conditionals</a>). It&rsquo;s confirmed with a quote from <a href="http://shop.oreilly.com/product/0636920035626.do">Ansible: Up And Running</a>, page 41:</p>
 
 <blockquote>
 <p>Ansible also uses the <strong>Jinja2 template engine</strong> to evaluate variables in playbooks.</p>
 </blockquote>
 
-<p>Secondly, that how <a href="http://jinja.pocoo.org/docs/dev/templates/">Jinja2</a> interprets the &ldquo;if&rdquo; condition:</p>
+<p>Secondly, that how <a href="http://jinja.pocoo.org/docs/dev/templates/">Jinja2</a> interprets the <code>if</code> condition:</p>
 
 <blockquote>
 <p>The if statement in Jinja is comparable with the Python if statement. In the simplest form, you can use it to test if <strong>a variable is defined, not empty or not false</strong>.</p>
@@ -104,7 +106,7 @@
 <p>For sequences, (strings, lists, tuples), use the fact that <strong>empty sequences are false</strong>.</p>
 </blockquote>
 
-<p>Why all of these are important? Because there are plenty of redundant &ldquo;if&rdquo; and &ldquo;when&rdquo; conditionals usage in Ansible playbooks and templates. For example in <a href="https://github.com/debops/ansible-nginx/blob/master/tasks/main.yml">debops/ansible-nginx</a>:</p>
+<p>Why all of these are important? Because there are plenty of redundant <code>if</code> and <code>when</code> conditionals usage in Ansible playbooks and templates. For example in <a href="https://github.com/debops/ansible-nginx/blob/master/tasks/main.yml">debops/ansible-nginx</a>:</p>
 
 <pre><code>- name: Manage local server definitions - create symlinks
   file:
@@ -122,14 +124,14 @@
          (item.0 is defined and item.0))
 </code></pre>
 
-<p>See that overbloated &ldquo;when&rdquo; condition? Wouldn&rsquo;t be that simpler with <code>when: nginx_local_servers and item.0</code>?</p>
+<p>See that overbloated <code>when</code> condition? Wouldn&rsquo;t be that simpler with <code>when: nginx_local_servers and item.0</code>?</p>
 
 <p>Though it&rsquo;s not a complete equivalent because it evaluates to False when nginx_local_servers <strong>is defined and empty</strong>. But it&rsquo;s definitely correct behaviour — surely we have no usage for the empty servers string.</p>
 
 <p>It&rsquo;s all just mere words without proper testing, so let&rsquo;s test long version <code>str is defined and str</code>:</p>
 
-<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Template</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">tmpl</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s">&#39;{</span><span class="si">% i</span><span class="s">f str is defined and str %} True {</span><span class="si">% e</span><span class="s">lse %} False {</span><span class="si">% e</span><span class="s">ndif %}&#39;</span><span class="p">)</span>
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Template</span>
+<span class="n">tmpl</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s">&#39;{</span><span class="si">% i</span><span class="s">f str is defined and str %} True {</span><span class="si">% e</span><span class="s">lse %} False {</span><span class="si">% e</span><span class="s">ndif %}&#39;</span><span class="p">)</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">()</span>
  <span class="bp">False</span> 
 <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="nb">str</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
@@ -145,8 +147,8 @@
 
 <p>And the short version — <code>str</code>:</p>
 
-<p><div class="highlight"><pre><code class="language-python" data-lang="python"><span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Template</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">tmpl</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s">&#39;{</span><span class="si">% i</span><span class="s">f str %} True {</span><span class="si">% e</span><span class="s">lse %} False {</span><span class="si">% e</span><span class="s">ndif %}&#39;</span><span class="p">)</span>
+<p><div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Template</span>
+<span class="n">tmpl</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s">&#39;{</span><span class="si">% i</span><span class="s">f str %} True {</span><span class="si">% e</span><span class="s">lse %} False {</span><span class="si">% e</span><span class="s">ndif %}&#39;</span><span class="p">)</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">()</span>
  <span class="bp">False</span> 
 <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="nb">str</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
@@ -162,8 +164,8 @@
 
 <p>So there are no differences at all. For the sake of thrust, let&rsquo;s test <code>str is defined</code>:</p>
 
-<p><div class="highlight"><pre><code class="language-python" data-lang="python"><span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Template</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">tmpl</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s">&#39;{</span><span class="si">% i</span><span class="s">f str is defined %} True {</span><span class="si">% e</span><span class="s">lse %} False {</span><span class="si">% e</span><span class="s">ndif %}&#39;</span><span class="p">)</span>
+<p><div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Template</span>
+<span class="n">tmpl</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s">&#39;{</span><span class="si">% i</span><span class="s">f str is defined %} True {</span><span class="si">% e</span><span class="s">lse %} False {</span><span class="si">% e</span><span class="s">ndif %}&#39;</span><span class="p">)</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">()</span>
  <span class="bp">False</span> 
 <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="nb">str</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
@@ -181,6 +183,29 @@
 
     </div>
 
+    
+        
+        
+        <hr/>
+        <p><a href="" id="series"></a>This is a post in the <b>Ansible tips and tricks</b> series.<br/>
+            Other posts in this series:</p>
+        
+        
+        <ul class="series">
+            
+            <li>2015-11-30 -
+                
+                    <a href="https://dddpaul.github.io/blog/2015/11/30/ansible-filters/">Proper filters in Ansible playbooks </a>
+                
+            </li>
+            
+            <li>2015-11-29 -
+                
+                    Proper conditions in Ansible playbooks
+                
+            </li>
+            
+        </ul>
     
 
     Tags:
