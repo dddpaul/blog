@@ -88,7 +88,7 @@
 
         
 
-<p>There plenty of <code>bool</code> and <code>default</code> filters usage in Ansible playbooks and templates. For example, in <a href="https://github.com/debops/ansible-docker/blob/master/tasks/main.yml">debops/ansible-docker</a>: <code>when: docker_upstream| d() | bool</code>.</p>
+<p>There are plenty of <code>bool</code> and <code>default</code> filters usage in Ansible playbooks and templates. For example, in <a href="https://github.com/debops/ansible-docker/blob/master/tasks/main.yml">debops/ansible-docker</a>: <code>when: docker_upstream| d() | bool</code>.</p>
 
 <p>Where <code>docker_upstream</code> is an YAML boolean: <code>docker_upstream: False</code>. It seems like &ldquo;when&rdquo; condition is <a href="https://dddpaul.github.io/blog/2015/11/29/ansible-conditions/">overbloated again</a> :)</p>
 

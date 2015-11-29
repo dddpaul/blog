@@ -17,7 +17,7 @@
       <guid>https://dddpaul.github.io/blog/2015/11/30/ansible-filters/</guid>
       <description>
 
-&lt;p&gt;There plenty of &lt;code&gt;bool&lt;/code&gt; and &lt;code&gt;default&lt;/code&gt; filters usage in Ansible playbooks and templates. For example, in &lt;a href=&#34;https://github.com/debops/ansible-docker/blob/master/tasks/main.yml&#34;&gt;debops/ansible-docker&lt;/a&gt;: &lt;code&gt;when: docker_upstream| d() | bool&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;There are plenty of &lt;code&gt;bool&lt;/code&gt; and &lt;code&gt;default&lt;/code&gt; filters usage in Ansible playbooks and templates. For example, in &lt;a href=&#34;https://github.com/debops/ansible-docker/blob/master/tasks/main.yml&#34;&gt;debops/ansible-docker&lt;/a&gt;: &lt;code&gt;when: docker_upstream| d() | bool&lt;/code&gt;.&lt;/p&gt;
 
 &lt;p&gt;Where &lt;code&gt;docker_upstream&lt;/code&gt; is an YAML boolean: &lt;code&gt;docker_upstream: False&lt;/code&gt;. It seems like &amp;ldquo;when&amp;rdquo; condition is &lt;a href=&#34;https://dddpaul.github.io/blog/2015/11/29/ansible-conditions/&#34;&gt;overbloated again&lt;/a&gt; :)&lt;/p&gt;
 
