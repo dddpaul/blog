@@ -1,2 +1,2 @@
-{{ $path := .Page.Site.BaseUrl }}
+{{ $path := .Page.Site.BaseURL }}
 <a href='{{ $path }}/{{ .Get "section" }}/{{ .Get "title" | urlize }}/'>{{ .Get "title" }}</a>
