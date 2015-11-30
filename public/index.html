@@ -271,6 +271,12 @@
 
 <p>But for booleans you have to use <code>bool</code> filter — <code>when: docker_upstream | d() | bool</code>, because <code>when: docker_upstream | d()</code> results in <code>True</code> even if <code>docker_upstream</code> is <code>False</code>.</p>
 
+<p>Links:</p>
+
+<ul>
+<li><a href="https://github.com/debops/ansible-docker/pull/2">No need to evaluate a variable two times</a></li>
+</ul>
+
         </div>
         
         <div class="post">
