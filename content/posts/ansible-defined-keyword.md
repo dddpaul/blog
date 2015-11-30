@@ -58,55 +58,55 @@ See that overbloated ```when``` condition? Wouldn't be that simpler with ```when
  
 Though it's not a complete equivalent because it evaluates to False when nginx_local_servers **is defined and empty**. But it's definitely correct behaviour — surely we have no usage for the empty servers string.
   
-It's all just mere words without proper testing, so let's test long version ```str is defined and str```:
+It's all just mere words without proper testing, so let's test long version ```var is defined and var```:
 
 {{< highlight python >}}
 from jinja2 import Template
-tmpl = Template('{% if str is defined and str %} True {% else %} False {% endif %}')
+tmpl = Template('{% if var is defined and var %} True {% else %} False {% endif %}')
 >>> print tmpl.render()
  False 
->>> print tmpl.render(str=None)
+>>> print tmpl.render(var=None)
  False 
->>> print tmpl.render(str='')
+>>> print tmpl.render(var='')
  False 
->>> print tmpl.render(str='abc')
+>>> print tmpl.render(var='abc')
  True 
->>> print tmpl.render(str=' ')
+>>> print tmpl.render(var=' ')
  True 
 {{< /highlight >}}
 
-And the short version — ```str```:
+And the short version — ```var```:
 
 {{< highlight python >}}
 from jinja2 import Template
-tmpl = Template('{% if str %} True {% else %} False {% endif %}')
+tmpl = Template('{% if var %} True {% else %} False {% endif %}')
 >>> print tmpl.render()
  False 
->>> print tmpl.render(str=None)
+>>> print tmpl.render(var=None)
  False 
->>> print tmpl.render(str='')
+>>> print tmpl.render(var='')
  False 
->>> print tmpl.render(str='abc')
+>>> print tmpl.render(var='abc')
  True 
->>> print tmpl.render(str=' ')
+>>> print tmpl.render(var=' ')
  True 
 {{< /highlight >}}
 
-So there are no differences at all. For the sake of thrust, let's test ```str is defined```:
+So there are no differences at all. For the sake of thrust, let's test ```var is defined```:
 
 {{< highlight python >}}
 from jinja2 import Template
-tmpl = Template('{% if str is defined %} True {% else %} False {% endif %}')
+tmpl = Template('{% if var is defined %} True {% else %} False {% endif %}')
 >>> print tmpl.render()
  False 
->>> print tmpl.render(str=None)
+>>> print tmpl.render(var=None)
  True 
->>> print tmpl.render(str='')
+>>> print tmpl.render(var='')
  True 
->>> print tmpl.render(str='abc')
+>>> print tmpl.render(var='abc')
  True 
->>> print tmpl.render(str=' ')
+>>> print tmpl.render(var=' ')
  True 
 {{< /highlight >}}
 
-So just use ```str``` and not ```str is defined and str```, Luke!
+So just use ```var``` and not ```var is defined and var```, Luke!

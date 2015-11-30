@@ -50,45 +50,45 @@ def do_default(value, default_value=u'', boolean=False):
 
 So, the default "default value" is an empty string.
 
-### "str | d()" test
+### "var | d()" test
 
 With ```default``` filter:
 {{< highlight python >}}
 from jinja2 import Template
-tmpl = Template('{{ str | d() }}')
+tmpl = Template('{{ var | d() }}')
 >>> print tmpl.render()
                                   # An empty string
->>> print tmpl.render(str=None)
+>>> print tmpl.render(var=None)
 None
->>> print tmpl.render(str='')
+>>> print tmpl.render(var='')
                                   # An empty string
->>> print tmpl.render(str='abc')
+>>> print tmpl.render(var='abc')
 abc
->>> print tmpl.render(str=' ')
+>>> print tmpl.render(var=' ')
                                   # A space
->>> print tmpl.render(str=[])
+>>> print tmpl.render(var=[])
 []
->>> print tmpl.render(str=['list'])
+>>> print tmpl.render(var=['list'])
 ['list']
 {{< /highlight >}}
 
 Without ```default``` filter:
 {{< highlight python >}}
 from jinja2 import Template
-tmpl = Template('{{ str }}')
+tmpl = Template('{{ var }}')
 >>> print tmpl.render()
                                   # An empty string
->>> print tmpl.render(str=None)
+>>> print tmpl.render(var=None)
 None
->>> print tmpl.render(str='')
+>>> print tmpl.render(var='')
                                   # An empty string
->>> print tmpl.render(str='abc')
+>>> print tmpl.render(var='abc')
 abc
->>> print tmpl.render(str=' ')
+>>> print tmpl.render(var=' ')
                                   # A space
->>> print tmpl.render(str=[])
+>>> print tmpl.render(var=[])
 []
->>> print tmpl.render(str=['list'])
+>>> print tmpl.render(var=['list'])
 ['list']
 {{< /highlight >}}
 
@@ -104,19 +104,19 @@ Template('').environment.filters['bool'] = bool
 tmpl = Template('{{ str | d() | bool }}')
 >>> print tmpl.render()
 False
->>> print tmpl.render(str=None)
+>>> print tmpl.render(var=None)
 None
->>> print tmpl.render(str='')
+>>> print tmpl.render(var='')
 False
->>> print tmpl.render(str='abc')
+>>> print tmpl.render(var='abc')
 False
->>> print tmpl.render(str=' ')
+>>> print tmpl.render(var=' ')
 False
->>> print tmpl.render(str='True')
+>>> print tmpl.render(var='True')
 True
->>> print tmpl.render(str=[])
+>>> print tmpl.render(var=[])
 False
->>> print tmpl.render(str=['list'])
+>>> print tmpl.render(var=['list'])
 False
 {{< /highlight >}}
 
@@ -128,19 +128,19 @@ Template('').environment.filters['bool'] = bool
 tmpl = Template('{{ str | bool }}')
 >>> print tmpl.render()
 False
->>> print tmpl.render(str=None)
+>>> print tmpl.render(var=None)
 None
->>> print tmpl.render(str='')
+>>> print tmpl.render(var='')
 False
->>> print tmpl.render(str='abc')
+>>> print tmpl.render(var='abc')
 False
->>> print tmpl.render(str=' ')
+>>> print tmpl.render(var=' ')
 False
->>> print tmpl.render(str='True')
+>>> print tmpl.render(var='True')
 True
->>> print tmpl.render(str=[])
+>>> print tmpl.render(var=[])
 False
->>> print tmpl.render(str=['list'])
+>>> print tmpl.render(var=['list'])
 False
 {{< /highlight >}}
 
