@@ -153,7 +153,7 @@
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;/p&gt;
 
-&lt;p&gt;Pretty same again. &lt;strong&gt;So, it seems that &lt;code&gt;default()&lt;/code&gt; or &lt;code&gt;d()&lt;/code&gt; usage in conditions has no sense at all&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;Pretty same again. So, it seems that &lt;code&gt;default()&lt;/code&gt; or &lt;code&gt;d()&lt;/code&gt; usage in conditions has no sense at all.&lt;/p&gt;
 
 &lt;hr /&gt;
 
@@ -178,11 +178,11 @@
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;/p&gt;
 
-&lt;p&gt;&lt;strong&gt;You can use &lt;code&gt;when: docker_upstream&lt;/code&gt; instead of &lt;code&gt;when: docker_upstream | d() | bool&lt;/code&gt; without any doubts when &lt;code&gt;docker_upstream&lt;/code&gt; is a boolean.&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;You can clearly see from &lt;code&gt;bool&lt;/code&gt; function implementation that &lt;code&gt;{% if docker_listen | d() | bool %}&lt;/code&gt; results in &lt;code&gt;True&lt;/code&gt; only if &lt;code&gt;docker_listen: True&lt;/code&gt;. If &lt;code&gt;docker_listen&lt;/code&gt; is an arbitrary string or a list (as expected) &lt;code&gt;{% if docker_listen | d() | bool %}&lt;/code&gt; results in &lt;code&gt;False&lt;/code&gt; always.&lt;/p&gt;
 
-&lt;p&gt;But you can clearly see from &lt;code&gt;bool&lt;/code&gt; function implementation that &lt;code&gt;{% if docker_listen | d() | bool %}&lt;/code&gt; results in &lt;code&gt;True&lt;/code&gt; only if &lt;code&gt;docker_listen: True&lt;/code&gt;. If &lt;code&gt;docker_listen&lt;/code&gt; is an arbitrary string or a list (as expected) &lt;code&gt;{% if docker_listen | d() | bool %}&lt;/code&gt; results in &lt;code&gt;False&lt;/code&gt; always.&lt;/p&gt;
+&lt;p&gt;Therefore &lt;code&gt;{% if docker_listen %}&lt;/code&gt; gives us a correct behaviour for strings and lists.&lt;/p&gt;
 
-&lt;p&gt;&lt;strong&gt;Therefore &lt;code&gt;{% if docker_listen %}&lt;/code&gt; gives us a correct behaviour.&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;But for booleans you have to use &lt;code&gt;bool&lt;/code&gt; filter — &lt;code&gt;when: docker_upstream | bool&lt;/code&gt;, because &lt;code&gt;when: docker_upstream&lt;/code&gt; results in &lt;code&gt;True&lt;/code&gt; when &lt;code&gt;docker_upstream: False&lt;/code&gt;.&lt;/p&gt;
 </description>
     </item>
     

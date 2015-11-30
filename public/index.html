@@ -232,7 +232,7 @@
 </code></pre></div>
 </p>
 
-<p>Pretty same again. <strong>So, it seems that <code>default()</code> or <code>d()</code> usage in conditions has no sense at all</strong>.</p>
+<p>Pretty same again. So, it seems that <code>default()</code> or <code>d()</code> usage in conditions has no sense at all.</p>
 
 <hr />
 
@@ -257,11 +257,11 @@
 </code></pre></div>
 </p>
 
-<p><strong>You can use <code>when: docker_upstream</code> instead of <code>when: docker_upstream | d() | bool</code> without any doubts when <code>docker_upstream</code> is a boolean.</strong></p>
+<p>You can clearly see from <code>bool</code> function implementation that <code>{% if docker_listen | d() | bool %}</code> results in <code>True</code> only if <code>docker_listen: True</code>. If <code>docker_listen</code> is an arbitrary string or a list (as expected) <code>{% if docker_listen | d() | bool %}</code> results in <code>False</code> always.</p>
 
-<p>But you can clearly see from <code>bool</code> function implementation that <code>{% if docker_listen | d() | bool %}</code> results in <code>True</code> only if <code>docker_listen: True</code>. If <code>docker_listen</code> is an arbitrary string or a list (as expected) <code>{% if docker_listen | d() | bool %}</code> results in <code>False</code> always.</p>
+<p>Therefore <code>{% if docker_listen %}</code> gives us a correct behaviour for strings and lists.</p>
 
-<p><strong>Therefore <code>{% if docker_listen %}</code> gives us a correct behaviour.</strong></p>
+<p>But for booleans you have to use <code>bool</code> filter — <code>when: docker_upstream | bool</code>, because <code>when: docker_upstream</code> results in <code>True</code> when <code>docker_upstream: False</code>.</p>
 
         </div>
         
