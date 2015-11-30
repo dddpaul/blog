@@ -171,7 +171,7 @@ def bool(a):
 
 You can clearly see from ```bool``` function implementation that ```{% if docker_listen | d() | bool %}``` results in ```True``` only if ```docker_listen: True```. If ```docker_listen``` is an arbitrary string or a list (as expected) ```{% if docker_listen | d() | bool %}``` results in ```False``` always.
  
-Therefore ```{% if docker_listen %}``` gives us a correct behaviour for strings and lists. The reason is explained [here](({{< ref "posts/ansible-defined-keyword.md" >}}) (see "Secondly" and "Third" quotes): 
+Therefore ```{% if docker_listen %}``` gives us a correct behaviour for strings and lists. The reason is explained [here]({{< ref "posts/ansible-defined-keyword.md" >}}) (see "Secondly" and "Third" quotes): 
 
 > The if statement in Jinja is comparable with the Python if statement. In the simplest form, you can use it to test if **a variable is defined, not empty or not false**.
 >
