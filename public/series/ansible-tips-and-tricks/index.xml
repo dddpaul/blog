@@ -155,6 +155,8 @@
 
 &lt;p&gt;Pretty same again. So, it seems that &lt;code&gt;default()&lt;/code&gt; or &lt;code&gt;d()&lt;/code&gt; usage in conditions has no sense at all.&lt;/p&gt;
 
+&lt;p&gt;But when using undefined variables in actual Ansible playbooks without &lt;code&gt;default&lt;/code&gt; filter &lt;code&gt;AnsibleUndefinedVariable&lt;/code&gt; will be thrown. So finally, you have to use &lt;code&gt;default&lt;/code&gt; filter to be safe.&lt;/p&gt;
+
 &lt;hr /&gt;
 
 &lt;p&gt;And what about &lt;code&gt;bool&lt;/code&gt; filter?&lt;/p&gt;
@@ -180,7 +182,7 @@
 
 &lt;p&gt;You can clearly see from &lt;code&gt;bool&lt;/code&gt; function implementation that &lt;code&gt;{% if docker_listen | d() | bool %}&lt;/code&gt; results in &lt;code&gt;True&lt;/code&gt; only if &lt;code&gt;docker_listen: True&lt;/code&gt;. If &lt;code&gt;docker_listen&lt;/code&gt; is an arbitrary string or a list (as expected) &lt;code&gt;{% if docker_listen | d() | bool %}&lt;/code&gt; results in &lt;code&gt;False&lt;/code&gt; always.&lt;/p&gt;
 
-&lt;p&gt;Therefore &lt;code&gt;{% if docker_listen %}&lt;/code&gt; gives us a correct behaviour for strings and lists. The reason is explained &lt;a href=&#34;https://dddpaul.github.io/blog/2015/11/29/ansible-defined-keyword/&#34;&gt;here&lt;/a&gt; (see &amp;ldquo;Secondly&amp;rdquo; and &amp;ldquo;Third&amp;rdquo; quotes):&lt;/p&gt;
+&lt;p&gt;Therefore &lt;code&gt;{% if docker_listen | d() %}&lt;/code&gt; gives us a correct behaviour for strings and lists. The reason is explained &lt;a href=&#34;https://dddpaul.github.io/blog/2015/11/29/ansible-defined-keyword/&#34;&gt;here&lt;/a&gt; (see &amp;ldquo;Secondly&amp;rdquo; and &amp;ldquo;Third&amp;rdquo; quotes):&lt;/p&gt;
 
 &lt;blockquote&gt;
 &lt;p&gt;The if statement in Jinja is comparable with the Python if statement. In the simplest form, you can use it to test if &lt;strong&gt;a variable is defined, not empty or not false&lt;/strong&gt;.&lt;/p&gt;
@@ -188,7 +190,7 @@
 &lt;p&gt;For sequences, (strings, lists, tuples), use the fact that &lt;strong&gt;empty sequences are false&lt;/strong&gt;.&lt;/p&gt;
 &lt;/blockquote&gt;
 
-&lt;p&gt;But for booleans you have to use &lt;code&gt;bool&lt;/code&gt; filter — &lt;code&gt;when: docker_upstream | bool&lt;/code&gt;, because &lt;code&gt;when: docker_upstream&lt;/code&gt; results in &lt;code&gt;True&lt;/code&gt; when &lt;code&gt;docker_upstream: False&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;But for booleans you have to use &lt;code&gt;bool&lt;/code&gt; filter — &lt;code&gt;when: docker_upstream | d() | bool&lt;/code&gt;, because &lt;code&gt;when: docker_upstream | d()&lt;/code&gt; results in &lt;code&gt;True&lt;/code&gt; even if &lt;code&gt;docker_upstream&lt;/code&gt; is &lt;code&gt;False&lt;/code&gt;.&lt;/p&gt;
 </description>
     </item>
     
