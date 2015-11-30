@@ -180,7 +180,13 @@
 
 &lt;p&gt;You can clearly see from &lt;code&gt;bool&lt;/code&gt; function implementation that &lt;code&gt;{% if docker_listen | d() | bool %}&lt;/code&gt; results in &lt;code&gt;True&lt;/code&gt; only if &lt;code&gt;docker_listen: True&lt;/code&gt;. If &lt;code&gt;docker_listen&lt;/code&gt; is an arbitrary string or a list (as expected) &lt;code&gt;{% if docker_listen | d() | bool %}&lt;/code&gt; results in &lt;code&gt;False&lt;/code&gt; always.&lt;/p&gt;
 
-&lt;p&gt;Therefore &lt;code&gt;{% if docker_listen %}&lt;/code&gt; gives us a correct behaviour for strings and lists.&lt;/p&gt;
+&lt;p&gt;Therefore &lt;code&gt;{% if docker_listen %}&lt;/code&gt; gives us a correct behaviour for strings and lists. The reason is explained &lt;a href=&#34;(https://dddpaul.github.io/blog/2015/11/29/ansible-conditions/&#34;&gt;here&lt;/a&gt; (see &amp;ldquo;Secondly&amp;rdquo; and &amp;ldquo;Third&amp;rdquo; quotes):&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;The if statement in Jinja is comparable with the Python if statement. In the simplest form, you can use it to test if &lt;strong&gt;a variable is defined, not empty or not false&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;For sequences, (strings, lists, tuples), use the fact that &lt;strong&gt;empty sequences are false&lt;/strong&gt;.&lt;/p&gt;
+&lt;/blockquote&gt;
 
 &lt;p&gt;But for booleans you have to use &lt;code&gt;bool&lt;/code&gt; filter — &lt;code&gt;when: docker_upstream | bool&lt;/code&gt;, because &lt;code&gt;when: docker_upstream&lt;/code&gt; results in &lt;code&gt;True&lt;/code&gt; when &lt;code&gt;docker_upstream: False&lt;/code&gt;.&lt;/p&gt;
 </description>
@@ -206,10 +212,26 @@
 &lt;p&gt;The if statement in Jinja is comparable with the Python if statement. In the simplest form, you can use it to test if &lt;strong&gt;a variable is defined, not empty or not false&lt;/strong&gt;.&lt;/p&gt;
 &lt;/blockquote&gt;
 
-&lt;p&gt;At last, a bit of truth about &lt;a href=&#34;https://www.python.org/dev/peps/pep-0008/&#34;&gt;Python&lt;/a&gt;:&lt;/p&gt;
+&lt;p&gt;Third, a bit of truth about &lt;a href=&#34;https://www.python.org/dev/peps/pep-0008/&#34;&gt;Python&lt;/a&gt;:&lt;/p&gt;
 
 &lt;blockquote&gt;
 &lt;p&gt;For sequences, (strings, lists, tuples), use the fact that &lt;strong&gt;empty sequences are false&lt;/strong&gt;.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;At last, a quote from &lt;a href=&#34;http://shop.oreilly.com/product/0636920035626.do&#34;&gt;Ansible: Up And Running&lt;/a&gt;, page 23:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Ansible is pretty flexible on how you represent truthy and falsey values in playbooks. Strictly speaking, module arguments (like &lt;code&gt;update_cache=yes&lt;/code&gt;) are treated differently from values elsewhere in playbooks (like &lt;code&gt;sudo: True&lt;/code&gt;). Values elsewhere are handled by the YAML parser and so use the YAML conventions of truthiness, which are:&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;YAML truthy:&lt;/em&gt; true, True, TRUE, yes, Yes, YES, on, On, ON, y, Y&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;YAML falsey:&lt;/em&gt; false, False, FALSE, no, No, NO, off, Off, OFF, n, N&lt;/p&gt;
+
+&lt;p&gt;Module arguments are passed as strings and use Ansible’s internal conventions, which are:&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;module arg truthy:&lt;/em&gt; yes, on, 1, true&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;module arg falsey:&lt;/em&gt; no, off, 0, false&lt;/p&gt;
 &lt;/blockquote&gt;
 
 &lt;p&gt;Why all of these are important? Because there are plenty of redundant &lt;code&gt;if&lt;/code&gt; and &lt;code&gt;when&lt;/code&gt; conditionals usage in Ansible playbooks and templates. For example in &lt;a href=&#34;https://github.com/debops/ansible-nginx/blob/master/tasks/main.yml&#34;&gt;debops/ansible-nginx&lt;/a&gt;:&lt;/p&gt;
