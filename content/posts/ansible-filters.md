@@ -144,7 +144,7 @@ False
 False
 {{< /highlight >}}
 
-Pretty same again. **So, it seems that ```default()``` or ```d()``` usage in conditions has no sense at all**.
+Pretty same again. So, it seems that ```default()``` or ```d()``` usage in conditions has no sense at all.
 
 ---
 
@@ -169,8 +169,8 @@ def bool(a):
         return False
 {{< /highlight >}}
 
-**You can use ```when: docker_upstream``` instead of ```when: docker_upstream | d() | bool``` without any doubts when ```docker_upstream``` is a boolean.**
-
-But you can clearly see from ```bool``` function implementation that ```{% if docker_listen | d() | bool %}``` results in ```True``` only if ```docker_listen: True```. If ```docker_listen``` is an arbitrary string or a list (as expected) ```{% if docker_listen | d() | bool %}``` results in ```False``` always.
+You can clearly see from ```bool``` function implementation that ```{% if docker_listen | d() | bool %}``` results in ```True``` only if ```docker_listen: True```. If ```docker_listen``` is an arbitrary string or a list (as expected) ```{% if docker_listen | d() | bool %}``` results in ```False``` always.
  
-**Therefore ```{% if docker_listen %}``` gives us a correct behaviour.**
+Therefore ```{% if docker_listen %}``` gives us a correct behaviour for strings and lists.
+
+But for booleans you have to use ```bool``` filter — ```when: docker_upstream | bool```, because ```when: docker_upstream``` results in ```True``` when ```docker_upstream: False```.
