@@ -9,7 +9,7 @@ tags = ["Ansible", "Python"]
 
 There are plenty of ```bool``` and ```default``` filters usage in Ansible playbooks and templates. For example, in [debops/ansible-docker](https://github.com/debops/ansible-docker/blob/master/tasks/main.yml): ```when: docker_upstream| d() | bool```.
 
-Where ```docker_upstream``` is an YAML boolean: ```docker_upstream: False```. It seems like "when" condition is [overbloated again]({{< ref "posts/ansible-conditions.md" >}}) :)  
+Where ```docker_upstream``` is an YAML boolean: ```docker_upstream: False```. It seems like "when" condition is [overbloated again]({{< ref "posts/ansible-defined-keyword.md" >}}) :)  
 
 The ```var | d() | bool``` construction is spread all over the place, for example, in [docker config template](https://github.com/debops/ansible-docker/blob/master/templates/etc/default/docker.j2):
  
@@ -171,7 +171,7 @@ def bool(a):
 
 You can clearly see from ```bool``` function implementation that ```{% if docker_listen | d() | bool %}``` results in ```True``` only if ```docker_listen: True```. If ```docker_listen``` is an arbitrary string or a list (as expected) ```{% if docker_listen | d() | bool %}``` results in ```False``` always.
  
-Therefore ```{% if docker_listen %}``` gives us a correct behaviour for strings and lists. The reason is explained [here](({{< ref "posts/ansible-conditions.md" >}}) (see "Secondly" and "Third" quotes): 
+Therefore ```{% if docker_listen %}``` gives us a correct behaviour for strings and lists. The reason is explained [here](({{< ref "posts/ansible-defined-keyword.md" >}}) (see "Secondly" and "Third" quotes): 
 
 > The if statement in Jinja is comparable with the Python if statement. In the simplest form, you can use it to test if **a variable is defined, not empty or not false**.
 >
