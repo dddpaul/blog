@@ -146,7 +146,7 @@ False
 
 Pretty same again. So, it seems that ```default()``` or ```d()``` usage in conditions has no sense at all.
 
-But when using undefined variables in actual Ansible playbooks without ```default``` filter ```AnsibleUndefinedVariable``` will be thrown. So finally, you have to use ```default``` filter to be safe.
+But when using undefined variables in actual Ansible playbooks without ```default``` filter ```AnsibleUndefinedVariable``` will be thrown. **So finally, you have to use ```default``` filter to be safe.**
 
 ---
 
