@@ -19,8 +19,7 @@
 
 &lt;p&gt;There are plenty of &lt;code&gt;bool&lt;/code&gt; and &lt;code&gt;default&lt;/code&gt; filters usage in Ansible playbooks and templates. For example, in &lt;a href=&#34;https://github.com/debops/ansible-docker/blob/master/tasks/main.yml&#34;&gt;debops/ansible-docker&lt;/a&gt;: &lt;code&gt;when: docker_upstream| d() | bool&lt;/code&gt;.&lt;/p&gt;
 
-&lt;p&gt;Where &lt;code&gt;docker_upstream&lt;/code&gt; is an YAML boolean: &lt;code&gt;docker_upstream: False&lt;/code&gt;. It seems like &amp;ldquo;when&amp;rdquo; condition is &lt;a href=&#34;No page found with path or logical name &#34;posts/ansible-conditions.md&#34;.
-&#34;&gt;overbloated again&lt;/a&gt; :)&lt;/p&gt;
+&lt;p&gt;Where &lt;code&gt;docker_upstream&lt;/code&gt; is an YAML boolean: &lt;code&gt;docker_upstream: False&lt;/code&gt;. It seems like &amp;ldquo;when&amp;rdquo; condition is &lt;a href=&#34;https://dddpaul.github.io/blog/2015/11/29/ansible-defined-keyword/&#34;&gt;overbloated again&lt;/a&gt; :)&lt;/p&gt;
 
 &lt;p&gt;The &lt;code&gt;var | d() | bool&lt;/code&gt; construction is spread all over the place, for example, in &lt;a href=&#34;https://github.com/debops/ansible-docker/blob/master/templates/etc/default/docker.j2&#34;&gt;docker config template&lt;/a&gt;:&lt;/p&gt;
 
@@ -181,8 +180,7 @@
 
 &lt;p&gt;You can clearly see from &lt;code&gt;bool&lt;/code&gt; function implementation that &lt;code&gt;{% if docker_listen | d() | bool %}&lt;/code&gt; results in &lt;code&gt;True&lt;/code&gt; only if &lt;code&gt;docker_listen: True&lt;/code&gt;. If &lt;code&gt;docker_listen&lt;/code&gt; is an arbitrary string or a list (as expected) &lt;code&gt;{% if docker_listen | d() | bool %}&lt;/code&gt; results in &lt;code&gt;False&lt;/code&gt; always.&lt;/p&gt;
 
-&lt;p&gt;Therefore &lt;code&gt;{% if docker_listen %}&lt;/code&gt; gives us a correct behaviour for strings and lists. The reason is explained &lt;a href=&#34;(No page found with path or logical name &#34;posts/ansible-conditions.md&#34;.
-&#34;&gt;here&lt;/a&gt; (see &amp;ldquo;Secondly&amp;rdquo; and &amp;ldquo;Third&amp;rdquo; quotes):&lt;/p&gt;
+&lt;p&gt;Therefore &lt;code&gt;{% if docker_listen %}&lt;/code&gt; gives us a correct behaviour for strings and lists. The reason is explained &lt;a href=&#34;(https://dddpaul.github.io/blog/2015/11/29/ansible-defined-keyword/&#34;&gt;here&lt;/a&gt; (see &amp;ldquo;Secondly&amp;rdquo; and &amp;ldquo;Third&amp;rdquo; quotes):&lt;/p&gt;
 
 &lt;blockquote&gt;
 &lt;p&gt;The if statement in Jinja is comparable with the Python if statement. In the simplest form, you can use it to test if &lt;strong&gt;a variable is defined, not empty or not false&lt;/strong&gt;.&lt;/p&gt;

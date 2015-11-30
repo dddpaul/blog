@@ -90,8 +90,7 @@
 
 <p>There are plenty of <code>bool</code> and <code>default</code> filters usage in Ansible playbooks and templates. For example, in <a href="https://github.com/debops/ansible-docker/blob/master/tasks/main.yml">debops/ansible-docker</a>: <code>when: docker_upstream| d() | bool</code>.</p>
 
-<p>Where <code>docker_upstream</code> is an YAML boolean: <code>docker_upstream: False</code>. It seems like &ldquo;when&rdquo; condition is <a href="No page found with path or logical name "posts/ansible-conditions.md".
-">overbloated again</a> :)</p>
+<p>Where <code>docker_upstream</code> is an YAML boolean: <code>docker_upstream: False</code>. It seems like &ldquo;when&rdquo; condition is <a href="https://dddpaul.github.io/blog/2015/11/29/ansible-defined-keyword/">overbloated again</a> :)</p>
 
 <p>The <code>var | d() | bool</code> construction is spread all over the place, for example, in <a href="https://github.com/debops/ansible-docker/blob/master/templates/etc/default/docker.j2">docker config template</a>:</p>
 
@@ -252,8 +251,7 @@
 
 <p>You can clearly see from <code>bool</code> function implementation that <code>{% if docker_listen | d() | bool %}</code> results in <code>True</code> only if <code>docker_listen: True</code>. If <code>docker_listen</code> is an arbitrary string or a list (as expected) <code>{% if docker_listen | d() | bool %}</code> results in <code>False</code> always.</p>
 
-<p>Therefore <code>{% if docker_listen %}</code> gives us a correct behaviour for strings and lists. The reason is explained <a href="(No page found with path or logical name "posts/ansible-conditions.md".
-">here</a> (see &ldquo;Secondly&rdquo; and &ldquo;Third&rdquo; quotes):</p>
+<p>Therefore <code>{% if docker_listen %}</code> gives us a correct behaviour for strings and lists. The reason is explained <a href="(https://dddpaul.github.io/blog/2015/11/29/ansible-defined-keyword/">here</a> (see &ldquo;Secondly&rdquo; and &ldquo;Third&rdquo; quotes):</p>
 
 <blockquote>
 <p>The if statement in Jinja is comparable with the Python if statement. In the simplest form, you can use it to test if <strong>a variable is defined, not empty or not false</strong>.</p>
