@@ -155,7 +155,7 @@
 
 &lt;p&gt;Pretty same again. So, it seems that &lt;code&gt;default()&lt;/code&gt; or &lt;code&gt;d()&lt;/code&gt; usage in conditions has no sense at all.&lt;/p&gt;
 
-&lt;p&gt;But when using undefined variables in actual Ansible playbooks without &lt;code&gt;default&lt;/code&gt; filter &lt;code&gt;AnsibleUndefinedVariable&lt;/code&gt; will be thrown. So finally, you have to use &lt;code&gt;default&lt;/code&gt; filter to be safe.&lt;/p&gt;
+&lt;p&gt;But when using undefined variables in actual Ansible playbooks without &lt;code&gt;default&lt;/code&gt; filter &lt;code&gt;AnsibleUndefinedVariable&lt;/code&gt; will be thrown. &lt;strong&gt;So finally, you have to use &lt;code&gt;default&lt;/code&gt; filter to be safe.&lt;/strong&gt;&lt;/p&gt;
 
 &lt;hr /&gt;
 
