@@ -180,3 +180,7 @@ Therefore ```{% if docker_listen | d() %}``` gives us a correct behaviour for st
 > For sequences, (strings, lists, tuples), use the fact that **empty sequences are false**.
 
 But for booleans you have to use ```bool``` filter — ```when: docker_upstream | d() | bool```, because ```when: docker_upstream | d()``` results in ```True``` even if ```docker_upstream``` is ```False```.
+
+Links:
+
+* [No need to evaluate a variable two times](https://github.com/debops/ansible-docker/pull/2)
