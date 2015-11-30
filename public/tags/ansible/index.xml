@@ -10,16 +10,17 @@
     <atom:link href="https://dddpaul.github.io/blog/tags/ansible/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
-      <title>Proper filters in Ansible playbooks</title>
-      <link>https://dddpaul.github.io/blog/2015/11/30/ansible-filters/</link>
+      <title>Ansible: &#34;default&#34; and &#34;bool&#34; filters</title>
+      <link>https://dddpaul.github.io/blog/2015/11/30/ansible-default-and-bool-filters/</link>
       <pubDate>Mon, 30 Nov 2015 10:45:00 +0300</pubDate>
       
-      <guid>https://dddpaul.github.io/blog/2015/11/30/ansible-filters/</guid>
+      <guid>https://dddpaul.github.io/blog/2015/11/30/ansible-default-and-bool-filters/</guid>
       <description>
 
 &lt;p&gt;There are plenty of &lt;code&gt;bool&lt;/code&gt; and &lt;code&gt;default&lt;/code&gt; filters usage in Ansible playbooks and templates. For example, in &lt;a href=&#34;https://github.com/debops/ansible-docker/blob/master/tasks/main.yml&#34;&gt;debops/ansible-docker&lt;/a&gt;: &lt;code&gt;when: docker_upstream| d() | bool&lt;/code&gt;.&lt;/p&gt;
 
-&lt;p&gt;Where &lt;code&gt;docker_upstream&lt;/code&gt; is an YAML boolean: &lt;code&gt;docker_upstream: False&lt;/code&gt;. It seems like &amp;ldquo;when&amp;rdquo; condition is &lt;a href=&#34;https://dddpaul.github.io/blog/2015/11/29/ansible-conditions/&#34;&gt;overbloated again&lt;/a&gt; :)&lt;/p&gt;
+&lt;p&gt;Where &lt;code&gt;docker_upstream&lt;/code&gt; is an YAML boolean: &lt;code&gt;docker_upstream: False&lt;/code&gt;. It seems like &amp;ldquo;when&amp;rdquo; condition is &lt;a href=&#34;No page found with path or logical name &#34;posts/ansible-conditions.md&#34;.
+&#34;&gt;overbloated again&lt;/a&gt; :)&lt;/p&gt;
 
 &lt;p&gt;The &lt;code&gt;var | d() | bool&lt;/code&gt; construction is spread all over the place, for example, in &lt;a href=&#34;https://github.com/debops/ansible-docker/blob/master/templates/etc/default/docker.j2&#34;&gt;docker config template&lt;/a&gt;:&lt;/p&gt;
 
@@ -59,7 +60,7 @@
 
 &lt;p&gt;So, the default &amp;ldquo;default value&amp;rdquo; is an empty string.&lt;/p&gt;
 
-&lt;h3 id=&#34;str-d-test:f6ea4677c774e8193442f7b251f1468e&#34;&gt;&amp;ldquo;str | d()&amp;rdquo; test&lt;/h3&gt;
+&lt;h3 id=&#34;str-d-test:df8aec350edd46b4d7f3e3e66fee95bc&#34;&gt;&amp;ldquo;str | d()&amp;rdquo; test&lt;/h3&gt;
 
 &lt;p&gt;With &lt;code&gt;default&lt;/code&gt; filter:
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span class=&#34;kn&#34;&gt;from&lt;/span&gt; &lt;span class=&#34;nn&#34;&gt;jinja2&lt;/span&gt; &lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Template&lt;/span&gt;
@@ -103,7 +104,7 @@
 
 &lt;p&gt;Pretty same, eh?&lt;/p&gt;
 
-&lt;h3 id=&#34;str-d-bool-test:f6ea4677c774e8193442f7b251f1468e&#34;&gt;&amp;ldquo;str | d() | bool&amp;rdquo; test&lt;/h3&gt;
+&lt;h3 id=&#34;str-d-bool-test:df8aec350edd46b4d7f3e3e66fee95bc&#34;&gt;&amp;ldquo;str | d() | bool&amp;rdquo; test&lt;/h3&gt;
 
 &lt;p&gt;With &lt;code&gt;default&lt;/code&gt; filter:
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span class=&#34;kn&#34;&gt;from&lt;/span&gt; &lt;span class=&#34;nn&#34;&gt;jinja2&lt;/span&gt; &lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Template&lt;/span&gt;
@@ -180,7 +181,8 @@
 
 &lt;p&gt;You can clearly see from &lt;code&gt;bool&lt;/code&gt; function implementation that &lt;code&gt;{% if docker_listen | d() | bool %}&lt;/code&gt; results in &lt;code&gt;True&lt;/code&gt; only if &lt;code&gt;docker_listen: True&lt;/code&gt;. If &lt;code&gt;docker_listen&lt;/code&gt; is an arbitrary string or a list (as expected) &lt;code&gt;{% if docker_listen | d() | bool %}&lt;/code&gt; results in &lt;code&gt;False&lt;/code&gt; always.&lt;/p&gt;
 
-&lt;p&gt;Therefore &lt;code&gt;{% if docker_listen %}&lt;/code&gt; gives us a correct behaviour for strings and lists. The reason is explained &lt;a href=&#34;(https://dddpaul.github.io/blog/2015/11/29/ansible-conditions/&#34;&gt;here&lt;/a&gt; (see &amp;ldquo;Secondly&amp;rdquo; and &amp;ldquo;Third&amp;rdquo; quotes):&lt;/p&gt;
+&lt;p&gt;Therefore &lt;code&gt;{% if docker_listen %}&lt;/code&gt; gives us a correct behaviour for strings and lists. The reason is explained &lt;a href=&#34;(No page found with path or logical name &#34;posts/ansible-conditions.md&#34;.
+&#34;&gt;here&lt;/a&gt; (see &amp;ldquo;Secondly&amp;rdquo; and &amp;ldquo;Third&amp;rdquo; quotes):&lt;/p&gt;
 
 &lt;blockquote&gt;
 &lt;p&gt;The if statement in Jinja is comparable with the Python if statement. In the simplest form, you can use it to test if &lt;strong&gt;a variable is defined, not empty or not false&lt;/strong&gt;.&lt;/p&gt;
@@ -193,11 +195,11 @@
     </item>
     
     <item>
-      <title>Proper conditions in Ansible playbooks</title>
-      <link>https://dddpaul.github.io/blog/2015/11/29/ansible-conditions/</link>
+      <title>Ansible: &#34;defined&#34; keyword</title>
+      <link>https://dddpaul.github.io/blog/2015/11/29/ansible-defined-keyword/</link>
       <pubDate>Sun, 29 Nov 2015 10:45:00 +0300</pubDate>
       
-      <guid>https://dddpaul.github.io/blog/2015/11/29/ansible-conditions/</guid>
+      <guid>https://dddpaul.github.io/blog/2015/11/29/ansible-defined-keyword/</guid>
       <description>&lt;p&gt;Some hidden knowledge for the start:&lt;/p&gt;
 
 &lt;p&gt;First of all, the Ansible &lt;code&gt;when&lt;/code&gt; clause contains a Jinja2 expression (see &lt;a href=&#34;http://docs.ansible.com/ansible/playbooks_conditionals.html&#34;&gt;Ansible playbook conditionals&lt;/a&gt;). It&amp;rsquo;s confirmed with a quote from &lt;a href=&#34;http://shop.oreilly.com/product/0636920035626.do&#34;&gt;Ansible: Up And Running&lt;/a&gt;, page 41:&lt;/p&gt;

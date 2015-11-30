@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
 
-  <title> Proper filters in Ansible playbooks &middot; Dev notes </title>
+  <title> Ansible: &#34;default&#34; and &#34;bool&#34; filters &middot; Dev notes </title>
 
   
   <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/poole.css">
@@ -83,14 +83,15 @@
 
 <div class="content container">
     <div class="post">
-        <h1 class="post-title">Proper filters in Ansible playbooks</h1>
+        <h1 class="post-title">Ansible: &#34;default&#34; and &#34;bool&#34; filters</h1>
         <span class="post-date">2015-11-30</span>
 
         
 
 <p>There are plenty of <code>bool</code> and <code>default</code> filters usage in Ansible playbooks and templates. For example, in <a href="https://github.com/debops/ansible-docker/blob/master/tasks/main.yml">debops/ansible-docker</a>: <code>when: docker_upstream| d() | bool</code>.</p>
 
-<p>Where <code>docker_upstream</code> is an YAML boolean: <code>docker_upstream: False</code>. It seems like &ldquo;when&rdquo; condition is <a href="https://dddpaul.github.io/blog/2015/11/29/ansible-conditions/">overbloated again</a> :)</p>
+<p>Where <code>docker_upstream</code> is an YAML boolean: <code>docker_upstream: False</code>. It seems like &ldquo;when&rdquo; condition is <a href="No page found with path or logical name "posts/ansible-conditions.md".
+">overbloated again</a> :)</p>
 
 <p>The <code>var | d() | bool</code> construction is spread all over the place, for example, in <a href="https://github.com/debops/ansible-docker/blob/master/templates/etc/default/docker.j2">docker config template</a>:</p>
 
@@ -130,7 +131,7 @@
 
 <p>So, the default &ldquo;default value&rdquo; is an empty string.</p>
 
-<h3 id="str-d-test:f6ea4677c774e8193442f7b251f1468e">&ldquo;str | d()&rdquo; test</h3>
+<h3 id="str-d-test:df8aec350edd46b4d7f3e3e66fee95bc">&ldquo;str | d()&rdquo; test</h3>
 
 <p>With <code>default</code> filter:
 <div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Template</span>
@@ -174,7 +175,7 @@
 
 <p>Pretty same, eh?</p>
 
-<h3 id="str-d-bool-test:f6ea4677c774e8193442f7b251f1468e">&ldquo;str | d() | bool&rdquo; test</h3>
+<h3 id="str-d-bool-test:df8aec350edd46b4d7f3e3e66fee95bc">&ldquo;str | d() | bool&rdquo; test</h3>
 
 <p>With <code>default</code> filter:
 <div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Template</span>
@@ -251,7 +252,8 @@
 
 <p>You can clearly see from <code>bool</code> function implementation that <code>{% if docker_listen | d() | bool %}</code> results in <code>True</code> only if <code>docker_listen: True</code>. If <code>docker_listen</code> is an arbitrary string or a list (as expected) <code>{% if docker_listen | d() | bool %}</code> results in <code>False</code> always.</p>
 
-<p>Therefore <code>{% if docker_listen %}</code> gives us a correct behaviour for strings and lists. The reason is explained <a href="(https://dddpaul.github.io/blog/2015/11/29/ansible-conditions/">here</a> (see &ldquo;Secondly&rdquo; and &ldquo;Third&rdquo; quotes):</p>
+<p>Therefore <code>{% if docker_listen %}</code> gives us a correct behaviour for strings and lists. The reason is explained <a href="(No page found with path or logical name "posts/ansible-conditions.md".
+">here</a> (see &ldquo;Secondly&rdquo; and &ldquo;Third&rdquo; quotes):</p>
 
 <blockquote>
 <p>The if statement in Jinja is comparable with the Python if statement. In the simplest form, you can use it to test if <strong>a variable is defined, not empty or not false</strong>.</p>
@@ -275,13 +277,13 @@
             
             <li>2015-11-30 -
                 
-                    Proper filters in Ansible playbooks
+                    Ansible: &#34;default&#34; and &#34;bool&#34; filters
                 
             </li>
             
             <li>2015-11-29 -
                 
-                    <a href="https://dddpaul.github.io/blog/2015/11/29/ansible-conditions/">Proper conditions in Ansible playbooks </a>
+                    <a href="https://dddpaul.github.io/blog/2015/11/29/ansible-defined-keyword/">Ansible: &#34;defined&#34; keyword </a>
                 
             </li>
             
@@ -309,9 +311,9 @@
 
     var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
     var disqus_shortname = 'dddpaul-github';
-    var disqus_identifier = 'https:\/\/dddpaul.github.io\/blog\/2015\/11\/30\/ansible-filters\/';
-    var disqus_title = 'Proper filters in Ansible playbooks';
-    var disqus_url = 'https:\/\/dddpaul.github.io\/blog\/2015\/11\/30\/ansible-filters\/';
+    var disqus_identifier = 'https:\/\/dddpaul.github.io\/blog\/2015\/11\/30\/ansible-default-and-bool-filters\/';
+    var disqus_title = 'Ansible: \x22default\x22 and \x22bool\x22 filters';
+    var disqus_url = 'https:\/\/dddpaul.github.io\/blog\/2015\/11\/30\/ansible-default-and-bool-filters\/';
     dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
     (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
 })();
