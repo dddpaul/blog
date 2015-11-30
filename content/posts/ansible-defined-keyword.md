@@ -1,7 +1,7 @@
 +++
 date = "2015-11-29T10:45:00+03:00"
 draft = false
-title = "Proper conditions in Ansible playbooks"
+title = "Ansible: \"defined\" keyword"
 series = [ "Ansible tips and tricks" ]
 tags = ["Ansible", "Python"]
 

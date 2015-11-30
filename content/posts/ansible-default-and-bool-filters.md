@@ -1,7 +1,7 @@
 +++
 date = "2015-11-30T10:45:00+03:00"
 draft = false
-title = "Proper filters in Ansible playbooks"
+title = "Ansible: \"default\" and \"bool\" filters"
 series = [ "Ansible tips and tricks" ]
 tags = ["Ansible", "Python"]
 
