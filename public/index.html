@@ -282,12 +282,14 @@
 
 <p>You can clearly see from <code>bool</code> function implementation that <code>{% if docker_listen | d() | bool %}</code> results in <code>True</code> only if <code>docker_listen: True</code>. If <code>docker_listen</code> is an arbitrary string or a list (as expected) <code>{% if docker_listen | d() | bool %}</code> results in <code>False</code> always.</p>
 
-<p>Therefore <code>{% if docker_listen | d() %}</code> gives us a correct behaviour for strings and lists. The reason is explained <a href="https://dddpaul.github.io/blog/2015/11/29/ansible-defined-keyword/">here</a> (see &ldquo;Secondly&rdquo; and &ldquo;Third&rdquo; quotes):</p>
+<p>Therefore <code>{% if docker_listen | d() %}</code> gives us a correct behaviour for strings, lists and dictionaries (mappings). The reason is explained <a href="https://dddpaul.github.io/blog/2015/11/29/ansible-defined-keyword/">here</a> (see &ldquo;Secondly&rdquo;, &ldquo;Third&rdquo; and &ldquo;More detailed&rdquo; quotes):</p>
 
 <blockquote>
 <p>The if statement in Jinja is comparable with the Python if statement. In the simplest form, you can use it to test if <strong>a variable is defined, not empty or not false</strong>.</p>
 
 <p>For sequences, (strings, lists, tuples), use the fact that <strong>empty sequences are false</strong>.</p>
+
+<p>The following values are considered false: any empty mapping, for example, <code>{}</code></p>
 </blockquote>
 
 <p>But for booleans you have to use <code>bool</code> filter — <code>when: docker_upstream | d() | bool</code>, because <code>when: docker_upstream | d()</code> results in <code>True</code> even if <code>docker_upstream</code> is <code>False</code>.</p>
