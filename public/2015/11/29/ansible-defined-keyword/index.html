@@ -106,6 +106,25 @@
 <p>For sequences, (strings, lists, tuples), use the fact that <strong>empty sequences are false</strong>.</p>
 </blockquote>
 
+<p>More detailed — <a href="https://docs.python.org/2/library/stdtypes.html">5.1. Truth Value Testing</a>:</p>
+
+<blockquote>
+<p>Any object can be tested for truth value, for use in an if or while condition or as operand of the Boolean operations below. The following values are considered false:</p>
+
+<ul>
+<li><code>None</code></li>
+<li><code>False</code></li>
+<li>zero of any numeric type, for example, <code>0</code>, <code>0L</code>, <code>0.0</code>, <code>0j</code></li>
+<li>any empty sequence, for example, <code>''</code>, <code>()</code>, <code>[]</code></li>
+<li>any empty mapping, for example, <code>{}</code></li>
+<li>instances of user-defined classes, if the class defines a <code>__nonzero__()</code> or <code>__len__()</code> method, when that method returns the integer zero or bool value False.</li>
+</ul>
+
+<p>All other values are considered true — so objects of many types are always true.</p>
+
+<p>Operations and built-in functions that have a Boolean result always return 0 or False for false and 1 or True for true, unless otherwise stated. (Important exception: the Boolean operations or and and always return one of their operands.)</p>
+</blockquote>
+
 <p>At last, a quote from <a href="http://shop.oreilly.com/product/0636920035626.do">Ansible: Up And Running</a>, page 23:</p>
 
 <blockquote>
@@ -158,6 +177,14 @@
  <span class="bp">True</span> 
 <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39; &#39;</span><span class="p">)</span>
  <span class="bp">True</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">[])</span>                                                                                                                                                                                                                                           
+ <span class="bp">False</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;list&#39;</span><span class="p">])</span>
+ <span class="bp">True</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">{})</span>                                                                                                                                                                                                                                           
+ <span class="bp">False</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;key&#39;</span><span class="p">:</span> <span class="s">&#39;value&#39;</span><span class="p">})</span>                                                                                                                                                                                                                             
+ <span class="bp">True</span> 
 </code></pre></div>
 
 
@@ -174,6 +201,14 @@
 <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39;abc&#39;</span><span class="p">)</span>
  <span class="bp">True</span> 
 <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39; &#39;</span><span class="p">)</span>
+ <span class="bp">True</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">[])</span>
+ <span class="bp">False</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;list&#39;</span><span class="p">])</span>
+ <span class="bp">True</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">{})</span>
+ <span class="bp">False</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;key&#39;</span><span class="p">:</span> <span class="s">&#39;value&#39;</span><span class="p">})</span>
  <span class="bp">True</span> 
 </code></pre></div>
 </p>
