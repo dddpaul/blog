@@ -70,6 +70,10 @@ abc
 []
 >>> print tmpl.render(var=['list'])
 ['list']
+>>> print tmpl.render(var={})
+{}
+>>> print tmpl.render(var={'key': 'value'})
+{'key': 'value'}
 {{< /highlight >}}
 
 Without ```default``` filter:
@@ -90,6 +94,10 @@ abc
 []
 >>> print tmpl.render(var=['list'])
 ['list']
+>>> print tmpl.render(var={})
+{}
+>>> print tmpl.render(var={'key': 'value'})
+{'key': 'value'}
 {{< /highlight >}}
 
 Pretty same, eh?
@@ -101,7 +109,7 @@ With ```default``` filter:
 from jinja2 import Template
 from ansible.runner.filter_plugins.core import bool
 Template('').environment.filters['bool'] = bool
-tmpl = Template('{{ str | d() | bool }}')
+tmpl = Template('{{ var | d() | bool }}')
 >>> print tmpl.render()
 False
 >>> print tmpl.render(var=None)
@@ -117,6 +125,10 @@ True
 >>> print tmpl.render(var=[])
 False
 >>> print tmpl.render(var=['list'])
+False
+>>> print tmpl.render(var={})
+False
+>>> print tmpl.render(var={'key': 'value'})
 False
 {{< /highlight >}}
 
@@ -125,7 +137,7 @@ Without ```default``` filter:
 from jinja2 import Template
 from ansible.runner.filter_plugins.core import bool
 Template('').environment.filters['bool'] = bool
-tmpl = Template('{{ str | bool }}')
+tmpl = Template('{{ var | bool }}')
 >>> print tmpl.render()
 False
 >>> print tmpl.render(var=None)
@@ -142,15 +154,22 @@ True
 False
 >>> print tmpl.render(var=['list'])
 False
+>>> print tmpl.render(var={})
+False
+>>> print tmpl.render(var={'key': 'value'})
+False
 {{< /highlight >}}
 
 Pretty same again. So, it seems that ```default()``` or ```d()``` usage in conditions has no sense at all.
 
-But when using undefined variables in actual Ansible playbooks without ```default``` filter ```AnsibleUndefinedVariable``` will be thrown. **So finally, you have to use ```default``` filter to be safe.**
+There are two specific features:
+
+1. When using undefined variables in actual Ansible playbooks without ```default``` filter ```AnsibleUndefinedVariable``` will be thrown. **So finally, you have to use ```default``` filter to be safe.**
+2. Also, mention that ```bool``` filter for empty and non-empty lists and dicts evaluates to ```False```. It's followed from sources (see below).
 
 ---
 
-And what about ```bool``` filter?
+Therefore, what about ```bool``` filter?
 
 Remember ```when: docker_upstream | d() | bool```, where ```docker_upstream``` is an YAML boolean.
 

@@ -73,6 +73,14 @@ tmpl = Template('{% if var is defined and var %} True {% else %} False {% endif 
  True 
 >>> print tmpl.render(var=' ')
  True 
+>>> print tmpl.render(var=[])                                                                                                                                                                                                                                           
+ False 
+>>> print tmpl.render(var=['list'])
+ True 
+>>> print tmpl.render(var={})                                                                                                                                                                                                                                           
+ False 
+>>> print tmpl.render(var={'key': 'value'})                                                                                                                                                                                                                             
+ True 
 {{< /highlight >}}
 
 And the short version — ```var```:
@@ -89,6 +97,14 @@ tmpl = Template('{% if var %} True {% else %} False {% endif %}')
 >>> print tmpl.render(var='abc')
  True 
 >>> print tmpl.render(var=' ')
+ True 
+>>> print tmpl.render(var=[])
+ False 
+>>> print tmpl.render(var=['list'])
+ True 
+>>> print tmpl.render(var={})
+ False 
+>>> print tmpl.render(var={'key': 'value'})
  True 
 {{< /highlight >}}
 
