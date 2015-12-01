@@ -210,7 +210,7 @@
 
 &lt;p&gt;For sequences, (strings, lists, tuples), use the fact that &lt;strong&gt;empty sequences are false&lt;/strong&gt;.&lt;/p&gt;
 
-&lt;p&gt;The following values are considered false: any empty mapping, for example, &lt;code&gt;{}&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;The following values are considered false: any empty mapping, for example, &lt;code&gt;{}&lt;/code&gt;.&lt;/p&gt;
 &lt;/blockquote&gt;
 
 &lt;p&gt;But for booleans you have to use &lt;code&gt;bool&lt;/code&gt; filter — &lt;code&gt;when: docker_upstream | d() | bool&lt;/code&gt;, because &lt;code&gt;when: docker_upstream | d()&lt;/code&gt; results in &lt;code&gt;True&lt;/code&gt; even if &lt;code&gt;docker_upstream&lt;/code&gt; is &lt;code&gt;False&lt;/code&gt;.&lt;/p&gt;

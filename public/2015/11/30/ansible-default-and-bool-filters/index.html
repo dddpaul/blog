@@ -281,7 +281,7 @@
 
 <p>For sequences, (strings, lists, tuples), use the fact that <strong>empty sequences are false</strong>.</p>
 
-<p>The following values are considered false: any empty mapping, for example, <code>{}</code></p>
+<p>The following values are considered false: any empty mapping, for example, <code>{}</code>.</p>
 </blockquote>
 
 <p>But for booleans you have to use <code>bool</code> filter — <code>when: docker_upstream | d() | bool</code>, because <code>when: docker_upstream | d()</code> results in <code>True</code> even if <code>docker_upstream</code> is <code>False</code>.</p>
