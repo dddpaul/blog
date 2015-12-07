@@ -23,4 +23,4 @@ pygmentsuseclasses = true
     url ="http://github.com/dddpaul"
 [[menu.main]]
     name = "RSS"
-    url = "index.xml"
+    url = "/index.xml"
