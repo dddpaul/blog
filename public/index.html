@@ -87,6 +87,144 @@
         
         <div class="post">
             <h1 class="post-title">
+                <a href="https://dddpaul.github.io/blog/2015/12/21/spring-boot-uri-encoding/">
+                    Different URI encodings for one Tomcat-based application
+                </a>
+            </h1>
+
+            <span class="post-date">2015-12-21</span>
+
+            
+
+<p>There some cases when you would like to map different URI encodings on different HTTP endpoints. And one of those cases is when your application handles GET requests containing <a href="https://en.wikipedia.org/wiki/Percent-encoding">percent-encoded</a> non-ASCII data in different charsets. For example, one HTTP endpoint uses standard UTF-8 while the other uses <a href="https://en.wikipedia.org/wiki/Windows-1251">Windows-1251</a>.</p>
+
+<h2 id="plain-tomcat-way:9095423fd9c5e41ee9033ec52da6bac6">Plain Tomcat way</h2>
+
+<p>According to <a href="http://wiki.apache.org/tomcat/FAQ/CharacterEncoding#Q2">How do I change how GET parameters are interpreted?</a> the only way to specify GET request encoding is to use by-connector <code>URIEncoding</code> attribute. For example:</p>
+
+<pre><code class="language-xml"> &lt;Connector port=&quot;8081&quot; URIEncoding=&quot;utf-8&quot;/&gt;
+ &lt;Connector port=&quot;8082&quot; URIEncoding=&quot;cp1251&quot;/&gt;
+</code></pre>
+
+<p>Then you have map servlets to different connectors somehow.</p>
+
+<h2 id="spring-boot-multiple-http-connectors-way:9095423fd9c5e41ee9033ec52da6bac6">Spring Boot Multiple HTTP connectors way</h2>
+
+<p>Spring Boot can help you out in this matter. Although it uses the only one URI encoding which is specified in <code>server.tomcat.uri-encoding</code> parameter (&ldquo;UTF-8&rdquo; by default, see <a href="http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html">Appendix A. Common application properties</a>), it can fire up multiple child applications residing on different ports.</p>
+
+<p>Implementation is really simple as you can see from <a href="https://github.com/dddpaul/spring-boot-connectors/blob/master/src/main/java/com/github/dddpaul/connectors/Application.java">Spring Boot Connectors application</a>.</p>
+
+<p>Pros:</p>
+
+<ul>
+<li>no hacks and workarounds, pure Spring Boot solution :)</li>
+<li>controller unit tests are passed.</li>
+</ul>
+
+<p>Cons:</p>
+
+<ul>
+<li>some mess with controllers mappings;</li>
+<li>integration tests (with full context initialization) are failed on non-ASCII requests; in fact, you have no option to point which connector are used in test;</li>
+<li>say bye-bye to Spring Boot actuators, you&rsquo;ll have to use some workarounds to plug them in.<br /></li>
+</ul>
+
+<p>Links:</p>
+
+<ul>
+<li><a href="http://stackoverflow.com/questions/26111050/spring-boot-how-can-i-add-tomcat-connectors-to-bind-to-controller">Spring-Boot : How can I add tomcat connectors to bind to controller</a></li>
+<li><a href="https://github.com/dddpaul/spring-boot-connectors">Multiple HTTP connectors in Spring Boot example</a></li>
+</ul>
+
+<h2 id="nginx-lua-way:9095423fd9c5e41ee9033ec52da6bac6">Nginx+Lua way</h2>
+
+<p>Nginx being built with <a href="https://github.com/openresty/lua-nginx-module">Lua module</a> becomes a very fast non-blocking application server. They even have a <a href="http://leafo.net/lapis/">framework</a>! So the URI re-encode it&rsquo;s a quite an easy task to solve.</p>
+
+<p>It&rsquo;s a more complicated way, but if you already use <a href="http://nginx.org/">Nginx</a> as a reverse proxy server / balancer / HTTPS terminator in front of or Java application — why not?</p>
+
+<p>Because of it&rsquo;s verbosity this method will be described in <a href="No page found with path or logical name "posts/nginx-lua-uri-reencode.md".
+">separate article</a>.</p>
+
+<h2 id="java-hackish-way:9095423fd9c5e41ee9033ec52da6bac6">Java hackish way</h2>
+
+<p>The idea is the same — url-decode GET-request values, convert to proper encoding and url-encode. At this time it&rsquo;s achieved by using private API of <a href="https://tomcat.apache.org/tomcat-8.0-doc/api/org/apache/coyote/Request.html">org.apache.coyote.Request</a> class to decode query string conditionally.</p>
+
+<p>Implementation is quite simple as you can see from <a href="https://github.com/dddpaul/spring-boot-filters/blob/master/src/main/java/com/github/dddpaul/filters/Application.java">Spring Boot Filters application</a>.</p>
+
+<p>URIs are re-encoded in servlet filter:</p>
+
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="kd">static</span> <span class="kd">class</span> <span class="nc">CoyoteRequestManipulator</span> <span class="kd">extends</span> <span class="n">OncePerRequestFilter</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="kd">static</span> <span class="n">Field</span> <span class="nf">getField</span><span class="o">(</span><span class="n">Class</span> <span class="n">clazz</span><span class="o">,</span> <span class="n">String</span> <span class="n">fieldName</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">NoSuchFieldException</span> <span class="o">{</span>
+        <span class="o">...</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">doFilterInternal</span><span class="o">(</span><span class="n">HttpServletRequest</span> <span class="n">request</span><span class="o">,</span> <span class="n">HttpServletResponse</span> <span class="n">response</span><span class="o">,</span>
+                                    <span class="n">FilterChain</span> <span class="n">chain</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">ServletException</span><span class="o">,</span> <span class="n">IOException</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">hasText</span><span class="o">(</span><span class="n">request</span><span class="o">.</span><span class="na">getQueryString</span><span class="o">())</span> <span class="o">&amp;&amp;</span> <span class="n">request</span><span class="o">.</span><span class="na">getQueryString</span><span class="o">().</span><span class="na">contains</span><span class="o">(</span><span class="s">&quot;%&quot;</span><span class="o">))</span> <span class="o">{</span>
+            <span class="n">RequestFacade</span> <span class="n">facade</span> <span class="o">=</span> <span class="o">(</span><span class="n">RequestFacade</span><span class="o">)</span> <span class="n">request</span><span class="o">;</span>
+            <span class="k">try</span> <span class="o">{</span>
+                <span class="c1">// First hack is to get org.apache.coyote.Request instance</span>
+                <span class="n">Field</span> <span class="n">requestField</span> <span class="o">=</span> <span class="n">getField</span><span class="o">(</span><span class="n">RequestFacade</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="s">&quot;request&quot;</span><span class="o">);</span>
+                <span class="n">requestField</span><span class="o">.</span><span class="na">setAccessible</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+                <span class="n">Request</span> <span class="n">connRequest</span> <span class="o">=</span> <span class="o">(</span><span class="n">Request</span><span class="o">)</span> <span class="n">requestField</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">facade</span><span class="o">);</span>
+                <span class="n">org</span><span class="o">.</span><span class="na">apache</span><span class="o">.</span><span class="na">coyote</span><span class="o">.</span><span class="na">Request</span> <span class="n">coyoteRequest</span> <span class="o">=</span> <span class="n">connRequest</span><span class="o">.</span><span class="na">getCoyoteRequest</span><span class="o">();</span>
+
+                <span class="c1">// But it&#39;s already filled with decoded query parameters, so query string has</span>
+                <span class="c1">// to be re-handled after URI encoding switch. So, in fact, query string is</span>
+                <span class="c1">// processed twice. Yet, org.apache.coyote.Request instances are reusable,</span>
+                <span class="c1">// so query encoding has to set every time.</span>
+                <span class="n">Parameters</span> <span class="n">parameters</span> <span class="o">=</span> <span class="n">coyoteRequest</span><span class="o">.</span><span class="na">getParameters</span><span class="o">();</span>
+                <span class="n">parameters</span><span class="o">.</span><span class="na">setQueryStringEncoding</span><span class="o">(</span><span class="n">request</span><span class="o">.</span><span class="na">getServletPath</span><span class="o">().</span><span class="na">startsWith</span><span class="o">(</span><span class="s">&quot;/two&quot;</span><span class="o">)</span>
+                        <span class="o">?</span> <span class="s">&quot;cp1251&quot;</span> <span class="o">:</span> <span class="s">&quot;utf-8&quot;</span><span class="o">);</span>
+                <span class="n">parameters</span><span class="o">.</span><span class="na">recycle</span><span class="o">();</span>
+                <span class="n">parameters</span><span class="o">.</span><span class="na">handleQueryParameters</span><span class="o">();</span>
+            <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+        <span class="n">chain</span><span class="o">.</span><span class="na">doFilter</span><span class="o">(</span><span class="n">request</span><span class="o">,</span> <span class="n">response</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div>
+
+
+<p>Pros:</p>
+
+<ul>
+<li>no multiple connectors, listen on single port;</li>
+<li>no recompiled Nginx stuff - just Java;</li>
+<li>controller unit tests are passed;</li>
+<li>integration tests are passed.</li>
+</ul>
+
+<p>Cons:</p>
+
+<ul>
+<li>reflection and private API usage :)</li>
+<li>query string could be handled twice.</li>
+</ul>
+
+<p>Links:</p>
+
+<ul>
+<li><a href="https://github.com/dddpaul/spring-boot-filters">Spring Boot filter examples</a></li>
+</ul>
+
+<h2 id="the-other-way:9095423fd9c5e41ee9033ec52da6bac6">The other way</h2>
+
+<p>Use the microservices, Luke! But for their simplicity and scalability you have pay with massive infrastructure changes. See the following articles for consideration:</p>
+
+<ul>
+<li><a href="http://www.kennybastani.com/2015/07/spring-cloud-docker-microservices.html">Building Microservices with Spring Cloud and Docker</a></li>
+<li><a href="http://technologyconversations.com/2015/07/02/scaling-to-infinity-with-docker-swarm-docker-compose-and-consul-part-14-a-taste-of-what-is-to-come/">Scaling To Infinity with Docker Swarm, Docker Compose and Consul</a></li>
+<li><a href="http://technologyconversations.com/2015/11/25/deploying-containers-with-docker-swarm-and-docker-networking/">Deploying Containers with Docker Swarm and Docker Networking</a></li>
+</ul>
+
+        </div>
+        
+        <div class="post">
+            <h1 class="post-title">
                 <a href="https://dddpaul.github.io/blog/2015/11/30/ansible-default-and-bool-filters/">
                     Ansible: &#34;default&#34; and &#34;bool&#34; filters
                 </a>
@@ -894,73 +1032,6 @@ DEBUG 23601 --- [lication.main()] o.s.c.e.PropertySourcesPropertyResolver  : Sea
 </p>
 
 <p>Listener will be terminated and PORT will be freed.</p>
-
-        </div>
-        
-        <div class="post">
-            <h1 class="post-title">
-                <a href="https://dddpaul.github.io/blog/2015/01/17/memory-leaks-articles/">
-                    List of memory leaks articles
-                </a>
-            </h1>
-
-            <span class="post-date">2015-01-17</span>
-
-            <p>&ldquo;Solving OutOfMemoryError&rdquo; series from Nikita Salnikov-Tarnovsky and Vladimir Šor:</p>
-
-<ul>
-<li><a href="https://plumbr.eu/blog/solving-outofmemoryerror-story-of-a-developer">Solving OutOfMemoryError (part 1) – story of a developer</a></li>
-<li><a href="https://plumbr.eu/blog/solving-outofmemoryerror-why-didnt-operations-solve-it">Solving OutOfMemoryError (part 2) – why didn’t operations solve it?</a></li>
-<li><a href="https://plumbr.eu/blog/solving-outofmemoryerror-where-do-you-start">Solving OutOfMemoryError (part 3) – where do you start?</a></li>
-<li><a href="https://plumbr.eu/blog/solving-outofmemoryerror-memory-profilers">Solving OutOfMemoryError (part 4) – memory profilers</a></li>
-<li><a href="https://plumbr.eu/blog/solving-outofmemoryerror-jdk-tools">Solving OutOfMemoryError (part 5) – JDK Tools</a></li>
-<li><a href="https://plumbr.eu/blog/solving-outofmemoryerror-dump-is-not-a-waste">Solving OutOfMemoryError (part 6) – Dump is not a waste</a></li>
-</ul>
-
-<hr />
-
-<p>&ldquo;Classloader leaks&rdquo; series from Mattias Jiderhamn:</p>
-
-<ul>
-<li><a href="http://java.jiderhamn.se/2011/12/11/classloader-leaks-i-how-to-find-classloader-leaks-with-eclipse-memory-analyser-mat/">Classloader leaks I – How to find classloader leaks with Eclipse Memory Analyser (MAT)</a></li>
-<li><a href="http://java.jiderhamn.se/2012/01/01/classloader-leaks-ii-find-and-work-around-unwanted-references/">Classloader leaks II – Find and work around unwanted references</a></li>
-<li><a href="http://java.jiderhamn.se/2012/01/15/classloader-leaks-iii-die-thread-die/">Classloader leaks III – “Die Thread, die!”</a></li>
-<li><a href="http://java.jiderhamn.se/2012/01/29/classloader-leaks-iv-threadlocal-dangers-and-why-threadglobal-may-have-been-a-more-appropriate-name/">Classloader leaks IV – ThreadLocal dangers and why ThreadGlobal may have been a more appropriate name</a></li>
-<li><a href="http://java.jiderhamn.se/2012/02/26/classloader-leaks-v-common-mistakes-and-known-offenders/">Classloader leaks V – Common mistakes and Known offenders</a></li>
-<li><a href="http://java.jiderhamn.se/2012/03/04/classloader-leaks-vi-this-means-war-leak-prevention-library/">Classloader leaks VI – “This means war!” (leak prevention library)</a></li>
-</ul>
-
-<p>Object, class and classloader relationships are illustrated by this graph from <a href="https://plumbr.eu/blog/what-is-a-permgen-leak">What is a PermGen leak?</a> article.</p>
-
-
-<img src='https://dddpaul.github.io/blog//media/object-class-classloader.png'/>
-
-
-<hr />
-
-<p>Tomcat specific articles:</p>
-
-<ul>
-<li><a href="http://java.dzone.com/articles/memory-leak-protection-tomcat">Memory Leak Protection in Tomcat 7</a></li>
-<li><a href="http://wiki.apache.org/tomcat/MemoryLeakProtection">Tomcat Wiki - MemoryLeakProtection</a></li>
-</ul>
-
-<hr />
-
-<p>Other articles:</p>
-
-<ul>
-<li><a href="https://plumbr.eu/blog/what-is-a-memory-leak">What is a memory leak?</a></li>
-<li><a href="https://plumbr.eu/blog/what-is-a-permgen-leak">What is a PermGen leak?</a></li>
-<li><a href="https://plumbr.eu/permgen">The Guide to Solving Permgen Leaks</a></li>
-<li><a href="http://frankkieviet.blogspot.se/2006/10/classloader-leaks-dreaded-permgen-space.html">Classloader leaks: the dreaded &ldquo;java.lang.OutOfMemoryError: PermGen space&rdquo; exception</a></li>
-</ul>
-
-<hr />
-
-<p>And the summary:</p>
-
-<p><em>The memory leak is caused by objects that live longer than expected.</em></p>
 
         </div>
         

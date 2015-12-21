@@ -6,8 +6,143 @@
     <description>Recent content in Posts on Dev notes</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 30 Nov 2015 10:45:00 +0300</lastBuildDate>
+    <lastBuildDate>Mon, 21 Dec 2015 18:45:00 +0300</lastBuildDate>
     <atom:link href="https://dddpaul.github.io/blog/posts/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Different URI encodings for one Tomcat-based application</title>
+      <link>https://dddpaul.github.io/blog/2015/12/21/spring-boot-uri-encoding/</link>
+      <pubDate>Mon, 21 Dec 2015 18:45:00 +0300</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2015/12/21/spring-boot-uri-encoding/</guid>
+      <description>
+
+&lt;p&gt;There some cases when you would like to map different URI encodings on different HTTP endpoints. And one of those cases is when your application handles GET requests containing &lt;a href=&#34;https://en.wikipedia.org/wiki/Percent-encoding&#34;&gt;percent-encoded&lt;/a&gt; non-ASCII data in different charsets. For example, one HTTP endpoint uses standard UTF-8 while the other uses &lt;a href=&#34;https://en.wikipedia.org/wiki/Windows-1251&#34;&gt;Windows-1251&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&#34;plain-tomcat-way:9095423fd9c5e41ee9033ec52da6bac6&#34;&gt;Plain Tomcat way&lt;/h2&gt;
+
+&lt;p&gt;According to &lt;a href=&#34;http://wiki.apache.org/tomcat/FAQ/CharacterEncoding#Q2&#34;&gt;How do I change how GET parameters are interpreted?&lt;/a&gt; the only way to specify GET request encoding is to use by-connector &lt;code&gt;URIEncoding&lt;/code&gt; attribute. For example:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-xml&#34;&gt; &amp;lt;Connector port=&amp;quot;8081&amp;quot; URIEncoding=&amp;quot;utf-8&amp;quot;/&amp;gt;
+ &amp;lt;Connector port=&amp;quot;8082&amp;quot; URIEncoding=&amp;quot;cp1251&amp;quot;/&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Then you have map servlets to different connectors somehow.&lt;/p&gt;
+
+&lt;h2 id=&#34;spring-boot-multiple-http-connectors-way:9095423fd9c5e41ee9033ec52da6bac6&#34;&gt;Spring Boot Multiple HTTP connectors way&lt;/h2&gt;
+
+&lt;p&gt;Spring Boot can help you out in this matter. Although it uses the only one URI encoding which is specified in &lt;code&gt;server.tomcat.uri-encoding&lt;/code&gt; parameter (&amp;ldquo;UTF-8&amp;rdquo; by default, see &lt;a href=&#34;http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html&#34;&gt;Appendix A. Common application properties&lt;/a&gt;), it can fire up multiple child applications residing on different ports.&lt;/p&gt;
+
+&lt;p&gt;Implementation is really simple as you can see from &lt;a href=&#34;https://github.com/dddpaul/spring-boot-connectors/blob/master/src/main/java/com/github/dddpaul/connectors/Application.java&#34;&gt;Spring Boot Connectors application&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Pros:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;no hacks and workarounds, pure Spring Boot solution :)&lt;/li&gt;
+&lt;li&gt;controller unit tests are passed.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Cons:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;some mess with controllers mappings;&lt;/li&gt;
+&lt;li&gt;integration tests (with full context initialization) are failed on non-ASCII requests; in fact, you have no option to point which connector are used in test;&lt;/li&gt;
+&lt;li&gt;say bye-bye to Spring Boot actuators, you&amp;rsquo;ll have to use some workarounds to plug them in.&lt;br /&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Links:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://stackoverflow.com/questions/26111050/spring-boot-how-can-i-add-tomcat-connectors-to-bind-to-controller&#34;&gt;Spring-Boot : How can I add tomcat connectors to bind to controller&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/dddpaul/spring-boot-connectors&#34;&gt;Multiple HTTP connectors in Spring Boot example&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;nginx-lua-way:9095423fd9c5e41ee9033ec52da6bac6&#34;&gt;Nginx+Lua way&lt;/h2&gt;
+
+&lt;p&gt;Nginx being built with &lt;a href=&#34;https://github.com/openresty/lua-nginx-module&#34;&gt;Lua module&lt;/a&gt; becomes a very fast non-blocking application server. They even have a &lt;a href=&#34;http://leafo.net/lapis/&#34;&gt;framework&lt;/a&gt;! So the URI re-encode it&amp;rsquo;s a quite an easy task to solve.&lt;/p&gt;
+
+&lt;p&gt;It&amp;rsquo;s a more complicated way, but if you already use &lt;a href=&#34;http://nginx.org/&#34;&gt;Nginx&lt;/a&gt; as a reverse proxy server / balancer / HTTPS terminator in front of or Java application — why not?&lt;/p&gt;
+
+&lt;p&gt;Because of it&amp;rsquo;s verbosity this method will be described in &lt;a href=&#34;No page found with path or logical name &#34;posts/nginx-lua-uri-reencode.md&#34;.
+&#34;&gt;separate article&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&#34;java-hackish-way:9095423fd9c5e41ee9033ec52da6bac6&#34;&gt;Java hackish way&lt;/h2&gt;
+
+&lt;p&gt;The idea is the same — url-decode GET-request values, convert to proper encoding and url-encode. At this time it&amp;rsquo;s achieved by using private API of &lt;a href=&#34;https://tomcat.apache.org/tomcat-8.0-doc/api/org/apache/coyote/Request.html&#34;&gt;org.apache.coyote.Request&lt;/a&gt; class to decode query string conditionally.&lt;/p&gt;
+
+&lt;p&gt;Implementation is quite simple as you can see from &lt;a href=&#34;https://github.com/dddpaul/spring-boot-filters/blob/master/src/main/java/com/github/dddpaul/filters/Application.java&#34;&gt;Spring Boot Filters application&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;URIs are re-encoded in servlet filter:&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span class=&#34;kd&#34;&gt;static&lt;/span&gt; &lt;span class=&#34;kd&#34;&gt;class&lt;/span&gt; &lt;span class=&#34;nc&#34;&gt;CoyoteRequestManipulator&lt;/span&gt; &lt;span class=&#34;kd&#34;&gt;extends&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;OncePerRequestFilter&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+    &lt;span class=&#34;kd&#34;&gt;private&lt;/span&gt; &lt;span class=&#34;kd&#34;&gt;static&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Field&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;getField&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;Class&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;clazz&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;String&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;fieldName&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;kd&#34;&gt;throws&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;NoSuchFieldException&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+        &lt;span class=&#34;o&#34;&gt;...&lt;/span&gt;
+    &lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+
+    &lt;span class=&#34;nd&#34;&gt;@Override&lt;/span&gt;
+    &lt;span class=&#34;kd&#34;&gt;protected&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;doFilterInternal&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;HttpServletRequest&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;request&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;HttpServletResponse&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;response&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt;
+                                    &lt;span class=&#34;n&#34;&gt;FilterChain&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;chain&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;kd&#34;&gt;throws&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ServletException&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;IOException&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;hasText&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;request&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;getQueryString&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;())&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;request&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;getQueryString&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;().&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;contains&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;%&amp;quot;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;))&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+            &lt;span class=&#34;n&#34;&gt;RequestFacade&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;facade&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;RequestFacade&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;request&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;;&lt;/span&gt;
+            &lt;span class=&#34;k&#34;&gt;try&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+                &lt;span class=&#34;c1&#34;&gt;// First hack is to get org.apache.coyote.Request instance&lt;/span&gt;
+                &lt;span class=&#34;n&#34;&gt;Field&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;requestField&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;getField&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;RequestFacade&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;class&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;quot;request&amp;quot;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+                &lt;span class=&#34;n&#34;&gt;requestField&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;setAccessible&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kc&#34;&gt;true&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+                &lt;span class=&#34;n&#34;&gt;Request&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;connRequest&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;Request&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;requestField&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;get&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;facade&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+                &lt;span class=&#34;n&#34;&gt;org&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;apache&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;coyote&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;Request&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;coyoteRequest&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;connRequest&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;getCoyoteRequest&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;();&lt;/span&gt;
+
+                &lt;span class=&#34;c1&#34;&gt;// But it&amp;#39;s already filled with decoded query parameters, so query string has&lt;/span&gt;
+                &lt;span class=&#34;c1&#34;&gt;// to be re-handled after URI encoding switch. So, in fact, query string is&lt;/span&gt;
+                &lt;span class=&#34;c1&#34;&gt;// processed twice. Yet, org.apache.coyote.Request instances are reusable,&lt;/span&gt;
+                &lt;span class=&#34;c1&#34;&gt;// so query encoding has to set every time.&lt;/span&gt;
+                &lt;span class=&#34;n&#34;&gt;Parameters&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;parameters&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;coyoteRequest&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;getParameters&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;();&lt;/span&gt;
+                &lt;span class=&#34;n&#34;&gt;parameters&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;setQueryStringEncoding&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;request&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;getServletPath&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;().&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;startsWith&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;/two&amp;quot;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
+                        &lt;span class=&#34;o&#34;&gt;?&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;quot;cp1251&amp;quot;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;quot;utf-8&amp;quot;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+                &lt;span class=&#34;n&#34;&gt;parameters&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;recycle&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;();&lt;/span&gt;
+                &lt;span class=&#34;n&#34;&gt;parameters&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;handleQueryParameters&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;();&lt;/span&gt;
+            &lt;span class=&#34;o&#34;&gt;}&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;catch&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;Exception&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;e&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+                &lt;span class=&#34;n&#34;&gt;e&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;printStackTrace&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;();&lt;/span&gt;
+            &lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+        &lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+        &lt;span class=&#34;n&#34;&gt;chain&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;doFilter&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;request&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;response&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+    &lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Pros:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;no multiple connectors, listen on single port;&lt;/li&gt;
+&lt;li&gt;no recompiled Nginx stuff - just Java;&lt;/li&gt;
+&lt;li&gt;controller unit tests are passed;&lt;/li&gt;
+&lt;li&gt;integration tests are passed.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Cons:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;reflection and private API usage :)&lt;/li&gt;
+&lt;li&gt;query string could be handled twice.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Links:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/dddpaul/spring-boot-filters&#34;&gt;Spring Boot filter examples&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;the-other-way:9095423fd9c5e41ee9033ec52da6bac6&#34;&gt;The other way&lt;/h2&gt;
+
+&lt;p&gt;Use the microservices, Luke! But for their simplicity and scalability you have pay with massive infrastructure changes. See the following articles for consideration:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.kennybastani.com/2015/07/spring-cloud-docker-microservices.html&#34;&gt;Building Microservices with Spring Cloud and Docker&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://technologyconversations.com/2015/07/02/scaling-to-infinity-with-docker-swarm-docker-compose-and-consul-part-14-a-taste-of-what-is-to-come/&#34;&gt;Scaling To Infinity with Docker Swarm, Docker Compose and Consul&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://technologyconversations.com/2015/11/25/deploying-containers-with-docker-swarm-and-docker-networking/&#34;&gt;Deploying Containers with Docker Swarm and Docker Networking&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
     
     <item>
       <title>Ansible: &#34;default&#34; and &#34;bool&#34; filters</title>
@@ -1102,49 +1237,6 @@ CMD [&amp;quot;/sbin/my_init&amp;quot;]
 &lt;hr /&gt;
 
 &lt;p&gt;It&amp;rsquo;s really works :)&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Java Memory Model in few words</title>
-      <link>https://dddpaul.github.io/blog/2014/12/06/jmm-1/</link>
-      <pubDate>Sat, 06 Dec 2014 18:33:46 +0000</pubDate>
-      
-      <guid>https://dddpaul.github.io/blog/2014/12/06/jmm-1/</guid>
-      <description>&lt;p&gt;This article is mostly consist of quotes from &lt;a href=&#34;http://www.manning.com/evans/&#34;&gt;The Well-Grounded Java Developer&lt;/a&gt; by Benjamin J. Evans and Martijn Verburg. I like simplicity and brevity of their explanation approach.&lt;/p&gt;
-
-&lt;p&gt;And that&amp;rsquo;s how &lt;em&gt;Happens-Before&lt;/em&gt; and &lt;em&gt;Synchronizes-With&lt;/em&gt; relationships are explained.&lt;/p&gt;
-
-&lt;hr /&gt;
-
-&lt;ul&gt;
-&lt;li&gt;Happens-Before — This relationship indicates that one block of code fully completes before the other can start.&lt;/li&gt;
-&lt;li&gt;Synchronizes-With — This means that an action will synchronize its view of an object with main memory before continuing.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;The JMM has these main rules:&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;An unlock operation on a monitor &lt;em&gt;Synchronizes-With&lt;/em&gt; later lock operations.&lt;/li&gt;
-&lt;li&gt;A write to a volatile variable &lt;em&gt;Synchronizes-With&lt;/em&gt; later reads of the variable.&lt;/li&gt;
-&lt;li&gt;If an action A &lt;em&gt;Synchronizes-With&lt;/em&gt; action B, then A &lt;em&gt;Happens-Before&lt;/em&gt; B.&lt;/li&gt;
-&lt;li&gt;If A comes before B in program order, within a thread, then A &lt;em&gt;Happens-Before&lt;/em&gt; B.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;The general statement of the first two rules is that &lt;em&gt;&amp;ldquo;releases happen before acquires&amp;rdquo;&lt;/em&gt;. In other words, the locks that a thread holds when writing are released before the locks can be acquired by other operations (including reads).&lt;/p&gt;
-
-&lt;p&gt;There are additional rules, which are really about sensible behavior:&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;The completion of a constructor &lt;em&gt;Happens-Before&lt;/em&gt; the finalizer for that object starts to run (an object has to be fully constructed before it can be finalized).&lt;/li&gt;
-&lt;li&gt;An action that starts a thread &lt;em&gt;Synchronizes-With&lt;/em&gt; the first action of the new thread.&lt;/li&gt;
-&lt;li&gt;Thread.join() &lt;em&gt;Synchronizes-With&lt;/em&gt; the last (and all other) actions in the thread being joined.&lt;/li&gt;
-&lt;li&gt;If X &lt;em&gt;Happens-Before&lt;/em&gt; Y and Y &lt;em&gt;Happens-Before&lt;/em&gt; Z then X &lt;em&gt;Happens-Before&lt;/em&gt; Z (transitivity).&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;hr /&gt;
-
-&lt;p&gt;They even have granted free access to entire &lt;a href=&#34;http://www.manning.com/evans/TWGJD_sample_ch04.pdf&#34;&gt;Chapter 4. Modern concurrency&lt;/a&gt;. Although I&amp;rsquo;m not relish with the code style (using trailing underscore to emphasize method parameters - why?) this chapter definitely deserves to read it.&lt;/p&gt;
 </description>
     </item>
     
