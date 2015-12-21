@@ -19,7 +19,7 @@ According to [How do I change how GET parameters are interpreted?](http://wiki.a
 
 Then you have map servlets to different connectors somehow.
 
-## Spring Boot Multiple HTTP connectors way 
+## Spring Boot multiple HTTP connectors way 
 
 Spring Boot can help you out in this matter. Although it uses the only one URI encoding which is specified in `server.tomcat.uri-encoding` parameter ("UTF-8" by default, see [Appendix A. Common application properties](http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html)), it can fire up multiple child applications residing on different ports.
 

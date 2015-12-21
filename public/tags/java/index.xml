@@ -29,7 +29,7 @@
 
 &lt;p&gt;Then you have map servlets to different connectors somehow.&lt;/p&gt;
 
-&lt;h2 id=&#34;spring-boot-multiple-http-connectors-way:9095423fd9c5e41ee9033ec52da6bac6&#34;&gt;Spring Boot Multiple HTTP connectors way&lt;/h2&gt;
+&lt;h2 id=&#34;spring-boot-multiple-http-connectors-way:9095423fd9c5e41ee9033ec52da6bac6&#34;&gt;Spring Boot multiple HTTP connectors way&lt;/h2&gt;
 
 &lt;p&gt;Spring Boot can help you out in this matter. Although it uses the only one URI encoding which is specified in &lt;code&gt;server.tomcat.uri-encoding&lt;/code&gt; parameter (&amp;ldquo;UTF-8&amp;rdquo; by default, see &lt;a href=&#34;http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html&#34;&gt;Appendix A. Common application properties&lt;/a&gt;), it can fire up multiple child applications residing on different ports.&lt;/p&gt;
 
