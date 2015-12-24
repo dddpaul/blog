@@ -134,8 +134,71 @@
 
 <p>It&rsquo;s a more complicated way, but if you already use <a href="http://nginx.org/">Nginx</a> as a reverse proxy server / balancer / HTTPS terminator in front of or Java application — why not?</p>
 
-<p>Because of it&rsquo;s verbosity this method will be described in <a href="No page found with path or logical name "posts/nginx-lua-uri-reencode.md".
-">separate article</a>.</p>
+<p>Nginx build options, functions and configuration file example can be found in <a href="https://github.com/dddpaul/docker-nginx">docker-nginx</a> project. <a href="https://github.com/dddpaul/docker-nginx/blob/master/lua/functions.lua">Function</a> to convert encoding:</p>
+
+<div class="highlight"><pre><code class="language-lua" data-lang="lua"><span class="k">function</span> <span class="nc">M</span><span class="p">.</span><span class="nf">iconv</span><span class="p">(</span><span class="n">cd</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="k">in</span> <span class="nb">pairs</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="k">do</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="s">table&quot;</span> <span class="k">then</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="k">in</span> <span class="nb">pairs</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="k">do</span>
+                <span class="n">val</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">cd</span><span class="p">:</span><span class="n">iconv</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+            <span class="k">end</span>
+        <span class="k">else</span>
+            <span class="n">args</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">cd</span><span class="p">:</span><span class="n">iconv</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+        <span class="k">end</span>
+    <span class="k">end</span>
+    <span class="k">return</span> <span class="n">args</span>
+<span class="k">end</span>
+</code></pre></div>
+
+
+<p>It converts only URI parameter values and leaves parameter names untouched. Converting is performed by iconv C library with help of <a href="http://ittner.github.io/lua-iconv/">Lua-iconv binding</a>, so it&rsquo;s very fast.</p>
+
+<p>This Nginx config block configures Lua module, load convert function and initializes iconv:</p>
+
+<pre><code>lua_package_path '/etc/nginx/lua/?.lua;;';
+init_by_lua_block {
+    functions = require(&quot;functions&quot;)
+    iconv = require(&quot;iconv&quot;)
+    cd = iconv.new(&quot;utf8&quot;, &quot;cp1251&quot;)
+}
+</code></pre>
+
+<p>In order to re-encode URIs before proxying to Java backend use the following sample:</p>
+
+<pre><code>location /app {
+    rewrite_by_lua_block {
+        if ngx.var.args == nil then return end
+        local args = ngx.decode_args(ngx.var.args)
+        args = functions.iconv(cd, args)
+        args = ngx.encode_args(args)
+        ngx.var.args = args
+    }
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_pass http://localhost:8000;
+}
+</code></pre>
+
+<p>Pros:</p>
+
+<ul>
+<li>no multiple connectors, listen on single port;</li>
+<li>extremely fast, no performance drawback;</li>
+<li>all tests are passed.</li>
+</ul>
+
+<p>Cons:</p>
+
+<ul>
+<li>extra devops work :)</li>
+</ul>
+
+<p>Links:</p>
+
+<ul>
+<li><a href="https://github.com/dddpaul/docker-nginx">dddpaul/docker-nginx</a></li>
+<li><a href="https://github.com/openresty/lua-nginx-module">openresty/lua-nginx-module</a></li>
+<li><a href="http://ittner.github.io/lua-iconv/">Lua iconv</a></li>
+</ul>
 
 <h2 id="java-hackish-way:9095423fd9c5e41ee9033ec52da6bac6">Java hackish way</h2>
 
@@ -145,7 +208,7 @@
 
 <p>URIs are re-encoded in servlet filter:</p>
 
-<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="kd">static</span> <span class="kd">class</span> <span class="nc">CoyoteRequestManipulator</span> <span class="kd">extends</span> <span class="n">OncePerRequestFilter</span> <span class="o">{</span>
+<p><div class="highlight"><pre><code class="language-java" data-lang="java"><span class="kd">static</span> <span class="kd">class</span> <span class="nc">CoyoteRequestManipulator</span> <span class="kd">extends</span> <span class="n">OncePerRequestFilter</span> <span class="o">{</span>
     <span class="kd">private</span> <span class="kd">static</span> <span class="n">Field</span> <span class="nf">getField</span><span class="o">(</span><span class="n">Class</span> <span class="n">clazz</span><span class="o">,</span> <span class="n">String</span> <span class="n">fieldName</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">NoSuchFieldException</span> <span class="o">{</span>
         <span class="o">...</span>
     <span class="o">}</span>
@@ -179,7 +242,7 @@
     <span class="o">}</span>
 <span class="o">}</span>
 </code></pre></div>
-
+</p>
 
 <p>Pros:</p>
 
