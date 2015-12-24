@@ -47,7 +47,67 @@ Nginx being built with [Lua module](https://github.com/openresty/lua-nginx-modul
 
 It's a more complicated way, but if you already use [Nginx](http://nginx.org/) as a reverse proxy server / balancer / HTTPS terminator in front of or Java application — why not?
 
-Because of it's verbosity this method will be described in [separate article]({{< ref "posts/nginx-lua-uri-reencode.md" >}}).
+Nginx build options, functions and configuration file example can be found in [docker-nginx](https://github.com/dddpaul/docker-nginx) project. [Function](https://github.com/dddpaul/docker-nginx/blob/master/lua/functions.lua) to convert encoding: 
+
+{{< highlight lua >}}
+function M.iconv(cd, args)
+    for key, val in pairs(args) do
+        if type(val) == "table" then
+            for k, v in pairs(val) do
+                val[k] = cd:iconv(v)
+            end
+        else
+            args[key] = cd:iconv(val)
+        end
+    end
+    return args
+end
+{{< /highlight >}}
+
+It converts only URI parameter values and leaves parameter names untouched. Converting is performed by iconv C library with help of [Lua-iconv binding](http://ittner.github.io/lua-iconv/), so it's very fast.
+
+This Nginx config block configures Lua module, load convert function and initializes iconv:
+
+```
+lua_package_path '/etc/nginx/lua/?.lua;;';
+init_by_lua_block {
+    functions = require("functions")
+    iconv = require("iconv")
+    cd = iconv.new("utf8", "cp1251")
+}
+```
+
+In order to re-encode URIs before proxying to Java backend use the following sample:
+
+```
+location /app {
+    rewrite_by_lua_block {
+        if ngx.var.args == nil then return end
+        local args = ngx.decode_args(ngx.var.args)
+        args = functions.iconv(cd, args)
+        args = ngx.encode_args(args)
+        ngx.var.args = args
+    }
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_pass http://localhost:8000;
+}
+```    
+
+Pros:
+
+* no multiple connectors, listen on single port;
+* extremely fast, no performance drawback;
+* all tests are passed.
+  
+Cons:
+
+* extra devops work :)
+
+Links:
+
+* [dddpaul/docker-nginx](https://github.com/dddpaul/docker-nginx)
+* [openresty/lua-nginx-module](https://github.com/openresty/lua-nginx-module)
+* [Lua iconv](http://ittner.github.io/lua-iconv/)
 
 ## Java hackish way
 
