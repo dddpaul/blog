@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Devops on Dev notes</title>
+    <link>https://dddpaul.github.io/blog/tags/devops/</link>
+    <description>Recent content in Devops on Dev notes</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 12 Jan 2015 10:42:00 +0000</lastBuildDate>
+    <atom:link href="https://dddpaul.github.io/blog/tags/devops/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Запуск контейнеров с помощью Fig</title>
+      <link>https://dddpaul.github.io/blog/2015/01/12/docker-fig/</link>
+      <pubDate>Mon, 12 Jan 2015 10:42:00 +0000</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2015/01/12/docker-fig/</guid>
+      <description>
+
+&lt;p&gt;Это третья статья цикла 
+&lt;a href=&#39;https://dddpaul.github.io/blog//series/building-test-environments-with-docker/&#39;&gt;Building test environments with Docker&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Как мы уже убедились, запуск контейнеров с помощью &lt;code&gt;docker run&lt;/code&gt; — занятие весьма муторное, т.к. необходимо указывать множество опций. При запуске же нескольких контейнеров ситуация только ухудшается, т.к. теперь нужно задавать имена и линки.&lt;/p&gt;
+
+&lt;p&gt;Эту проблему решает инструмент &lt;a href=&#34;http://www.fig.sh/&#34;&gt;Fig&lt;/a&gt;, который может запустить/остановить целое тестовое окружение, состоящее из набора контейнеров. Описание контейнеров задано в YAML-файле. Таким образом, этот YAML-файл представляет собой конфигурацию тестового окружения.&lt;/p&gt;
+
+&lt;p&gt;Конфигурация нашего тестового окружения &lt;em&gt;test-env/fig.yml&lt;/em&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;app1:
+  image: smile/app1
+  ports: [&#39;2021:22&#39;, &#39;8081:80&#39;]
+  privileged: true
+
+app2:
+  image: smile/app2
+  ports: [&#39;2022:22&#39;, &#39;8082:80&#39;]
+  privileged: true
+
+gate:
+  image: smile/gate
+  links: [app1, app2]
+  ports: [&#39;2020:22&#39;, &#39;80:80&#39;]
+  privileged: true
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Запуск тестового окружения (находясь в каталоге с файлом &lt;em&gt;fig.yml&lt;/em&gt;): &lt;code&gt;fig up&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;По-умолчанию, Fig захватывает консоль и мультиплексирует вывод всех контейнеров. Для запуска в detached mode нужно использовать опцию &lt;code&gt;-d&lt;/code&gt;. Посмотреть вывод контейнеров в этом режиме можно с помощью команды &lt;code&gt;fig logs&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Статус тестового окружения: &lt;code&gt;fig ps&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Остановка тестового окружения: &lt;code&gt;fig stop&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;запуск-тестового-окружения-с-помощью-upstart:d4c1615d910942891ab8ffffd8a5f2e3&#34;&gt;Запуск тестового окружения с помощью Upstart&lt;/h3&gt;
+
+&lt;p&gt;Job &lt;em&gt;/etc/init/fig-test-env.conf&lt;/em&gt; создан на основе &lt;a href=&#34;https://gist.github.com/HeyImAlex/9649374&#34;&gt;HeyImAlex/fig.conf&lt;/a&gt;. Для отключения автостарта нужно закомментировать вторую строчку (&amp;ldquo;start on &amp;hellip;&amp;rdquo;).&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;description &amp;quot;Test environment runner&amp;quot;
+start on filesystem and started docker
+stop on runlevel [!2345]
+respawn
+chdir /path/to/test-env
+script
+  # Wait for docker to finish starting up first.
+  FILE=/var/run/docker.sock
+  while [ ! -e $FILE ] ; do
+    inotifywait -t 2 -e create $(dirname $FILE)
+  done
+  /usr/local/bin/fig up
+end script
+post-stop script
+ /usr/local/bin/fig stop
+end script
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Теперь можно запустить тестовое окружение из любого места командой &lt;code&gt;start fig-test-env&lt;/code&gt;, а остановить — &lt;code&gt;stop fig-test-env&lt;/code&gt;.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Связывание контейнеров</title>
+      <link>https://dddpaul.github.io/blog/2015/01/08/docker-linking/</link>
+      <pubDate>Thu, 08 Jan 2015 13:49:06 +0000</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2015/01/08/docker-linking/</guid>
+      <description>&lt;p&gt;Это вторая статья цикла 
+&lt;a href=&#39;https://dddpaul.github.io/blog//series/building-test-environments-with-docker/&#39;&gt;Building test environments with Docker&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;При создании тестовых окружений из нескольких контейнеров неизбежно возникает задача их взаимного связывания. Набивший оскомину пример: контейнеру с приложением нужен контейнер БД. В нашем же случае, контейнеру с балансером нужны контейнеры с апстримами.&lt;/p&gt;
+
+&lt;p&gt;Статья &lt;a href=&#34;https://docs.docker.com/userguide/dockerlinks/&#34;&gt;Linking Containers Together&lt;/a&gt; полностью раскрывает вопрос линковки контейнеров. Осветим вкратце лишь основные моменты:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;каждый контейнер необходимо как-то назвать с помощью опции &lt;code&gt;--name&lt;/code&gt;;&lt;/li&gt;
+&lt;li&gt;ссылка на контейнер-зависимость обозначается опцией &lt;code&gt;--link&lt;/code&gt;;&lt;/li&gt;
+&lt;li&gt;в итоге, внутри зависимого контейнера, инициализируется множество переменных окружения, содержащих параметры контейнера-зависимости, а также в &lt;em&gt;/etc/hosts&lt;/em&gt; заносится IP-адрес контейнера-зависимости.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Например, так выглядит последовательный запуск 3-х контейнеров, причем 3-й зависит от первых двух:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;docker run -d --privileged -p 2021:22 -p 8081:80 --name app1 smile/tomcat7
+docker run -d --privileged -p 2022:22 -p 8082:80 --name app2 smile/tomcat7
+docker run -d --privileged -p 2020:22 -p 80:80 --name gate --link app1:app1 --link app2:app2 smile/gate
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Для проверки можно использовать вывод &lt;code&gt;docker inspect&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;docker inspect -f &amp;quot;{{ .HostConfig.Links }}&amp;quot; gate
+
+[/app1:/gate/app1 /app2:/gate/app2]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Опция &lt;code&gt;-d (detach mode)&lt;/code&gt; здесь необходима, чтобы контейнеры запускались в фоновом режиме и не захватывали консоль.&lt;/p&gt;
+
+&lt;p&gt;Теперь, если зайти в контейнер gate (&lt;code&gt;ssh -p 2020 root@localhost&lt;/code&gt;) и посмотреть переменные окружения, то будет ясно, что gate &amp;ldquo;видит&amp;rdquo; exposed-порты и IP-адрес контейнера-зависимости:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;root@aba982937531:~# env | grep APP1
+APP1_NAME=/gate/app1
+APP1_PORT_22_TCP=tcp://172.17.0.28:22
+APP1_PORT_80_TCP=tcp://172.17.0.28:80
+APP1_PORT_22_TCP_ADDR=172.17.0.28
+APP1_PORT_80_TCP_ADDR=172.17.0.28
+APP1_PORT_22_TCP_PORT=22
+APP1_PORT_80_TCP_PORT=80
+APP1_PORT_80_TCP_PROTO=tcp
+APP1_PORT_22_TCP_PROTO=tcp
+APP1_PORT=tcp://172.17.0.28:22
+...
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Еще лучше дела обстоят с &lt;em&gt;/etc/hosts&lt;/em&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;root@aba982937531:~# grep app1 /etc/hosts
+172.17.0.28	app1
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Модификация &lt;em&gt;/etc/hosts&lt;/em&gt;, например, дает возможность писать следующие кофиги Nginx:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;server {
+    listen 80 default_server;
+    server_name _;
+
+    location /app1 {
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; #
+        proxy_pass http://app1:80/app1;                              # app1 host here
+        proxy_redirect http://127.0.0.1:8081/app1 /app1;             #
+    }
+
+    location /app2 {
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; #
+        proxy_pass http://app2:80/app2;                              # and app2 host here
+        proxy_redirect http://127.0.0.1:8082/app2 /app2;             #
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Таким образом, в первом приближении, встроенная возможность связывания контейнеров в Docker решает наши проблемы.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Подготовка и запуск docker-контейнеров</title>
+      <link>https://dddpaul.github.io/blog/2015/01/04/docker-prepare/</link>
+      <pubDate>Sun, 04 Jan 2015 13:49:06 +0000</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2015/01/04/docker-prepare/</guid>
+      <description>
+
+&lt;p&gt;Это первая статья цикла 
+&lt;a href=&#39;https://dddpaul.github.io/blog//series/building-test-environments-with-docker/&#39;&gt;Building test environments with Docker&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Сразу оговорюсь, что все docker-контейнеры основаны на &lt;a href=&#34;http://phusion.github.io/baseimage-docker/&#34;&gt;baseimage-docker&lt;/a&gt;. Этот образ позволяет запускать в контейнере несколько приложений с помощью супервизора &lt;a href=&#34;http://smarden.org/runit/&#34;&gt;runit&lt;/a&gt; и содержит ssh, cron, syslog &amp;ldquo;из коробки&amp;rdquo;.&lt;/p&gt;
+
+&lt;p&gt;Хотя подобный подход &lt;a href=&#34;http://jpetazzo.github.io/2014/06/23/docker-ssh-considered-evil/&#34;&gt;не рекомендуется разработчиками Docker&lt;/a&gt;, он очень удобен в эксплуатации и не принуждает разработчика к своему &amp;ldquo;proper way&amp;rdquo;. Всегда можно использовать канонический подход от Docker с volumes и nsenter, а, при желании, подключаться к контейнерам по ssh.&lt;/p&gt;
+
+&lt;p&gt;Кроме того, я привык использовать сервера приложений в связке с nginx, и baseimage-docker позволяет легко это сделать.&lt;/p&gt;
+
+&lt;h3 id=&#34;базовый-образ:4df06129fe4804053dfd65ac4e205d9e&#34;&gt;Базовый образ&lt;/h3&gt;
+
+&lt;p&gt;При создании базового образа выполняются две вещи:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;публичный ssh-ключ добавляется в список разрешенных для суперпользователя контейнера;&lt;/li&gt;
+&lt;li&gt;задается локаль.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;em&gt;Dockerfile&lt;/em&gt; базового образа:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;FROM phusion/baseimage:0.9.15
+
+# Add public SSH keys
+ADD my_rsa_public_key /tmp/my_rsa_public_key
+RUN cat /tmp/my_rsa_public_key &amp;gt;&amp;gt; /root/.ssh/authorized_keys &amp;amp;&amp;amp; rm -f /tmp/my_rsa_public_key
+
+# Locale
+ENV LANG=en_US.utf8
+
+# Use baseimage-docker&#39;s init system
+CMD [&amp;quot;/sbin/my_init&amp;quot;]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Свой публичный ssh-ключ, естественно, надо положить в &lt;em&gt;my_rsa_public_key&lt;/em&gt; рядом с &lt;em&gt;Dockerfile&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;Сборка: &lt;code&gt;docker build -t smile/base .&lt;/code&gt; и запуск:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;docker run --rm -it -p 2022:22 smile/base /sbin/my_init -- bash -l
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;code&gt;--rm&lt;/code&gt; используется для удаления контейнера после его остановки, &lt;code&gt;-it&lt;/code&gt; — для терминального интеракивного режима, а &lt;code&gt;-- bash -l&lt;/code&gt; — для запуска шелла после запуска всех сервисов.&lt;/p&gt;
+
+&lt;p&gt;Также на контейнер можно зайти по ssh: &lt;code&gt;ssh -p 2022 root@localhost&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;образ-с-nginx:4df06129fe4804053dfd65ac4e205d9e&#34;&gt;Образ с nginx&lt;/h3&gt;
+
+&lt;p&gt;Сборка &lt;a href=&#34;https://github.com/dddpaul/docker-nginx&#34;&gt;docker-nginx&lt;/a&gt;: &lt;code&gt;docker build -t smile/nginx .&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;Основная особенность этого образа в том, что при запуске контейнера отключается IPv6.&lt;/p&gt;
+
+&lt;p&gt;Сделано это для того, чтобы обойти известную проблему с проксированием Nginx. Т.к. демон висит на tcp6, то апстрим иногда видит запрос от 127.0.0.1, а иногда от 0:0:0:0:0:0:0:1. Это принуждает к изменению ACL на сервере приложений, что не всегда удобно.&lt;/p&gt;
+
+&lt;p&gt;IPv6 отключается после выполнения серии sysctl-команд, которые требуют, чтобы контейнер был запущен в привилегированном режиме, т.е. команда запуска слегка усложняется:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;docker run --privileged --rm -it -p 2022:22 smile/nginx /sbin/my_init -- bash -l
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;остальные-образы:4df06129fe4804053dfd65ac4e205d9e&#34;&gt;Остальные образы&lt;/h3&gt;
+
+&lt;p&gt;На основе docker-nginx можно строить более сложные образы, такие как &lt;a href=&#34;https://github.com/dddpaul/docker-java7-server&#34;&gt;docker-java7-server&lt;/a&gt; и  &lt;a href=&#34;https://github.com/dddpaul/docker-tomcat7&#34;&gt;docker-tomcat7&lt;/a&gt;. На основе последнего уже строятся образы для конечных приложений.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

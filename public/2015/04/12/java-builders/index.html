@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="generator" content="Hugo 0.16-DEV" />
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+  <title> Java builders &middot; Dev notes </title>
+
+  
+  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/poole.css">
+  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/syntax.css">
+  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/hyde.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
+
+  
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144-precomposed.png">
+  <link rel="shortcut icon" href="/favicon.png">
+
+  
+  <link href="" rel="alternate" type="application/rss+xml" title="Dev notes" />
+</head>
+
+<body>
+
+<div class="sidebar">
+    <div class="container sidebar-sticky">
+        <div class="sidebar-about">
+            <h1>Dev notes</h1>
+            <p class="lead">
+                 Notes about Android, Java, JavaScript, Go and other technical stuff 
+            </p>
+        </div>
+
+        <ul class="sidebar-nav">
+            <li><a href="/">Home</a> </li>
+            
+            <li><a href="http://github.com/dddpaul"> GitHub </a></li>
+            
+            <li><a href="http://google.com/&#43;PavelDerendyaev1"> Google&#43; </a></li>
+            
+            <li><a href="/blog/index.xml"> RSS </a></li>
+            
+        </ul>
+
+        Tags:
+        <ul>
+            
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/android/">android</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/angularjs/">angularjs</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/ansible/">ansible</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/devops/">devops</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/docker/">docker</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/git/">git</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/golang/">golang</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/hugo/">hugo</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/java/">java</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/javascript/">javascript</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/linux/">linux</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/python/">python</a> </li>
+            
+        </ul>
+
+        <p>&copy; 2016. All rights reserved. </p>
+    </div>
+</div>
+
+
+<div class="content container">
+    <div class="post">
+        <h1 class="post-title">Java builders</h1>
+        <span class="post-date">2015-04-12</span>
+
+        <p>So it&rsquo;s time to scrutinize <a href="http://en.wikipedia.org/wiki/Builder_pattern">a builder pattern</a>. There are bunch of options to implement builder pattern in Java:</p>
+
+<ul>
+<li><a href="http://habrahabr.ru/post/86252/">classic</a> builder;</li>
+<li><a href="http://habrahabr.ru/post/244521/">elegant</a> builder;</li>
+<li>classic builder with <a href="https://github.com/analytically/innerbuilder">IntelliJ IDEA plugin</a>;</li>
+<li><a href="https://github.com/google/auto/tree/master/value">Google AutoValue</a> builder;</li>
+<li><a href="http://projectlombok.org/features/Builder.html">Project Lombok</a> builder;</li>
+<li><a href="https://github.com/mkarneim/pojobuilder">POJO</a> builder;</li>
+<li><a href="http://immutables.github.io/">Immutables</a> builder.</li>
+</ul>
+
+<p>All of these variants have been examined in <a href="https://github.com/dddpaul/java-builders">Java builders</a> GitHub project.</p>
+
+<p>The winners are (and this a tough IMHO):</p>
+
+<ul>
+<li>IDEA InnerBuilder plugin if you use builder class from frameworks like <a href="http://spring.io/">Spring/Spring MVC</a> or <a href="https://www.playframework.com/">Play</a>. You can&rsquo;t pass validation annotations to generated class. Despite everything if there is a way to do this I&rsquo;ll be happy to mistake.</li>
+<li>Immutables.org builder in all other cases. It&rsquo;s features rich and generates beautiful code.</li>
+</ul>
+
+<p>But do not forget about AutoValue because it&rsquo;s backed by Google itself.</p>
+
+    </div>
+
+    
+
+    Tags:
+    <ul id="tags">
+        
+        
+        <li><a href="https://dddpaul.github.io/blog//tags/java">Java</a> </li>
+        
+    </ul>
+
+    <div id="disqus_thread"></div>
+<script type="text/javascript">
+
+(function() {
+    
+    
+    if (window.location.hostname == "localhost")
+        return;
+
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    var disqus_shortname = 'dddpaul-github';
+    var disqus_identifier = 'https:\/\/dddpaul.github.io\/blog\/2015\/04\/12\/java-builders\/';
+    var disqus_title = 'Java builders';
+    var disqus_url = 'https:\/\/dddpaul.github.io\/blog\/2015\/04\/12\/java-builders\/';
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+
+</div>
+
+</body>
+</html>
+

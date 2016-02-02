@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Git on Dev notes</title>
+    <link>https://dddpaul.github.io/blog/tags/git/</link>
+    <description>Recent content in Git on Dev notes</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 28 Jul 2014 12:00:00 +0000</lastBuildDate>
+    <atom:link href="https://dddpaul.github.io/blog/tags/git/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>First note</title>
+      <link>https://dddpaul.github.io/blog/2014/07/28/oldest/</link>
+      <pubDate>Mon, 28 Jul 2014 12:00:00 +0000</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2014/07/28/oldest/</guid>
+      <description>&lt;p&gt;This blog is based on &lt;a href=&#34;http://hugo.spf13.com/&#34;&gt;Hugo&lt;/a&gt; - static site generator written on Go. GitHub interaction is organized with use of &lt;a href=&#34;http://hugo.spf13.com/tutorials/github_pages_blog&#34;&gt;Hosting on GitHub Pages&lt;/a&gt; tutorial. See &amp;ldquo;Configure git Workflow&amp;rdquo; section specifically.&lt;/p&gt;
+
+&lt;p&gt;And for all of the git 1.7.x (and older) users - you can grab &lt;em&gt;git-subtree&lt;/em&gt; from &lt;em&gt;contrib&lt;/em&gt; directory of &lt;a href=&#34;https://github.com/git/git&#34;&gt;Git repo&lt;/a&gt;. I&amp;rsquo;ve used &lt;em&gt;git-subtree&lt;/em&gt; from latest 1.8.x. It&amp;rsquo;s just a shell script, run &lt;code&gt;make&lt;/code&gt;, &lt;code&gt;chmod +x git-subtree&lt;/code&gt; and copy it to &lt;em&gt;/usr/lib/git-core&lt;/em&gt;.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

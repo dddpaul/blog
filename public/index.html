@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="generator" content="Hugo 0.16-DEV" />
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+  <title> Dev notes &middot; Dev notes </title>
+
+  
+  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/poole.css">
+  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/syntax.css">
+  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/hyde.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
+
+  
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144-precomposed.png">
+  <link rel="shortcut icon" href="/favicon.png">
+
+  
+  <link href="https://dddpaul.github.io/blog/index.xml" rel="alternate" type="application/rss+xml" title="Dev notes" />
+</head>
+
+<body>
+
+<div class="sidebar">
+    <div class="container sidebar-sticky">
+        <div class="sidebar-about">
+            <h1>Dev notes</h1>
+            <p class="lead">
+                 Notes about Android, Java, JavaScript, Go and other technical stuff 
+            </p>
+        </div>
+
+        <ul class="sidebar-nav">
+            <li><a href="/">Home</a> </li>
+            
+            <li><a href="http://github.com/dddpaul"> GitHub </a></li>
+            
+            <li><a href="http://google.com/&#43;PavelDerendyaev1"> Google&#43; </a></li>
+            
+            <li><a href="/blog/index.xml"> RSS </a></li>
+            
+        </ul>
+
+        Tags:
+        <ul>
+            
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/android/">android</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/angularjs/">angularjs</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/ansible/">ansible</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/devops/">devops</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/docker/">docker</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/git/">git</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/golang/">golang</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/hugo/">hugo</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/java/">java</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/javascript/">javascript</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/linux/">linux</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/python/">python</a> </li>
+            
+        </ul>
+
+        <p>&copy; 2016. All rights reserved. </p>
+    </div>
+</div>
+
+
+<div class="content container">
+    <div class="posts">
+
+        
+        <div class="post">
+            <h1 class="post-title">
+                <a href="https://dddpaul.github.io/blog/2015/12/21/spring-boot-uri-encoding/">
+                    Different URI encodings for one Tomcat-based application
+                </a>
+            </h1>
+
+            <span class="post-date">2015-12-21</span>
+
+            
+
+<p>There some cases when you would like to map different URI encodings on different HTTP endpoints. And one of those cases is when your application handles GET requests containing <a href="https://en.wikipedia.org/wiki/Percent-encoding">percent-encoded</a> non-ASCII data in different charsets. For example, one HTTP endpoint uses standard UTF-8 while the other uses <a href="https://en.wikipedia.org/wiki/Windows-1251">Windows-1251</a>.</p>
+
+<h2 id="plain-tomcat-way:9095423fd9c5e41ee9033ec52da6bac6">Plain Tomcat way</h2>
+
+<p>According to <a href="http://wiki.apache.org/tomcat/FAQ/CharacterEncoding#Q2">How do I change how GET parameters are interpreted?</a> the only way to specify GET request encoding is to use by-connector <code>URIEncoding</code> attribute. For example:</p>
+
+<pre><code class="language-xml"> &lt;Connector port=&quot;8081&quot; URIEncoding=&quot;utf-8&quot;/&gt;
+ &lt;Connector port=&quot;8082&quot; URIEncoding=&quot;cp1251&quot;/&gt;
+</code></pre>
+
+<p>Then you have map servlets to different connectors somehow.</p>
+
+<h2 id="spring-boot-multiple-http-connectors-way:9095423fd9c5e41ee9033ec52da6bac6">Spring Boot multiple HTTP connectors way</h2>
+
+<p>Spring Boot can help you out in this matter. Although it uses the only one URI encoding which is specified in <code>server.tomcat.uri-encoding</code> parameter (&ldquo;UTF-8&rdquo; by default, see <a href="http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html">Appendix A. Common application properties</a>), it can fire up multiple child applications residing on different ports.</p>
+
+<p>Implementation is really simple as you can see from <a href="https://github.com/dddpaul/spring-boot-connectors/blob/master/src/main/java/com/github/dddpaul/connectors/Application.java">Spring Boot Connectors application</a>.</p>
+
+<p>Pros:</p>
+
+<ul>
+<li>no hacks and workarounds, pure Spring Boot solution :)</li>
+<li>controller unit tests are passed.
+<br /></li>
+</ul>
+
+<p>Cons:</p>
+
+<ul>
+<li>some mess with controllers mappings;</li>
+<li>integration tests (with full context initialization) are failed on non-ASCII requests; in fact, you have no option to point which connector are used in test;</li>
+<li>say bye-bye to Spring Boot actuators, you&rsquo;ll have to use some workarounds to plug them in.<br /></li>
+</ul>
+
+<p>Links:</p>
+
+<ul>
+<li><a href="http://stackoverflow.com/questions/26111050/spring-boot-how-can-i-add-tomcat-connectors-to-bind-to-controller">Spring-Boot : How can I add tomcat connectors to bind to controller</a></li>
+<li><a href="https://github.com/dddpaul/spring-boot-connectors">Multiple HTTP connectors in Spring Boot example</a></li>
+</ul>
+
+<h2 id="nginx-lua-way:9095423fd9c5e41ee9033ec52da6bac6">Nginx+Lua way</h2>
+
+<p>Nginx being built with <a href="https://github.com/openresty/lua-nginx-module">Lua module</a> becomes a very fast non-blocking application server. They even have a <a href="http://leafo.net/lapis/">framework</a>! So the URI re-encode it&rsquo;s a quite an easy task to solve.</p>
+
+<p>It&rsquo;s a more complicated way, but if you already use <a href="http://nginx.org/">Nginx</a> as a reverse proxy server / balancer / HTTPS terminator in front of or Java application — why not?</p>
+
+<p>Nginx build options, functions and configuration file example can be found in <a href="https://github.com/dddpaul/docker-nginx">docker-nginx</a> project. <a href="https://github.com/dddpaul/docker-nginx/blob/master/lua/functions.lua">Function</a> to convert encoding:</p>
+
+<div class="highlight"><pre><code class="language-lua" data-lang="lua"><span class="k">function</span> <span class="nc">M</span><span class="p">.</span><span class="nf">iconv</span><span class="p">(</span><span class="n">cd</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="k">in</span> <span class="nb">pairs</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="k">do</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="s">table&quot;</span> <span class="k">then</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="k">in</span> <span class="nb">pairs</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="k">do</span>
+                <span class="n">val</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">cd</span><span class="p">:</span><span class="n">iconv</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+            <span class="k">end</span>
+        <span class="k">else</span>
+            <span class="n">args</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">cd</span><span class="p">:</span><span class="n">iconv</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+        <span class="k">end</span>
+    <span class="k">end</span>
+    <span class="k">return</span> <span class="n">args</span>
+<span class="k">end</span>
+</code></pre></div>
+
+
+<p>It converts only URI parameter values and leaves parameter names untouched. Converting is performed by iconv C library with help of <a href="http://ittner.github.io/lua-iconv/">Lua-iconv binding</a>, so it&rsquo;s very fast.</p>
+
+<p>This Nginx config block configures Lua module, load convert function and initializes iconv:</p>
+
+<pre><code>lua_package_path '/etc/nginx/lua/?.lua;;';
+init_by_lua_block {
+    functions = require(&quot;functions&quot;)
+    iconv = require(&quot;iconv&quot;)
+    cd = iconv.new(&quot;utf8&quot;, &quot;cp1251&quot;)
+}
+</code></pre>
+
+<p>In order to re-encode URIs before proxying to Java backend use the following sample:</p>
+
+<pre><code>location /app {
+    rewrite_by_lua_block {
+        if ngx.var.args == nil then return end
+        local args = ngx.decode_args(ngx.var.args)
+        args = functions.iconv(cd, args)
+        args = ngx.encode_args(args)
+        ngx.var.args = args
+    }
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_pass http://localhost:8000;
+}
+</code></pre>
+
+<p>Pros:</p>
+
+<ul>
+<li>no multiple connectors, listen on single port;</li>
+<li>extremely fast, no performance drawback;</li>
+<li>all tests are passed.
+<br /></li>
+</ul>
+
+<p>Cons:</p>
+
+<ul>
+<li>extra devops work :)</li>
+</ul>
+
+<p>Links:</p>
+
+<ul>
+<li><a href="https://github.com/dddpaul/docker-nginx">dddpaul/docker-nginx</a></li>
+<li><a href="https://github.com/openresty/lua-nginx-module">openresty/lua-nginx-module</a></li>
+<li><a href="http://ittner.github.io/lua-iconv/">Lua iconv</a></li>
+</ul>
+
+<h2 id="java-hackish-way:9095423fd9c5e41ee9033ec52da6bac6">Java hackish way</h2>
+
+<p>The idea is the same — url-decode GET-request values, convert to proper encoding and url-encode. At this time it&rsquo;s achieved by using private API of <a href="https://tomcat.apache.org/tomcat-8.0-doc/api/org/apache/coyote/Request.html">org.apache.coyote.Request</a> class to decode query string conditionally.</p>
+
+<p>Implementation is quite simple as you can see from <a href="https://github.com/dddpaul/spring-boot-filters/blob/master/src/main/java/com/github/dddpaul/filters/Application.java">Spring Boot Filters application</a>.</p>
+
+<p>URIs are re-encoded in servlet filter:</p>
+
+<p><div class="highlight"><pre><code class="language-java" data-lang="java"><span class="kd">static</span> <span class="kd">class</span> <span class="nc">CoyoteRequestManipulator</span> <span class="kd">extends</span> <span class="n">OncePerRequestFilter</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="kd">static</span> <span class="n">Field</span> <span class="nf">getField</span><span class="o">(</span><span class="n">Class</span> <span class="n">clazz</span><span class="o">,</span> <span class="n">String</span> <span class="n">fieldName</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">NoSuchFieldException</span> <span class="o">{</span>
+        <span class="o">...</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">doFilterInternal</span><span class="o">(</span><span class="n">HttpServletRequest</span> <span class="n">request</span><span class="o">,</span> <span class="n">HttpServletResponse</span> <span class="n">response</span><span class="o">,</span>
+                                    <span class="n">FilterChain</span> <span class="n">chain</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">ServletException</span><span class="o">,</span> <span class="n">IOException</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">hasText</span><span class="o">(</span><span class="n">request</span><span class="o">.</span><span class="na">getQueryString</span><span class="o">())</span> <span class="o">&amp;&amp;</span> <span class="n">request</span><span class="o">.</span><span class="na">getQueryString</span><span class="o">().</span><span class="na">contains</span><span class="o">(</span><span class="s">&quot;%&quot;</span><span class="o">))</span> <span class="o">{</span>
+            <span class="n">RequestFacade</span> <span class="n">facade</span> <span class="o">=</span> <span class="o">(</span><span class="n">RequestFacade</span><span class="o">)</span> <span class="n">request</span><span class="o">;</span>
+            <span class="k">try</span> <span class="o">{</span>
+                <span class="c1">// First hack is to get org.apache.coyote.Request instance</span>
+                <span class="n">Field</span> <span class="n">requestField</span> <span class="o">=</span> <span class="n">getField</span><span class="o">(</span><span class="n">RequestFacade</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="s">&quot;request&quot;</span><span class="o">);</span>
+                <span class="n">requestField</span><span class="o">.</span><span class="na">setAccessible</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+                <span class="n">Request</span> <span class="n">connRequest</span> <span class="o">=</span> <span class="o">(</span><span class="n">Request</span><span class="o">)</span> <span class="n">requestField</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">facade</span><span class="o">);</span>
+                <span class="n">org</span><span class="o">.</span><span class="na">apache</span><span class="o">.</span><span class="na">coyote</span><span class="o">.</span><span class="na">Request</span> <span class="n">coyoteRequest</span> <span class="o">=</span> <span class="n">connRequest</span><span class="o">.</span><span class="na">getCoyoteRequest</span><span class="o">();</span>
+
+                <span class="c1">// But it&#39;s already filled with decoded query parameters, so query string has</span>
+                <span class="c1">// to be re-handled after URI encoding switch. So, in fact, query string is</span>
+                <span class="c1">// processed twice. Yet, org.apache.coyote.Request instances are reusable,</span>
+                <span class="c1">// so query encoding has to set every time.</span>
+                <span class="n">Parameters</span> <span class="n">parameters</span> <span class="o">=</span> <span class="n">coyoteRequest</span><span class="o">.</span><span class="na">getParameters</span><span class="o">();</span>
+                <span class="n">parameters</span><span class="o">.</span><span class="na">setQueryStringEncoding</span><span class="o">(</span><span class="n">request</span><span class="o">.</span><span class="na">getServletPath</span><span class="o">().</span><span class="na">startsWith</span><span class="o">(</span><span class="s">&quot;/two&quot;</span><span class="o">)</span>
+                        <span class="o">?</span> <span class="s">&quot;cp1251&quot;</span> <span class="o">:</span> <span class="s">&quot;utf-8&quot;</span><span class="o">);</span>
+                <span class="n">parameters</span><span class="o">.</span><span class="na">recycle</span><span class="o">();</span>
+                <span class="n">parameters</span><span class="o">.</span><span class="na">handleQueryParameters</span><span class="o">();</span>
+            <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+        <span class="n">chain</span><span class="o">.</span><span class="na">doFilter</span><span class="o">(</span><span class="n">request</span><span class="o">,</span> <span class="n">response</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div>
+</p>
+
+<p>Pros:</p>
+
+<ul>
+<li>no multiple connectors, listen on single port;</li>
+<li>no recompiled Nginx stuff - just Java;</li>
+<li>controller unit tests are passed;</li>
+<li>integration tests are passed.
+<br /></li>
+</ul>
+
+<p>Cons:</p>
+
+<ul>
+<li>reflection and private API usage :)</li>
+<li>query string could be handled twice.</li>
+</ul>
+
+<p>Links:</p>
+
+<ul>
+<li><a href="https://github.com/dddpaul/spring-boot-filters">Spring Boot filter examples</a></li>
+</ul>
+
+<h2 id="the-other-way:9095423fd9c5e41ee9033ec52da6bac6">The other way</h2>
+
+<p>Use the microservices, Luke! But for their simplicity and scalability you have pay with massive infrastructure changes. See the following articles for consideration:</p>
+
+<ul>
+<li><a href="http://www.kennybastani.com/2015/07/spring-cloud-docker-microservices.html">Building Microservices with Spring Cloud and Docker</a></li>
+<li><a href="http://technologyconversations.com/2015/07/02/scaling-to-infinity-with-docker-swarm-docker-compose-and-consul-part-14-a-taste-of-what-is-to-come/">Scaling To Infinity with Docker Swarm, Docker Compose and Consul</a></li>
+<li><a href="http://technologyconversations.com/2015/11/25/deploying-containers-with-docker-swarm-and-docker-networking/">Deploying Containers with Docker Swarm and Docker Networking</a></li>
+</ul>
+
+        </div>
+        
+        <div class="post">
+            <h1 class="post-title">
+                <a href="https://dddpaul.github.io/blog/2015/11/30/ansible-default-and-bool-filters/">
+                    Ansible: &#34;default&#34; and &#34;bool&#34; filters
+                </a>
+            </h1>
+
+            <span class="post-date">2015-11-30</span>
+
+            
+
+<p>There are plenty of <code>bool</code> and <code>default</code> filters usage in Ansible playbooks and templates. For example, in <a href="https://github.com/debops/ansible-docker/blob/master/tasks/main.yml">debops/ansible-docker</a>: <code>when: docker_upstream| d() | bool</code>.</p>
+
+<p>Where <code>docker_upstream</code> is an YAML boolean: <code>docker_upstream: False</code>. It seems like &ldquo;when&rdquo; condition is <a href="https://dddpaul.github.io/blog/2015/11/29/ansible-defined-keyword/">overbloated again</a> :)</p>
+
+<p>The <code>var | d() | bool</code> construction is spread all over the place, for example, in <a href="https://github.com/debops/ansible-docker/blob/master/templates/etc/default/docker.j2">docker config template</a>:</p>
+
+<pre><code>{% if docker_listen | d() | bool %}
+</code></pre>
+
+<p>Where <code>docker_listen</code> is an YAML list: <code>docker_listen: [ '{{ docker_tcp_listen }}' ]</code>.</p>
+
+<p>Is there a more simpler way to express things? Maybe <code>when: docker_upstream</code> or <code>%{ if docker_listen %}</code> will be enough?</p>
+
+<hr />
+
+<p>First of all, <code>d</code> is an alias for <code>default</code>, and <code>default</code> filter is defined in <a href="https://github.com/mitsuhiko/jinja2/blob/master/jinja2/filters.py">jinja2/filters.py</a>:</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">do_default</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">default_value</span><span class="o">=</span><span class="s">u&#39;&#39;</span><span class="p">,</span> <span class="n">boolean</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;If the value is undefined it will return the passed default value,</span>
+<span class="sd">    otherwise the value of the variable:</span>
+
+<span class="sd">    .. sourcecode:: jinja</span>
+
+<span class="sd">        {{ my_variable|default(&#39;my_variable is not defined&#39;) }}</span>
+
+<span class="sd">    This will output the value of ``my_variable`` if the variable was</span>
+<span class="sd">    defined, otherwise ``&#39;my_variable is not defined&#39;``. If you want</span>
+<span class="sd">    to use default with variables that evaluate to false you have to</span>
+<span class="sd">    set the second parameter to `true`:</span>
+
+<span class="sd">    .. sourcecode:: jinja</span>
+
+<span class="sd">        {{ &#39;&#39;|default(&#39;the string was empty&#39;, true) }}</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Undefined</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">boolean</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">default_value</span>
+    <span class="k">return</span> <span class="n">value</span>
+</code></pre></div>
+
+
+<p>So, the default &ldquo;default value&rdquo; is an empty string.</p>
+
+<h3 id="var-d-test:df8aec350edd46b4d7f3e3e66fee95bc">&ldquo;var | d()&rdquo; test</h3>
+
+<p>With <code>default</code> filter:
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Template</span>
+<span class="n">tmpl</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s">&#39;{{ var | d() }}&#39;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">()</span>
+                                  <span class="c"># An empty string</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+<span class="bp">None</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">)</span>
+                                  <span class="c"># An empty string</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39;abc&#39;</span><span class="p">)</span>
+<span class="n">abc</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39; &#39;</span><span class="p">)</span>
+                                  <span class="c"># A space</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">[])</span>
+<span class="p">[]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;list&#39;</span><span class="p">])</span>
+<span class="p">[</span><span class="s">&#39;list&#39;</span><span class="p">]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">{})</span>
+<span class="p">{}</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;key&#39;</span><span class="p">:</span> <span class="s">&#39;value&#39;</span><span class="p">})</span>
+<span class="p">{</span><span class="s">&#39;key&#39;</span><span class="p">:</span> <span class="s">&#39;value&#39;</span><span class="p">}</span>
+</code></pre></div>
+</p>
+
+<p>Without <code>default</code> filter:
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Template</span>
+<span class="n">tmpl</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s">&#39;{{ var }}&#39;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">()</span>
+                                  <span class="c"># An empty string</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+<span class="bp">None</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">)</span>
+                                  <span class="c"># An empty string</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39;abc&#39;</span><span class="p">)</span>
+<span class="n">abc</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39; &#39;</span><span class="p">)</span>
+                                  <span class="c"># A space</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">[])</span>
+<span class="p">[]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;list&#39;</span><span class="p">])</span>
+<span class="p">[</span><span class="s">&#39;list&#39;</span><span class="p">]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">{})</span>
+<span class="p">{}</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;key&#39;</span><span class="p">:</span> <span class="s">&#39;value&#39;</span><span class="p">})</span>
+<span class="p">{</span><span class="s">&#39;key&#39;</span><span class="p">:</span> <span class="s">&#39;value&#39;</span><span class="p">}</span>
+</code></pre></div>
+</p>
+
+<p>Pretty same, eh?</p>
+
+<h3 id="str-d-bool-test:df8aec350edd46b4d7f3e3e66fee95bc">&ldquo;str | d() | bool&rdquo; test</h3>
+
+<p>With <code>default</code> filter:
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Template</span>
+<span class="kn">from</span> <span class="nn">ansible.runner.filter_plugins.core</span> <span class="kn">import</span> <span class="nb">bool</span>
+<span class="n">Template</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">filters</span><span class="p">[</span><span class="s">&#39;bool&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">bool</span>
+<span class="n">tmpl</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s">&#39;{{ var | d() | bool }}&#39;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">()</span>
+<span class="bp">False</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+<span class="bp">None</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">)</span>
+<span class="bp">False</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39;abc&#39;</span><span class="p">)</span>
+<span class="bp">False</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39; &#39;</span><span class="p">)</span>
+<span class="bp">False</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39;True&#39;</span><span class="p">)</span>
+<span class="bp">True</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">[])</span>
+<span class="bp">False</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;list&#39;</span><span class="p">])</span>
+<span class="bp">False</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">{})</span>
+<span class="bp">False</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;key&#39;</span><span class="p">:</span> <span class="s">&#39;value&#39;</span><span class="p">})</span>
+<span class="bp">False</span>
+</code></pre></div>
+</p>
+
+<p>Without <code>default</code> filter:
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Template</span>
+<span class="kn">from</span> <span class="nn">ansible.runner.filter_plugins.core</span> <span class="kn">import</span> <span class="nb">bool</span>
+<span class="n">Template</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">filters</span><span class="p">[</span><span class="s">&#39;bool&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">bool</span>
+<span class="n">tmpl</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s">&#39;{{ var | bool }}&#39;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">()</span>
+<span class="bp">False</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+<span class="bp">None</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">)</span>
+<span class="bp">False</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39;abc&#39;</span><span class="p">)</span>
+<span class="bp">False</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39; &#39;</span><span class="p">)</span>
+<span class="bp">False</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39;True&#39;</span><span class="p">)</span>
+<span class="bp">True</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">[])</span>
+<span class="bp">False</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;list&#39;</span><span class="p">])</span>
+<span class="bp">False</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">{})</span>
+<span class="bp">False</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;key&#39;</span><span class="p">:</span> <span class="s">&#39;value&#39;</span><span class="p">})</span>
+<span class="bp">False</span>
+</code></pre></div>
+</p>
+
+<p>Pretty same again. So, it seems that <code>default()</code> or <code>d()</code> usage in conditions has no sense at all.</p>
+
+<p>There are two specific features:</p>
+
+<ol>
+<li>When using undefined variables in actual Ansible playbooks without <code>default</code> filter <code>AnsibleUndefinedVariable</code> will be thrown. <strong>So finally, you have to use <code>default</code> filter to be safe.</strong></li>
+<li>Also, mention that <code>bool</code> filter for empty and non-empty lists and dicts evaluates to <code>False</code>. It&rsquo;s followed from sources (see below).</li>
+</ol>
+
+<hr />
+
+<p>Therefore, what about <code>bool</code> filter?</p>
+
+<p>Remember <code>when: docker_upstream | d() | bool</code>, where <code>docker_upstream</code> is an YAML boolean.</p>
+
+<p>Or <code>{% if docker_listen | d() | bool %}</code>, where <code>docker_listen</code> is an YAML list.</p>
+
+<p>The <code>bool</code> filter is the part of <a href="https://github.com/ansible/ansible/blob/devel/lib/ansible/plugins/filter/core.py">Ansible plugins</a>:</p>
+
+<p><div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">bool</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; return a bool for the arg &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="n">a</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">==</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">a</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="ow">in</span> <span class="n">types</span><span class="o">.</span><span class="n">StringTypes</span><span class="p">:</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">a</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&#39;yes&#39;</span><span class="p">,</span> <span class="s">&#39;on&#39;</span><span class="p">,</span> <span class="s">&#39;1&#39;</span><span class="p">,</span> <span class="s">&#39;true&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">True</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">False</span>
+</code></pre></div>
+</p>
+
+<p>You can clearly see from <code>bool</code> function implementation that <code>{% if docker_listen | d() | bool %}</code> results in <code>True</code> only if <code>docker_listen: True</code>. If <code>docker_listen</code> is an arbitrary string or a list (as expected) <code>{% if docker_listen | d() | bool %}</code> results in <code>False</code> always.</p>
+
+<p>Therefore <code>{% if docker_listen | d() %}</code> gives us a correct behaviour for strings, lists and dictionaries (mappings). The reason is explained <a href="https://dddpaul.github.io/blog/2015/11/29/ansible-defined-keyword/">here</a> (see &ldquo;Secondly&rdquo;, &ldquo;Third&rdquo; and &ldquo;More detailed&rdquo; quotes):</p>
+
+<blockquote>
+<p>The if statement in Jinja is comparable with the Python if statement. In the simplest form, you can use it to test if <strong>a variable is defined, not empty or not false</strong>.</p>
+
+<p>For sequences, (strings, lists, tuples), use the fact that <strong>empty sequences are false</strong>.</p>
+
+<p>The following values are considered false: any empty mapping, for example, <code>{}</code>.</p>
+</blockquote>
+
+<p>But for booleans you have to use <code>bool</code> filter — <code>when: docker_upstream | d() | bool</code>, because <code>when: docker_upstream | d()</code> results in <code>True</code> even if <code>docker_upstream</code> is <code>False</code>.</p>
+
+<p>Links:</p>
+
+<ul>
+<li><a href="https://github.com/debops/ansible-docker/pull/2">No need to evaluate a variable two times</a></li>
+</ul>
+
+        </div>
+        
+        <div class="post">
+            <h1 class="post-title">
+                <a href="https://dddpaul.github.io/blog/2015/11/29/ansible-defined-keyword/">
+                    Ansible: &#34;defined&#34; keyword
+                </a>
+            </h1>
+
+            <span class="post-date">2015-11-29</span>
+
+            <p>Some hidden knowledge for the start:</p>
+
+<p>First of all, the Ansible <code>when</code> clause contains a Jinja2 expression (see <a href="http://docs.ansible.com/ansible/playbooks_conditionals.html">Ansible playbook conditionals</a>). It&rsquo;s confirmed with a quote from <a href="http://shop.oreilly.com/product/0636920035626.do">Ansible: Up And Running</a>, page 41:</p>
+
+<blockquote>
+<p>Ansible also uses the <strong>Jinja2 template engine</strong> to evaluate variables in playbooks.</p>
+</blockquote>
+
+<p>Secondly, that how <a href="http://jinja.pocoo.org/docs/dev/templates/">Jinja2</a> interprets the <code>if</code> condition:</p>
+
+<blockquote>
+<p>The if statement in Jinja is comparable with the Python if statement. In the simplest form, you can use it to test if <strong>a variable is defined, not empty or not false</strong>.</p>
+</blockquote>
+
+<p>Third, a bit of truth about <a href="https://www.python.org/dev/peps/pep-0008/">Python</a>:</p>
+
+<blockquote>
+<p>For sequences, (strings, lists, tuples), use the fact that <strong>empty sequences are false</strong>.</p>
+</blockquote>
+
+<p>More detailed — <a href="https://docs.python.org/2/library/stdtypes.html">5.1. Truth Value Testing</a>:</p>
+
+<blockquote>
+<p>Any object can be tested for truth value, for use in an if or while condition or as operand of the Boolean operations below. The following values are considered false:</p>
+
+<ul>
+<li><code>None</code></li>
+<li><code>False</code></li>
+<li>zero of any numeric type, for example, <code>0</code>, <code>0L</code>, <code>0.0</code>, <code>0j</code></li>
+<li>any empty sequence, for example, <code>''</code>, <code>()</code>, <code>[]</code></li>
+<li>any empty mapping, for example, <code>{}</code></li>
+<li>instances of user-defined classes, if the class defines a <code>__nonzero__()</code> or <code>__len__()</code> method, when that method returns the integer zero or bool value False.</li>
+</ul>
+
+<p>All other values are considered true — so objects of many types are always true.</p>
+
+<p>Operations and built-in functions that have a Boolean result always return 0 or False for false and 1 or True for true, unless otherwise stated. (Important exception: the Boolean operations or and and always return one of their operands.)</p>
+</blockquote>
+
+<p>At last, a quote from <a href="http://shop.oreilly.com/product/0636920035626.do">Ansible: Up And Running</a>, page 23:</p>
+
+<blockquote>
+<p>Ansible is pretty flexible on how you represent truthy and falsey values in playbooks. Strictly speaking, module arguments (like <code>update_cache=yes</code>) are treated differently from values elsewhere in playbooks (like <code>sudo: True</code>). Values elsewhere are handled by the YAML parser and so use the YAML conventions of truthiness, which are:</p>
+
+<p><em>YAML truthy:</em> true, True, TRUE, yes, Yes, YES, on, On, ON, y, Y</p>
+
+<p><em>YAML falsey:</em> false, False, FALSE, no, No, NO, off, Off, OFF, n, N</p>
+
+<p>Module arguments are passed as strings and use Ansible’s internal conventions, which are:</p>
+
+<p><em>module arg truthy:</em> yes, on, 1, true</p>
+
+<p><em>module arg falsey:</em> no, off, 0, false</p>
+</blockquote>
+
+<p>Why all of these are important? Because there are plenty of redundant <code>if</code> and <code>when</code> conditionals usage in Ansible playbooks and templates. For example in <a href="https://github.com/debops/ansible-nginx/blob/master/tasks/main.yml">debops/ansible-nginx</a>:</p>
+
+<pre><code>- name: Manage local server definitions - create symlinks
+  file:
+    src: '/etc/nginx/sites-local/{{ item.0 }}'
+    path: '/etc/nginx/sites-enabled/{{ item.1 }}'
+    state: 'link'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+  with_together:
+    - '{{ nginx_local_servers.values() }}'
+    - '{{ nginx_local_servers.keys() }}'
+  notify: [ 'Test nginx and reload' ]
+  when: ((nginx_local_servers is defined and nginx_local_servers) and
+         (item.0 is defined and item.0))
+</code></pre>
+
+<p>See that overbloated <code>when</code> condition? Wouldn&rsquo;t be that simpler with <code>when: nginx_local_servers and item.0</code>?</p>
+
+<p>Though it&rsquo;s not a complete equivalent because it evaluates to False when nginx_local_servers <strong>is defined and empty</strong>. But it&rsquo;s definitely correct behaviour — surely we have no usage for the empty servers string.</p>
+
+<p>It&rsquo;s all just mere words without proper testing, so let&rsquo;s test long version <code>var is defined and var</code>:</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Template</span>
+<span class="n">tmpl</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s">&#39;{</span><span class="si">% i</span><span class="s">f var is defined and var %} True {</span><span class="si">% e</span><span class="s">lse %} False {</span><span class="si">% e</span><span class="s">ndif %}&#39;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">()</span>
+ <span class="bp">False</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+ <span class="bp">False</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">)</span>
+ <span class="bp">False</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39;abc&#39;</span><span class="p">)</span>
+ <span class="bp">True</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39; &#39;</span><span class="p">)</span>
+ <span class="bp">True</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">[])</span>                                                                                                                                                                                                                                           
+ <span class="bp">False</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;list&#39;</span><span class="p">])</span>
+ <span class="bp">True</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">{})</span>                                                                                                                                                                                                                                           
+ <span class="bp">False</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;key&#39;</span><span class="p">:</span> <span class="s">&#39;value&#39;</span><span class="p">})</span>                                                                                                                                                                                                                             
+ <span class="bp">True</span> 
+</code></pre></div>
+
+
+<p>And the short version — <code>var</code>:</p>
+
+<p><div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Template</span>
+<span class="n">tmpl</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s">&#39;{</span><span class="si">% i</span><span class="s">f var %} True {</span><span class="si">% e</span><span class="s">lse %} False {</span><span class="si">% e</span><span class="s">ndif %}&#39;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">()</span>
+ <span class="bp">False</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+ <span class="bp">False</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">)</span>
+ <span class="bp">False</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39;abc&#39;</span><span class="p">)</span>
+ <span class="bp">True</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39; &#39;</span><span class="p">)</span>
+ <span class="bp">True</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">[])</span>
+ <span class="bp">False</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;list&#39;</span><span class="p">])</span>
+ <span class="bp">True</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">{})</span>
+ <span class="bp">False</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;key&#39;</span><span class="p">:</span> <span class="s">&#39;value&#39;</span><span class="p">})</span>
+ <span class="bp">True</span> 
+</code></pre></div>
+</p>
+
+<p>So there are no differences at all. For the sake of thrust, let&rsquo;s test <code>var is defined</code>:</p>
+
+<p><div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Template</span>
+<span class="n">tmpl</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s">&#39;{</span><span class="si">% i</span><span class="s">f var is defined %} True {</span><span class="si">% e</span><span class="s">lse %} False {</span><span class="si">% e</span><span class="s">ndif %}&#39;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">()</span>
+ <span class="bp">False</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+ <span class="bp">True</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">)</span>
+ <span class="bp">True</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39;abc&#39;</span><span class="p">)</span>
+ <span class="bp">True</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39; &#39;</span><span class="p">)</span>
+ <span class="bp">True</span> 
+</code></pre></div>
+</p>
+
+<p>So just use <code>var</code> and not <code>var is defined and var</code>, Luke!</p>
+
+        </div>
+        
+        <div class="post">
+            <h1 class="post-title">
+                <a href="https://dddpaul.github.io/blog/2015/07/28/firewalld-zones/">
+                    Bind interfaces to multiple zones with Firewalld on CentOS-7
+                </a>
+            </h1>
+
+            <span class="post-date">2015-07-28</span>
+
+            <p>As you can expect from <a href="http://linuxmanpages.net/manpages/fedora20/man1/firewall-cmd.1.html">man firewall-cmd</a> interface binding to zone other than default (public) could be achieved with the following command sequence:</p>
+
+<pre><code>firewall-cmd --zone public --remove-interface eth1 --permanent
+firewall-cmd --zone internal --add-interface eth1 --permanent
+firewall-cmd --reload
+</code></pre>
+
+<p>Seems like it&rsquo;s done:</p>
+
+<pre><code>firewall-cmd --get-zone-of-interface=eth1
+internal
+</code></pre>
+
+<p>But after firewalld restart or server reboot things aren&rsquo;t so bright:</p>
+
+<pre><code>firewall-cmd --get-zone-of-interface=eth1
+public
+</code></pre>
+
+<p>The reason is in this <a href="https://bugs.centos.org/view.php?id=7526">CentOS-7 bug</a>. The only workaround is to specify zone in <em>/etc/sysconfig/network-scripts/ifcfg-eth1</em> file:</p>
+
+<pre><code>TYPE=Ethernet
+NAME=&quot;eth1&quot;
+IPADDR=x.x.x.x
+...
+ZONE=internal
+</code></pre>
+
+        </div>
+        
+        <div class="post">
+            <h1 class="post-title">
+                <a href="https://dddpaul.github.io/blog/2015/07/12/spring-boot-value/">
+                    Тонкости использования аннотации @Value в Spring Boot
+                </a>
+            </h1>
+
+            <span class="post-date">2015-07-12</span>
+
+            <p>Аннотация <a href="http://docs.spring.io/spring/docs/current/javadoc-api/org/springframework/beans/factory/annotation/Value.html">@Value</a> - это самый простой способ для &ldquo;впрыскивания&rdquo; значений из конфигурации Spring Boot в код. При этом также можно задать значение по-умолчанию.</p>
+
+<p>Однако, стоит учитывать, что резолвинг значения будет выполняться для каждой аннотации @Value. Например, если аннотировать @Value два поля (в одном или разных классах - не суть важно) вот так:</p>
+
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="nd">@Value</span><span class="o">(</span><span class="s">&quot;${unique-param}&quot;</span><span class="o">)</span>
+<span class="kd">private</span> <span class="n">String</span> <span class="n">param1</span><span class="o">;</span>
+
+<span class="nd">@Value</span><span class="o">(</span><span class="s">&quot;${unique-param}&quot;</span><span class="o">)</span>
+<span class="kd">private</span> <span class="n">String</span> <span class="n">param2</span><span class="o">;</span>
+</code></pre></div>
+
+
+<p>, то в debug-логе мы увидим:</p>
+
+<pre><code>TRACE 23601 --- [lication.main()] o.s.c.e.PropertySourcesPropertyResolver  : getProperty(&quot;unique-param&quot;, String)
+DEBUG 23601 --- [lication.main()] o.s.c.e.PropertySourcesPropertyResolver  : Searching for key 'unique-param' in [environmentProperties]
+...
+TRACE 23601 --- [lication.main()] o.s.c.e.PropertySourcesPropertyResolver  : getProperty(&quot;unique-param&quot;, String)
+DEBUG 23601 --- [lication.main()] o.s.c.e.PropertySourcesPropertyResolver  : Searching for key 'unique-param' in [environmentProperties]
+...
+</code></pre>
+
+<p>Т.е. поиск (резолвинг) был проведен дважды. Конечно, это слишком мизерная операция, чтобы хоть как-то замедлить старт приложения, но знать об этом стоит.</p>
+
+<hr />
+
+<p>Еще более неоднозначная штука связана с передачей дефолтного значения через @Value.</p>
+
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="nd">@Value</span><span class="o">(</span><span class="s">&quot;${unique-param:DefaultValue}&quot;</span><span class="o">)</span>
+<span class="kd">private</span> <span class="n">String</span> <span class="n">param</span><span class="o">;</span>
+</code></pre></div>
+
+
+<p>При резолвинге значения будет сначала проведен поиск параметра &ldquo;unique-param:DefaultValue&rdquo;, а уже потом - &ldquo;unique-param&rdquo;. Таким образом, если в конфигурации указать:</p>
+
+<div class="highlight"><pre><code class="language-ini" data-lang="ini"><span class="na">unique-param\:DefaultValue</span> <span class="o">=</span> <span class="s">Another value</span>
+</code></pre></div>
+
+
+<p>, то param в коде будет равен &ldquo;Another value&rdquo;.</p>
+
+<p>Такая логика прописана в org.springframework.util.PropertyPlaceholderHelper#parseStringValue.</p>
+
+<hr />
+
+<p>Оба этих нюанса могут ответить на вопрос - почему debug-лог приложения на Spring Boot такой большой.</p>
+
+<p>Мораль - используйте <a href="http://docs.spring.io/autorepo/docs/spring-boot/current/api/org/springframework/boot/context/properties/ConfigurationProperties.html">ConfigurationProperties</a>, что, в конце-концов, и советуется в <a href="http://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-external-config.html">23. Externalized Configuration</a>, раздел &ldquo;23.7 Typesafe Configuration Properties&rdquo;.</p>
+
+<p>Например:</p>
+
+<p><div class="highlight"><pre><code class="language-java" data-lang="java"><span class="nd">@ConfigurationProperties</span><span class="o">(</span><span class="n">prefix</span> <span class="o">=</span> <span class="s">&quot;params&quot;</span><span class="o">)</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Config</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">uniqueParam</span> <span class="o">=</span> <span class="s">&quot;Default value&quot;</span><span class="o">;</span>
+
+    <span class="c1">// Getters are mandatory. Setters are mandatory for immutable types (such as String).</span>
+ <span class="o">}</span>
+</code></pre></div>
+</p>
+
+<p>Конфигурация:</p>
+
+<p><div class="highlight"><pre><code class="language-ini" data-lang="ini"><span class="na">params.unique-param</span> <span class="o">=</span> <span class="s">Another value</span>
+</code></pre></div>
+</p>
+
+        </div>
+        
+        <div class="post">
+            <h1 class="post-title">
+                <a href="https://dddpaul.github.io/blog/2015/06/30/tomcat-http-logging/">
+                    Логирование HTTP-запросов в Tomcat
+                </a>
+            </h1>
+
+            <span class="post-date">2015-06-30</span>
+
+            
+
+<h2 id="apache-tomcat-request-dumper-filter:e82678ac23d6d6c6d716963b71ef486f">Apache Tomcat Request Dumper Filter</h2>
+
+<p><a href="http://tomcat.apache.org/tomcat-7.0-doc/config/filter.html#Request_Dumper_Filter">Request Dumper Filter</a> входит в состав Tomcat. Рассмотрим способы его конфигурации.</p>
+
+<h3 id="spring-boot:e82678ac23d6d6c6d716963b71ef486f">Spring Boot</h3>
+
+<p>Достаточно поместить вот такой bean в класс, аннотированный @Configuration:</p>
+
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="nd">@Bean</span>
+<span class="n">RequestDumperFilter</span> <span class="nf">requestDumper</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="n">RequestDumperFilter</span><span class="o">();</span>
+<span class="o">}</span>
+</code></pre></div>
+
+
+<p>Вывод дампа запросов в отдельный лог здесь не рассматриваем.</p>
+
+<h3 id="tomcat-7:e82678ac23d6d6c6d716963b71ef486f">Tomcat 7</h3>
+
+<p>Стандартный способ конфигурации фильтра — server.xml / context.xml / web.xml, в зависимости от того, какой scope нам нужен. Для логирования запросов в рамках одного приложения — web.xml.</p>
+
+<div class="highlight"><pre><code class="language-xml" data-lang="xml"><span class="nt">&lt;filter&gt;</span>
+    <span class="nt">&lt;filter-name&gt;</span>RequestDumper<span class="nt">&lt;/filter-name&gt;</span>
+    <span class="nt">&lt;filter-class&gt;</span>org.apache.catalina.filters.RequestDumperFilter<span class="nt">&lt;/filter-class&gt;</span>
+<span class="nt">&lt;/filter&gt;</span>
+
+<span class="nt">&lt;filter-mapping&gt;</span>
+    <span class="nt">&lt;filter-name&gt;</span>RequestDumper<span class="nt">&lt;/filter-name&gt;</span>
+    <span class="nt">&lt;url-pattern&gt;</span>*<span class="nt">&lt;/url-pattern&gt;</span>
+<span class="nt">&lt;/filter-mapping&gt;</span>
+</code></pre></div>
+
+
+<p>Для логирования в отдельный файл нужно сконфигурировать <a href="https://tomcat.apache.org/tomcat-7.0-doc/logging.html">Tomcat JULI</a>. По-идее, можно логировать через Apache Commons Logging, но в доке дается пример для JULI. Поэтому, вот такой logging.properties можно смело кидать в webapp/WEB-INF/classes:</p>
+
+<div class="highlight"><pre><code class="language-ini" data-lang="ini"><span class="c1"># Uncomment to dump HTTP request data, see http://tomcat.apache.org/tomcat-7.0-doc/config/filter.html#Request_Dumper_Filter</span>
+<span class="c1">#handlers = 1request-dumper.org.apache.juli.FileHandler</span>
+
+<span class="c1"># To this configuration below, 1request-dumper.org.apache.juli.FileHandler</span>
+<span class="c1"># also needs to be added to the handlers property near the top of the file</span>
+<span class="na">1request-dumper.org.apache.juli.FileHandler.level</span> <span class="o">=</span> <span class="s">INFO</span>
+<span class="na">1request-dumper.org.apache.juli.FileHandler.directory</span> <span class="o">=</span> <span class="s">${catalina.base}/logs</span>
+<span class="na">1request-dumper.org.apache.juli.FileHandler.prefix</span> <span class="o">=</span> <span class="s">request-dumper.</span>
+<span class="na">1request-dumper.org.apache.juli.FileHandler.formatter</span> <span class="o">=</span> <span class="s">org.apache.juli.VerbatimFormatter</span>
+<span class="na">org.apache.catalina.filters.RequestDumperFilter.level</span> <span class="o">=</span> <span class="s">INFO</span>
+<span class="na">org.apache.catalina.filters.RequestDumperFilter.handlers</span> <span class="o">=</span> <span class="s">1request-dumper.org.apache.juli.FileHandler</span>
+</code></pre></div>
+
+
+<p>Получился почти production-ready вариант, для включения логирования можно раскомментировать строчку с handlers и перезапустить приложение. Совсем по-хорошему это нужно сделать через JMX, тогда, быть может, получится избежать перезапуска приложения.</p>
+
+<h3 id="tomcat-5:e82678ac23d6d6c6d716963b71ef486f">Tomcat 5</h3>
+
+<p>Для старого Томката нужно использовать <a href="https://tomcat.apache.org/tomcat-5.5-doc/config/valve.html#Request_Dumper_Valve">Request_Dumper_Valve</a>. Фильтра в базовой поставке еще нет, его нужно отдельно собирать из servlet-examples.</p>
+
+<p>Для включения дампа нужно просто вставить строчку в server.xml (в блоки Engine или Host) и перезапустить сервер Tomcat:</p>
+
+<div class="highlight"><pre><code class="language-xml" data-lang="xml"><span class="nt">&lt;Valve</span> <span class="na">className=</span><span class="s">&quot;org.apache.catalina.valves.RequestDumperValve&quot;</span><span class="nt">/&gt;</span>
+</code></pre></div>
+
+
+<p>В первом случае (Engine) дамп будет выдаваться в catalina.out, а во втором (Host) - в localhost.log.</p>
+
+<hr />
+
+<p>У Request Dumper Filter есть два недостатка:</p>
+
+<ul>
+<li>нельзя залогировать тело запроса, только GET- и POST-параметры;</li>
+<li>нет возможности логировать HTTP-ответы сервера.</li>
+</ul>
+
+<h2 id="кастомные-фильтры:e82678ac23d6d6c6d716963b71ef486f">Кастомные фильтры</h2>
+
+<p>Основная проблема логирования тела запроса — это то, что body из <a href="http://docs.oracle.com/javaee/6/api/javax/servlet/ServletRequest.html">ServletRequest</a> достается из InputStream, т.е. это одноразовая операция. Мы не можем сначала где-то в фильтре прочитать body, залогировать, а потом второй раз прочитать body в обработчике запроса в приложении. В этом случае выскочит что-то вроде &ldquo;java.io.IOException: Attempted read on closed stream&rdquo;.</p>
+
+<p>Различные кастомные способы обходят эту проблему, используя wrapper&rsquo;ы или декораторы. Т.е. в фильтре мы читаем body из ServletRequest в String-поле wrapper&rsquo;а, и далее по цепочке передаем уже wrapper. Метод же getInputStream() создает stream из этого String-поля wrapper&rsquo;а.</p>
+
+<p>Есть две большие статьи с кусками почти работающего кода, реализующего этот подход:</p>
+
+<ul>
+<li><a href="http://natch3z.blogspot.co.uk/2009/01/read-request-body-in-filter.html">Read Request Body in Filter</a></li>
+<li><a href="http://wetfeetblog.com/servlet-filer-to-log-request-and-response-details-and-payload/431">Servlet Filer to Log Request and Response Payload</a></li>
+</ul>
+
+<p>Также есть маленький, но многообещающий проект <a href="https://github.com/isrsal/spring-mvc-logger">spring-mvc-logger</a>, заточенный под Spring MVC (он использует его logging filters). Его я, к сожалению, не смотрел.</p>
+
+<h2 id="logback-access:e82678ac23d6d6c6d716963b71ef486f">Logback-access</h2>
+
+<p>100% работающий способ логировать HTTP-ответы и запросы. Это <a href="http://logback.qos.ch/access.html">Logback-access</a>, часть проекта Logback. Подробнее см. <a href="http://logback.qos.ch/recipes/captureHttp.html">Capturing HTTP requests and responses</a>.</p>
+
+<p>Для выборочного отключения логирования (например, для тестовых или мониторинговых платежей) используется библиотека <a href="http://janino.net/changelog.html">Janino</a>. С ее помощью можно задать для logback-access фильтры (правила), которым должен соответствовать логируемый HTTP-пакет.</p>
+
+<p>Однако, весь набор библиотек:</p>
+
+<ul>
+<li>logback-access.jar + logback-core.jar as dependency,</li>
+<li>janino.jar + commons-compiler.jar as dependency,</li>
+</ul>
+
+<p>должен лежать в $TOMCAT_HOME/lib/.</p>
+
+<p>Конфигурация logback-access.xml кладется в $TOMCAT_HOME/conf/:</p>
+
+<p><div class="highlight"><pre><code class="language-xml" data-lang="xml"><span class="nt">&lt;configuration&gt;</span>
+    <span class="c">&lt;!-- Tomcat&#39;s lib folder must contain logback-core.jar and logback-access.jar to dump HTTP requests and responses --&gt;</span>
+    <span class="nt">&lt;appender</span> <span class="na">name=</span><span class="s">&quot;DUMPER&quot;</span> <span class="na">class=</span><span class="s">&quot;ch.qos.logback.core.rolling.RollingFileAppender&quot;</span><span class="nt">&gt;</span>
+        <span class="c">&lt;!-- Tomcat&#39;s lib folder must contain janino.jar and commons-compiler.jar to filter which HTTP requests and responses to dump --&gt;</span>
+        <span class="nt">&lt;filter</span> <span class="na">class=</span><span class="s">&quot;ch.qos.logback.core.filter.EvaluatorFilter&quot;</span><span class="nt">&gt;</span>
+            <span class="nt">&lt;evaluator&gt;</span>
+                <span class="c">&lt;!-- Disable dumping for HTTP requests for all apps except specified one and for requests with specific header --&gt;</span>
+                <span class="c">&lt;!-- Responses to these requests will not be dumped too --&gt;</span>
+                <span class="nt">&lt;expression&gt;</span>!event.getRequestURI().startsWith(&quot;/webapp&quot;) || event.getRequestHeader(&quot;X-Logging-Disabled&quot;).equals(&quot;true&quot;)<span class="nt">&lt;/expression&gt;</span>
+            <span class="nt">&lt;/evaluator&gt;</span>
+            <span class="nt">&lt;onMismatch&gt;</span>NEUTRAL<span class="nt">&lt;/onMismatch&gt;</span>
+            <span class="nt">&lt;onMatch&gt;</span>DENY<span class="nt">&lt;/onMatch&gt;</span>
+        <span class="nt">&lt;/filter&gt;</span>
+        <span class="nt">&lt;encoder&gt;</span>
+            <span class="nt">&lt;pattern&gt;</span>
+                %date{yyyy-MM-dd HH:mm:ss.SSS} REQUEST: %fullRequest%n%n%date{yyyy-MM-dd HH:mm:ss.SSS} RESPONSE: %fullResponse
+            <span class="nt">&lt;/pattern&gt;</span>
+        <span class="nt">&lt;/encoder&gt;</span>
+        <span class="nt">&lt;file&gt;</span>${catalina.base}/logs/dumper.log<span class="nt">&lt;/file&gt;</span>
+        <span class="nt">&lt;rollingPolicy</span> <span class="na">class=</span><span class="s">&quot;ch.qos.logback.core.rolling.TimeBasedRollingPolicy&quot;</span><span class="nt">&gt;</span>
+            <span class="nt">&lt;fileNamePattern&gt;</span>${catalina.base}/logs/dumper.%d.%i.log<span class="nt">&lt;/fileNamePattern&gt;</span>
+            <span class="nt">&lt;timeBasedFileNamingAndTriggeringPolicy</span> <span class="na">class=</span><span class="s">&quot;ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP&quot;</span><span class="nt">&gt;</span>
+                <span class="nt">&lt;maxFileSize&gt;</span>10MB<span class="nt">&lt;/maxFileSize&gt;</span>
+            <span class="nt">&lt;/timeBasedFileNamingAndTriggeringPolicy&gt;</span>
+        <span class="nt">&lt;/rollingPolicy&gt;</span>
+    <span class="nt">&lt;/appender&gt;</span>
+    <span class="nt">&lt;appender-ref</span> <span class="na">ref=</span><span class="s">&quot;DUMPER&quot;</span><span class="nt">/&gt;</span>
+<span class="nt">&lt;/configuration&gt;</span>
+</code></pre></div>
+</p>
+
+<p>Эта конфигурация устанавливает логирование всех HTTP-запросов на /webapp без HTTP-заголовка X-Logging-Disabled.</p>
+
+<p>Также, должен быть активирован LogbackAccessValve в $TOMCAT_HOME/conf/server.xml (в блоке Host):</p>
+
+<p><div class="highlight"><pre><code class="language-xml" data-lang="xml"><span class="nt">&lt;Valve</span> <span class="na">className=</span><span class="s">&quot;ch.qos.logback.access.tomcat.LogbackValve&quot;</span><span class="nt">/&gt;</span>
+</code></pre></div>
+</p>
+
+<p>Последний штрих — объявление фильтра <a href="http://logback.qos.ch/apidocs/ch/qos/logback/access/servlet/TeeFilter.html">TeeFilter</a>. В Spring Boot это делается элементарно:</p>
+
+<p><div class="highlight"><pre><code class="language-java" data-lang="java"><span class="cm">/**</span>
+<span class="cm"> * Enable HTTP response logging, see &lt;a href=&quot;http://logback.qos.ch/recipes/captureHttp.html&quot;&gt;Capturing HTTP requests and responses&lt;/a&gt;.</span>
+<span class="cm"> * Tomcat&#39;s lib folder must contain logback-core.jar and logback-access.jar.</span>
+<span class="cm"> */</span>
+<span class="nd">@Bean</span>
+<span class="n">Filter</span> <span class="nf">httpRequestAndResponseDumper</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="n">TeeFilter</span><span class="o">();</span>
+<span class="o">}</span>
+</code></pre></div>
+</p>
+
+        </div>
+        
+        <div class="post">
+            <h1 class="post-title">
+                <a href="https://dddpaul.github.io/blog/2015/05/15/rabbitmq-links/">
+                    RabbitMQ links
+                </a>
+            </h1>
+
+            <span class="post-date">2015-05-15</span>
+
+            <p>RabbitMQ confirms, transactions, reply-to functionality and Spring integration:</p>
+
+<ul>
+<li><a href="http://docs.spring.io/spring-amqp/reference/html/amqp.html">Using Spring AMQP</a></li>
+<li><a href="http://www.rabbitmq.com/blog/2011/02/10/introducing-publisher-confirms/">Introducing Publisher Confirms</a></li>
+<li><a href="https://kishanthan.wordpress.com/2013/05/05/transaction-support-with-rabbitmq/">Transaction support with RabbitMQ</a></li>
+<li><a href="http://www.rabbitmq.com/confirms.html">Confirms (aka Publisher Acknowledgements)</a></li>
+<li><a href="http://www.rabbitmq.com/direct-reply-to.html">Direct reply-to</a></li>
+<li><a href="http://www.rabbitmq.com/tutorials/tutorial-six-java.html">Remote procedure call (RPC)</a></li>
+<li><a href="https://gist.github.com/scvalex/613157">TxDontLoseMessages.java</a></li>
+<li><a href="https://raw.githubusercontent.com/rabbitmq/rabbitmq-java-client/master/test/src/com/rabbitmq/examples/ConfirmDontLoseMessages.java">ConfirmDontLoseMessages.java</a></li>
+<li><a href="http://habrahabr.ru/post/262069/">RabbitMQ Spring tutorial</a> &amp; <a href="https://github.com/Dmitry-Shweikus/rabbitmq-examples">rabbitmq-examples</a></li>
+</ul>
+
+        </div>
+        
+        <div class="post">
+            <h1 class="post-title">
+                <a href="https://dddpaul.github.io/blog/2015/04/12/java-builders/">
+                    Java builders
+                </a>
+            </h1>
+
+            <span class="post-date">2015-04-12</span>
+
+            <p>So it&rsquo;s time to scrutinize <a href="http://en.wikipedia.org/wiki/Builder_pattern">a builder pattern</a>. There are bunch of options to implement builder pattern in Java:</p>
+
+<ul>
+<li><a href="http://habrahabr.ru/post/86252/">classic</a> builder;</li>
+<li><a href="http://habrahabr.ru/post/244521/">elegant</a> builder;</li>
+<li>classic builder with <a href="https://github.com/analytically/innerbuilder">IntelliJ IDEA plugin</a>;</li>
+<li><a href="https://github.com/google/auto/tree/master/value">Google AutoValue</a> builder;</li>
+<li><a href="http://projectlombok.org/features/Builder.html">Project Lombok</a> builder;</li>
+<li><a href="https://github.com/mkarneim/pojobuilder">POJO</a> builder;</li>
+<li><a href="http://immutables.github.io/">Immutables</a> builder.</li>
+</ul>
+
+<p>All of these variants have been examined in <a href="https://github.com/dddpaul/java-builders">Java builders</a> GitHub project.</p>
+
+<p>The winners are (and this a tough IMHO):</p>
+
+<ul>
+<li>IDEA InnerBuilder plugin if you use builder class from frameworks like <a href="http://spring.io/">Spring/Spring MVC</a> or <a href="https://www.playframework.com/">Play</a>. You can&rsquo;t pass validation annotations to generated class. Despite everything if there is a way to do this I&rsquo;ll be happy to mistake.</li>
+<li>Immutables.org builder in all other cases. It&rsquo;s features rich and generates beautiful code.</li>
+</ul>
+
+<p>But do not forget about AutoValue because it&rsquo;s backed by Google itself.</p>
+
+        </div>
+        
+        <div class="post">
+            <h1 class="post-title">
+                <a href="https://dddpaul.github.io/blog/2015/02/14/oracle-connectivity/">
+                    Oracle connectivity in Java
+                </a>
+            </h1>
+
+            <span class="post-date">2015-02-14</span>
+
+            <p>A new small <a href="https://github.com/dddpaul/java-oracle-connectivity">test project</a> is intended to answer the question - what is the proper way to specify network timeout for database connection?</p>
+
+<p>There so many ways in JDBC API:</p>
+
+<ul>
+<li>[CommonDataSource.setLoginTimeout](<a href="http://docs.oracle.com/javase/7/docs/api/javax/sql/CommonDataSource.html#setLoginTimeout(int)">http://docs.oracle.com/javase/7/docs/api/javax/sql/CommonDataSource.html#setLoginTimeout(int)</a>)</li>
+<li>[Connection.setNetworkTimeout](<a href="http://docs.oracle.com/javase/7/docs/api/java/sql/Connection.html#setNetworkTimeout(java.util.concurrent.Executor,%20int)">http://docs.oracle.com/javase/7/docs/api/java/sql/Connection.html#setNetworkTimeout(java.util.concurrent.Executor,%20int)</a>)</li>
+<li>[Statement.setQueryTimeout](<a href="http://docs.oracle.com/javase/7/docs/api/java/sql/Statement.html#setQueryTimeout(int)">http://docs.oracle.com/javase/7/docs/api/java/sql/Statement.html#setQueryTimeout(int)</a>)</li>
+</ul>
+
+<p>And every database has it&rsquo;s own non-standard ways in addition.</p>
+
+<p>But these tests have been lead us to a single conclusion — you must specify network timeouts on driver level. All these JDBC stuff isn&rsquo;t enough for Oracle database.</p>
+
+<p>This code is suitable for <a href="http://tomcat.apache.org/tomcat-7.0-doc/jdbc-pool.html">Tomcat JDBC Connection Pool</a>:</p>
+
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="c1">// Get datasource some way</span>
+<span class="n">Datasource</span> <span class="n">ds</span> <span class="o">=</span> <span class="n">createDataSource</span><span class="o">(</span><span class="n">host</span><span class="o">);</span>
+
+<span class="c1">// Set connect (login) timeout</span>
+<span class="n">ds</span><span class="o">.</span><span class="na">setConnectionProperties</span><span class="o">(</span><span class="n">OracleConnection</span><span class="o">.</span><span class="na">CONNECTION_PROPERTY_THIN_NET_CONNECT_TIMEOUT</span> <span class="o">+</span> <span class="s">&quot;=3000&quot;</span><span class="o">);</span>
+
+<span class="c1">// Set common network read timeout</span>
+<span class="n">ds</span><span class="o">.</span><span class="na">setConnectionProperties</span><span class="o">(</span><span class="n">OracleConnection</span><span class="o">.</span><span class="na">CONNECTION_PROPERTY_THIN_READ_TIMEOUT</span> <span class="o">+</span> <span class="s">&quot;=3000&quot;</span><span class="o">);</span>
+</code></pre></div>
+
+
+<p>The proper way to specify these timeouts in <a href="http://tomcat.apache.org/tomcat-7.0-doc/jndi-datasource-examples-howto.html">JNDI Datasource configuration</a>:</p>
+
+<p><div class="highlight"><pre><code class="language-xml" data-lang="xml"><span class="nt">&lt;Resource</span> <span class="na">name=</span><span class="s">&quot;jdbc/oracle&quot;</span>
+    <span class="na">driverClassName=</span><span class="s">&quot;oracle.jdbc.OracleDriver&quot;</span>
+    <span class="na">factory=</span><span class="s">&quot;org.apache.tomcat.jdbc.pool.DataSourceFactory&quot;</span>
+    <span class="na">connectionProperties=</span><span class="s">&quot;oracle.net.CONNECT_TIMEOUT=3000;oracle.jdbc.ReadTimeout=3000&quot;</span>
+    <span class="err">...</span>
+    <span class="nt">/&gt;</span>
+</code></pre></div>
+</p>
+
+        </div>
+        
+        <div class="post">
+            <h1 class="post-title">
+                <a href="https://dddpaul.github.io/blog/2015/02/01/java-listeners/">
+                    Java network listeners
+                </a>
+            </h1>
+
+            <span class="post-date">2015-02-01</span>
+
+            <p>I&rsquo;ve written a small <a href="https://github.com/dddpaul/java-network-listeners">listeners library</a> today. It allows to create Callables which can be submitted to <a href="http://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ExecutorService.html">ExecutorService</a>. The callable itself implements creating server socket and binding it to local port.</p>
+
+<p>There two principal type of listeners: blocking and non-blocking (thanks to <a href="http://en.wikipedia.org/wiki/Non-blocking_I/O_(Java)">Java NIO</a>.</p>
+
+<hr />
+
+<p>Blocking listener is very simple but in can&rsquo;t be interrupted by calling thread. So there&rsquo;s no point in that:</p>
+
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="n">Future</span><span class="o">&lt;</span><span class="n">Socket</span><span class="o">&gt;</span> <span class="n">future</span> <span class="o">=</span> <span class="n">executor</span><span class="o">.</span><span class="na">submit</span><span class="o">(</span> <span class="n">Listeners</span><span class="o">.</span><span class="na">createListener</span><span class="o">(</span> <span class="n">PORT</span> <span class="o">)</span> <span class="o">);</span>
+<span class="k">try</span> <span class="o">{</span>
+    <span class="n">Socket</span> <span class="n">socket</span> <span class="o">=</span> <span class="n">future</span><span class="o">.</span><span class="na">get</span><span class="o">(</span> <span class="mi">1</span><span class="o">,</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="na">SECONDS</span> <span class="o">);</span>
+<span class="o">}</span> <span class="k">catch</span><span class="o">(</span> <span class="n">TimeoutException</span> <span class="n">e</span> <span class="o">)</span> <span class="o">{</span>
+    <span class="n">future</span><span class="o">.</span><span class="na">cancel</span><span class="o">(</span> <span class="kc">true</span> <span class="o">);</span>
+<span class="o">}</span>
+</code></pre></div>
+
+
+<p>Listener will stay active and PORT will be bound still. The reason is in usage of the uninterruptible <a href="http://docs.oracle.com/javase/7/docs/api/java/net/ServerSocket.html#accept()">ServerSocket.accept()</a>.</p>
+
+<hr />
+
+<p>In contrary non-blocking listener is more sophisticated but it can be interrupted by calling thread. So you can do that:</p>
+
+<p><div class="highlight"><pre><code class="language-java" data-lang="java"><span class="n">Future</span><span class="o">&lt;</span><span class="n">Socket</span><span class="o">&gt;</span> <span class="n">future</span> <span class="o">=</span> <span class="n">executor</span><span class="o">.</span><span class="na">submit</span><span class="o">(</span> <span class="n">Listeners</span><span class="o">.</span><span class="na">createListener</span><span class="o">(</span> <span class="n">PORT</span> <span class="o">)</span> <span class="o">);</span>
+<span class="k">try</span> <span class="o">{</span>
+    <span class="n">Socket</span> <span class="n">socket</span> <span class="o">=</span> <span class="n">future</span><span class="o">.</span><span class="na">get</span><span class="o">(</span> <span class="mi">1</span><span class="o">,</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="na">SECONDS</span> <span class="o">);</span>
+<span class="o">}</span> <span class="k">catch</span><span class="o">(</span> <span class="n">TimeoutException</span> <span class="n">e</span> <span class="o">)</span> <span class="o">{</span>
+    <span class="n">future</span><span class="o">.</span><span class="na">cancel</span><span class="o">(</span> <span class="kc">true</span> <span class="o">);</span>
+<span class="o">}</span>
+</code></pre></div>
+</p>
+
+<p>Listener will be terminated and PORT will be freed.</p>
+
+        </div>
+        
+    </div>
+
+
+<script type="text/javascript">
+    (function (d, w, c) {
+        (w[c] = w[c] || []).push(function() {
+            try {
+                w.yaCounter34067830 = new Ya.Metrika({
+                    id:34067830,
+                    clickmap:true,
+                    trackLinks:true,
+                    accurateTrackBounce:true
+                });
+            } catch(e) { }
+        });
+
+        var n = d.getElementsByTagName("script")[0],
+                s = d.createElement("script"),
+                f = function () { n.parentNode.insertBefore(s, n); };
+        s.type = "text/javascript";
+        s.async = true;
+        s.src = "https://mc.yandex.ru/metrika/watch.js";
+
+        if (w.opera == "[object Opera]") {
+            d.addEventListener("DOMContentLoaded", f, false);
+        } else { f(); }
+    })(document, window, "yandex_metrika_callbacks");
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/34067830" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+
+
+
+</body>
+</html>

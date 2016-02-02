@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Android on Dev notes</title>
+    <link>https://dddpaul.github.io/blog/tags/android/</link>
+    <description>Recent content in Android on Dev notes</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 21 Oct 2014 14:30:16 +0000</lastBuildDate>
+    <atom:link href="https://dddpaul.github.io/blog/tags/android/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Борьба с утечками памяти в Android (Badoo)</title>
+      <link>https://dddpaul.github.io/blog/2014/10/21/android-memory-leak-badoo/</link>
+      <pubDate>Tue, 21 Oct 2014 14:30:16 +0000</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2014/10/21/android-memory-leak-badoo/</guid>
+      <description>
+
+&lt;p&gt;На хабре появилась статья &lt;a href=&#34;http://habrahabr.ru/company/badoo/blog/240479/&#34;&gt;Борьба с утечками памяти в Android. Часть 1&lt;/a&gt; от компании Badoo. Т.к. тема созвучна с моими постами из серии 
+&lt;a href=&#39;https://dddpaul.github.io/blog//series/memory-leaks/&#39;&gt;Memory leaks&lt;/a&gt;, то решил вкратце описать их методы.&lt;/p&gt;
+
+&lt;p&gt;Суть проблемы — использование android.os.Handler, в который постится анонимный Runnable с помощью метода [postDelayed](&lt;a href=&#34;http://developer.android.com/reference/android/os/Handler.html#postDelayed(java.lang.Runnable&#34;&gt;http://developer.android.com/reference/android/os/Handler.html#postDelayed(java.lang.Runnable&lt;/a&gt;, long). Для демонстрации, Runnable просто меняет какой-либо TextView (т.е. содержит внутри себя ссылку mTextView), и время до выполнения Runnable берется довольно большим. Так вот, если за этот промежуток времени повернуть девайс несколько раз, то старые активити не будут собираться GC, т.к. в Java любой анонимный класс всегда имеет неявную ссылку на внешний класс.&lt;/p&gt;
+
+&lt;h3 id=&#34;решение-с-использованием-статического-класса:b5ecc8a59da209189d194d532f575ae4&#34;&gt;Решение с использованием статического класса&lt;/h3&gt;
+
+&lt;p&gt;Переделка анонимного класса в статический проблему не решает — Activity сохранен в ссылке mContext из mTextView внутри нашей реализации Runnable.&lt;/p&gt;
+
+&lt;h3 id=&#34;решение-с-использованием-статического-класса-и-weakreference:b5ecc8a59da209189d194d532f575ae4&#34;&gt;Решение с использованием статического класса и WeakReference&lt;/h3&gt;
+
+&lt;p&gt;В реализации Runnable сохраняем ссылку на TextView в WeakReference. Использование WeakReference требует особой аккуратности: такая ссылка в любой момент может обнулиться. Поэтому сначала сохраняем ссылку в локальную переменную и работаем только с последней, проверив ее на null.&lt;/p&gt;
+
+&lt;p&gt;Для использования данного подхода нам необходимо:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;использовать статический внутренний или внешний класс;&lt;/li&gt;
+&lt;li&gt;использовать WeakReference для всех объектов, на которые мы ссылаемся.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Это решает проблему.&lt;/p&gt;
+
+&lt;h3 id=&#34;очистка-всех-сообщений-в-ondestroy:b5ecc8a59da209189d194d532f575ae4&#34;&gt;Очистка всех сообщений в onDestroy&lt;/h3&gt;
+
+&lt;p&gt;Добавим в onDestroy вызов метода класса Handler &lt;a href=&#34;http://developer.android.com/reference/android/os/Handler.html#removeCallbacksAndMessages(java.lang.Object)&#34;&gt;removeCallbacksAndMessages&lt;/a&gt;. Он удаляет все сообщения, находящиеся в очереди данного Handler&amp;rsquo;а. Это очень хороший способ защититься от утечки памяти, но во-первых, нужно не забыть это сделать, а во-вторых, в комментах к статье пишут, что вызов onDestroy в общем случае не гарантирован.&lt;/p&gt;
+
+&lt;p&gt;Цитата из документации — &lt;a href=&#34;http://developer.android.com/training/basics/activity-lifecycle/stopping.html&#34;&gt;Stopping and Restarting an Activity&lt;/a&gt;:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;When your activity receives a call to the onStop() method, it&amp;rsquo;s no longer visible and should release almost all resources that aren&amp;rsquo;t needed while the user is not using it. Once your activity is stopped, the system might destroy the instance if it needs to recover system memory. In extreme cases, the system might simply kill your app process without calling the activity&amp;rsquo;s final onDestroy() callback, so it&amp;rsquo;s important you use onStop() to release resources that might leak memory.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h3 id=&#34;решение-с-использованием-weakhandler:b5ecc8a59da209189d194d532f575ae4&#34;&gt;Решение с использованием WeakHandler&lt;/h3&gt;
+
+&lt;p&gt;Команда Badoo написала свой Handler — &lt;a href=&#34;github.com/badoo/android-weak-handler&#34;&gt;WeakHandler&lt;/a&gt;. Это класс, который ведет себя совершенно как Handler, но исключает утечки памяти за счет использования слабых ссылок.&lt;/p&gt;
+
+&lt;p&gt;Главная идея — держать жесткую ссылку на сообщения или Runnable до тех пор, пока существует жесткая ссылка на WeakHandler. Как только WeakHandler может быть удален из памяти, все остальное должно быть удалено вместе с ним.&lt;/p&gt;
+
+&lt;h3 id=&#34;выводы:b5ecc8a59da209189d194d532f575ae4&#34;&gt;Выводы&lt;/h3&gt;
+
+&lt;p&gt;Отличная и годная статья :)&lt;/p&gt;
+
+&lt;p&gt;Ссылки:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://corner.squareup.com/2013/10/android-main-thread-1.html&#34;&gt;A journey on the Android Main Thread - PSVM&lt;/a&gt;. Рассказ про про внутренности Main Thread: Loopers, Handlers и т.д.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://corner.squareup.com/2013/12/android-main-thread-2.html&#34;&gt;A journey on the Android Main Thread - Lifecycle bits&lt;/a&gt;. Продолжение — про lifecycle и orientation change.&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Подводные камни смены ориентации в Android</title>
+      <link>https://dddpaul.github.io/blog/2014/08/02/orientation-change/</link>
+      <pubDate>Sat, 02 Aug 2014 13:32:33 +0000</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2014/08/02/orientation-change/</guid>
+      <description>
+
+&lt;p&gt;После нескольких дней отладки приложения пришел к выводу, что смена ориентации (rotation, orientation change) требует к себе особого внимания. Наконец-то я понял тех разработчиков, которые напрочь запрещают смену ориентации в своем софте. Ведь, не зная некоторых неочевидных нюансов, можно легко получить крах приложения или утечку памяти.&lt;/p&gt;
+
+&lt;p&gt;Опишу в порядке возрастания сложности, на какие подводные камни мне пришлось натолкнуться.&lt;/p&gt;
+
+&lt;h3 id=&#34;beginner-s-level:ab7bd6db0fbb770c5dbfe85b3a43d6b3&#34;&gt;Beginner&amp;rsquo;s level&lt;/h3&gt;
+
+&lt;p&gt;Надо сохранять состояние (state) фрагментов. Не сохранил — потерял, т.к. активити и фрагменты будут пересозданы. Если стейт фрагмента сериализуется в строку, то просто переопределяем метод onSaveInstanceState(). Способ описан как в &lt;a href=&#34;http://developer.android.com/guide/components/fragments.html#Lifecycle&#34;&gt;официальной документации&lt;/a&gt;, так и в множестве других мест.&lt;/p&gt;
+
+&lt;h3 id=&#34;intermediate:ab7bd6db0fbb770c5dbfe85b3a43d6b3&#34;&gt;Intermediate&lt;/h3&gt;
+
+&lt;p&gt;Не забываем про AsyncTask. Их тоже надо сохранять, ибо иначе при смене ориентации мы его потеряем. Или он что-нибудь обвалит :) Для решения этой проблемы придумана такая отличная штука, как retaining fragments. Всего один вызов setRetainInstance(true) продляет жизнь фрагменту и связанному с ним асинктаску (назовем это длинный стейт).&lt;/p&gt;
+
+&lt;p&gt;Тут и начинаются подводные камни. Что если мы хотим в портретном режиме свайпить фрагменты (через ViewPager), а в landscape — просто показать их всех в линеечку (с помощью LinearLayout безо всякого ViewPager)? Запустим приложение в portrait mode, перевернем, и получим &amp;ldquo;IllegalArgumentException: No view found&amp;rdquo;.&lt;/p&gt;
+
+&lt;p&gt;Суть в том, что изначальный фрагмент с портретного режима останется и даже сохранит ссылку на ViewPager, которого в landscape layout уже просто нет :) Отсюда вывод - использовать для сохранения длинного стейта нужно headless fragments, т.е. фрагменты без UI. Тогда получается красиво: в &amp;ldquo;обычных&amp;rdquo; фрагментах формочки и кнопочки, а асинктаски — в отдельных, которые ничего про UI не знают.&lt;/p&gt;
+
+&lt;p&gt;Остался последний вопрос — как этот headless fragment создать/запустить? В android-samples есть пример &lt;a href=&#34;https://android.googlesource.com/platform/development/+/master/samples/ApiDemos/src/com/example/android/apis/app/FragmentRetainInstance.java&#34;&gt;FragmentRetainInstance.java&lt;/a&gt;, в котором используется способ матрешки - активити запускает parent fragment, parent запускает worker fragment, внутри которого сидит асинктаск.&lt;/p&gt;
+
+&lt;p&gt;Вроде хорошая схема, но если вы, не дай бог, возьмете Robolectric и напишите юнит-тест для родительского фрагмента, то получите что-то типа recursive transaction exception. Суть в том, что роболектрик создает тестируемый фрагмент обычным способом (через транзакцию), а внутри запускается новая транзакция (для worker fragment). А так нельзя, это вам не JPA какой-нибудь :)&lt;/p&gt;
+
+&lt;p&gt;Итого — держим асинктаски в headless-фрагменте, который запускаем из активити. В целом, это отличная схема на все случаи жизни, а не только для приведенного примера.&lt;/p&gt;
+
+&lt;h3 id=&#34;veteran:ab7bd6db0fbb770c5dbfe85b3a43d6b3&#34;&gt;Veteran&lt;/h3&gt;
+
+&lt;p&gt;Копаем в сторону уже вскользь упомянутого multi-pane. Как его сделать правильно на одних фрагментах? Внятно описанный &lt;a href=&#34;http://www.vogella.com/tutorials/AndroidFragments/article.html&#34;&gt;способ от Ларса Вогеля&lt;/a&gt; требует разных активити, а я не хочу плодить сущности.&lt;/p&gt;
+
+&lt;p&gt;Используем уже описанный метод с двумя layout&amp;rsquo;ами (ведь мы же за декларативный подход!):&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;1-й layout состоит из одного ViewPager&amp;rsquo;а;&lt;/li&gt;
+&lt;li&gt;2-й — LinearLayout с двумя фрагментами.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;В чем прелесть подхода — 2-й layout можно положить в папочку, например, layout-w600dp и он будет автоматически использован, если ширина экрана больше 600dp. Красота!&lt;/p&gt;
+
+&lt;p&gt;Оно даже работает и не падает. Правда, появился какой-то странный глюк с &lt;a href=&#34;http://github.com/greenrobot/EventBus&#34;&gt;EventBus&lt;/a&gt;: иногда фрагмент получает два сообщения вместо одного. При более пристальном изучении оказалось наоборот - два одинаковых фрагмента получают одно сообщение. Откуда они берутся? А кто его знает :)&lt;/p&gt;
+
+&lt;p&gt;Была убита куча времени в DDMS/VisualVM/MAT, в результате чего появился &lt;a href=&#34;https://github.com/dddpaul/android-ViewPagerBug&#34;&gt;тестовый проект&lt;/a&gt;, также описал симптомы на &lt;a href=&#34;http://stackoverflow.com/questions/25033824/dublicate-fragment-allocation-when-using-viewpager-with-different-layouts&#34;&gt;StackOverflow&lt;/a&gt;. Вкратце, именно при использовании такого варианта multi-pane (когда в одном layout есть ViewPager, а в другом нет), фрагменты при перевороте создаются ДВАЖДЫ. Причем, оба в RESUMED state, поэтому они оба и ловят сообщения по EventBus.&lt;/p&gt;
+
+&lt;p&gt;Плюнув, отказался от второго layout&amp;rsquo;а, теперь ViewPager используется везде. Чтобы показать сразу 2 фрагмента, можно использовать разные &lt;a href=&#34;http://commonsware.com/blog/2012/08/20/multiple-view-viewpager-options.html&#34;&gt;хитрые способы&lt;/a&gt;. Они, в общем, несложные, и, в моем случае, способ с переопределением getPageWidth() даже не внес никаких сайд-эффектов. Правда, определение ширины экрана, когда надо показать multi-pane пришлось вынести в код, получилось чуть менее декларативненько.&lt;/p&gt;
+
+&lt;h3 id=&#34;hardcore:ab7bd6db0fbb770c5dbfe85b3a43d6b3&#34;&gt;Hardcore&lt;/h3&gt;
+
+&lt;p&gt;Плавно переходим к утечкам памяти :)&lt;/p&gt;
+
+&lt;p&gt;Очень веселая ситуация, когда после, например, после 10 ротаций эмулятора и нескольких запусков GC в хипе болтаются 11 activities. Решив идти до конца, вооружившись методом исключения и вырезав почти весь код и вьюхи, удалось докопаться до причины. Утекал компонент TextView с опцией &lt;a href=&#34;http://stackoverflow.com/questions/22990634/textview-with-id-and-textisselectable-true-causes-leaking-of-the-activity-obje&#34;&gt;textIsSelectable=&amp;ldquo;true&amp;rdquo;&lt;/a&gt;. Очень порадовало начало топика &amp;ldquo;It took me three days to narrow my problem &amp;hellip;&amp;rdquo; :)&lt;/p&gt;
+
+&lt;p&gt;Убрал одну строчку в layout, утечка исчезла, ура. Вернулся в основную ветку, вставил этот коммит, прогнал тест (10 ротаций), получил 10 activities. Уже лучше :)&lt;/p&gt;
+
+&lt;p&gt;Оказалось, компонент EditText также замечательно утекает. Причина, вроде бы в том, что он слишком умный (у него по-умолчанию включен спеллчекер). Если отключить, то утечка может пропасть, а может и нет. Прогнал тест на разных эмуляторах, оказалось, что в 4.3 баг починен, уже хорошо! А я все тестил на 4.1.2.&lt;/p&gt;
+
+&lt;p&gt;Раз версия 4.3 такая замечательная, может быть, там починена утечка textIsSelectable? А то вдруг понадобится эта опция? Нет, все без изменений. Версия 4.4.2? А вот фиг вам - &lt;a href=&#34;https://code.google.com/p/android/issues/detail?id=61671&#34;&gt;баг в эмуляторе&lt;/a&gt;. Вы не можете повернуть эмулятор с этой версией Андроида :) Тест запустить не удалось.&lt;/p&gt;
+
+&lt;p&gt;Фрагменты также могут утекать. В сети полно примеров организации свайпа с ViewPager (это где фрагменты создаются в классе-потомке FragmentPagerAdapter и т.д.) Все замечательно, но не забываем вставлять в onDestroy():&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;pager.removeAllViews();
+pager.setAdapter( null );
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Иначе, каждый раз при rotation старые фрагменты не будут собираться GC. Если у вас приложение с 2-мя фраментами, то после 10 ротаций будет 22, плюс 11 activities. По крайней мере, в 4.1.2. В 4.3 уже можно этим не заморачиваться :)&lt;/p&gt;
+
+&lt;h3 id=&#34;заключение:ab7bd6db0fbb770c5dbfe85b3a43d6b3&#34;&gt;Заключение&lt;/h3&gt;
+
+&lt;p&gt;К чему весь этот пост - выложил обновление &lt;a href=&#34;https://play.google.com/store/apps/details?id=com.github.dddpaul.netcat&#34;&gt;Simple NetCat&lt;/a&gt;. Версия 1.4 поддерживает multi-pane на планшетах, содержит меньше багов (скрестил два пальца) и практически не течет по памяти.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Android memory leaks</title>
+      <link>https://dddpaul.github.io/blog/2014/08/01/android-memory-leaks/</link>
+      <pubDate>Fri, 01 Aug 2014 13:34:16 +0000</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2014/08/01/android-memory-leaks/</guid>
+      <description>&lt;p&gt;Articles:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://android-developers.blogspot.ru/2009/01/avoiding-memory-leaks.html&#34;&gt;Avoiding memory leaks&lt;/a&gt;. This great article describes base causes of memory leaks on Android. I quote summary from there:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Do not keep long-lived references to a context-activity (a reference to an activity should have the same life cycle as the activity itself)&lt;/li&gt;
+&lt;li&gt;Try using the context-application instead of a context-activity&lt;/li&gt;
+&lt;li&gt;Avoid non-static inner classes in an activity if you don&amp;rsquo;t control their life cycle, use a static inner class and make a weak reference to the activity inside. The solution to this issue is to use a static inner class with a WeakReference to the outer class, as done in ViewRoot and its W inner class for instance&lt;/li&gt;
+&lt;li&gt;A garbage collector is not an insurance against memory leaks&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://www.androiddesignpatterns.com/2013/01/inner-class-handler-memory-leak.html&#34;&gt;How to Leak a Context: Handlers &amp;amp; Inner Classes&lt;/a&gt;. Be cautious when using inner classes inside activity. The summary:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;In Java, non-static inner and anonymous classes hold an implicit reference to their outer class. Static inner classes, on the other hand, do not.&lt;/li&gt;
+&lt;li&gt;Avoid using non-static inner classes in an activity if instances of the inner class outlive the activity&amp;rsquo;s lifecycle.&lt;/li&gt;
+&lt;li&gt;Instead, prefer static inner classes and hold a weak reference to the activity inside.&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://habrahabr.ru/post/116294/&#34;&gt;Отслеживание утечек памяти в Android приложениях&lt;/a&gt;. This article gives example of class for tracking memory leaks based on WeakReference.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;StackOverflow discussions mostly:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://geekple.com/blogs/feeds/9AlMn/posts/354891570708736&#34;&gt;TextView with id and textIsSelectable=&amp;ldquo;true&amp;rdquo; causes leaking of the Activity object&lt;/a&gt;. And corresponding &lt;a href=&#34;http://stackoverflow.com/questions/22990634/textview-with-id-and-textisselectable-true-causes-leaking-of-the-activity-obje&#34;&gt;Stack Overflow topic&lt;/a&gt;. I&amp;rsquo;ve bumped into this issue personally and spent a quite some time too. Rotating emulator and heapdumping mostly :) The point is that TextView with id and android:textIsSelectable=&amp;ldquo;true&amp;rdquo; causes memory leak on Android 4.0.x, 4.1.x, 4.2.x, 4.3.x. Can&amp;rsquo;t check it on 4.4.2 because of &lt;a href=&#34;https://code.google.com/p/android/issues/detail?id=61671&#34;&gt;emulator bug&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://stackoverflow.com/questions/18348049/android-edittext-memory-leak&#34;&gt;Android EditText Memory Leak&lt;/a&gt;, &lt;a href=&#34;http://stackoverflow.com/questions/8497965/why-does-edittext-retain-its-activitys-context-in-ice-cream-sandwich&#34;&gt;Why does EditText retain its Activity&amp;rsquo;s Context in Ice Cream Sandwich&lt;/a&gt;, &lt;a href=&#34;http://stackoverflow.com/questions/14069501/edittext-causing-memory-leak&#34;&gt;EditText causing memory leak&lt;/a&gt;. The main theme of this topics is that EditText leaks when spellchecker suggestions are used. You can turn it off but it can help or maybe not. EditText is leaking on Android 4.0.x, 4.1.x, 4.2.x. Thanks god, seems like it&amp;rsquo;s fixed in Android 4.3, API 18 (checked on Nexus 7 2013 emulator). Although &lt;a href=&#34;https://code.google.com/p/android/issues/detail?id=60930&#34;&gt;corresponding issue&lt;/a&gt; is still open.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://stackoverflow.com/a/18414294&#34;&gt;Fragments are not being released from memory&lt;/a&gt;. A valuable advice - use weak references to point to any object that references its context outside of your Activity. I&amp;rsquo;m not sure is it a proper approach to weak referencing ViewPager, but for some more &amp;ldquo;distant&amp;rdquo; object like &lt;a href=&#34;http://www.michenux.net/android-asynctask-in-fragment-best-pratices-725.html&#34;&gt;AsyncTask&lt;/a&gt; it might be reasonable.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Videos:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.youtube.com/watch?v=_CruQY55HOk&#34;&gt; Google I/O 2011: Memory management for Android Apps &lt;/a&gt;. Presentation by &lt;a href=&#34;http://dubroy.com&#34;&gt;Patrick Dubroy&lt;/a&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Multi-pane layout for tablets</title>
+      <link>https://dddpaul.github.io/blog/2014/07/30/multi-pane/</link>
+      <pubDate>Wed, 30 Jul 2014 07:14:41 +0000</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2014/07/30/multi-pane/</guid>
+      <description>&lt;p&gt;Some articles:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://commonsware.com/blog/2012/08/20/multiple-view-viewpager-options.html&#34;&gt;Multiple-View ViewPager Options&lt;/a&gt;. It&amp;rsquo;s a brilliant set of methods to display several fragments simultaneously using ViewPager. I&amp;rsquo;ve personally used first method (overriding getPageWidth() in PagerAdapter) - it works for me.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://shashikawlp.wordpress.com/2012/12/13/android-viewpager-with-multiple-views/&#34;&gt;Android ViewPager with Multiple Views&lt;/a&gt;. Looks like third method from previous article.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;And StackOverflow discussions:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://stackoverflow.com/questions/9468581/can-viewpager-have-multiple-views-in-per-page&#34;&gt;Can ViewPager have multiple views in per page?&lt;/a&gt;. There are links to CommonsWare article and description of method used for some Dutch newspaper app. Looks nice but it display one full page and part of another - it&amp;rsquo;s not what I need now.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://stackoverflow.com/questions/23149850/viewpager-with-different-adapters-for-portrait-and-landscape&#34;&gt;ViewPager with different adapters for portrait and landscape&lt;/a&gt;. Dude wants to show A,B,C fragments in portrait mode and A,C only in landscape. Not my case but interesting.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://stackoverflow.com/questions/6465680/how-to-determine-the-screen-width-in-terms-of-dp-or-dip-at-runtime-in-android&#34;&gt;How to determine the screen width in terms of dp or dip at runtime in Android?&lt;/a&gt;. Describe how to calculate screen size in &amp;ldquo;density-independent pixels&amp;rdquo;. It&amp;rsquo;s useful for decide when which layout to use programmatically.&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Retaining state with headless fragments</title>
+      <link>https://dddpaul.github.io/blog/2014/07/29/headless-fragments/</link>
+      <pubDate>Tue, 29 Jul 2014 07:55:41 +0000</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2014/07/29/headless-fragments/</guid>
+      <description>&lt;p&gt;Some articles:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Official &lt;a href=&#34;http://developer.android.com/guide/components/fragments.html&#34;&gt;Fragments guide&lt;/a&gt;. Has some clues for headless fragments (see &amp;ldquo;Adding a fragment without a UI&amp;rdquo;).&lt;/li&gt;
+&lt;li&gt;Superb &lt;a href=&#34;http://www.vogella.com/tutorials/AndroidFragments/article.html&#34;&gt;multi-pane fragments tutorial&lt;/a&gt; from Lars Vogel. Contains some tips for &lt;a href=&#34;http://www.vogella.com/tutorials/AndroidFragments/article.html#headlessfragments&#34;&gt;headless fragments&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://techbandhu.wordpress.com/2013/07/02/android-headless-fragment/&#34;&gt;Android best tip to work with fragments and orientation change&lt;/a&gt;. More detailed headless fragments technique description.&lt;/li&gt;
+&lt;li&gt;Headless fragment example - &lt;a href=&#34;https://android.googlesource.com/platform/development/+/master/samples/ApiDemos/src/com/example/android/apis/app/FragmentRetainInstance.java&#34;&gt;FragmentRetainInstance.java&lt;/a&gt;. In this code headless fragment is created from other fragment. In my case it&amp;rsquo;s inappropriate because of Robolectric testing (recursive fragment transactions).&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.intertech.com/Blog/saving-and-retrieving-android-instance-state-part-2/&#34;&gt;Saving (And Retrieving) Android Instance State – Part 2&lt;/a&gt;. Details about retained fragments. Neat retained fragment lifecycle.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.androiddesignpatterns.com/2013/04/retaining-objects-across-config-changes.html&#34;&gt;Handling Configuration Changes with Fragments&lt;/a&gt;. Main advice - Manage the Object Inside a Retained Fragment.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://ideaventure.blogspot.com.au/2014/01/android-activityfragment-life-cycle.html&#34;&gt;Android Activity/Fragment life cycle analysis&lt;/a&gt;. Full logging of all lifecycle method calls in different situations.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;And StackOverflow discussions:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://stackoverflow.com/questions/11591302/unable-to-use-fragment-setretaininstance-as-a-replacement-for-activity-onretai&#34;&gt;Unable to use Fragment.setRetainInstance() as a replacement for Activity.onRetainNonConfigurationInstance()&lt;/a&gt;. How to preserve fragments with WebViews and AsyncTasks. One of the answers is to override Fragment.onDestroy() and save asynctasks to Application object.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://stackoverflow.com/questions/12640316/further-understanding-setretaininstancetrue&#34;&gt;Further understanding setRetainInstance(true)&lt;/a&gt;. Retained fragment lifecycle logs.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://stackoverflow.com/questions/8417885/android-fragments-retaining-an-asynctask-during-screen-rotation-or-configuratio&#34;&gt;Android Fragments. Retaining an AsyncTask during screen rotation or configuration change&lt;/a&gt;. Retained fragment with inner asynctask example and much more. AsyncTask has reference to fragment - it&amp;rsquo;s interesting.&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

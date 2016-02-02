@@ -1,0 +1,968 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Java on Dev notes</title>
+    <link>https://dddpaul.github.io/blog/tags/java/</link>
+    <description>Recent content in Java on Dev notes</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 21 Dec 2015 18:45:00 +0300</lastBuildDate>
+    <atom:link href="https://dddpaul.github.io/blog/tags/java/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Different URI encodings for one Tomcat-based application</title>
+      <link>https://dddpaul.github.io/blog/2015/12/21/spring-boot-uri-encoding/</link>
+      <pubDate>Mon, 21 Dec 2015 18:45:00 +0300</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2015/12/21/spring-boot-uri-encoding/</guid>
+      <description>
+
+&lt;p&gt;There some cases when you would like to map different URI encodings on different HTTP endpoints. And one of those cases is when your application handles GET requests containing &lt;a href=&#34;https://en.wikipedia.org/wiki/Percent-encoding&#34;&gt;percent-encoded&lt;/a&gt; non-ASCII data in different charsets. For example, one HTTP endpoint uses standard UTF-8 while the other uses &lt;a href=&#34;https://en.wikipedia.org/wiki/Windows-1251&#34;&gt;Windows-1251&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&#34;plain-tomcat-way:9095423fd9c5e41ee9033ec52da6bac6&#34;&gt;Plain Tomcat way&lt;/h2&gt;
+
+&lt;p&gt;According to &lt;a href=&#34;http://wiki.apache.org/tomcat/FAQ/CharacterEncoding#Q2&#34;&gt;How do I change how GET parameters are interpreted?&lt;/a&gt; the only way to specify GET request encoding is to use by-connector &lt;code&gt;URIEncoding&lt;/code&gt; attribute. For example:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-xml&#34;&gt; &amp;lt;Connector port=&amp;quot;8081&amp;quot; URIEncoding=&amp;quot;utf-8&amp;quot;/&amp;gt;
+ &amp;lt;Connector port=&amp;quot;8082&amp;quot; URIEncoding=&amp;quot;cp1251&amp;quot;/&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Then you have map servlets to different connectors somehow.&lt;/p&gt;
+
+&lt;h2 id=&#34;spring-boot-multiple-http-connectors-way:9095423fd9c5e41ee9033ec52da6bac6&#34;&gt;Spring Boot multiple HTTP connectors way&lt;/h2&gt;
+
+&lt;p&gt;Spring Boot can help you out in this matter. Although it uses the only one URI encoding which is specified in &lt;code&gt;server.tomcat.uri-encoding&lt;/code&gt; parameter (&amp;ldquo;UTF-8&amp;rdquo; by default, see &lt;a href=&#34;http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html&#34;&gt;Appendix A. Common application properties&lt;/a&gt;), it can fire up multiple child applications residing on different ports.&lt;/p&gt;
+
+&lt;p&gt;Implementation is really simple as you can see from &lt;a href=&#34;https://github.com/dddpaul/spring-boot-connectors/blob/master/src/main/java/com/github/dddpaul/connectors/Application.java&#34;&gt;Spring Boot Connectors application&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Pros:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;no hacks and workarounds, pure Spring Boot solution :)&lt;/li&gt;
+&lt;li&gt;controller unit tests are passed.
+&lt;br /&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Cons:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;some mess with controllers mappings;&lt;/li&gt;
+&lt;li&gt;integration tests (with full context initialization) are failed on non-ASCII requests; in fact, you have no option to point which connector are used in test;&lt;/li&gt;
+&lt;li&gt;say bye-bye to Spring Boot actuators, you&amp;rsquo;ll have to use some workarounds to plug them in.&lt;br /&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Links:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://stackoverflow.com/questions/26111050/spring-boot-how-can-i-add-tomcat-connectors-to-bind-to-controller&#34;&gt;Spring-Boot : How can I add tomcat connectors to bind to controller&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/dddpaul/spring-boot-connectors&#34;&gt;Multiple HTTP connectors in Spring Boot example&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;nginx-lua-way:9095423fd9c5e41ee9033ec52da6bac6&#34;&gt;Nginx+Lua way&lt;/h2&gt;
+
+&lt;p&gt;Nginx being built with &lt;a href=&#34;https://github.com/openresty/lua-nginx-module&#34;&gt;Lua module&lt;/a&gt; becomes a very fast non-blocking application server. They even have a &lt;a href=&#34;http://leafo.net/lapis/&#34;&gt;framework&lt;/a&gt;! So the URI re-encode it&amp;rsquo;s a quite an easy task to solve.&lt;/p&gt;
+
+&lt;p&gt;It&amp;rsquo;s a more complicated way, but if you already use &lt;a href=&#34;http://nginx.org/&#34;&gt;Nginx&lt;/a&gt; as a reverse proxy server / balancer / HTTPS terminator in front of or Java application — why not?&lt;/p&gt;
+
+&lt;p&gt;Nginx build options, functions and configuration file example can be found in &lt;a href=&#34;https://github.com/dddpaul/docker-nginx&#34;&gt;docker-nginx&lt;/a&gt; project. &lt;a href=&#34;https://github.com/dddpaul/docker-nginx/blob/master/lua/functions.lua&#34;&gt;Function&lt;/a&gt; to convert encoding:&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-lua&#34; data-lang=&#34;lua&#34;&gt;&lt;span class=&#34;k&#34;&gt;function&lt;/span&gt; &lt;span class=&#34;nc&#34;&gt;M&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;iconv&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;cd&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;args&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;key&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;val&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;in&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;pairs&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;args&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;do&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;type&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;val&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;==&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;table&amp;quot;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;then&lt;/span&gt;
+            &lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;k&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;v&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;in&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;pairs&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;val&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;do&lt;/span&gt;
+                &lt;span class=&#34;n&#34;&gt;val&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;k&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;cd&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;iconv&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;v&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+            &lt;span class=&#34;k&#34;&gt;end&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;else&lt;/span&gt;
+            &lt;span class=&#34;n&#34;&gt;args&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;key&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;cd&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;iconv&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;val&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;end&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;end&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;args&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;end&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;It converts only URI parameter values and leaves parameter names untouched. Converting is performed by iconv C library with help of &lt;a href=&#34;http://ittner.github.io/lua-iconv/&#34;&gt;Lua-iconv binding&lt;/a&gt;, so it&amp;rsquo;s very fast.&lt;/p&gt;
+
+&lt;p&gt;This Nginx config block configures Lua module, load convert function and initializes iconv:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;lua_package_path &#39;/etc/nginx/lua/?.lua;;&#39;;
+init_by_lua_block {
+    functions = require(&amp;quot;functions&amp;quot;)
+    iconv = require(&amp;quot;iconv&amp;quot;)
+    cd = iconv.new(&amp;quot;utf8&amp;quot;, &amp;quot;cp1251&amp;quot;)
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;In order to re-encode URIs before proxying to Java backend use the following sample:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;location /app {
+    rewrite_by_lua_block {
+        if ngx.var.args == nil then return end
+        local args = ngx.decode_args(ngx.var.args)
+        args = functions.iconv(cd, args)
+        args = ngx.encode_args(args)
+        ngx.var.args = args
+    }
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_pass http://localhost:8000;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Pros:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;no multiple connectors, listen on single port;&lt;/li&gt;
+&lt;li&gt;extremely fast, no performance drawback;&lt;/li&gt;
+&lt;li&gt;all tests are passed.
+&lt;br /&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Cons:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;extra devops work :)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Links:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/dddpaul/docker-nginx&#34;&gt;dddpaul/docker-nginx&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/openresty/lua-nginx-module&#34;&gt;openresty/lua-nginx-module&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://ittner.github.io/lua-iconv/&#34;&gt;Lua iconv&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;java-hackish-way:9095423fd9c5e41ee9033ec52da6bac6&#34;&gt;Java hackish way&lt;/h2&gt;
+
+&lt;p&gt;The idea is the same — url-decode GET-request values, convert to proper encoding and url-encode. At this time it&amp;rsquo;s achieved by using private API of &lt;a href=&#34;https://tomcat.apache.org/tomcat-8.0-doc/api/org/apache/coyote/Request.html&#34;&gt;org.apache.coyote.Request&lt;/a&gt; class to decode query string conditionally.&lt;/p&gt;
+
+&lt;p&gt;Implementation is quite simple as you can see from &lt;a href=&#34;https://github.com/dddpaul/spring-boot-filters/blob/master/src/main/java/com/github/dddpaul/filters/Application.java&#34;&gt;Spring Boot Filters application&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;URIs are re-encoded in servlet filter:&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span class=&#34;kd&#34;&gt;static&lt;/span&gt; &lt;span class=&#34;kd&#34;&gt;class&lt;/span&gt; &lt;span class=&#34;nc&#34;&gt;CoyoteRequestManipulator&lt;/span&gt; &lt;span class=&#34;kd&#34;&gt;extends&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;OncePerRequestFilter&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+    &lt;span class=&#34;kd&#34;&gt;private&lt;/span&gt; &lt;span class=&#34;kd&#34;&gt;static&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Field&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;getField&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;Class&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;clazz&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;String&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;fieldName&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;kd&#34;&gt;throws&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;NoSuchFieldException&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+        &lt;span class=&#34;o&#34;&gt;...&lt;/span&gt;
+    &lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+
+    &lt;span class=&#34;nd&#34;&gt;@Override&lt;/span&gt;
+    &lt;span class=&#34;kd&#34;&gt;protected&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;doFilterInternal&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;HttpServletRequest&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;request&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;HttpServletResponse&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;response&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt;
+                                    &lt;span class=&#34;n&#34;&gt;FilterChain&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;chain&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;kd&#34;&gt;throws&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ServletException&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;IOException&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;hasText&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;request&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;getQueryString&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;())&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;request&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;getQueryString&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;().&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;contains&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;%&amp;quot;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;))&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+            &lt;span class=&#34;n&#34;&gt;RequestFacade&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;facade&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;RequestFacade&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;request&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;;&lt;/span&gt;
+            &lt;span class=&#34;k&#34;&gt;try&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+                &lt;span class=&#34;c1&#34;&gt;// First hack is to get org.apache.coyote.Request instance&lt;/span&gt;
+                &lt;span class=&#34;n&#34;&gt;Field&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;requestField&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;getField&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;RequestFacade&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;class&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;quot;request&amp;quot;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+                &lt;span class=&#34;n&#34;&gt;requestField&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;setAccessible&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kc&#34;&gt;true&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+                &lt;span class=&#34;n&#34;&gt;Request&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;connRequest&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;Request&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;requestField&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;get&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;facade&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+                &lt;span class=&#34;n&#34;&gt;org&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;apache&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;coyote&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;Request&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;coyoteRequest&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;connRequest&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;getCoyoteRequest&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;();&lt;/span&gt;
+
+                &lt;span class=&#34;c1&#34;&gt;// But it&amp;#39;s already filled with decoded query parameters, so query string has&lt;/span&gt;
+                &lt;span class=&#34;c1&#34;&gt;// to be re-handled after URI encoding switch. So, in fact, query string is&lt;/span&gt;
+                &lt;span class=&#34;c1&#34;&gt;// processed twice. Yet, org.apache.coyote.Request instances are reusable,&lt;/span&gt;
+                &lt;span class=&#34;c1&#34;&gt;// so query encoding has to set every time.&lt;/span&gt;
+                &lt;span class=&#34;n&#34;&gt;Parameters&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;parameters&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;coyoteRequest&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;getParameters&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;();&lt;/span&gt;
+                &lt;span class=&#34;n&#34;&gt;parameters&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;setQueryStringEncoding&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;request&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;getServletPath&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;().&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;startsWith&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;/two&amp;quot;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
+                        &lt;span class=&#34;o&#34;&gt;?&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;quot;cp1251&amp;quot;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;quot;utf-8&amp;quot;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+                &lt;span class=&#34;n&#34;&gt;parameters&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;recycle&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;();&lt;/span&gt;
+                &lt;span class=&#34;n&#34;&gt;parameters&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;handleQueryParameters&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;();&lt;/span&gt;
+            &lt;span class=&#34;o&#34;&gt;}&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;catch&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;Exception&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;e&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+                &lt;span class=&#34;n&#34;&gt;e&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;printStackTrace&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;();&lt;/span&gt;
+            &lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+        &lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+        &lt;span class=&#34;n&#34;&gt;chain&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;doFilter&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;request&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;response&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+    &lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;p&gt;Pros:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;no multiple connectors, listen on single port;&lt;/li&gt;
+&lt;li&gt;no recompiled Nginx stuff - just Java;&lt;/li&gt;
+&lt;li&gt;controller unit tests are passed;&lt;/li&gt;
+&lt;li&gt;integration tests are passed.
+&lt;br /&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Cons:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;reflection and private API usage :)&lt;/li&gt;
+&lt;li&gt;query string could be handled twice.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Links:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/dddpaul/spring-boot-filters&#34;&gt;Spring Boot filter examples&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;the-other-way:9095423fd9c5e41ee9033ec52da6bac6&#34;&gt;The other way&lt;/h2&gt;
+
+&lt;p&gt;Use the microservices, Luke! But for their simplicity and scalability you have pay with massive infrastructure changes. See the following articles for consideration:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.kennybastani.com/2015/07/spring-cloud-docker-microservices.html&#34;&gt;Building Microservices with Spring Cloud and Docker&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://technologyconversations.com/2015/07/02/scaling-to-infinity-with-docker-swarm-docker-compose-and-consul-part-14-a-taste-of-what-is-to-come/&#34;&gt;Scaling To Infinity with Docker Swarm, Docker Compose and Consul&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://technologyconversations.com/2015/11/25/deploying-containers-with-docker-swarm-and-docker-networking/&#34;&gt;Deploying Containers with Docker Swarm and Docker Networking&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Тонкости использования аннотации @Value в Spring Boot</title>
+      <link>https://dddpaul.github.io/blog/2015/07/12/spring-boot-value/</link>
+      <pubDate>Sun, 12 Jul 2015 18:30:00 +0300</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2015/07/12/spring-boot-value/</guid>
+      <description>&lt;p&gt;Аннотация &lt;a href=&#34;http://docs.spring.io/spring/docs/current/javadoc-api/org/springframework/beans/factory/annotation/Value.html&#34;&gt;@Value&lt;/a&gt; - это самый простой способ для &amp;ldquo;впрыскивания&amp;rdquo; значений из конфигурации Spring Boot в код. При этом также можно задать значение по-умолчанию.&lt;/p&gt;
+
+&lt;p&gt;Однако, стоит учитывать, что резолвинг значения будет выполняться для каждой аннотации @Value. Например, если аннотировать @Value два поля (в одном или разных классах - не суть важно) вот так:&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span class=&#34;nd&#34;&gt;@Value&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;${unique-param}&amp;quot;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;kd&#34;&gt;private&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;String&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;param1&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;;&lt;/span&gt;
+
+&lt;span class=&#34;nd&#34;&gt;@Value&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;${unique-param}&amp;quot;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;kd&#34;&gt;private&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;String&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;param2&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;, то в debug-логе мы увидим:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;TRACE 23601 --- [lication.main()] o.s.c.e.PropertySourcesPropertyResolver  : getProperty(&amp;quot;unique-param&amp;quot;, String)
+DEBUG 23601 --- [lication.main()] o.s.c.e.PropertySourcesPropertyResolver  : Searching for key &#39;unique-param&#39; in [environmentProperties]
+...
+TRACE 23601 --- [lication.main()] o.s.c.e.PropertySourcesPropertyResolver  : getProperty(&amp;quot;unique-param&amp;quot;, String)
+DEBUG 23601 --- [lication.main()] o.s.c.e.PropertySourcesPropertyResolver  : Searching for key &#39;unique-param&#39; in [environmentProperties]
+...
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Т.е. поиск (резолвинг) был проведен дважды. Конечно, это слишком мизерная операция, чтобы хоть как-то замедлить старт приложения, но знать об этом стоит.&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;Еще более неоднозначная штука связана с передачей дефолтного значения через @Value.&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span class=&#34;nd&#34;&gt;@Value&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;${unique-param:DefaultValue}&amp;quot;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;kd&#34;&gt;private&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;String&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;param&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;При резолвинге значения будет сначала проведен поиск параметра &amp;ldquo;unique-param:DefaultValue&amp;rdquo;, а уже потом - &amp;ldquo;unique-param&amp;rdquo;. Таким образом, если в конфигурации указать:&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-ini&#34; data-lang=&#34;ini&#34;&gt;&lt;span class=&#34;na&#34;&gt;unique-param\:DefaultValue&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;Another value&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;, то param в коде будет равен &amp;ldquo;Another value&amp;rdquo;.&lt;/p&gt;
+
+&lt;p&gt;Такая логика прописана в org.springframework.util.PropertyPlaceholderHelper#parseStringValue.&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;Оба этих нюанса могут ответить на вопрос - почему debug-лог приложения на Spring Boot такой большой.&lt;/p&gt;
+
+&lt;p&gt;Мораль - используйте &lt;a href=&#34;http://docs.spring.io/autorepo/docs/spring-boot/current/api/org/springframework/boot/context/properties/ConfigurationProperties.html&#34;&gt;ConfigurationProperties&lt;/a&gt;, что, в конце-концов, и советуется в &lt;a href=&#34;http://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-external-config.html&#34;&gt;23. Externalized Configuration&lt;/a&gt;, раздел &amp;ldquo;23.7 Typesafe Configuration Properties&amp;rdquo;.&lt;/p&gt;
+
+&lt;p&gt;Например:&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span class=&#34;nd&#34;&gt;@ConfigurationProperties&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;prefix&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;quot;params&amp;quot;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;kd&#34;&gt;public&lt;/span&gt; &lt;span class=&#34;kd&#34;&gt;class&lt;/span&gt; &lt;span class=&#34;nc&#34;&gt;Config&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+    &lt;span class=&#34;kd&#34;&gt;private&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;String&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;uniqueParam&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;quot;Default value&amp;quot;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;;&lt;/span&gt;
+
+    &lt;span class=&#34;c1&#34;&gt;// Getters are mandatory. Setters are mandatory for immutable types (such as String).&lt;/span&gt;
+ &lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;p&gt;Конфигурация:&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-ini&#34; data-lang=&#34;ini&#34;&gt;&lt;span class=&#34;na&#34;&gt;params.unique-param&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;Another value&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Логирование HTTP-запросов в Tomcat</title>
+      <link>https://dddpaul.github.io/blog/2015/06/30/tomcat-http-logging/</link>
+      <pubDate>Tue, 30 Jun 2015 13:27:00 +0300</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2015/06/30/tomcat-http-logging/</guid>
+      <description>
+
+&lt;h2 id=&#34;apache-tomcat-request-dumper-filter:e82678ac23d6d6c6d716963b71ef486f&#34;&gt;Apache Tomcat Request Dumper Filter&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://tomcat.apache.org/tomcat-7.0-doc/config/filter.html#Request_Dumper_Filter&#34;&gt;Request Dumper Filter&lt;/a&gt; входит в состав Tomcat. Рассмотрим способы его конфигурации.&lt;/p&gt;
+
+&lt;h3 id=&#34;spring-boot:e82678ac23d6d6c6d716963b71ef486f&#34;&gt;Spring Boot&lt;/h3&gt;
+
+&lt;p&gt;Достаточно поместить вот такой bean в класс, аннотированный @Configuration:&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span class=&#34;nd&#34;&gt;@Bean&lt;/span&gt;
+&lt;span class=&#34;n&#34;&gt;RequestDumperFilter&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;requestDumper&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;()&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;new&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;RequestDumperFilter&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;();&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Вывод дампа запросов в отдельный лог здесь не рассматриваем.&lt;/p&gt;
+
+&lt;h3 id=&#34;tomcat-7:e82678ac23d6d6c6d716963b71ef486f&#34;&gt;Tomcat 7&lt;/h3&gt;
+
+&lt;p&gt;Стандартный способ конфигурации фильтра — server.xml / context.xml / web.xml, в зависимости от того, какой scope нам нужен. Для логирования запросов в рамках одного приложения — web.xml.&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span class=&#34;nt&#34;&gt;&amp;lt;filter&amp;gt;&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;lt;filter-name&amp;gt;&lt;/span&gt;RequestDumper&lt;span class=&#34;nt&#34;&gt;&amp;lt;/filter-name&amp;gt;&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;lt;filter-class&amp;gt;&lt;/span&gt;org.apache.catalina.filters.RequestDumperFilter&lt;span class=&#34;nt&#34;&gt;&amp;lt;/filter-class&amp;gt;&lt;/span&gt;
+&lt;span class=&#34;nt&#34;&gt;&amp;lt;/filter&amp;gt;&lt;/span&gt;
+
+&lt;span class=&#34;nt&#34;&gt;&amp;lt;filter-mapping&amp;gt;&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;lt;filter-name&amp;gt;&lt;/span&gt;RequestDumper&lt;span class=&#34;nt&#34;&gt;&amp;lt;/filter-name&amp;gt;&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;lt;url-pattern&amp;gt;&lt;/span&gt;*&lt;span class=&#34;nt&#34;&gt;&amp;lt;/url-pattern&amp;gt;&lt;/span&gt;
+&lt;span class=&#34;nt&#34;&gt;&amp;lt;/filter-mapping&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Для логирования в отдельный файл нужно сконфигурировать &lt;a href=&#34;https://tomcat.apache.org/tomcat-7.0-doc/logging.html&#34;&gt;Tomcat JULI&lt;/a&gt;. По-идее, можно логировать через Apache Commons Logging, но в доке дается пример для JULI. Поэтому, вот такой logging.properties можно смело кидать в webapp/WEB-INF/classes:&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-ini&#34; data-lang=&#34;ini&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# Uncomment to dump HTTP request data, see http://tomcat.apache.org/tomcat-7.0-doc/config/filter.html#Request_Dumper_Filter&lt;/span&gt;
+&lt;span class=&#34;c1&#34;&gt;#handlers = 1request-dumper.org.apache.juli.FileHandler&lt;/span&gt;
+
+&lt;span class=&#34;c1&#34;&gt;# To this configuration below, 1request-dumper.org.apache.juli.FileHandler&lt;/span&gt;
+&lt;span class=&#34;c1&#34;&gt;# also needs to be added to the handlers property near the top of the file&lt;/span&gt;
+&lt;span class=&#34;na&#34;&gt;1request-dumper.org.apache.juli.FileHandler.level&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;INFO&lt;/span&gt;
+&lt;span class=&#34;na&#34;&gt;1request-dumper.org.apache.juli.FileHandler.directory&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;${catalina.base}/logs&lt;/span&gt;
+&lt;span class=&#34;na&#34;&gt;1request-dumper.org.apache.juli.FileHandler.prefix&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;request-dumper.&lt;/span&gt;
+&lt;span class=&#34;na&#34;&gt;1request-dumper.org.apache.juli.FileHandler.formatter&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;org.apache.juli.VerbatimFormatter&lt;/span&gt;
+&lt;span class=&#34;na&#34;&gt;org.apache.catalina.filters.RequestDumperFilter.level&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;INFO&lt;/span&gt;
+&lt;span class=&#34;na&#34;&gt;org.apache.catalina.filters.RequestDumperFilter.handlers&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;1request-dumper.org.apache.juli.FileHandler&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Получился почти production-ready вариант, для включения логирования можно раскомментировать строчку с handlers и перезапустить приложение. Совсем по-хорошему это нужно сделать через JMX, тогда, быть может, получится избежать перезапуска приложения.&lt;/p&gt;
+
+&lt;h3 id=&#34;tomcat-5:e82678ac23d6d6c6d716963b71ef486f&#34;&gt;Tomcat 5&lt;/h3&gt;
+
+&lt;p&gt;Для старого Томката нужно использовать &lt;a href=&#34;https://tomcat.apache.org/tomcat-5.5-doc/config/valve.html#Request_Dumper_Valve&#34;&gt;Request_Dumper_Valve&lt;/a&gt;. Фильтра в базовой поставке еще нет, его нужно отдельно собирать из servlet-examples.&lt;/p&gt;
+
+&lt;p&gt;Для включения дампа нужно просто вставить строчку в server.xml (в блоки Engine или Host) и перезапустить сервер Tomcat:&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span class=&#34;nt&#34;&gt;&amp;lt;Valve&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;className=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;org.apache.catalina.valves.RequestDumperValve&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;/&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;В первом случае (Engine) дамп будет выдаваться в catalina.out, а во втором (Host) - в localhost.log.&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;У Request Dumper Filter есть два недостатка:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;нельзя залогировать тело запроса, только GET- и POST-параметры;&lt;/li&gt;
+&lt;li&gt;нет возможности логировать HTTP-ответы сервера.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;кастомные-фильтры:e82678ac23d6d6c6d716963b71ef486f&#34;&gt;Кастомные фильтры&lt;/h2&gt;
+
+&lt;p&gt;Основная проблема логирования тела запроса — это то, что body из &lt;a href=&#34;http://docs.oracle.com/javaee/6/api/javax/servlet/ServletRequest.html&#34;&gt;ServletRequest&lt;/a&gt; достается из InputStream, т.е. это одноразовая операция. Мы не можем сначала где-то в фильтре прочитать body, залогировать, а потом второй раз прочитать body в обработчике запроса в приложении. В этом случае выскочит что-то вроде &amp;ldquo;java.io.IOException: Attempted read on closed stream&amp;rdquo;.&lt;/p&gt;
+
+&lt;p&gt;Различные кастомные способы обходят эту проблему, используя wrapper&amp;rsquo;ы или декораторы. Т.е. в фильтре мы читаем body из ServletRequest в String-поле wrapper&amp;rsquo;а, и далее по цепочке передаем уже wrapper. Метод же getInputStream() создает stream из этого String-поля wrapper&amp;rsquo;а.&lt;/p&gt;
+
+&lt;p&gt;Есть две большие статьи с кусками почти работающего кода, реализующего этот подход:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://natch3z.blogspot.co.uk/2009/01/read-request-body-in-filter.html&#34;&gt;Read Request Body in Filter&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://wetfeetblog.com/servlet-filer-to-log-request-and-response-details-and-payload/431&#34;&gt;Servlet Filer to Log Request and Response Payload&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Также есть маленький, но многообещающий проект &lt;a href=&#34;https://github.com/isrsal/spring-mvc-logger&#34;&gt;spring-mvc-logger&lt;/a&gt;, заточенный под Spring MVC (он использует его logging filters). Его я, к сожалению, не смотрел.&lt;/p&gt;
+
+&lt;h2 id=&#34;logback-access:e82678ac23d6d6c6d716963b71ef486f&#34;&gt;Logback-access&lt;/h2&gt;
+
+&lt;p&gt;100% работающий способ логировать HTTP-ответы и запросы. Это &lt;a href=&#34;http://logback.qos.ch/access.html&#34;&gt;Logback-access&lt;/a&gt;, часть проекта Logback. Подробнее см. &lt;a href=&#34;http://logback.qos.ch/recipes/captureHttp.html&#34;&gt;Capturing HTTP requests and responses&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Для выборочного отключения логирования (например, для тестовых или мониторинговых платежей) используется библиотека &lt;a href=&#34;http://janino.net/changelog.html&#34;&gt;Janino&lt;/a&gt;. С ее помощью можно задать для logback-access фильтры (правила), которым должен соответствовать логируемый HTTP-пакет.&lt;/p&gt;
+
+&lt;p&gt;Однако, весь набор библиотек:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;logback-access.jar + logback-core.jar as dependency,&lt;/li&gt;
+&lt;li&gt;janino.jar + commons-compiler.jar as dependency,&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;должен лежать в $TOMCAT_HOME/lib/.&lt;/p&gt;
+
+&lt;p&gt;Конфигурация logback-access.xml кладется в $TOMCAT_HOME/conf/:&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span class=&#34;nt&#34;&gt;&amp;lt;configuration&amp;gt;&lt;/span&gt;
+    &lt;span class=&#34;c&#34;&gt;&amp;lt;!-- Tomcat&amp;#39;s lib folder must contain logback-core.jar and logback-access.jar to dump HTTP requests and responses --&amp;gt;&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;lt;appender&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;name=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;DUMPER&amp;quot;&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;class=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;ch.qos.logback.core.rolling.RollingFileAppender&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;c&#34;&gt;&amp;lt;!-- Tomcat&amp;#39;s lib folder must contain janino.jar and commons-compiler.jar to filter which HTTP requests and responses to dump --&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;filter&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;class=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;ch.qos.logback.core.filter.EvaluatorFilter&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;evaluator&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;c&#34;&gt;&amp;lt;!-- Disable dumping for HTTP requests for all apps except specified one and for requests with specific header --&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;c&#34;&gt;&amp;lt;!-- Responses to these requests will not be dumped too --&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;expression&amp;gt;&lt;/span&gt;!event.getRequestURI().startsWith(&amp;quot;/webapp&amp;quot;) || event.getRequestHeader(&amp;quot;X-Logging-Disabled&amp;quot;).equals(&amp;quot;true&amp;quot;)&lt;span class=&#34;nt&#34;&gt;&amp;lt;/expression&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;/evaluator&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;onMismatch&amp;gt;&lt;/span&gt;NEUTRAL&lt;span class=&#34;nt&#34;&gt;&amp;lt;/onMismatch&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;onMatch&amp;gt;&lt;/span&gt;DENY&lt;span class=&#34;nt&#34;&gt;&amp;lt;/onMatch&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;/filter&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;encoder&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;pattern&amp;gt;&lt;/span&gt;
+                %date{yyyy-MM-dd HH:mm:ss.SSS} REQUEST: %fullRequest%n%n%date{yyyy-MM-dd HH:mm:ss.SSS} RESPONSE: %fullResponse
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;/pattern&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;/encoder&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;file&amp;gt;&lt;/span&gt;${catalina.base}/logs/dumper.log&lt;span class=&#34;nt&#34;&gt;&amp;lt;/file&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;rollingPolicy&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;class=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;ch.qos.logback.core.rolling.TimeBasedRollingPolicy&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;fileNamePattern&amp;gt;&lt;/span&gt;${catalina.base}/logs/dumper.%d.%i.log&lt;span class=&#34;nt&#34;&gt;&amp;lt;/fileNamePattern&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;timeBasedFileNamingAndTriggeringPolicy&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;class=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;maxFileSize&amp;gt;&lt;/span&gt;10MB&lt;span class=&#34;nt&#34;&gt;&amp;lt;/maxFileSize&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;/timeBasedFileNamingAndTriggeringPolicy&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;/rollingPolicy&amp;gt;&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;lt;/appender&amp;gt;&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;lt;appender-ref&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;ref=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;DUMPER&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;/&amp;gt;&lt;/span&gt;
+&lt;span class=&#34;nt&#34;&gt;&amp;lt;/configuration&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;p&gt;Эта конфигурация устанавливает логирование всех HTTP-запросов на /webapp без HTTP-заголовка X-Logging-Disabled.&lt;/p&gt;
+
+&lt;p&gt;Также, должен быть активирован LogbackAccessValve в $TOMCAT_HOME/conf/server.xml (в блоке Host):&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span class=&#34;nt&#34;&gt;&amp;lt;Valve&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;className=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;ch.qos.logback.access.tomcat.LogbackValve&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;/&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;p&gt;Последний штрих — объявление фильтра &lt;a href=&#34;http://logback.qos.ch/apidocs/ch/qos/logback/access/servlet/TeeFilter.html&#34;&gt;TeeFilter&lt;/a&gt;. В Spring Boot это делается элементарно:&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span class=&#34;cm&#34;&gt;/**&lt;/span&gt;
+&lt;span class=&#34;cm&#34;&gt; * Enable HTTP response logging, see &amp;lt;a href=&amp;quot;http://logback.qos.ch/recipes/captureHttp.html&amp;quot;&amp;gt;Capturing HTTP requests and responses&amp;lt;/a&amp;gt;.&lt;/span&gt;
+&lt;span class=&#34;cm&#34;&gt; * Tomcat&amp;#39;s lib folder must contain logback-core.jar and logback-access.jar.&lt;/span&gt;
+&lt;span class=&#34;cm&#34;&gt; */&lt;/span&gt;
+&lt;span class=&#34;nd&#34;&gt;@Bean&lt;/span&gt;
+&lt;span class=&#34;n&#34;&gt;Filter&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;httpRequestAndResponseDumper&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;()&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;new&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;TeeFilter&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;();&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>RabbitMQ links</title>
+      <link>https://dddpaul.github.io/blog/2015/05/15/rabbitmq-links/</link>
+      <pubDate>Fri, 15 May 2015 08:27:00 +0300</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2015/05/15/rabbitmq-links/</guid>
+      <description>&lt;p&gt;RabbitMQ confirms, transactions, reply-to functionality and Spring integration:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://docs.spring.io/spring-amqp/reference/html/amqp.html&#34;&gt;Using Spring AMQP&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.rabbitmq.com/blog/2011/02/10/introducing-publisher-confirms/&#34;&gt;Introducing Publisher Confirms&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://kishanthan.wordpress.com/2013/05/05/transaction-support-with-rabbitmq/&#34;&gt;Transaction support with RabbitMQ&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.rabbitmq.com/confirms.html&#34;&gt;Confirms (aka Publisher Acknowledgements)&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.rabbitmq.com/direct-reply-to.html&#34;&gt;Direct reply-to&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.rabbitmq.com/tutorials/tutorial-six-java.html&#34;&gt;Remote procedure call (RPC)&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://gist.github.com/scvalex/613157&#34;&gt;TxDontLoseMessages.java&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://raw.githubusercontent.com/rabbitmq/rabbitmq-java-client/master/test/src/com/rabbitmq/examples/ConfirmDontLoseMessages.java&#34;&gt;ConfirmDontLoseMessages.java&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://habrahabr.ru/post/262069/&#34;&gt;RabbitMQ Spring tutorial&lt;/a&gt; &amp;amp; &lt;a href=&#34;https://github.com/Dmitry-Shweikus/rabbitmq-examples&#34;&gt;rabbitmq-examples&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Java builders</title>
+      <link>https://dddpaul.github.io/blog/2015/04/12/java-builders/</link>
+      <pubDate>Sun, 12 Apr 2015 12:15:00 +0300</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2015/04/12/java-builders/</guid>
+      <description>&lt;p&gt;So it&amp;rsquo;s time to scrutinize &lt;a href=&#34;http://en.wikipedia.org/wiki/Builder_pattern&#34;&gt;a builder pattern&lt;/a&gt;. There are bunch of options to implement builder pattern in Java:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://habrahabr.ru/post/86252/&#34;&gt;classic&lt;/a&gt; builder;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://habrahabr.ru/post/244521/&#34;&gt;elegant&lt;/a&gt; builder;&lt;/li&gt;
+&lt;li&gt;classic builder with &lt;a href=&#34;https://github.com/analytically/innerbuilder&#34;&gt;IntelliJ IDEA plugin&lt;/a&gt;;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/google/auto/tree/master/value&#34;&gt;Google AutoValue&lt;/a&gt; builder;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://projectlombok.org/features/Builder.html&#34;&gt;Project Lombok&lt;/a&gt; builder;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/mkarneim/pojobuilder&#34;&gt;POJO&lt;/a&gt; builder;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://immutables.github.io/&#34;&gt;Immutables&lt;/a&gt; builder.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;All of these variants have been examined in &lt;a href=&#34;https://github.com/dddpaul/java-builders&#34;&gt;Java builders&lt;/a&gt; GitHub project.&lt;/p&gt;
+
+&lt;p&gt;The winners are (and this a tough IMHO):&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;IDEA InnerBuilder plugin if you use builder class from frameworks like &lt;a href=&#34;http://spring.io/&#34;&gt;Spring/Spring MVC&lt;/a&gt; or &lt;a href=&#34;https://www.playframework.com/&#34;&gt;Play&lt;/a&gt;. You can&amp;rsquo;t pass validation annotations to generated class. Despite everything if there is a way to do this I&amp;rsquo;ll be happy to mistake.&lt;/li&gt;
+&lt;li&gt;Immutables.org builder in all other cases. It&amp;rsquo;s features rich and generates beautiful code.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;But do not forget about AutoValue because it&amp;rsquo;s backed by Google itself.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Oracle connectivity in Java</title>
+      <link>https://dddpaul.github.io/blog/2015/02/14/oracle-connectivity/</link>
+      <pubDate>Sat, 14 Feb 2015 22:11:00 +0300</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2015/02/14/oracle-connectivity/</guid>
+      <description>&lt;p&gt;A new small &lt;a href=&#34;https://github.com/dddpaul/java-oracle-connectivity&#34;&gt;test project&lt;/a&gt; is intended to answer the question - what is the proper way to specify network timeout for database connection?&lt;/p&gt;
+
+&lt;p&gt;There so many ways in JDBC API:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;[CommonDataSource.setLoginTimeout](&lt;a href=&#34;http://docs.oracle.com/javase/7/docs/api/javax/sql/CommonDataSource.html#setLoginTimeout(int)&#34;&gt;http://docs.oracle.com/javase/7/docs/api/javax/sql/CommonDataSource.html#setLoginTimeout(int)&lt;/a&gt;)&lt;/li&gt;
+&lt;li&gt;[Connection.setNetworkTimeout](&lt;a href=&#34;http://docs.oracle.com/javase/7/docs/api/java/sql/Connection.html#setNetworkTimeout(java.util.concurrent.Executor,%20int)&#34;&gt;http://docs.oracle.com/javase/7/docs/api/java/sql/Connection.html#setNetworkTimeout(java.util.concurrent.Executor,%20int)&lt;/a&gt;)&lt;/li&gt;
+&lt;li&gt;[Statement.setQueryTimeout](&lt;a href=&#34;http://docs.oracle.com/javase/7/docs/api/java/sql/Statement.html#setQueryTimeout(int)&#34;&gt;http://docs.oracle.com/javase/7/docs/api/java/sql/Statement.html#setQueryTimeout(int)&lt;/a&gt;)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;And every database has it&amp;rsquo;s own non-standard ways in addition.&lt;/p&gt;
+
+&lt;p&gt;But these tests have been lead us to a single conclusion — you must specify network timeouts on driver level. All these JDBC stuff isn&amp;rsquo;t enough for Oracle database.&lt;/p&gt;
+
+&lt;p&gt;This code is suitable for &lt;a href=&#34;http://tomcat.apache.org/tomcat-7.0-doc/jdbc-pool.html&#34;&gt;Tomcat JDBC Connection Pool&lt;/a&gt;:&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span class=&#34;c1&#34;&gt;// Get datasource some way&lt;/span&gt;
+&lt;span class=&#34;n&#34;&gt;Datasource&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ds&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;createDataSource&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;host&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+
+&lt;span class=&#34;c1&#34;&gt;// Set connect (login) timeout&lt;/span&gt;
+&lt;span class=&#34;n&#34;&gt;ds&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;setConnectionProperties&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;OracleConnection&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;CONNECTION_PROPERTY_THIN_NET_CONNECT_TIMEOUT&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;+&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;quot;=3000&amp;quot;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+
+&lt;span class=&#34;c1&#34;&gt;// Set common network read timeout&lt;/span&gt;
+&lt;span class=&#34;n&#34;&gt;ds&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;setConnectionProperties&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;OracleConnection&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;CONNECTION_PROPERTY_THIN_READ_TIMEOUT&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;+&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;quot;=3000&amp;quot;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;The proper way to specify these timeouts in &lt;a href=&#34;http://tomcat.apache.org/tomcat-7.0-doc/jndi-datasource-examples-howto.html&#34;&gt;JNDI Datasource configuration&lt;/a&gt;:&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span class=&#34;nt&#34;&gt;&amp;lt;Resource&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;name=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;jdbc/oracle&amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;na&#34;&gt;driverClassName=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;oracle.jdbc.OracleDriver&amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;na&#34;&gt;factory=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;org.apache.tomcat.jdbc.pool.DataSourceFactory&amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;na&#34;&gt;connectionProperties=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;oracle.net.CONNECT_TIMEOUT=3000;oracle.jdbc.ReadTimeout=3000&amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;err&#34;&gt;...&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;/&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Java network listeners</title>
+      <link>https://dddpaul.github.io/blog/2015/02/01/java-listeners/</link>
+      <pubDate>Sun, 01 Feb 2015 18:44:06 +0300</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2015/02/01/java-listeners/</guid>
+      <description>&lt;p&gt;I&amp;rsquo;ve written a small &lt;a href=&#34;https://github.com/dddpaul/java-network-listeners&#34;&gt;listeners library&lt;/a&gt; today. It allows to create Callables which can be submitted to &lt;a href=&#34;http://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ExecutorService.html&#34;&gt;ExecutorService&lt;/a&gt;. The callable itself implements creating server socket and binding it to local port.&lt;/p&gt;
+
+&lt;p&gt;There two principal type of listeners: blocking and non-blocking (thanks to &lt;a href=&#34;http://en.wikipedia.org/wiki/Non-blocking_I/O_(Java)&#34;&gt;Java NIO&lt;/a&gt;.&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;Blocking listener is very simple but in can&amp;rsquo;t be interrupted by calling thread. So there&amp;rsquo;s no point in that:&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span class=&#34;n&#34;&gt;Future&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;Socket&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;future&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;executor&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;submit&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Listeners&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;createListener&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;PORT&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;try&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;Socket&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;socket&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;future&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;get&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;TimeUnit&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;SECONDS&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;catch&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;TimeoutException&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;e&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;future&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;cancel&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt; &lt;span class=&#34;kc&#34;&gt;true&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Listener will stay active and PORT will be bound still. The reason is in usage of the uninterruptible &lt;a href=&#34;http://docs.oracle.com/javase/7/docs/api/java/net/ServerSocket.html#accept()&#34;&gt;ServerSocket.accept()&lt;/a&gt;.&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;In contrary non-blocking listener is more sophisticated but it can be interrupted by calling thread. So you can do that:&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span class=&#34;n&#34;&gt;Future&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;Socket&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;future&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;executor&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;submit&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Listeners&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;createListener&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;PORT&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;try&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;Socket&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;socket&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;future&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;get&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;TimeUnit&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;SECONDS&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;catch&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;TimeoutException&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;e&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;future&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;cancel&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt; &lt;span class=&#34;kc&#34;&gt;true&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;p&gt;Listener will be terminated and PORT will be freed.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>List of memory leaks articles</title>
+      <link>https://dddpaul.github.io/blog/2015/01/17/memory-leaks-articles/</link>
+      <pubDate>Sat, 17 Jan 2015 22:35:49 +0300</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2015/01/17/memory-leaks-articles/</guid>
+      <description>&lt;p&gt;&amp;ldquo;Solving OutOfMemoryError&amp;rdquo; series from Nikita Salnikov-Tarnovsky and Vladimir Šor:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://plumbr.eu/blog/solving-outofmemoryerror-story-of-a-developer&#34;&gt;Solving OutOfMemoryError (part 1) – story of a developer&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://plumbr.eu/blog/solving-outofmemoryerror-why-didnt-operations-solve-it&#34;&gt;Solving OutOfMemoryError (part 2) – why didn’t operations solve it?&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://plumbr.eu/blog/solving-outofmemoryerror-where-do-you-start&#34;&gt;Solving OutOfMemoryError (part 3) – where do you start?&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://plumbr.eu/blog/solving-outofmemoryerror-memory-profilers&#34;&gt;Solving OutOfMemoryError (part 4) – memory profilers&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://plumbr.eu/blog/solving-outofmemoryerror-jdk-tools&#34;&gt;Solving OutOfMemoryError (part 5) – JDK Tools&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://plumbr.eu/blog/solving-outofmemoryerror-dump-is-not-a-waste&#34;&gt;Solving OutOfMemoryError (part 6) – Dump is not a waste&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;&amp;ldquo;Classloader leaks&amp;rdquo; series from Mattias Jiderhamn:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://java.jiderhamn.se/2011/12/11/classloader-leaks-i-how-to-find-classloader-leaks-with-eclipse-memory-analyser-mat/&#34;&gt;Classloader leaks I – How to find classloader leaks with Eclipse Memory Analyser (MAT)&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://java.jiderhamn.se/2012/01/01/classloader-leaks-ii-find-and-work-around-unwanted-references/&#34;&gt;Classloader leaks II – Find and work around unwanted references&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://java.jiderhamn.se/2012/01/15/classloader-leaks-iii-die-thread-die/&#34;&gt;Classloader leaks III – “Die Thread, die!”&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://java.jiderhamn.se/2012/01/29/classloader-leaks-iv-threadlocal-dangers-and-why-threadglobal-may-have-been-a-more-appropriate-name/&#34;&gt;Classloader leaks IV – ThreadLocal dangers and why ThreadGlobal may have been a more appropriate name&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://java.jiderhamn.se/2012/02/26/classloader-leaks-v-common-mistakes-and-known-offenders/&#34;&gt;Classloader leaks V – Common mistakes and Known offenders&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://java.jiderhamn.se/2012/03/04/classloader-leaks-vi-this-means-war-leak-prevention-library/&#34;&gt;Classloader leaks VI – “This means war!” (leak prevention library)&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Object, class and classloader relationships are illustrated by this graph from &lt;a href=&#34;https://plumbr.eu/blog/what-is-a-permgen-leak&#34;&gt;What is a PermGen leak?&lt;/a&gt; article.&lt;/p&gt;
+
+
+&lt;img src=&#39;https://dddpaul.github.io/blog//media/object-class-classloader.png&#39;/&gt;
+
+
+&lt;hr /&gt;
+
+&lt;p&gt;Tomcat specific articles:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://java.dzone.com/articles/memory-leak-protection-tomcat&#34;&gt;Memory Leak Protection in Tomcat 7&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://wiki.apache.org/tomcat/MemoryLeakProtection&#34;&gt;Tomcat Wiki - MemoryLeakProtection&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;Other articles:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://plumbr.eu/blog/what-is-a-memory-leak&#34;&gt;What is a memory leak?&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://plumbr.eu/blog/what-is-a-permgen-leak&#34;&gt;What is a PermGen leak?&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://plumbr.eu/permgen&#34;&gt;The Guide to Solving Permgen Leaks&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://frankkieviet.blogspot.se/2006/10/classloader-leaks-dreaded-permgen-space.html&#34;&gt;Classloader leaks: the dreaded &amp;ldquo;java.lang.OutOfMemoryError: PermGen space&amp;rdquo; exception&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;And the summary:&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;The memory leak is caused by objects that live longer than expected.&lt;/em&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Using method handles to get logger</title>
+      <link>https://dddpaul.github.io/blog/2014/12/21/method-handle-logger/</link>
+      <pubDate>Sun, 21 Dec 2014 13:36:15 +0000</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2014/12/21/method-handle-logger/</guid>
+      <description>&lt;p&gt;One more quote from &lt;a href=&#34;http://www.manning.com/evans/&#34;&gt;The Well-Grounded Java Developer&lt;/a&gt; by Benjamin J. Evans and Martijn Verburg about useful feature of &lt;a href=&#34;http://docs.oracle.com/javase/7/docs/api/java/lang/invoke/MethodHandle.html&#34;&gt;MethodHandle&lt;/a&gt;.&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;One additional feature that method handles provide is the ability to determine the current class from a static context. If you’ve ever written logging code (such as for log4j) that looked like this,&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;Logger lgr = LoggerFactory.getLogger(MyClass.class);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;you know that this code is fragile. If it’s refactored to move into a superclass or subclass, the explicit class name would cause problems With Java 7, however, you can write this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;Logger lgr = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;It&amp;rsquo;s really works :)&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Java Memory Model in few words</title>
+      <link>https://dddpaul.github.io/blog/2014/12/06/jmm-1/</link>
+      <pubDate>Sat, 06 Dec 2014 18:33:46 +0000</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2014/12/06/jmm-1/</guid>
+      <description>&lt;p&gt;This article is mostly consist of quotes from &lt;a href=&#34;http://www.manning.com/evans/&#34;&gt;The Well-Grounded Java Developer&lt;/a&gt; by Benjamin J. Evans and Martijn Verburg. I like simplicity and brevity of their explanation approach.&lt;/p&gt;
+
+&lt;p&gt;And that&amp;rsquo;s how &lt;em&gt;Happens-Before&lt;/em&gt; and &lt;em&gt;Synchronizes-With&lt;/em&gt; relationships are explained.&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Happens-Before — This relationship indicates that one block of code fully completes before the other can start.&lt;/li&gt;
+&lt;li&gt;Synchronizes-With — This means that an action will synchronize its view of an object with main memory before continuing.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The JMM has these main rules:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;An unlock operation on a monitor &lt;em&gt;Synchronizes-With&lt;/em&gt; later lock operations.&lt;/li&gt;
+&lt;li&gt;A write to a volatile variable &lt;em&gt;Synchronizes-With&lt;/em&gt; later reads of the variable.&lt;/li&gt;
+&lt;li&gt;If an action A &lt;em&gt;Synchronizes-With&lt;/em&gt; action B, then A &lt;em&gt;Happens-Before&lt;/em&gt; B.&lt;/li&gt;
+&lt;li&gt;If A comes before B in program order, within a thread, then A &lt;em&gt;Happens-Before&lt;/em&gt; B.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The general statement of the first two rules is that &lt;em&gt;&amp;ldquo;releases happen before acquires&amp;rdquo;&lt;/em&gt;. In other words, the locks that a thread holds when writing are released before the locks can be acquired by other operations (including reads).&lt;/p&gt;
+
+&lt;p&gt;There are additional rules, which are really about sensible behavior:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;The completion of a constructor &lt;em&gt;Happens-Before&lt;/em&gt; the finalizer for that object starts to run (an object has to be fully constructed before it can be finalized).&lt;/li&gt;
+&lt;li&gt;An action that starts a thread &lt;em&gt;Synchronizes-With&lt;/em&gt; the first action of the new thread.&lt;/li&gt;
+&lt;li&gt;Thread.join() &lt;em&gt;Synchronizes-With&lt;/em&gt; the last (and all other) actions in the thread being joined.*&lt;/li&gt;
+&lt;li&gt;If X &lt;em&gt;Happens-Before&lt;/em&gt; Y and Y &lt;em&gt;Happens-Before&lt;/em&gt; Z then X &lt;em&gt;Happens-Before&lt;/em&gt; Z (transitivity).&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;They even have granted free access to entire &lt;a href=&#34;http://www.manning.com/evans/TWGJD_sample_ch04.pdf&#34;&gt;Chapter 4. Modern concurrency&lt;/a&gt;. Although I&amp;rsquo;m not relish with the code style (using trailing underscore to emphasize method parameters - why?) this chapter definitely deserves to read it.&lt;/p&gt;
+
+&lt;p&gt;Footnotes:&lt;/p&gt;
+
+&lt;p&gt;* &lt;a href=&#34;https://docs.oracle.com/javase/specs/jls/se7/html/jls-17.html&#34;&gt;JLS. Chapter 17. Threads and Locks&lt;/a&gt; assures that:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;All actions in a thread happen-before any other thread successfully returns from a join() on that thread.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;So, the truth is that thread actions happens-before Thread.join().&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Борьба с утечками памяти в Android (Badoo)</title>
+      <link>https://dddpaul.github.io/blog/2014/10/21/android-memory-leak-badoo/</link>
+      <pubDate>Tue, 21 Oct 2014 14:30:16 +0000</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2014/10/21/android-memory-leak-badoo/</guid>
+      <description>
+
+&lt;p&gt;На хабре появилась статья &lt;a href=&#34;http://habrahabr.ru/company/badoo/blog/240479/&#34;&gt;Борьба с утечками памяти в Android. Часть 1&lt;/a&gt; от компании Badoo. Т.к. тема созвучна с моими постами из серии 
+&lt;a href=&#39;https://dddpaul.github.io/blog//series/memory-leaks/&#39;&gt;Memory leaks&lt;/a&gt;, то решил вкратце описать их методы.&lt;/p&gt;
+
+&lt;p&gt;Суть проблемы — использование android.os.Handler, в который постится анонимный Runnable с помощью метода [postDelayed](&lt;a href=&#34;http://developer.android.com/reference/android/os/Handler.html#postDelayed(java.lang.Runnable&#34;&gt;http://developer.android.com/reference/android/os/Handler.html#postDelayed(java.lang.Runnable&lt;/a&gt;, long). Для демонстрации, Runnable просто меняет какой-либо TextView (т.е. содержит внутри себя ссылку mTextView), и время до выполнения Runnable берется довольно большим. Так вот, если за этот промежуток времени повернуть девайс несколько раз, то старые активити не будут собираться GC, т.к. в Java любой анонимный класс всегда имеет неявную ссылку на внешний класс.&lt;/p&gt;
+
+&lt;h3 id=&#34;решение-с-использованием-статического-класса:b5ecc8a59da209189d194d532f575ae4&#34;&gt;Решение с использованием статического класса&lt;/h3&gt;
+
+&lt;p&gt;Переделка анонимного класса в статический проблему не решает — Activity сохранен в ссылке mContext из mTextView внутри нашей реализации Runnable.&lt;/p&gt;
+
+&lt;h3 id=&#34;решение-с-использованием-статического-класса-и-weakreference:b5ecc8a59da209189d194d532f575ae4&#34;&gt;Решение с использованием статического класса и WeakReference&lt;/h3&gt;
+
+&lt;p&gt;В реализации Runnable сохраняем ссылку на TextView в WeakReference. Использование WeakReference требует особой аккуратности: такая ссылка в любой момент может обнулиться. Поэтому сначала сохраняем ссылку в локальную переменную и работаем только с последней, проверив ее на null.&lt;/p&gt;
+
+&lt;p&gt;Для использования данного подхода нам необходимо:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;использовать статический внутренний или внешний класс;&lt;/li&gt;
+&lt;li&gt;использовать WeakReference для всех объектов, на которые мы ссылаемся.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Это решает проблему.&lt;/p&gt;
+
+&lt;h3 id=&#34;очистка-всех-сообщений-в-ondestroy:b5ecc8a59da209189d194d532f575ae4&#34;&gt;Очистка всех сообщений в onDestroy&lt;/h3&gt;
+
+&lt;p&gt;Добавим в onDestroy вызов метода класса Handler &lt;a href=&#34;http://developer.android.com/reference/android/os/Handler.html#removeCallbacksAndMessages(java.lang.Object)&#34;&gt;removeCallbacksAndMessages&lt;/a&gt;. Он удаляет все сообщения, находящиеся в очереди данного Handler&amp;rsquo;а. Это очень хороший способ защититься от утечки памяти, но во-первых, нужно не забыть это сделать, а во-вторых, в комментах к статье пишут, что вызов onDestroy в общем случае не гарантирован.&lt;/p&gt;
+
+&lt;p&gt;Цитата из документации — &lt;a href=&#34;http://developer.android.com/training/basics/activity-lifecycle/stopping.html&#34;&gt;Stopping and Restarting an Activity&lt;/a&gt;:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;When your activity receives a call to the onStop() method, it&amp;rsquo;s no longer visible and should release almost all resources that aren&amp;rsquo;t needed while the user is not using it. Once your activity is stopped, the system might destroy the instance if it needs to recover system memory. In extreme cases, the system might simply kill your app process without calling the activity&amp;rsquo;s final onDestroy() callback, so it&amp;rsquo;s important you use onStop() to release resources that might leak memory.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h3 id=&#34;решение-с-использованием-weakhandler:b5ecc8a59da209189d194d532f575ae4&#34;&gt;Решение с использованием WeakHandler&lt;/h3&gt;
+
+&lt;p&gt;Команда Badoo написала свой Handler — &lt;a href=&#34;github.com/badoo/android-weak-handler&#34;&gt;WeakHandler&lt;/a&gt;. Это класс, который ведет себя совершенно как Handler, но исключает утечки памяти за счет использования слабых ссылок.&lt;/p&gt;
+
+&lt;p&gt;Главная идея — держать жесткую ссылку на сообщения или Runnable до тех пор, пока существует жесткая ссылка на WeakHandler. Как только WeakHandler может быть удален из памяти, все остальное должно быть удалено вместе с ним.&lt;/p&gt;
+
+&lt;h3 id=&#34;выводы:b5ecc8a59da209189d194d532f575ae4&#34;&gt;Выводы&lt;/h3&gt;
+
+&lt;p&gt;Отличная и годная статья :)&lt;/p&gt;
+
+&lt;p&gt;Ссылки:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://corner.squareup.com/2013/10/android-main-thread-1.html&#34;&gt;A journey on the Android Main Thread - PSVM&lt;/a&gt;. Рассказ про про внутренности Main Thread: Loopers, Handlers и т.д.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://corner.squareup.com/2013/12/android-main-thread-2.html&#34;&gt;A journey on the Android Main Thread - Lifecycle bits&lt;/a&gt;. Продолжение — про lifecycle и orientation change.&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Подводные камни смены ориентации в Android</title>
+      <link>https://dddpaul.github.io/blog/2014/08/02/orientation-change/</link>
+      <pubDate>Sat, 02 Aug 2014 13:32:33 +0000</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2014/08/02/orientation-change/</guid>
+      <description>
+
+&lt;p&gt;После нескольких дней отладки приложения пришел к выводу, что смена ориентации (rotation, orientation change) требует к себе особого внимания. Наконец-то я понял тех разработчиков, которые напрочь запрещают смену ориентации в своем софте. Ведь, не зная некоторых неочевидных нюансов, можно легко получить крах приложения или утечку памяти.&lt;/p&gt;
+
+&lt;p&gt;Опишу в порядке возрастания сложности, на какие подводные камни мне пришлось натолкнуться.&lt;/p&gt;
+
+&lt;h3 id=&#34;beginner-s-level:ab7bd6db0fbb770c5dbfe85b3a43d6b3&#34;&gt;Beginner&amp;rsquo;s level&lt;/h3&gt;
+
+&lt;p&gt;Надо сохранять состояние (state) фрагментов. Не сохранил — потерял, т.к. активити и фрагменты будут пересозданы. Если стейт фрагмента сериализуется в строку, то просто переопределяем метод onSaveInstanceState(). Способ описан как в &lt;a href=&#34;http://developer.android.com/guide/components/fragments.html#Lifecycle&#34;&gt;официальной документации&lt;/a&gt;, так и в множестве других мест.&lt;/p&gt;
+
+&lt;h3 id=&#34;intermediate:ab7bd6db0fbb770c5dbfe85b3a43d6b3&#34;&gt;Intermediate&lt;/h3&gt;
+
+&lt;p&gt;Не забываем про AsyncTask. Их тоже надо сохранять, ибо иначе при смене ориентации мы его потеряем. Или он что-нибудь обвалит :) Для решения этой проблемы придумана такая отличная штука, как retaining fragments. Всего один вызов setRetainInstance(true) продляет жизнь фрагменту и связанному с ним асинктаску (назовем это длинный стейт).&lt;/p&gt;
+
+&lt;p&gt;Тут и начинаются подводные камни. Что если мы хотим в портретном режиме свайпить фрагменты (через ViewPager), а в landscape — просто показать их всех в линеечку (с помощью LinearLayout безо всякого ViewPager)? Запустим приложение в portrait mode, перевернем, и получим &amp;ldquo;IllegalArgumentException: No view found&amp;rdquo;.&lt;/p&gt;
+
+&lt;p&gt;Суть в том, что изначальный фрагмент с портретного режима останется и даже сохранит ссылку на ViewPager, которого в landscape layout уже просто нет :) Отсюда вывод - использовать для сохранения длинного стейта нужно headless fragments, т.е. фрагменты без UI. Тогда получается красиво: в &amp;ldquo;обычных&amp;rdquo; фрагментах формочки и кнопочки, а асинктаски — в отдельных, которые ничего про UI не знают.&lt;/p&gt;
+
+&lt;p&gt;Остался последний вопрос — как этот headless fragment создать/запустить? В android-samples есть пример &lt;a href=&#34;https://android.googlesource.com/platform/development/+/master/samples/ApiDemos/src/com/example/android/apis/app/FragmentRetainInstance.java&#34;&gt;FragmentRetainInstance.java&lt;/a&gt;, в котором используется способ матрешки - активити запускает parent fragment, parent запускает worker fragment, внутри которого сидит асинктаск.&lt;/p&gt;
+
+&lt;p&gt;Вроде хорошая схема, но если вы, не дай бог, возьмете Robolectric и напишите юнит-тест для родительского фрагмента, то получите что-то типа recursive transaction exception. Суть в том, что роболектрик создает тестируемый фрагмент обычным способом (через транзакцию), а внутри запускается новая транзакция (для worker fragment). А так нельзя, это вам не JPA какой-нибудь :)&lt;/p&gt;
+
+&lt;p&gt;Итого — держим асинктаски в headless-фрагменте, который запускаем из активити. В целом, это отличная схема на все случаи жизни, а не только для приведенного примера.&lt;/p&gt;
+
+&lt;h3 id=&#34;veteran:ab7bd6db0fbb770c5dbfe85b3a43d6b3&#34;&gt;Veteran&lt;/h3&gt;
+
+&lt;p&gt;Копаем в сторону уже вскользь упомянутого multi-pane. Как его сделать правильно на одних фрагментах? Внятно описанный &lt;a href=&#34;http://www.vogella.com/tutorials/AndroidFragments/article.html&#34;&gt;способ от Ларса Вогеля&lt;/a&gt; требует разных активити, а я не хочу плодить сущности.&lt;/p&gt;
+
+&lt;p&gt;Используем уже описанный метод с двумя layout&amp;rsquo;ами (ведь мы же за декларативный подход!):&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;1-й layout состоит из одного ViewPager&amp;rsquo;а;&lt;/li&gt;
+&lt;li&gt;2-й — LinearLayout с двумя фрагментами.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;В чем прелесть подхода — 2-й layout можно положить в папочку, например, layout-w600dp и он будет автоматически использован, если ширина экрана больше 600dp. Красота!&lt;/p&gt;
+
+&lt;p&gt;Оно даже работает и не падает. Правда, появился какой-то странный глюк с &lt;a href=&#34;http://github.com/greenrobot/EventBus&#34;&gt;EventBus&lt;/a&gt;: иногда фрагмент получает два сообщения вместо одного. При более пристальном изучении оказалось наоборот - два одинаковых фрагмента получают одно сообщение. Откуда они берутся? А кто его знает :)&lt;/p&gt;
+
+&lt;p&gt;Была убита куча времени в DDMS/VisualVM/MAT, в результате чего появился &lt;a href=&#34;https://github.com/dddpaul/android-ViewPagerBug&#34;&gt;тестовый проект&lt;/a&gt;, также описал симптомы на &lt;a href=&#34;http://stackoverflow.com/questions/25033824/dublicate-fragment-allocation-when-using-viewpager-with-different-layouts&#34;&gt;StackOverflow&lt;/a&gt;. Вкратце, именно при использовании такого варианта multi-pane (когда в одном layout есть ViewPager, а в другом нет), фрагменты при перевороте создаются ДВАЖДЫ. Причем, оба в RESUMED state, поэтому они оба и ловят сообщения по EventBus.&lt;/p&gt;
+
+&lt;p&gt;Плюнув, отказался от второго layout&amp;rsquo;а, теперь ViewPager используется везде. Чтобы показать сразу 2 фрагмента, можно использовать разные &lt;a href=&#34;http://commonsware.com/blog/2012/08/20/multiple-view-viewpager-options.html&#34;&gt;хитрые способы&lt;/a&gt;. Они, в общем, несложные, и, в моем случае, способ с переопределением getPageWidth() даже не внес никаких сайд-эффектов. Правда, определение ширины экрана, когда надо показать multi-pane пришлось вынести в код, получилось чуть менее декларативненько.&lt;/p&gt;
+
+&lt;h3 id=&#34;hardcore:ab7bd6db0fbb770c5dbfe85b3a43d6b3&#34;&gt;Hardcore&lt;/h3&gt;
+
+&lt;p&gt;Плавно переходим к утечкам памяти :)&lt;/p&gt;
+
+&lt;p&gt;Очень веселая ситуация, когда после, например, после 10 ротаций эмулятора и нескольких запусков GC в хипе болтаются 11 activities. Решив идти до конца, вооружившись методом исключения и вырезав почти весь код и вьюхи, удалось докопаться до причины. Утекал компонент TextView с опцией &lt;a href=&#34;http://stackoverflow.com/questions/22990634/textview-with-id-and-textisselectable-true-causes-leaking-of-the-activity-obje&#34;&gt;textIsSelectable=&amp;ldquo;true&amp;rdquo;&lt;/a&gt;. Очень порадовало начало топика &amp;ldquo;It took me three days to narrow my problem &amp;hellip;&amp;rdquo; :)&lt;/p&gt;
+
+&lt;p&gt;Убрал одну строчку в layout, утечка исчезла, ура. Вернулся в основную ветку, вставил этот коммит, прогнал тест (10 ротаций), получил 10 activities. Уже лучше :)&lt;/p&gt;
+
+&lt;p&gt;Оказалось, компонент EditText также замечательно утекает. Причина, вроде бы в том, что он слишком умный (у него по-умолчанию включен спеллчекер). Если отключить, то утечка может пропасть, а может и нет. Прогнал тест на разных эмуляторах, оказалось, что в 4.3 баг починен, уже хорошо! А я все тестил на 4.1.2.&lt;/p&gt;
+
+&lt;p&gt;Раз версия 4.3 такая замечательная, может быть, там починена утечка textIsSelectable? А то вдруг понадобится эта опция? Нет, все без изменений. Версия 4.4.2? А вот фиг вам - &lt;a href=&#34;https://code.google.com/p/android/issues/detail?id=61671&#34;&gt;баг в эмуляторе&lt;/a&gt;. Вы не можете повернуть эмулятор с этой версией Андроида :) Тест запустить не удалось.&lt;/p&gt;
+
+&lt;p&gt;Фрагменты также могут утекать. В сети полно примеров организации свайпа с ViewPager (это где фрагменты создаются в классе-потомке FragmentPagerAdapter и т.д.) Все замечательно, но не забываем вставлять в onDestroy():&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;pager.removeAllViews();
+pager.setAdapter( null );
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Иначе, каждый раз при rotation старые фрагменты не будут собираться GC. Если у вас приложение с 2-мя фраментами, то после 10 ротаций будет 22, плюс 11 activities. По крайней мере, в 4.1.2. В 4.3 уже можно этим не заморачиваться :)&lt;/p&gt;
+
+&lt;h3 id=&#34;заключение:ab7bd6db0fbb770c5dbfe85b3a43d6b3&#34;&gt;Заключение&lt;/h3&gt;
+
+&lt;p&gt;К чему весь этот пост - выложил обновление &lt;a href=&#34;https://play.google.com/store/apps/details?id=com.github.dddpaul.netcat&#34;&gt;Simple NetCat&lt;/a&gt;. Версия 1.4 поддерживает multi-pane на планшетах, содержит меньше багов (скрестил два пальца) и практически не течет по памяти.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Android memory leaks</title>
+      <link>https://dddpaul.github.io/blog/2014/08/01/android-memory-leaks/</link>
+      <pubDate>Fri, 01 Aug 2014 13:34:16 +0000</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2014/08/01/android-memory-leaks/</guid>
+      <description>&lt;p&gt;Articles:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://android-developers.blogspot.ru/2009/01/avoiding-memory-leaks.html&#34;&gt;Avoiding memory leaks&lt;/a&gt;. This great article describes base causes of memory leaks on Android. I quote summary from there:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Do not keep long-lived references to a context-activity (a reference to an activity should have the same life cycle as the activity itself)&lt;/li&gt;
+&lt;li&gt;Try using the context-application instead of a context-activity&lt;/li&gt;
+&lt;li&gt;Avoid non-static inner classes in an activity if you don&amp;rsquo;t control their life cycle, use a static inner class and make a weak reference to the activity inside. The solution to this issue is to use a static inner class with a WeakReference to the outer class, as done in ViewRoot and its W inner class for instance&lt;/li&gt;
+&lt;li&gt;A garbage collector is not an insurance against memory leaks&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://www.androiddesignpatterns.com/2013/01/inner-class-handler-memory-leak.html&#34;&gt;How to Leak a Context: Handlers &amp;amp; Inner Classes&lt;/a&gt;. Be cautious when using inner classes inside activity. The summary:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;In Java, non-static inner and anonymous classes hold an implicit reference to their outer class. Static inner classes, on the other hand, do not.&lt;/li&gt;
+&lt;li&gt;Avoid using non-static inner classes in an activity if instances of the inner class outlive the activity&amp;rsquo;s lifecycle.&lt;/li&gt;
+&lt;li&gt;Instead, prefer static inner classes and hold a weak reference to the activity inside.&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://habrahabr.ru/post/116294/&#34;&gt;Отслеживание утечек памяти в Android приложениях&lt;/a&gt;. This article gives example of class for tracking memory leaks based on WeakReference.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;StackOverflow discussions mostly:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://geekple.com/blogs/feeds/9AlMn/posts/354891570708736&#34;&gt;TextView with id and textIsSelectable=&amp;ldquo;true&amp;rdquo; causes leaking of the Activity object&lt;/a&gt;. And corresponding &lt;a href=&#34;http://stackoverflow.com/questions/22990634/textview-with-id-and-textisselectable-true-causes-leaking-of-the-activity-obje&#34;&gt;Stack Overflow topic&lt;/a&gt;. I&amp;rsquo;ve bumped into this issue personally and spent a quite some time too. Rotating emulator and heapdumping mostly :) The point is that TextView with id and android:textIsSelectable=&amp;ldquo;true&amp;rdquo; causes memory leak on Android 4.0.x, 4.1.x, 4.2.x, 4.3.x. Can&amp;rsquo;t check it on 4.4.2 because of &lt;a href=&#34;https://code.google.com/p/android/issues/detail?id=61671&#34;&gt;emulator bug&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://stackoverflow.com/questions/18348049/android-edittext-memory-leak&#34;&gt;Android EditText Memory Leak&lt;/a&gt;, &lt;a href=&#34;http://stackoverflow.com/questions/8497965/why-does-edittext-retain-its-activitys-context-in-ice-cream-sandwich&#34;&gt;Why does EditText retain its Activity&amp;rsquo;s Context in Ice Cream Sandwich&lt;/a&gt;, &lt;a href=&#34;http://stackoverflow.com/questions/14069501/edittext-causing-memory-leak&#34;&gt;EditText causing memory leak&lt;/a&gt;. The main theme of this topics is that EditText leaks when spellchecker suggestions are used. You can turn it off but it can help or maybe not. EditText is leaking on Android 4.0.x, 4.1.x, 4.2.x. Thanks god, seems like it&amp;rsquo;s fixed in Android 4.3, API 18 (checked on Nexus 7 2013 emulator). Although &lt;a href=&#34;https://code.google.com/p/android/issues/detail?id=60930&#34;&gt;corresponding issue&lt;/a&gt; is still open.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://stackoverflow.com/a/18414294&#34;&gt;Fragments are not being released from memory&lt;/a&gt;. A valuable advice - use weak references to point to any object that references its context outside of your Activity. I&amp;rsquo;m not sure is it a proper approach to weak referencing ViewPager, but for some more &amp;ldquo;distant&amp;rdquo; object like &lt;a href=&#34;http://www.michenux.net/android-asynctask-in-fragment-best-pratices-725.html&#34;&gt;AsyncTask&lt;/a&gt; it might be reasonable.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Videos:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.youtube.com/watch?v=_CruQY55HOk&#34;&gt; Google I/O 2011: Memory management for Android Apps &lt;/a&gt;. Presentation by &lt;a href=&#34;http://dubroy.com&#34;&gt;Patrick Dubroy&lt;/a&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Multi-pane layout for tablets</title>
+      <link>https://dddpaul.github.io/blog/2014/07/30/multi-pane/</link>
+      <pubDate>Wed, 30 Jul 2014 07:14:41 +0000</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2014/07/30/multi-pane/</guid>
+      <description>&lt;p&gt;Some articles:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://commonsware.com/blog/2012/08/20/multiple-view-viewpager-options.html&#34;&gt;Multiple-View ViewPager Options&lt;/a&gt;. It&amp;rsquo;s a brilliant set of methods to display several fragments simultaneously using ViewPager. I&amp;rsquo;ve personally used first method (overriding getPageWidth() in PagerAdapter) - it works for me.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://shashikawlp.wordpress.com/2012/12/13/android-viewpager-with-multiple-views/&#34;&gt;Android ViewPager with Multiple Views&lt;/a&gt;. Looks like third method from previous article.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;And StackOverflow discussions:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://stackoverflow.com/questions/9468581/can-viewpager-have-multiple-views-in-per-page&#34;&gt;Can ViewPager have multiple views in per page?&lt;/a&gt;. There are links to CommonsWare article and description of method used for some Dutch newspaper app. Looks nice but it display one full page and part of another - it&amp;rsquo;s not what I need now.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://stackoverflow.com/questions/23149850/viewpager-with-different-adapters-for-portrait-and-landscape&#34;&gt;ViewPager with different adapters for portrait and landscape&lt;/a&gt;. Dude wants to show A,B,C fragments in portrait mode and A,C only in landscape. Not my case but interesting.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://stackoverflow.com/questions/6465680/how-to-determine-the-screen-width-in-terms-of-dp-or-dip-at-runtime-in-android&#34;&gt;How to determine the screen width in terms of dp or dip at runtime in Android?&lt;/a&gt;. Describe how to calculate screen size in &amp;ldquo;density-independent pixels&amp;rdquo;. It&amp;rsquo;s useful for decide when which layout to use programmatically.&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Retaining state with headless fragments</title>
+      <link>https://dddpaul.github.io/blog/2014/07/29/headless-fragments/</link>
+      <pubDate>Tue, 29 Jul 2014 07:55:41 +0000</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2014/07/29/headless-fragments/</guid>
+      <description>&lt;p&gt;Some articles:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Official &lt;a href=&#34;http://developer.android.com/guide/components/fragments.html&#34;&gt;Fragments guide&lt;/a&gt;. Has some clues for headless fragments (see &amp;ldquo;Adding a fragment without a UI&amp;rdquo;).&lt;/li&gt;
+&lt;li&gt;Superb &lt;a href=&#34;http://www.vogella.com/tutorials/AndroidFragments/article.html&#34;&gt;multi-pane fragments tutorial&lt;/a&gt; from Lars Vogel. Contains some tips for &lt;a href=&#34;http://www.vogella.com/tutorials/AndroidFragments/article.html#headlessfragments&#34;&gt;headless fragments&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://techbandhu.wordpress.com/2013/07/02/android-headless-fragment/&#34;&gt;Android best tip to work with fragments and orientation change&lt;/a&gt;. More detailed headless fragments technique description.&lt;/li&gt;
+&lt;li&gt;Headless fragment example - &lt;a href=&#34;https://android.googlesource.com/platform/development/+/master/samples/ApiDemos/src/com/example/android/apis/app/FragmentRetainInstance.java&#34;&gt;FragmentRetainInstance.java&lt;/a&gt;. In this code headless fragment is created from other fragment. In my case it&amp;rsquo;s inappropriate because of Robolectric testing (recursive fragment transactions).&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.intertech.com/Blog/saving-and-retrieving-android-instance-state-part-2/&#34;&gt;Saving (And Retrieving) Android Instance State – Part 2&lt;/a&gt;. Details about retained fragments. Neat retained fragment lifecycle.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.androiddesignpatterns.com/2013/04/retaining-objects-across-config-changes.html&#34;&gt;Handling Configuration Changes with Fragments&lt;/a&gt;. Main advice - Manage the Object Inside a Retained Fragment.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://ideaventure.blogspot.com.au/2014/01/android-activityfragment-life-cycle.html&#34;&gt;Android Activity/Fragment life cycle analysis&lt;/a&gt;. Full logging of all lifecycle method calls in different situations.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;And StackOverflow discussions:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://stackoverflow.com/questions/11591302/unable-to-use-fragment-setretaininstance-as-a-replacement-for-activity-onretai&#34;&gt;Unable to use Fragment.setRetainInstance() as a replacement for Activity.onRetainNonConfigurationInstance()&lt;/a&gt;. How to preserve fragments with WebViews and AsyncTasks. One of the answers is to override Fragment.onDestroy() and save asynctasks to Application object.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://stackoverflow.com/questions/12640316/further-understanding-setretaininstancetrue&#34;&gt;Further understanding setRetainInstance(true)&lt;/a&gt;. Retained fragment lifecycle logs.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://stackoverflow.com/questions/8417885/android-fragments-retaining-an-asynctask-during-screen-rotation-or-configuratio&#34;&gt;Android Fragments. Retaining an AsyncTask during screen rotation or configuration change&lt;/a&gt;. Retained fragment with inner asynctask example and much more. AsyncTask has reference to fragment - it&amp;rsquo;s interesting.&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

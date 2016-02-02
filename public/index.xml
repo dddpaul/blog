@@ -1,0 +1,1310 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Dev notes</title>
+    <link>https://dddpaul.github.io/blog/</link>
+    <description>Recent content on Dev notes</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 21 Dec 2015 18:45:00 +0300</lastBuildDate>
+    <atom:link href="https://dddpaul.github.io/blog/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Different URI encodings for one Tomcat-based application</title>
+      <link>https://dddpaul.github.io/blog/2015/12/21/spring-boot-uri-encoding/</link>
+      <pubDate>Mon, 21 Dec 2015 18:45:00 +0300</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2015/12/21/spring-boot-uri-encoding/</guid>
+      <description>
+
+&lt;p&gt;There some cases when you would like to map different URI encodings on different HTTP endpoints. And one of those cases is when your application handles GET requests containing &lt;a href=&#34;https://en.wikipedia.org/wiki/Percent-encoding&#34;&gt;percent-encoded&lt;/a&gt; non-ASCII data in different charsets. For example, one HTTP endpoint uses standard UTF-8 while the other uses &lt;a href=&#34;https://en.wikipedia.org/wiki/Windows-1251&#34;&gt;Windows-1251&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&#34;plain-tomcat-way:9095423fd9c5e41ee9033ec52da6bac6&#34;&gt;Plain Tomcat way&lt;/h2&gt;
+
+&lt;p&gt;According to &lt;a href=&#34;http://wiki.apache.org/tomcat/FAQ/CharacterEncoding#Q2&#34;&gt;How do I change how GET parameters are interpreted?&lt;/a&gt; the only way to specify GET request encoding is to use by-connector &lt;code&gt;URIEncoding&lt;/code&gt; attribute. For example:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-xml&#34;&gt; &amp;lt;Connector port=&amp;quot;8081&amp;quot; URIEncoding=&amp;quot;utf-8&amp;quot;/&amp;gt;
+ &amp;lt;Connector port=&amp;quot;8082&amp;quot; URIEncoding=&amp;quot;cp1251&amp;quot;/&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Then you have map servlets to different connectors somehow.&lt;/p&gt;
+
+&lt;h2 id=&#34;spring-boot-multiple-http-connectors-way:9095423fd9c5e41ee9033ec52da6bac6&#34;&gt;Spring Boot multiple HTTP connectors way&lt;/h2&gt;
+
+&lt;p&gt;Spring Boot can help you out in this matter. Although it uses the only one URI encoding which is specified in &lt;code&gt;server.tomcat.uri-encoding&lt;/code&gt; parameter (&amp;ldquo;UTF-8&amp;rdquo; by default, see &lt;a href=&#34;http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html&#34;&gt;Appendix A. Common application properties&lt;/a&gt;), it can fire up multiple child applications residing on different ports.&lt;/p&gt;
+
+&lt;p&gt;Implementation is really simple as you can see from &lt;a href=&#34;https://github.com/dddpaul/spring-boot-connectors/blob/master/src/main/java/com/github/dddpaul/connectors/Application.java&#34;&gt;Spring Boot Connectors application&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Pros:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;no hacks and workarounds, pure Spring Boot solution :)&lt;/li&gt;
+&lt;li&gt;controller unit tests are passed.
+&lt;br /&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Cons:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;some mess with controllers mappings;&lt;/li&gt;
+&lt;li&gt;integration tests (with full context initialization) are failed on non-ASCII requests; in fact, you have no option to point which connector are used in test;&lt;/li&gt;
+&lt;li&gt;say bye-bye to Spring Boot actuators, you&amp;rsquo;ll have to use some workarounds to plug them in.&lt;br /&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Links:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://stackoverflow.com/questions/26111050/spring-boot-how-can-i-add-tomcat-connectors-to-bind-to-controller&#34;&gt;Spring-Boot : How can I add tomcat connectors to bind to controller&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/dddpaul/spring-boot-connectors&#34;&gt;Multiple HTTP connectors in Spring Boot example&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;nginx-lua-way:9095423fd9c5e41ee9033ec52da6bac6&#34;&gt;Nginx+Lua way&lt;/h2&gt;
+
+&lt;p&gt;Nginx being built with &lt;a href=&#34;https://github.com/openresty/lua-nginx-module&#34;&gt;Lua module&lt;/a&gt; becomes a very fast non-blocking application server. They even have a &lt;a href=&#34;http://leafo.net/lapis/&#34;&gt;framework&lt;/a&gt;! So the URI re-encode it&amp;rsquo;s a quite an easy task to solve.&lt;/p&gt;
+
+&lt;p&gt;It&amp;rsquo;s a more complicated way, but if you already use &lt;a href=&#34;http://nginx.org/&#34;&gt;Nginx&lt;/a&gt; as a reverse proxy server / balancer / HTTPS terminator in front of or Java application — why not?&lt;/p&gt;
+
+&lt;p&gt;Nginx build options, functions and configuration file example can be found in &lt;a href=&#34;https://github.com/dddpaul/docker-nginx&#34;&gt;docker-nginx&lt;/a&gt; project. &lt;a href=&#34;https://github.com/dddpaul/docker-nginx/blob/master/lua/functions.lua&#34;&gt;Function&lt;/a&gt; to convert encoding:&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-lua&#34; data-lang=&#34;lua&#34;&gt;&lt;span class=&#34;k&#34;&gt;function&lt;/span&gt; &lt;span class=&#34;nc&#34;&gt;M&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;iconv&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;cd&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;args&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;key&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;val&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;in&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;pairs&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;args&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;do&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;type&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;val&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;==&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;table&amp;quot;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;then&lt;/span&gt;
+            &lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;k&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;v&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;in&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;pairs&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;val&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;do&lt;/span&gt;
+                &lt;span class=&#34;n&#34;&gt;val&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;k&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;cd&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;iconv&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;v&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+            &lt;span class=&#34;k&#34;&gt;end&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;else&lt;/span&gt;
+            &lt;span class=&#34;n&#34;&gt;args&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;key&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;cd&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;iconv&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;val&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;end&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;end&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;args&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;end&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;It converts only URI parameter values and leaves parameter names untouched. Converting is performed by iconv C library with help of &lt;a href=&#34;http://ittner.github.io/lua-iconv/&#34;&gt;Lua-iconv binding&lt;/a&gt;, so it&amp;rsquo;s very fast.&lt;/p&gt;
+
+&lt;p&gt;This Nginx config block configures Lua module, load convert function and initializes iconv:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;lua_package_path &#39;/etc/nginx/lua/?.lua;;&#39;;
+init_by_lua_block {
+    functions = require(&amp;quot;functions&amp;quot;)
+    iconv = require(&amp;quot;iconv&amp;quot;)
+    cd = iconv.new(&amp;quot;utf8&amp;quot;, &amp;quot;cp1251&amp;quot;)
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;In order to re-encode URIs before proxying to Java backend use the following sample:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;location /app {
+    rewrite_by_lua_block {
+        if ngx.var.args == nil then return end
+        local args = ngx.decode_args(ngx.var.args)
+        args = functions.iconv(cd, args)
+        args = ngx.encode_args(args)
+        ngx.var.args = args
+    }
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_pass http://localhost:8000;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Pros:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;no multiple connectors, listen on single port;&lt;/li&gt;
+&lt;li&gt;extremely fast, no performance drawback;&lt;/li&gt;
+&lt;li&gt;all tests are passed.
+&lt;br /&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Cons:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;extra devops work :)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Links:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/dddpaul/docker-nginx&#34;&gt;dddpaul/docker-nginx&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/openresty/lua-nginx-module&#34;&gt;openresty/lua-nginx-module&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://ittner.github.io/lua-iconv/&#34;&gt;Lua iconv&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;java-hackish-way:9095423fd9c5e41ee9033ec52da6bac6&#34;&gt;Java hackish way&lt;/h2&gt;
+
+&lt;p&gt;The idea is the same — url-decode GET-request values, convert to proper encoding and url-encode. At this time it&amp;rsquo;s achieved by using private API of &lt;a href=&#34;https://tomcat.apache.org/tomcat-8.0-doc/api/org/apache/coyote/Request.html&#34;&gt;org.apache.coyote.Request&lt;/a&gt; class to decode query string conditionally.&lt;/p&gt;
+
+&lt;p&gt;Implementation is quite simple as you can see from &lt;a href=&#34;https://github.com/dddpaul/spring-boot-filters/blob/master/src/main/java/com/github/dddpaul/filters/Application.java&#34;&gt;Spring Boot Filters application&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;URIs are re-encoded in servlet filter:&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span class=&#34;kd&#34;&gt;static&lt;/span&gt; &lt;span class=&#34;kd&#34;&gt;class&lt;/span&gt; &lt;span class=&#34;nc&#34;&gt;CoyoteRequestManipulator&lt;/span&gt; &lt;span class=&#34;kd&#34;&gt;extends&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;OncePerRequestFilter&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+    &lt;span class=&#34;kd&#34;&gt;private&lt;/span&gt; &lt;span class=&#34;kd&#34;&gt;static&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Field&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;getField&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;Class&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;clazz&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;String&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;fieldName&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;kd&#34;&gt;throws&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;NoSuchFieldException&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+        &lt;span class=&#34;o&#34;&gt;...&lt;/span&gt;
+    &lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+
+    &lt;span class=&#34;nd&#34;&gt;@Override&lt;/span&gt;
+    &lt;span class=&#34;kd&#34;&gt;protected&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;doFilterInternal&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;HttpServletRequest&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;request&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;HttpServletResponse&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;response&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt;
+                                    &lt;span class=&#34;n&#34;&gt;FilterChain&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;chain&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;kd&#34;&gt;throws&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ServletException&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;IOException&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;hasText&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;request&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;getQueryString&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;())&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;request&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;getQueryString&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;().&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;contains&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;%&amp;quot;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;))&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+            &lt;span class=&#34;n&#34;&gt;RequestFacade&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;facade&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;RequestFacade&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;request&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;;&lt;/span&gt;
+            &lt;span class=&#34;k&#34;&gt;try&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+                &lt;span class=&#34;c1&#34;&gt;// First hack is to get org.apache.coyote.Request instance&lt;/span&gt;
+                &lt;span class=&#34;n&#34;&gt;Field&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;requestField&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;getField&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;RequestFacade&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;class&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;quot;request&amp;quot;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+                &lt;span class=&#34;n&#34;&gt;requestField&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;setAccessible&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kc&#34;&gt;true&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+                &lt;span class=&#34;n&#34;&gt;Request&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;connRequest&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;Request&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;requestField&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;get&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;facade&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+                &lt;span class=&#34;n&#34;&gt;org&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;apache&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;coyote&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;Request&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;coyoteRequest&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;connRequest&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;getCoyoteRequest&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;();&lt;/span&gt;
+
+                &lt;span class=&#34;c1&#34;&gt;// But it&amp;#39;s already filled with decoded query parameters, so query string has&lt;/span&gt;
+                &lt;span class=&#34;c1&#34;&gt;// to be re-handled after URI encoding switch. So, in fact, query string is&lt;/span&gt;
+                &lt;span class=&#34;c1&#34;&gt;// processed twice. Yet, org.apache.coyote.Request instances are reusable,&lt;/span&gt;
+                &lt;span class=&#34;c1&#34;&gt;// so query encoding has to set every time.&lt;/span&gt;
+                &lt;span class=&#34;n&#34;&gt;Parameters&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;parameters&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;coyoteRequest&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;getParameters&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;();&lt;/span&gt;
+                &lt;span class=&#34;n&#34;&gt;parameters&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;setQueryStringEncoding&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;request&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;getServletPath&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;().&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;startsWith&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;/two&amp;quot;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
+                        &lt;span class=&#34;o&#34;&gt;?&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;quot;cp1251&amp;quot;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;quot;utf-8&amp;quot;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+                &lt;span class=&#34;n&#34;&gt;parameters&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;recycle&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;();&lt;/span&gt;
+                &lt;span class=&#34;n&#34;&gt;parameters&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;handleQueryParameters&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;();&lt;/span&gt;
+            &lt;span class=&#34;o&#34;&gt;}&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;catch&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;Exception&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;e&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+                &lt;span class=&#34;n&#34;&gt;e&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;printStackTrace&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;();&lt;/span&gt;
+            &lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+        &lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+        &lt;span class=&#34;n&#34;&gt;chain&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;doFilter&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;request&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;response&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+    &lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;p&gt;Pros:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;no multiple connectors, listen on single port;&lt;/li&gt;
+&lt;li&gt;no recompiled Nginx stuff - just Java;&lt;/li&gt;
+&lt;li&gt;controller unit tests are passed;&lt;/li&gt;
+&lt;li&gt;integration tests are passed.
+&lt;br /&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Cons:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;reflection and private API usage :)&lt;/li&gt;
+&lt;li&gt;query string could be handled twice.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Links:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/dddpaul/spring-boot-filters&#34;&gt;Spring Boot filter examples&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;the-other-way:9095423fd9c5e41ee9033ec52da6bac6&#34;&gt;The other way&lt;/h2&gt;
+
+&lt;p&gt;Use the microservices, Luke! But for their simplicity and scalability you have pay with massive infrastructure changes. See the following articles for consideration:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.kennybastani.com/2015/07/spring-cloud-docker-microservices.html&#34;&gt;Building Microservices with Spring Cloud and Docker&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://technologyconversations.com/2015/07/02/scaling-to-infinity-with-docker-swarm-docker-compose-and-consul-part-14-a-taste-of-what-is-to-come/&#34;&gt;Scaling To Infinity with Docker Swarm, Docker Compose and Consul&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://technologyconversations.com/2015/11/25/deploying-containers-with-docker-swarm-and-docker-networking/&#34;&gt;Deploying Containers with Docker Swarm and Docker Networking&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Ansible: &#34;default&#34; and &#34;bool&#34; filters</title>
+      <link>https://dddpaul.github.io/blog/2015/11/30/ansible-default-and-bool-filters/</link>
+      <pubDate>Mon, 30 Nov 2015 10:45:00 +0300</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2015/11/30/ansible-default-and-bool-filters/</guid>
+      <description>
+
+&lt;p&gt;There are plenty of &lt;code&gt;bool&lt;/code&gt; and &lt;code&gt;default&lt;/code&gt; filters usage in Ansible playbooks and templates. For example, in &lt;a href=&#34;https://github.com/debops/ansible-docker/blob/master/tasks/main.yml&#34;&gt;debops/ansible-docker&lt;/a&gt;: &lt;code&gt;when: docker_upstream| d() | bool&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Where &lt;code&gt;docker_upstream&lt;/code&gt; is an YAML boolean: &lt;code&gt;docker_upstream: False&lt;/code&gt;. It seems like &amp;ldquo;when&amp;rdquo; condition is &lt;a href=&#34;https://dddpaul.github.io/blog/2015/11/29/ansible-defined-keyword/&#34;&gt;overbloated again&lt;/a&gt; :)&lt;/p&gt;
+
+&lt;p&gt;The &lt;code&gt;var | d() | bool&lt;/code&gt; construction is spread all over the place, for example, in &lt;a href=&#34;https://github.com/debops/ansible-docker/blob/master/templates/etc/default/docker.j2&#34;&gt;docker config template&lt;/a&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;{% if docker_listen | d() | bool %}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Where &lt;code&gt;docker_listen&lt;/code&gt; is an YAML list: &lt;code&gt;docker_listen: [ &#39;{{ docker_tcp_listen }}&#39; ]&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Is there a more simpler way to express things? Maybe &lt;code&gt;when: docker_upstream&lt;/code&gt; or &lt;code&gt;%{ if docker_listen %}&lt;/code&gt; will be enough?&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;First of all, &lt;code&gt;d&lt;/code&gt; is an alias for &lt;code&gt;default&lt;/code&gt;, and &lt;code&gt;default&lt;/code&gt; filter is defined in &lt;a href=&#34;https://github.com/mitsuhiko/jinja2/blob/master/jinja2/filters.py&#34;&gt;jinja2/filters.py&lt;/a&gt;:&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span class=&#34;k&#34;&gt;def&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;do_default&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;value&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;default_value&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;u&amp;#39;&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;boolean&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;bp&#34;&gt;False&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;):&lt;/span&gt;
+    &lt;span class=&#34;sd&#34;&gt;&amp;quot;&amp;quot;&amp;quot;If the value is undefined it will return the passed default value,&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;    otherwise the value of the variable:&lt;/span&gt;
+
+&lt;span class=&#34;sd&#34;&gt;    .. sourcecode:: jinja&lt;/span&gt;
+
+&lt;span class=&#34;sd&#34;&gt;        {{ my_variable|default(&amp;#39;my_variable is not defined&amp;#39;) }}&lt;/span&gt;
+
+&lt;span class=&#34;sd&#34;&gt;    This will output the value of ``my_variable`` if the variable was&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;    defined, otherwise ``&amp;#39;my_variable is not defined&amp;#39;``. If you want&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;    to use default with variables that evaluate to false you have to&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;    set the second parameter to `true`:&lt;/span&gt;
+
+&lt;span class=&#34;sd&#34;&gt;    .. sourcecode:: jinja&lt;/span&gt;
+
+&lt;span class=&#34;sd&#34;&gt;        {{ &amp;#39;&amp;#39;|default(&amp;#39;the string was empty&amp;#39;, true) }}&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;    &amp;quot;&amp;quot;&amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;isinstance&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;value&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Undefined&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;ow&#34;&gt;or&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;boolean&lt;/span&gt; &lt;span class=&#34;ow&#34;&gt;and&lt;/span&gt; &lt;span class=&#34;ow&#34;&gt;not&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;value&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;):&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;default_value&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;value&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;So, the default &amp;ldquo;default value&amp;rdquo; is an empty string.&lt;/p&gt;
+
+&lt;h3 id=&#34;var-d-test:df8aec350edd46b4d7f3e3e66fee95bc&#34;&gt;&amp;ldquo;var | d()&amp;rdquo; test&lt;/h3&gt;
+
+&lt;p&gt;With &lt;code&gt;default&lt;/code&gt; filter:
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span class=&#34;kn&#34;&gt;from&lt;/span&gt; &lt;span class=&#34;nn&#34;&gt;jinja2&lt;/span&gt; &lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Template&lt;/span&gt;
+&lt;span class=&#34;n&#34;&gt;tmpl&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Template&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#39;{{ var | d() }}&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;tmpl&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;render&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+                                  &lt;span class=&#34;c&#34;&gt;# An empty string&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;tmpl&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;render&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;var&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;bp&#34;&gt;None&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;bp&#34;&gt;None&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;tmpl&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;render&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;var&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#39;&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+                                  &lt;span class=&#34;c&#34;&gt;# An empty string&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;tmpl&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;render&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;var&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#39;abc&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;n&#34;&gt;abc&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;tmpl&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;render&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;var&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#39; &amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+                                  &lt;span class=&#34;c&#34;&gt;# A space&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;tmpl&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;render&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;var&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[])&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;[]&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;tmpl&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;render&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;var&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#39;list&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;])&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#39;list&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;tmpl&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;render&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;var&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{})&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;{}&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;tmpl&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;render&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;var&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#39;key&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#39;value&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;})&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#39;key&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#39;value&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;p&gt;Without &lt;code&gt;default&lt;/code&gt; filter:
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span class=&#34;kn&#34;&gt;from&lt;/span&gt; &lt;span class=&#34;nn&#34;&gt;jinja2&lt;/span&gt; &lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Template&lt;/span&gt;
+&lt;span class=&#34;n&#34;&gt;tmpl&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Template&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#39;{{ var }}&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;tmpl&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;render&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+                                  &lt;span class=&#34;c&#34;&gt;# An empty string&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;tmpl&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;render&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;var&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;bp&#34;&gt;None&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;bp&#34;&gt;None&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;tmpl&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;render&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;var&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#39;&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+                                  &lt;span class=&#34;c&#34;&gt;# An empty string&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;tmpl&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;render&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;var&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#39;abc&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;n&#34;&gt;abc&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;tmpl&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;render&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;var&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#39; &amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+                                  &lt;span class=&#34;c&#34;&gt;# A space&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;tmpl&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;render&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;var&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[])&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;[]&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;tmpl&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;render&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;var&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#39;list&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;])&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#39;list&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;tmpl&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;render&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;var&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{})&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;{}&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;tmpl&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;render&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;var&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#39;key&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#39;value&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;})&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#39;key&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#39;value&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;p&gt;Pretty same, eh?&lt;/p&gt;
+
+&lt;h3 id=&#34;str-d-bool-test:df8aec350edd46b4d7f3e3e66fee95bc&#34;&gt;&amp;ldquo;str | d() | bool&amp;rdquo; test&lt;/h3&gt;
+
+&lt;p&gt;With &lt;code&gt;default&lt;/code&gt; filter:
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span class=&#34;kn&#34;&gt;from&lt;/span&gt; &lt;span class=&#34;nn&#34;&gt;jinja2&lt;/span&gt; &lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Template&lt;/span&gt;
+&lt;span class=&#34;kn&#34;&gt;from&lt;/span&gt; &lt;span class=&#34;nn&#34;&gt;ansible.runner.filter_plugins.core&lt;/span&gt; &lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;bool&lt;/span&gt;
+&lt;span class=&#34;n&#34;&gt;Template&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#39;&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;environment&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;filters&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#39;bool&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;bool&lt;/span&gt;
+&lt;span class=&#34;n&#34;&gt;tmpl&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Template&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#39;{{ var | d() | bool }}&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;tmpl&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;render&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+&lt;span class=&#34;bp&#34;&gt;False&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;tmpl&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;render&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;var&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;bp&#34;&gt;None&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;bp&#34;&gt;None&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;tmpl&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;render&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;var&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#39;&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;bp&#34;&gt;False&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;tmpl&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;render&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;var&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#39;abc&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;bp&#34;&gt;False&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;tmpl&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;render&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;var&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#39; &amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;bp&#34;&gt;False&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;tmpl&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;render&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;var&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#39;True&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;bp&#34;&gt;True&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;tmpl&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;render&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;var&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[])&lt;/span&gt;
+&lt;span class=&#34;bp&#34;&gt;False&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;tmpl&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;render&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;var&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#39;list&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;])&lt;/span&gt;
+&lt;span class=&#34;bp&#34;&gt;False&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;tmpl&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;render&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;var&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{})&lt;/span&gt;
+&lt;span class=&#34;bp&#34;&gt;False&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;tmpl&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;render&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;var&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#39;key&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#39;value&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;})&lt;/span&gt;
+&lt;span class=&#34;bp&#34;&gt;False&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;p&gt;Without &lt;code&gt;default&lt;/code&gt; filter:
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span class=&#34;kn&#34;&gt;from&lt;/span&gt; &lt;span class=&#34;nn&#34;&gt;jinja2&lt;/span&gt; &lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Template&lt;/span&gt;
+&lt;span class=&#34;kn&#34;&gt;from&lt;/span&gt; &lt;span class=&#34;nn&#34;&gt;ansible.runner.filter_plugins.core&lt;/span&gt; &lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;bool&lt;/span&gt;
+&lt;span class=&#34;n&#34;&gt;Template&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#39;&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;environment&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;filters&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#39;bool&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;bool&lt;/span&gt;
+&lt;span class=&#34;n&#34;&gt;tmpl&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Template&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#39;{{ var | bool }}&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;tmpl&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;render&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+&lt;span class=&#34;bp&#34;&gt;False&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;tmpl&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;render&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;var&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;bp&#34;&gt;None&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;bp&#34;&gt;None&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;tmpl&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;render&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;var&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#39;&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;bp&#34;&gt;False&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;tmpl&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;render&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;var&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#39;abc&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;bp&#34;&gt;False&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;tmpl&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;render&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;var&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#39; &amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;bp&#34;&gt;False&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;tmpl&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;render&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;var&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#39;True&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;bp&#34;&gt;True&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;tmpl&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;render&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;var&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[])&lt;/span&gt;
+&lt;span class=&#34;bp&#34;&gt;False&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;tmpl&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;render&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;var&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#39;list&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;])&lt;/span&gt;
+&lt;span class=&#34;bp&#34;&gt;False&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;tmpl&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;render&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;var&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{})&lt;/span&gt;
+&lt;span class=&#34;bp&#34;&gt;False&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;tmpl&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;render&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;var&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#39;key&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#39;value&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;})&lt;/span&gt;
+&lt;span class=&#34;bp&#34;&gt;False&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;p&gt;Pretty same again. So, it seems that &lt;code&gt;default()&lt;/code&gt; or &lt;code&gt;d()&lt;/code&gt; usage in conditions has no sense at all.&lt;/p&gt;
+
+&lt;p&gt;There are two specific features:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;When using undefined variables in actual Ansible playbooks without &lt;code&gt;default&lt;/code&gt; filter &lt;code&gt;AnsibleUndefinedVariable&lt;/code&gt; will be thrown. &lt;strong&gt;So finally, you have to use &lt;code&gt;default&lt;/code&gt; filter to be safe.&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;Also, mention that &lt;code&gt;bool&lt;/code&gt; filter for empty and non-empty lists and dicts evaluates to &lt;code&gt;False&lt;/code&gt;. It&amp;rsquo;s followed from sources (see below).&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;Therefore, what about &lt;code&gt;bool&lt;/code&gt; filter?&lt;/p&gt;
+
+&lt;p&gt;Remember &lt;code&gt;when: docker_upstream | d() | bool&lt;/code&gt;, where &lt;code&gt;docker_upstream&lt;/code&gt; is an YAML boolean.&lt;/p&gt;
+
+&lt;p&gt;Or &lt;code&gt;{% if docker_listen | d() | bool %}&lt;/code&gt;, where &lt;code&gt;docker_listen&lt;/code&gt; is an YAML list.&lt;/p&gt;
+
+&lt;p&gt;The &lt;code&gt;bool&lt;/code&gt; filter is the part of &lt;a href=&#34;https://github.com/ansible/ansible/blob/devel/lib/ansible/plugins/filter/core.py&#34;&gt;Ansible plugins&lt;/a&gt;:&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span class=&#34;k&#34;&gt;def&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;bool&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;a&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;):&lt;/span&gt;
+    &lt;span class=&#34;sd&#34;&gt;&amp;#39;&amp;#39;&amp;#39; return a bool for the arg &amp;#39;&amp;#39;&amp;#39;&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;a&lt;/span&gt; &lt;span class=&#34;ow&#34;&gt;is&lt;/span&gt; &lt;span class=&#34;bp&#34;&gt;None&lt;/span&gt; &lt;span class=&#34;ow&#34;&gt;or&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;type&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;a&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;==&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;bool&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;a&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;type&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;a&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;ow&#34;&gt;in&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;types&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;StringTypes&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;
+        &lt;span class=&#34;n&#34;&gt;a&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;a&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;lower&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;a&lt;/span&gt; &lt;span class=&#34;ow&#34;&gt;in&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#39;yes&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#39;on&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#39;1&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#39;true&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]:&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;bp&#34;&gt;True&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;else&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;bp&#34;&gt;False&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;p&gt;You can clearly see from &lt;code&gt;bool&lt;/code&gt; function implementation that &lt;code&gt;{% if docker_listen | d() | bool %}&lt;/code&gt; results in &lt;code&gt;True&lt;/code&gt; only if &lt;code&gt;docker_listen: True&lt;/code&gt;. If &lt;code&gt;docker_listen&lt;/code&gt; is an arbitrary string or a list (as expected) &lt;code&gt;{% if docker_listen | d() | bool %}&lt;/code&gt; results in &lt;code&gt;False&lt;/code&gt; always.&lt;/p&gt;
+
+&lt;p&gt;Therefore &lt;code&gt;{% if docker_listen | d() %}&lt;/code&gt; gives us a correct behaviour for strings, lists and dictionaries (mappings). The reason is explained &lt;a href=&#34;https://dddpaul.github.io/blog/2015/11/29/ansible-defined-keyword/&#34;&gt;here&lt;/a&gt; (see &amp;ldquo;Secondly&amp;rdquo;, &amp;ldquo;Third&amp;rdquo; and &amp;ldquo;More detailed&amp;rdquo; quotes):&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;The if statement in Jinja is comparable with the Python if statement. In the simplest form, you can use it to test if &lt;strong&gt;a variable is defined, not empty or not false&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;For sequences, (strings, lists, tuples), use the fact that &lt;strong&gt;empty sequences are false&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;The following values are considered false: any empty mapping, for example, &lt;code&gt;{}&lt;/code&gt;.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;But for booleans you have to use &lt;code&gt;bool&lt;/code&gt; filter — &lt;code&gt;when: docker_upstream | d() | bool&lt;/code&gt;, because &lt;code&gt;when: docker_upstream | d()&lt;/code&gt; results in &lt;code&gt;True&lt;/code&gt; even if &lt;code&gt;docker_upstream&lt;/code&gt; is &lt;code&gt;False&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Links:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/debops/ansible-docker/pull/2&#34;&gt;No need to evaluate a variable two times&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Ansible: &#34;defined&#34; keyword</title>
+      <link>https://dddpaul.github.io/blog/2015/11/29/ansible-defined-keyword/</link>
+      <pubDate>Sun, 29 Nov 2015 10:45:00 +0300</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2015/11/29/ansible-defined-keyword/</guid>
+      <description>&lt;p&gt;Some hidden knowledge for the start:&lt;/p&gt;
+
+&lt;p&gt;First of all, the Ansible &lt;code&gt;when&lt;/code&gt; clause contains a Jinja2 expression (see &lt;a href=&#34;http://docs.ansible.com/ansible/playbooks_conditionals.html&#34;&gt;Ansible playbook conditionals&lt;/a&gt;). It&amp;rsquo;s confirmed with a quote from &lt;a href=&#34;http://shop.oreilly.com/product/0636920035626.do&#34;&gt;Ansible: Up And Running&lt;/a&gt;, page 41:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Ansible also uses the &lt;strong&gt;Jinja2 template engine&lt;/strong&gt; to evaluate variables in playbooks.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Secondly, that how &lt;a href=&#34;http://jinja.pocoo.org/docs/dev/templates/&#34;&gt;Jinja2&lt;/a&gt; interprets the &lt;code&gt;if&lt;/code&gt; condition:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;The if statement in Jinja is comparable with the Python if statement. In the simplest form, you can use it to test if &lt;strong&gt;a variable is defined, not empty or not false&lt;/strong&gt;.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Third, a bit of truth about &lt;a href=&#34;https://www.python.org/dev/peps/pep-0008/&#34;&gt;Python&lt;/a&gt;:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;For sequences, (strings, lists, tuples), use the fact that &lt;strong&gt;empty sequences are false&lt;/strong&gt;.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;More detailed — &lt;a href=&#34;https://docs.python.org/2/library/stdtypes.html&#34;&gt;5.1. Truth Value Testing&lt;/a&gt;:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Any object can be tested for truth value, for use in an if or while condition or as operand of the Boolean operations below. The following values are considered false:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;None&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;False&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;zero of any numeric type, for example, &lt;code&gt;0&lt;/code&gt;, &lt;code&gt;0L&lt;/code&gt;, &lt;code&gt;0.0&lt;/code&gt;, &lt;code&gt;0j&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;any empty sequence, for example, &lt;code&gt;&#39;&#39;&lt;/code&gt;, &lt;code&gt;()&lt;/code&gt;, &lt;code&gt;[]&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;any empty mapping, for example, &lt;code&gt;{}&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;instances of user-defined classes, if the class defines a &lt;code&gt;__nonzero__()&lt;/code&gt; or &lt;code&gt;__len__()&lt;/code&gt; method, when that method returns the integer zero or bool value False.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;All other values are considered true — so objects of many types are always true.&lt;/p&gt;
+
+&lt;p&gt;Operations and built-in functions that have a Boolean result always return 0 or False for false and 1 or True for true, unless otherwise stated. (Important exception: the Boolean operations or and and always return one of their operands.)&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;At last, a quote from &lt;a href=&#34;http://shop.oreilly.com/product/0636920035626.do&#34;&gt;Ansible: Up And Running&lt;/a&gt;, page 23:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Ansible is pretty flexible on how you represent truthy and falsey values in playbooks. Strictly speaking, module arguments (like &lt;code&gt;update_cache=yes&lt;/code&gt;) are treated differently from values elsewhere in playbooks (like &lt;code&gt;sudo: True&lt;/code&gt;). Values elsewhere are handled by the YAML parser and so use the YAML conventions of truthiness, which are:&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;YAML truthy:&lt;/em&gt; true, True, TRUE, yes, Yes, YES, on, On, ON, y, Y&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;YAML falsey:&lt;/em&gt; false, False, FALSE, no, No, NO, off, Off, OFF, n, N&lt;/p&gt;
+
+&lt;p&gt;Module arguments are passed as strings and use Ansible’s internal conventions, which are:&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;module arg truthy:&lt;/em&gt; yes, on, 1, true&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;module arg falsey:&lt;/em&gt; no, off, 0, false&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Why all of these are important? Because there are plenty of redundant &lt;code&gt;if&lt;/code&gt; and &lt;code&gt;when&lt;/code&gt; conditionals usage in Ansible playbooks and templates. For example in &lt;a href=&#34;https://github.com/debops/ansible-nginx/blob/master/tasks/main.yml&#34;&gt;debops/ansible-nginx&lt;/a&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;- name: Manage local server definitions - create symlinks
+  file:
+    src: &#39;/etc/nginx/sites-local/{{ item.0 }}&#39;
+    path: &#39;/etc/nginx/sites-enabled/{{ item.1 }}&#39;
+    state: &#39;link&#39;
+    owner: &#39;root&#39;
+    group: &#39;root&#39;
+    mode: &#39;0644&#39;
+  with_together:
+    - &#39;{{ nginx_local_servers.values() }}&#39;
+    - &#39;{{ nginx_local_servers.keys() }}&#39;
+  notify: [ &#39;Test nginx and reload&#39; ]
+  when: ((nginx_local_servers is defined and nginx_local_servers) and
+         (item.0 is defined and item.0))
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;See that overbloated &lt;code&gt;when&lt;/code&gt; condition? Wouldn&amp;rsquo;t be that simpler with &lt;code&gt;when: nginx_local_servers and item.0&lt;/code&gt;?&lt;/p&gt;
+
+&lt;p&gt;Though it&amp;rsquo;s not a complete equivalent because it evaluates to False when nginx_local_servers &lt;strong&gt;is defined and empty&lt;/strong&gt;. But it&amp;rsquo;s definitely correct behaviour — surely we have no usage for the empty servers string.&lt;/p&gt;
+
+&lt;p&gt;It&amp;rsquo;s all just mere words without proper testing, so let&amp;rsquo;s test long version &lt;code&gt;var is defined and var&lt;/code&gt;:&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span class=&#34;kn&#34;&gt;from&lt;/span&gt; &lt;span class=&#34;nn&#34;&gt;jinja2&lt;/span&gt; &lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Template&lt;/span&gt;
+&lt;span class=&#34;n&#34;&gt;tmpl&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Template&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#39;{&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;% i&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;f var is defined and var %} True {&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;% e&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;lse %} False {&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;% e&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;ndif %}&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;tmpl&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;render&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+ &lt;span class=&#34;bp&#34;&gt;False&lt;/span&gt; 
+&lt;span class=&#34;o&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;tmpl&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;render&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;var&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;bp&#34;&gt;None&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+ &lt;span class=&#34;bp&#34;&gt;False&lt;/span&gt; 
+&lt;span class=&#34;o&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;tmpl&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;render&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;var&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#39;&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+ &lt;span class=&#34;bp&#34;&gt;False&lt;/span&gt; 
+&lt;span class=&#34;o&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;tmpl&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;render&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;var&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#39;abc&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+ &lt;span class=&#34;bp&#34;&gt;True&lt;/span&gt; 
+&lt;span class=&#34;o&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;tmpl&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;render&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;var&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#39; &amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+ &lt;span class=&#34;bp&#34;&gt;True&lt;/span&gt; 
+&lt;span class=&#34;o&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;tmpl&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;render&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;var&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[])&lt;/span&gt;                                                                                                                                                                                                                                           
+ &lt;span class=&#34;bp&#34;&gt;False&lt;/span&gt; 
+&lt;span class=&#34;o&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;tmpl&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;render&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;var&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#39;list&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;])&lt;/span&gt;
+ &lt;span class=&#34;bp&#34;&gt;True&lt;/span&gt; 
+&lt;span class=&#34;o&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;tmpl&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;render&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;var&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{})&lt;/span&gt;                                                                                                                                                                                                                                           
+ &lt;span class=&#34;bp&#34;&gt;False&lt;/span&gt; 
+&lt;span class=&#34;o&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;tmpl&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;render&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;var&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#39;key&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#39;value&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;})&lt;/span&gt;                                                                                                                                                                                                                             
+ &lt;span class=&#34;bp&#34;&gt;True&lt;/span&gt; 
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;And the short version — &lt;code&gt;var&lt;/code&gt;:&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span class=&#34;kn&#34;&gt;from&lt;/span&gt; &lt;span class=&#34;nn&#34;&gt;jinja2&lt;/span&gt; &lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Template&lt;/span&gt;
+&lt;span class=&#34;n&#34;&gt;tmpl&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Template&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#39;{&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;% i&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;f var %} True {&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;% e&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;lse %} False {&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;% e&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;ndif %}&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;tmpl&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;render&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+ &lt;span class=&#34;bp&#34;&gt;False&lt;/span&gt; 
+&lt;span class=&#34;o&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;tmpl&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;render&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;var&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;bp&#34;&gt;None&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+ &lt;span class=&#34;bp&#34;&gt;False&lt;/span&gt; 
+&lt;span class=&#34;o&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;tmpl&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;render&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;var&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#39;&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+ &lt;span class=&#34;bp&#34;&gt;False&lt;/span&gt; 
+&lt;span class=&#34;o&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;tmpl&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;render&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;var&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#39;abc&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+ &lt;span class=&#34;bp&#34;&gt;True&lt;/span&gt; 
+&lt;span class=&#34;o&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;tmpl&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;render&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;var&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#39; &amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+ &lt;span class=&#34;bp&#34;&gt;True&lt;/span&gt; 
+&lt;span class=&#34;o&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;tmpl&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;render&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;var&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[])&lt;/span&gt;
+ &lt;span class=&#34;bp&#34;&gt;False&lt;/span&gt; 
+&lt;span class=&#34;o&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;tmpl&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;render&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;var&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#39;list&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;])&lt;/span&gt;
+ &lt;span class=&#34;bp&#34;&gt;True&lt;/span&gt; 
+&lt;span class=&#34;o&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;tmpl&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;render&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;var&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{})&lt;/span&gt;
+ &lt;span class=&#34;bp&#34;&gt;False&lt;/span&gt; 
+&lt;span class=&#34;o&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;tmpl&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;render&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;var&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#39;key&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#39;value&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;})&lt;/span&gt;
+ &lt;span class=&#34;bp&#34;&gt;True&lt;/span&gt; 
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;p&gt;So there are no differences at all. For the sake of thrust, let&amp;rsquo;s test &lt;code&gt;var is defined&lt;/code&gt;:&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span class=&#34;kn&#34;&gt;from&lt;/span&gt; &lt;span class=&#34;nn&#34;&gt;jinja2&lt;/span&gt; &lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Template&lt;/span&gt;
+&lt;span class=&#34;n&#34;&gt;tmpl&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Template&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#39;{&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;% i&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;f var is defined %} True {&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;% e&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;lse %} False {&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;% e&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;ndif %}&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;tmpl&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;render&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+ &lt;span class=&#34;bp&#34;&gt;False&lt;/span&gt; 
+&lt;span class=&#34;o&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;tmpl&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;render&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;var&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;bp&#34;&gt;None&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+ &lt;span class=&#34;bp&#34;&gt;True&lt;/span&gt; 
+&lt;span class=&#34;o&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;tmpl&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;render&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;var&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#39;&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+ &lt;span class=&#34;bp&#34;&gt;True&lt;/span&gt; 
+&lt;span class=&#34;o&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;tmpl&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;render&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;var&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#39;abc&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+ &lt;span class=&#34;bp&#34;&gt;True&lt;/span&gt; 
+&lt;span class=&#34;o&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;print&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;tmpl&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;render&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;var&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#39; &amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+ &lt;span class=&#34;bp&#34;&gt;True&lt;/span&gt; 
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;p&gt;So just use &lt;code&gt;var&lt;/code&gt; and not &lt;code&gt;var is defined and var&lt;/code&gt;, Luke!&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Bind interfaces to multiple zones with Firewalld on CentOS-7</title>
+      <link>https://dddpaul.github.io/blog/2015/07/28/firewalld-zones/</link>
+      <pubDate>Tue, 28 Jul 2015 10:45:00 +0300</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2015/07/28/firewalld-zones/</guid>
+      <description>&lt;p&gt;As you can expect from &lt;a href=&#34;http://linuxmanpages.net/manpages/fedora20/man1/firewall-cmd.1.html&#34;&gt;man firewall-cmd&lt;/a&gt; interface binding to zone other than default (public) could be achieved with the following command sequence:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;firewall-cmd --zone public --remove-interface eth1 --permanent
+firewall-cmd --zone internal --add-interface eth1 --permanent
+firewall-cmd --reload
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Seems like it&amp;rsquo;s done:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;firewall-cmd --get-zone-of-interface=eth1
+internal
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;But after firewalld restart or server reboot things aren&amp;rsquo;t so bright:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;firewall-cmd --get-zone-of-interface=eth1
+public
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The reason is in this &lt;a href=&#34;https://bugs.centos.org/view.php?id=7526&#34;&gt;CentOS-7 bug&lt;/a&gt;. The only workaround is to specify zone in &lt;em&gt;/etc/sysconfig/network-scripts/ifcfg-eth1&lt;/em&gt; file:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;TYPE=Ethernet
+NAME=&amp;quot;eth1&amp;quot;
+IPADDR=x.x.x.x
+...
+ZONE=internal
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Тонкости использования аннотации @Value в Spring Boot</title>
+      <link>https://dddpaul.github.io/blog/2015/07/12/spring-boot-value/</link>
+      <pubDate>Sun, 12 Jul 2015 18:30:00 +0300</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2015/07/12/spring-boot-value/</guid>
+      <description>&lt;p&gt;Аннотация &lt;a href=&#34;http://docs.spring.io/spring/docs/current/javadoc-api/org/springframework/beans/factory/annotation/Value.html&#34;&gt;@Value&lt;/a&gt; - это самый простой способ для &amp;ldquo;впрыскивания&amp;rdquo; значений из конфигурации Spring Boot в код. При этом также можно задать значение по-умолчанию.&lt;/p&gt;
+
+&lt;p&gt;Однако, стоит учитывать, что резолвинг значения будет выполняться для каждой аннотации @Value. Например, если аннотировать @Value два поля (в одном или разных классах - не суть важно) вот так:&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span class=&#34;nd&#34;&gt;@Value&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;${unique-param}&amp;quot;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;kd&#34;&gt;private&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;String&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;param1&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;;&lt;/span&gt;
+
+&lt;span class=&#34;nd&#34;&gt;@Value&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;${unique-param}&amp;quot;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;kd&#34;&gt;private&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;String&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;param2&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;, то в debug-логе мы увидим:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;TRACE 23601 --- [lication.main()] o.s.c.e.PropertySourcesPropertyResolver  : getProperty(&amp;quot;unique-param&amp;quot;, String)
+DEBUG 23601 --- [lication.main()] o.s.c.e.PropertySourcesPropertyResolver  : Searching for key &#39;unique-param&#39; in [environmentProperties]
+...
+TRACE 23601 --- [lication.main()] o.s.c.e.PropertySourcesPropertyResolver  : getProperty(&amp;quot;unique-param&amp;quot;, String)
+DEBUG 23601 --- [lication.main()] o.s.c.e.PropertySourcesPropertyResolver  : Searching for key &#39;unique-param&#39; in [environmentProperties]
+...
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Т.е. поиск (резолвинг) был проведен дважды. Конечно, это слишком мизерная операция, чтобы хоть как-то замедлить старт приложения, но знать об этом стоит.&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;Еще более неоднозначная штука связана с передачей дефолтного значения через @Value.&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span class=&#34;nd&#34;&gt;@Value&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;${unique-param:DefaultValue}&amp;quot;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;kd&#34;&gt;private&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;String&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;param&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;При резолвинге значения будет сначала проведен поиск параметра &amp;ldquo;unique-param:DefaultValue&amp;rdquo;, а уже потом - &amp;ldquo;unique-param&amp;rdquo;. Таким образом, если в конфигурации указать:&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-ini&#34; data-lang=&#34;ini&#34;&gt;&lt;span class=&#34;na&#34;&gt;unique-param\:DefaultValue&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;Another value&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;, то param в коде будет равен &amp;ldquo;Another value&amp;rdquo;.&lt;/p&gt;
+
+&lt;p&gt;Такая логика прописана в org.springframework.util.PropertyPlaceholderHelper#parseStringValue.&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;Оба этих нюанса могут ответить на вопрос - почему debug-лог приложения на Spring Boot такой большой.&lt;/p&gt;
+
+&lt;p&gt;Мораль - используйте &lt;a href=&#34;http://docs.spring.io/autorepo/docs/spring-boot/current/api/org/springframework/boot/context/properties/ConfigurationProperties.html&#34;&gt;ConfigurationProperties&lt;/a&gt;, что, в конце-концов, и советуется в &lt;a href=&#34;http://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-external-config.html&#34;&gt;23. Externalized Configuration&lt;/a&gt;, раздел &amp;ldquo;23.7 Typesafe Configuration Properties&amp;rdquo;.&lt;/p&gt;
+
+&lt;p&gt;Например:&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span class=&#34;nd&#34;&gt;@ConfigurationProperties&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;prefix&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;quot;params&amp;quot;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;kd&#34;&gt;public&lt;/span&gt; &lt;span class=&#34;kd&#34;&gt;class&lt;/span&gt; &lt;span class=&#34;nc&#34;&gt;Config&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+    &lt;span class=&#34;kd&#34;&gt;private&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;String&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;uniqueParam&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;quot;Default value&amp;quot;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;;&lt;/span&gt;
+
+    &lt;span class=&#34;c1&#34;&gt;// Getters are mandatory. Setters are mandatory for immutable types (such as String).&lt;/span&gt;
+ &lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;p&gt;Конфигурация:&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-ini&#34; data-lang=&#34;ini&#34;&gt;&lt;span class=&#34;na&#34;&gt;params.unique-param&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;Another value&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Логирование HTTP-запросов в Tomcat</title>
+      <link>https://dddpaul.github.io/blog/2015/06/30/tomcat-http-logging/</link>
+      <pubDate>Tue, 30 Jun 2015 13:27:00 +0300</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2015/06/30/tomcat-http-logging/</guid>
+      <description>
+
+&lt;h2 id=&#34;apache-tomcat-request-dumper-filter:e82678ac23d6d6c6d716963b71ef486f&#34;&gt;Apache Tomcat Request Dumper Filter&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://tomcat.apache.org/tomcat-7.0-doc/config/filter.html#Request_Dumper_Filter&#34;&gt;Request Dumper Filter&lt;/a&gt; входит в состав Tomcat. Рассмотрим способы его конфигурации.&lt;/p&gt;
+
+&lt;h3 id=&#34;spring-boot:e82678ac23d6d6c6d716963b71ef486f&#34;&gt;Spring Boot&lt;/h3&gt;
+
+&lt;p&gt;Достаточно поместить вот такой bean в класс, аннотированный @Configuration:&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span class=&#34;nd&#34;&gt;@Bean&lt;/span&gt;
+&lt;span class=&#34;n&#34;&gt;RequestDumperFilter&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;requestDumper&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;()&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;new&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;RequestDumperFilter&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;();&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Вывод дампа запросов в отдельный лог здесь не рассматриваем.&lt;/p&gt;
+
+&lt;h3 id=&#34;tomcat-7:e82678ac23d6d6c6d716963b71ef486f&#34;&gt;Tomcat 7&lt;/h3&gt;
+
+&lt;p&gt;Стандартный способ конфигурации фильтра — server.xml / context.xml / web.xml, в зависимости от того, какой scope нам нужен. Для логирования запросов в рамках одного приложения — web.xml.&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span class=&#34;nt&#34;&gt;&amp;lt;filter&amp;gt;&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;lt;filter-name&amp;gt;&lt;/span&gt;RequestDumper&lt;span class=&#34;nt&#34;&gt;&amp;lt;/filter-name&amp;gt;&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;lt;filter-class&amp;gt;&lt;/span&gt;org.apache.catalina.filters.RequestDumperFilter&lt;span class=&#34;nt&#34;&gt;&amp;lt;/filter-class&amp;gt;&lt;/span&gt;
+&lt;span class=&#34;nt&#34;&gt;&amp;lt;/filter&amp;gt;&lt;/span&gt;
+
+&lt;span class=&#34;nt&#34;&gt;&amp;lt;filter-mapping&amp;gt;&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;lt;filter-name&amp;gt;&lt;/span&gt;RequestDumper&lt;span class=&#34;nt&#34;&gt;&amp;lt;/filter-name&amp;gt;&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;lt;url-pattern&amp;gt;&lt;/span&gt;*&lt;span class=&#34;nt&#34;&gt;&amp;lt;/url-pattern&amp;gt;&lt;/span&gt;
+&lt;span class=&#34;nt&#34;&gt;&amp;lt;/filter-mapping&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Для логирования в отдельный файл нужно сконфигурировать &lt;a href=&#34;https://tomcat.apache.org/tomcat-7.0-doc/logging.html&#34;&gt;Tomcat JULI&lt;/a&gt;. По-идее, можно логировать через Apache Commons Logging, но в доке дается пример для JULI. Поэтому, вот такой logging.properties можно смело кидать в webapp/WEB-INF/classes:&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-ini&#34; data-lang=&#34;ini&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# Uncomment to dump HTTP request data, see http://tomcat.apache.org/tomcat-7.0-doc/config/filter.html#Request_Dumper_Filter&lt;/span&gt;
+&lt;span class=&#34;c1&#34;&gt;#handlers = 1request-dumper.org.apache.juli.FileHandler&lt;/span&gt;
+
+&lt;span class=&#34;c1&#34;&gt;# To this configuration below, 1request-dumper.org.apache.juli.FileHandler&lt;/span&gt;
+&lt;span class=&#34;c1&#34;&gt;# also needs to be added to the handlers property near the top of the file&lt;/span&gt;
+&lt;span class=&#34;na&#34;&gt;1request-dumper.org.apache.juli.FileHandler.level&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;INFO&lt;/span&gt;
+&lt;span class=&#34;na&#34;&gt;1request-dumper.org.apache.juli.FileHandler.directory&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;${catalina.base}/logs&lt;/span&gt;
+&lt;span class=&#34;na&#34;&gt;1request-dumper.org.apache.juli.FileHandler.prefix&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;request-dumper.&lt;/span&gt;
+&lt;span class=&#34;na&#34;&gt;1request-dumper.org.apache.juli.FileHandler.formatter&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;org.apache.juli.VerbatimFormatter&lt;/span&gt;
+&lt;span class=&#34;na&#34;&gt;org.apache.catalina.filters.RequestDumperFilter.level&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;INFO&lt;/span&gt;
+&lt;span class=&#34;na&#34;&gt;org.apache.catalina.filters.RequestDumperFilter.handlers&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;1request-dumper.org.apache.juli.FileHandler&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Получился почти production-ready вариант, для включения логирования можно раскомментировать строчку с handlers и перезапустить приложение. Совсем по-хорошему это нужно сделать через JMX, тогда, быть может, получится избежать перезапуска приложения.&lt;/p&gt;
+
+&lt;h3 id=&#34;tomcat-5:e82678ac23d6d6c6d716963b71ef486f&#34;&gt;Tomcat 5&lt;/h3&gt;
+
+&lt;p&gt;Для старого Томката нужно использовать &lt;a href=&#34;https://tomcat.apache.org/tomcat-5.5-doc/config/valve.html#Request_Dumper_Valve&#34;&gt;Request_Dumper_Valve&lt;/a&gt;. Фильтра в базовой поставке еще нет, его нужно отдельно собирать из servlet-examples.&lt;/p&gt;
+
+&lt;p&gt;Для включения дампа нужно просто вставить строчку в server.xml (в блоки Engine или Host) и перезапустить сервер Tomcat:&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span class=&#34;nt&#34;&gt;&amp;lt;Valve&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;className=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;org.apache.catalina.valves.RequestDumperValve&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;/&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;В первом случае (Engine) дамп будет выдаваться в catalina.out, а во втором (Host) - в localhost.log.&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;У Request Dumper Filter есть два недостатка:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;нельзя залогировать тело запроса, только GET- и POST-параметры;&lt;/li&gt;
+&lt;li&gt;нет возможности логировать HTTP-ответы сервера.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;кастомные-фильтры:e82678ac23d6d6c6d716963b71ef486f&#34;&gt;Кастомные фильтры&lt;/h2&gt;
+
+&lt;p&gt;Основная проблема логирования тела запроса — это то, что body из &lt;a href=&#34;http://docs.oracle.com/javaee/6/api/javax/servlet/ServletRequest.html&#34;&gt;ServletRequest&lt;/a&gt; достается из InputStream, т.е. это одноразовая операция. Мы не можем сначала где-то в фильтре прочитать body, залогировать, а потом второй раз прочитать body в обработчике запроса в приложении. В этом случае выскочит что-то вроде &amp;ldquo;java.io.IOException: Attempted read on closed stream&amp;rdquo;.&lt;/p&gt;
+
+&lt;p&gt;Различные кастомные способы обходят эту проблему, используя wrapper&amp;rsquo;ы или декораторы. Т.е. в фильтре мы читаем body из ServletRequest в String-поле wrapper&amp;rsquo;а, и далее по цепочке передаем уже wrapper. Метод же getInputStream() создает stream из этого String-поля wrapper&amp;rsquo;а.&lt;/p&gt;
+
+&lt;p&gt;Есть две большие статьи с кусками почти работающего кода, реализующего этот подход:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://natch3z.blogspot.co.uk/2009/01/read-request-body-in-filter.html&#34;&gt;Read Request Body in Filter&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://wetfeetblog.com/servlet-filer-to-log-request-and-response-details-and-payload/431&#34;&gt;Servlet Filer to Log Request and Response Payload&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Также есть маленький, но многообещающий проект &lt;a href=&#34;https://github.com/isrsal/spring-mvc-logger&#34;&gt;spring-mvc-logger&lt;/a&gt;, заточенный под Spring MVC (он использует его logging filters). Его я, к сожалению, не смотрел.&lt;/p&gt;
+
+&lt;h2 id=&#34;logback-access:e82678ac23d6d6c6d716963b71ef486f&#34;&gt;Logback-access&lt;/h2&gt;
+
+&lt;p&gt;100% работающий способ логировать HTTP-ответы и запросы. Это &lt;a href=&#34;http://logback.qos.ch/access.html&#34;&gt;Logback-access&lt;/a&gt;, часть проекта Logback. Подробнее см. &lt;a href=&#34;http://logback.qos.ch/recipes/captureHttp.html&#34;&gt;Capturing HTTP requests and responses&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Для выборочного отключения логирования (например, для тестовых или мониторинговых платежей) используется библиотека &lt;a href=&#34;http://janino.net/changelog.html&#34;&gt;Janino&lt;/a&gt;. С ее помощью можно задать для logback-access фильтры (правила), которым должен соответствовать логируемый HTTP-пакет.&lt;/p&gt;
+
+&lt;p&gt;Однако, весь набор библиотек:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;logback-access.jar + logback-core.jar as dependency,&lt;/li&gt;
+&lt;li&gt;janino.jar + commons-compiler.jar as dependency,&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;должен лежать в $TOMCAT_HOME/lib/.&lt;/p&gt;
+
+&lt;p&gt;Конфигурация logback-access.xml кладется в $TOMCAT_HOME/conf/:&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span class=&#34;nt&#34;&gt;&amp;lt;configuration&amp;gt;&lt;/span&gt;
+    &lt;span class=&#34;c&#34;&gt;&amp;lt;!-- Tomcat&amp;#39;s lib folder must contain logback-core.jar and logback-access.jar to dump HTTP requests and responses --&amp;gt;&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;lt;appender&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;name=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;DUMPER&amp;quot;&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;class=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;ch.qos.logback.core.rolling.RollingFileAppender&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;c&#34;&gt;&amp;lt;!-- Tomcat&amp;#39;s lib folder must contain janino.jar and commons-compiler.jar to filter which HTTP requests and responses to dump --&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;filter&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;class=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;ch.qos.logback.core.filter.EvaluatorFilter&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;evaluator&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;c&#34;&gt;&amp;lt;!-- Disable dumping for HTTP requests for all apps except specified one and for requests with specific header --&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;c&#34;&gt;&amp;lt;!-- Responses to these requests will not be dumped too --&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;expression&amp;gt;&lt;/span&gt;!event.getRequestURI().startsWith(&amp;quot;/webapp&amp;quot;) || event.getRequestHeader(&amp;quot;X-Logging-Disabled&amp;quot;).equals(&amp;quot;true&amp;quot;)&lt;span class=&#34;nt&#34;&gt;&amp;lt;/expression&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;/evaluator&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;onMismatch&amp;gt;&lt;/span&gt;NEUTRAL&lt;span class=&#34;nt&#34;&gt;&amp;lt;/onMismatch&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;onMatch&amp;gt;&lt;/span&gt;DENY&lt;span class=&#34;nt&#34;&gt;&amp;lt;/onMatch&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;/filter&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;encoder&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;pattern&amp;gt;&lt;/span&gt;
+                %date{yyyy-MM-dd HH:mm:ss.SSS} REQUEST: %fullRequest%n%n%date{yyyy-MM-dd HH:mm:ss.SSS} RESPONSE: %fullResponse
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;/pattern&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;/encoder&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;file&amp;gt;&lt;/span&gt;${catalina.base}/logs/dumper.log&lt;span class=&#34;nt&#34;&gt;&amp;lt;/file&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;rollingPolicy&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;class=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;ch.qos.logback.core.rolling.TimeBasedRollingPolicy&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;fileNamePattern&amp;gt;&lt;/span&gt;${catalina.base}/logs/dumper.%d.%i.log&lt;span class=&#34;nt&#34;&gt;&amp;lt;/fileNamePattern&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;timeBasedFileNamingAndTriggeringPolicy&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;class=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;maxFileSize&amp;gt;&lt;/span&gt;10MB&lt;span class=&#34;nt&#34;&gt;&amp;lt;/maxFileSize&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;/timeBasedFileNamingAndTriggeringPolicy&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;/rollingPolicy&amp;gt;&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;lt;/appender&amp;gt;&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;lt;appender-ref&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;ref=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;DUMPER&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;/&amp;gt;&lt;/span&gt;
+&lt;span class=&#34;nt&#34;&gt;&amp;lt;/configuration&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;p&gt;Эта конфигурация устанавливает логирование всех HTTP-запросов на /webapp без HTTP-заголовка X-Logging-Disabled.&lt;/p&gt;
+
+&lt;p&gt;Также, должен быть активирован LogbackAccessValve в $TOMCAT_HOME/conf/server.xml (в блоке Host):&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span class=&#34;nt&#34;&gt;&amp;lt;Valve&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;className=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;ch.qos.logback.access.tomcat.LogbackValve&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;/&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;p&gt;Последний штрих — объявление фильтра &lt;a href=&#34;http://logback.qos.ch/apidocs/ch/qos/logback/access/servlet/TeeFilter.html&#34;&gt;TeeFilter&lt;/a&gt;. В Spring Boot это делается элементарно:&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span class=&#34;cm&#34;&gt;/**&lt;/span&gt;
+&lt;span class=&#34;cm&#34;&gt; * Enable HTTP response logging, see &amp;lt;a href=&amp;quot;http://logback.qos.ch/recipes/captureHttp.html&amp;quot;&amp;gt;Capturing HTTP requests and responses&amp;lt;/a&amp;gt;.&lt;/span&gt;
+&lt;span class=&#34;cm&#34;&gt; * Tomcat&amp;#39;s lib folder must contain logback-core.jar and logback-access.jar.&lt;/span&gt;
+&lt;span class=&#34;cm&#34;&gt; */&lt;/span&gt;
+&lt;span class=&#34;nd&#34;&gt;@Bean&lt;/span&gt;
+&lt;span class=&#34;n&#34;&gt;Filter&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;httpRequestAndResponseDumper&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;()&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;new&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;TeeFilter&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;();&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>RabbitMQ links</title>
+      <link>https://dddpaul.github.io/blog/2015/05/15/rabbitmq-links/</link>
+      <pubDate>Fri, 15 May 2015 08:27:00 +0300</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2015/05/15/rabbitmq-links/</guid>
+      <description>&lt;p&gt;RabbitMQ confirms, transactions, reply-to functionality and Spring integration:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://docs.spring.io/spring-amqp/reference/html/amqp.html&#34;&gt;Using Spring AMQP&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.rabbitmq.com/blog/2011/02/10/introducing-publisher-confirms/&#34;&gt;Introducing Publisher Confirms&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://kishanthan.wordpress.com/2013/05/05/transaction-support-with-rabbitmq/&#34;&gt;Transaction support with RabbitMQ&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.rabbitmq.com/confirms.html&#34;&gt;Confirms (aka Publisher Acknowledgements)&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.rabbitmq.com/direct-reply-to.html&#34;&gt;Direct reply-to&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.rabbitmq.com/tutorials/tutorial-six-java.html&#34;&gt;Remote procedure call (RPC)&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://gist.github.com/scvalex/613157&#34;&gt;TxDontLoseMessages.java&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://raw.githubusercontent.com/rabbitmq/rabbitmq-java-client/master/test/src/com/rabbitmq/examples/ConfirmDontLoseMessages.java&#34;&gt;ConfirmDontLoseMessages.java&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://habrahabr.ru/post/262069/&#34;&gt;RabbitMQ Spring tutorial&lt;/a&gt; &amp;amp; &lt;a href=&#34;https://github.com/Dmitry-Shweikus/rabbitmq-examples&#34;&gt;rabbitmq-examples&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Java builders</title>
+      <link>https://dddpaul.github.io/blog/2015/04/12/java-builders/</link>
+      <pubDate>Sun, 12 Apr 2015 12:15:00 +0300</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2015/04/12/java-builders/</guid>
+      <description>&lt;p&gt;So it&amp;rsquo;s time to scrutinize &lt;a href=&#34;http://en.wikipedia.org/wiki/Builder_pattern&#34;&gt;a builder pattern&lt;/a&gt;. There are bunch of options to implement builder pattern in Java:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://habrahabr.ru/post/86252/&#34;&gt;classic&lt;/a&gt; builder;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://habrahabr.ru/post/244521/&#34;&gt;elegant&lt;/a&gt; builder;&lt;/li&gt;
+&lt;li&gt;classic builder with &lt;a href=&#34;https://github.com/analytically/innerbuilder&#34;&gt;IntelliJ IDEA plugin&lt;/a&gt;;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/google/auto/tree/master/value&#34;&gt;Google AutoValue&lt;/a&gt; builder;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://projectlombok.org/features/Builder.html&#34;&gt;Project Lombok&lt;/a&gt; builder;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/mkarneim/pojobuilder&#34;&gt;POJO&lt;/a&gt; builder;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://immutables.github.io/&#34;&gt;Immutables&lt;/a&gt; builder.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;All of these variants have been examined in &lt;a href=&#34;https://github.com/dddpaul/java-builders&#34;&gt;Java builders&lt;/a&gt; GitHub project.&lt;/p&gt;
+
+&lt;p&gt;The winners are (and this a tough IMHO):&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;IDEA InnerBuilder plugin if you use builder class from frameworks like &lt;a href=&#34;http://spring.io/&#34;&gt;Spring/Spring MVC&lt;/a&gt; or &lt;a href=&#34;https://www.playframework.com/&#34;&gt;Play&lt;/a&gt;. You can&amp;rsquo;t pass validation annotations to generated class. Despite everything if there is a way to do this I&amp;rsquo;ll be happy to mistake.&lt;/li&gt;
+&lt;li&gt;Immutables.org builder in all other cases. It&amp;rsquo;s features rich and generates beautiful code.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;But do not forget about AutoValue because it&amp;rsquo;s backed by Google itself.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Oracle connectivity in Java</title>
+      <link>https://dddpaul.github.io/blog/2015/02/14/oracle-connectivity/</link>
+      <pubDate>Sat, 14 Feb 2015 22:11:00 +0300</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2015/02/14/oracle-connectivity/</guid>
+      <description>&lt;p&gt;A new small &lt;a href=&#34;https://github.com/dddpaul/java-oracle-connectivity&#34;&gt;test project&lt;/a&gt; is intended to answer the question - what is the proper way to specify network timeout for database connection?&lt;/p&gt;
+
+&lt;p&gt;There so many ways in JDBC API:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;[CommonDataSource.setLoginTimeout](&lt;a href=&#34;http://docs.oracle.com/javase/7/docs/api/javax/sql/CommonDataSource.html#setLoginTimeout(int)&#34;&gt;http://docs.oracle.com/javase/7/docs/api/javax/sql/CommonDataSource.html#setLoginTimeout(int)&lt;/a&gt;)&lt;/li&gt;
+&lt;li&gt;[Connection.setNetworkTimeout](&lt;a href=&#34;http://docs.oracle.com/javase/7/docs/api/java/sql/Connection.html#setNetworkTimeout(java.util.concurrent.Executor,%20int)&#34;&gt;http://docs.oracle.com/javase/7/docs/api/java/sql/Connection.html#setNetworkTimeout(java.util.concurrent.Executor,%20int)&lt;/a&gt;)&lt;/li&gt;
+&lt;li&gt;[Statement.setQueryTimeout](&lt;a href=&#34;http://docs.oracle.com/javase/7/docs/api/java/sql/Statement.html#setQueryTimeout(int)&#34;&gt;http://docs.oracle.com/javase/7/docs/api/java/sql/Statement.html#setQueryTimeout(int)&lt;/a&gt;)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;And every database has it&amp;rsquo;s own non-standard ways in addition.&lt;/p&gt;
+
+&lt;p&gt;But these tests have been lead us to a single conclusion — you must specify network timeouts on driver level. All these JDBC stuff isn&amp;rsquo;t enough for Oracle database.&lt;/p&gt;
+
+&lt;p&gt;This code is suitable for &lt;a href=&#34;http://tomcat.apache.org/tomcat-7.0-doc/jdbc-pool.html&#34;&gt;Tomcat JDBC Connection Pool&lt;/a&gt;:&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span class=&#34;c1&#34;&gt;// Get datasource some way&lt;/span&gt;
+&lt;span class=&#34;n&#34;&gt;Datasource&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ds&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;createDataSource&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;host&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+
+&lt;span class=&#34;c1&#34;&gt;// Set connect (login) timeout&lt;/span&gt;
+&lt;span class=&#34;n&#34;&gt;ds&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;setConnectionProperties&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;OracleConnection&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;CONNECTION_PROPERTY_THIN_NET_CONNECT_TIMEOUT&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;+&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;quot;=3000&amp;quot;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+
+&lt;span class=&#34;c1&#34;&gt;// Set common network read timeout&lt;/span&gt;
+&lt;span class=&#34;n&#34;&gt;ds&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;setConnectionProperties&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;OracleConnection&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;CONNECTION_PROPERTY_THIN_READ_TIMEOUT&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;+&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;quot;=3000&amp;quot;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;The proper way to specify these timeouts in &lt;a href=&#34;http://tomcat.apache.org/tomcat-7.0-doc/jndi-datasource-examples-howto.html&#34;&gt;JNDI Datasource configuration&lt;/a&gt;:&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span class=&#34;nt&#34;&gt;&amp;lt;Resource&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;name=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;jdbc/oracle&amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;na&#34;&gt;driverClassName=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;oracle.jdbc.OracleDriver&amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;na&#34;&gt;factory=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;org.apache.tomcat.jdbc.pool.DataSourceFactory&amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;na&#34;&gt;connectionProperties=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;oracle.net.CONNECT_TIMEOUT=3000;oracle.jdbc.ReadTimeout=3000&amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;err&#34;&gt;...&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;/&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Java network listeners</title>
+      <link>https://dddpaul.github.io/blog/2015/02/01/java-listeners/</link>
+      <pubDate>Sun, 01 Feb 2015 18:44:06 +0300</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2015/02/01/java-listeners/</guid>
+      <description>&lt;p&gt;I&amp;rsquo;ve written a small &lt;a href=&#34;https://github.com/dddpaul/java-network-listeners&#34;&gt;listeners library&lt;/a&gt; today. It allows to create Callables which can be submitted to &lt;a href=&#34;http://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ExecutorService.html&#34;&gt;ExecutorService&lt;/a&gt;. The callable itself implements creating server socket and binding it to local port.&lt;/p&gt;
+
+&lt;p&gt;There two principal type of listeners: blocking and non-blocking (thanks to &lt;a href=&#34;http://en.wikipedia.org/wiki/Non-blocking_I/O_(Java)&#34;&gt;Java NIO&lt;/a&gt;.&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;Blocking listener is very simple but in can&amp;rsquo;t be interrupted by calling thread. So there&amp;rsquo;s no point in that:&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span class=&#34;n&#34;&gt;Future&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;Socket&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;future&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;executor&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;submit&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Listeners&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;createListener&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;PORT&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;try&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;Socket&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;socket&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;future&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;get&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;TimeUnit&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;SECONDS&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;catch&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;TimeoutException&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;e&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;future&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;cancel&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt; &lt;span class=&#34;kc&#34;&gt;true&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Listener will stay active and PORT will be bound still. The reason is in usage of the uninterruptible &lt;a href=&#34;http://docs.oracle.com/javase/7/docs/api/java/net/ServerSocket.html#accept()&#34;&gt;ServerSocket.accept()&lt;/a&gt;.&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;In contrary non-blocking listener is more sophisticated but it can be interrupted by calling thread. So you can do that:&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span class=&#34;n&#34;&gt;Future&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;Socket&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;future&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;executor&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;submit&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Listeners&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;createListener&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;PORT&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;try&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;Socket&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;socket&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;future&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;get&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;TimeUnit&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;SECONDS&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;catch&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;TimeoutException&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;e&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;future&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;cancel&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt; &lt;span class=&#34;kc&#34;&gt;true&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;p&gt;Listener will be terminated and PORT will be freed.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>List of memory leaks articles</title>
+      <link>https://dddpaul.github.io/blog/2015/01/17/memory-leaks-articles/</link>
+      <pubDate>Sat, 17 Jan 2015 22:35:49 +0300</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2015/01/17/memory-leaks-articles/</guid>
+      <description>&lt;p&gt;&amp;ldquo;Solving OutOfMemoryError&amp;rdquo; series from Nikita Salnikov-Tarnovsky and Vladimir Šor:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://plumbr.eu/blog/solving-outofmemoryerror-story-of-a-developer&#34;&gt;Solving OutOfMemoryError (part 1) – story of a developer&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://plumbr.eu/blog/solving-outofmemoryerror-why-didnt-operations-solve-it&#34;&gt;Solving OutOfMemoryError (part 2) – why didn’t operations solve it?&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://plumbr.eu/blog/solving-outofmemoryerror-where-do-you-start&#34;&gt;Solving OutOfMemoryError (part 3) – where do you start?&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://plumbr.eu/blog/solving-outofmemoryerror-memory-profilers&#34;&gt;Solving OutOfMemoryError (part 4) – memory profilers&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://plumbr.eu/blog/solving-outofmemoryerror-jdk-tools&#34;&gt;Solving OutOfMemoryError (part 5) – JDK Tools&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://plumbr.eu/blog/solving-outofmemoryerror-dump-is-not-a-waste&#34;&gt;Solving OutOfMemoryError (part 6) – Dump is not a waste&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;&amp;ldquo;Classloader leaks&amp;rdquo; series from Mattias Jiderhamn:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://java.jiderhamn.se/2011/12/11/classloader-leaks-i-how-to-find-classloader-leaks-with-eclipse-memory-analyser-mat/&#34;&gt;Classloader leaks I – How to find classloader leaks with Eclipse Memory Analyser (MAT)&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://java.jiderhamn.se/2012/01/01/classloader-leaks-ii-find-and-work-around-unwanted-references/&#34;&gt;Classloader leaks II – Find and work around unwanted references&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://java.jiderhamn.se/2012/01/15/classloader-leaks-iii-die-thread-die/&#34;&gt;Classloader leaks III – “Die Thread, die!”&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://java.jiderhamn.se/2012/01/29/classloader-leaks-iv-threadlocal-dangers-and-why-threadglobal-may-have-been-a-more-appropriate-name/&#34;&gt;Classloader leaks IV – ThreadLocal dangers and why ThreadGlobal may have been a more appropriate name&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://java.jiderhamn.se/2012/02/26/classloader-leaks-v-common-mistakes-and-known-offenders/&#34;&gt;Classloader leaks V – Common mistakes and Known offenders&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://java.jiderhamn.se/2012/03/04/classloader-leaks-vi-this-means-war-leak-prevention-library/&#34;&gt;Classloader leaks VI – “This means war!” (leak prevention library)&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Object, class and classloader relationships are illustrated by this graph from &lt;a href=&#34;https://plumbr.eu/blog/what-is-a-permgen-leak&#34;&gt;What is a PermGen leak?&lt;/a&gt; article.&lt;/p&gt;
+
+
+&lt;img src=&#39;https://dddpaul.github.io/blog//media/object-class-classloader.png&#39;/&gt;
+
+
+&lt;hr /&gt;
+
+&lt;p&gt;Tomcat specific articles:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://java.dzone.com/articles/memory-leak-protection-tomcat&#34;&gt;Memory Leak Protection in Tomcat 7&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://wiki.apache.org/tomcat/MemoryLeakProtection&#34;&gt;Tomcat Wiki - MemoryLeakProtection&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;Other articles:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://plumbr.eu/blog/what-is-a-memory-leak&#34;&gt;What is a memory leak?&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://plumbr.eu/blog/what-is-a-permgen-leak&#34;&gt;What is a PermGen leak?&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://plumbr.eu/permgen&#34;&gt;The Guide to Solving Permgen Leaks&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://frankkieviet.blogspot.se/2006/10/classloader-leaks-dreaded-permgen-space.html&#34;&gt;Classloader leaks: the dreaded &amp;ldquo;java.lang.OutOfMemoryError: PermGen space&amp;rdquo; exception&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;And the summary:&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;The memory leak is caused by objects that live longer than expected.&lt;/em&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Запуск контейнеров с помощью Fig</title>
+      <link>https://dddpaul.github.io/blog/2015/01/12/docker-fig/</link>
+      <pubDate>Mon, 12 Jan 2015 10:42:00 +0000</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2015/01/12/docker-fig/</guid>
+      <description>
+
+&lt;p&gt;Это третья статья цикла 
+&lt;a href=&#39;https://dddpaul.github.io/blog//series/building-test-environments-with-docker/&#39;&gt;Building test environments with Docker&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Как мы уже убедились, запуск контейнеров с помощью &lt;code&gt;docker run&lt;/code&gt; — занятие весьма муторное, т.к. необходимо указывать множество опций. При запуске же нескольких контейнеров ситуация только ухудшается, т.к. теперь нужно задавать имена и линки.&lt;/p&gt;
+
+&lt;p&gt;Эту проблему решает инструмент &lt;a href=&#34;http://www.fig.sh/&#34;&gt;Fig&lt;/a&gt;, который может запустить/остановить целое тестовое окружение, состоящее из набора контейнеров. Описание контейнеров задано в YAML-файле. Таким образом, этот YAML-файл представляет собой конфигурацию тестового окружения.&lt;/p&gt;
+
+&lt;p&gt;Конфигурация нашего тестового окружения &lt;em&gt;test-env/fig.yml&lt;/em&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;app1:
+  image: smile/app1
+  ports: [&#39;2021:22&#39;, &#39;8081:80&#39;]
+  privileged: true
+
+app2:
+  image: smile/app2
+  ports: [&#39;2022:22&#39;, &#39;8082:80&#39;]
+  privileged: true
+
+gate:
+  image: smile/gate
+  links: [app1, app2]
+  ports: [&#39;2020:22&#39;, &#39;80:80&#39;]
+  privileged: true
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Запуск тестового окружения (находясь в каталоге с файлом &lt;em&gt;fig.yml&lt;/em&gt;): &lt;code&gt;fig up&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;По-умолчанию, Fig захватывает консоль и мультиплексирует вывод всех контейнеров. Для запуска в detached mode нужно использовать опцию &lt;code&gt;-d&lt;/code&gt;. Посмотреть вывод контейнеров в этом режиме можно с помощью команды &lt;code&gt;fig logs&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Статус тестового окружения: &lt;code&gt;fig ps&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Остановка тестового окружения: &lt;code&gt;fig stop&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;запуск-тестового-окружения-с-помощью-upstart:d4c1615d910942891ab8ffffd8a5f2e3&#34;&gt;Запуск тестового окружения с помощью Upstart&lt;/h3&gt;
+
+&lt;p&gt;Job &lt;em&gt;/etc/init/fig-test-env.conf&lt;/em&gt; создан на основе &lt;a href=&#34;https://gist.github.com/HeyImAlex/9649374&#34;&gt;HeyImAlex/fig.conf&lt;/a&gt;. Для отключения автостарта нужно закомментировать вторую строчку (&amp;ldquo;start on &amp;hellip;&amp;rdquo;).&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;description &amp;quot;Test environment runner&amp;quot;
+start on filesystem and started docker
+stop on runlevel [!2345]
+respawn
+chdir /path/to/test-env
+script
+  # Wait for docker to finish starting up first.
+  FILE=/var/run/docker.sock
+  while [ ! -e $FILE ] ; do
+    inotifywait -t 2 -e create $(dirname $FILE)
+  done
+  /usr/local/bin/fig up
+end script
+post-stop script
+ /usr/local/bin/fig stop
+end script
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Теперь можно запустить тестовое окружение из любого места командой &lt;code&gt;start fig-test-env&lt;/code&gt;, а остановить — &lt;code&gt;stop fig-test-env&lt;/code&gt;.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Связывание контейнеров</title>
+      <link>https://dddpaul.github.io/blog/2015/01/08/docker-linking/</link>
+      <pubDate>Thu, 08 Jan 2015 13:49:06 +0000</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2015/01/08/docker-linking/</guid>
+      <description>&lt;p&gt;Это вторая статья цикла 
+&lt;a href=&#39;https://dddpaul.github.io/blog//series/building-test-environments-with-docker/&#39;&gt;Building test environments with Docker&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;При создании тестовых окружений из нескольких контейнеров неизбежно возникает задача их взаимного связывания. Набивший оскомину пример: контейнеру с приложением нужен контейнер БД. В нашем же случае, контейнеру с балансером нужны контейнеры с апстримами.&lt;/p&gt;
+
+&lt;p&gt;Статья &lt;a href=&#34;https://docs.docker.com/userguide/dockerlinks/&#34;&gt;Linking Containers Together&lt;/a&gt; полностью раскрывает вопрос линковки контейнеров. Осветим вкратце лишь основные моменты:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;каждый контейнер необходимо как-то назвать с помощью опции &lt;code&gt;--name&lt;/code&gt;;&lt;/li&gt;
+&lt;li&gt;ссылка на контейнер-зависимость обозначается опцией &lt;code&gt;--link&lt;/code&gt;;&lt;/li&gt;
+&lt;li&gt;в итоге, внутри зависимого контейнера, инициализируется множество переменных окружения, содержащих параметры контейнера-зависимости, а также в &lt;em&gt;/etc/hosts&lt;/em&gt; заносится IP-адрес контейнера-зависимости.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Например, так выглядит последовательный запуск 3-х контейнеров, причем 3-й зависит от первых двух:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;docker run -d --privileged -p 2021:22 -p 8081:80 --name app1 smile/tomcat7
+docker run -d --privileged -p 2022:22 -p 8082:80 --name app2 smile/tomcat7
+docker run -d --privileged -p 2020:22 -p 80:80 --name gate --link app1:app1 --link app2:app2 smile/gate
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Для проверки можно использовать вывод &lt;code&gt;docker inspect&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;docker inspect -f &amp;quot;{{ .HostConfig.Links }}&amp;quot; gate
+
+[/app1:/gate/app1 /app2:/gate/app2]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Опция &lt;code&gt;-d (detach mode)&lt;/code&gt; здесь необходима, чтобы контейнеры запускались в фоновом режиме и не захватывали консоль.&lt;/p&gt;
+
+&lt;p&gt;Теперь, если зайти в контейнер gate (&lt;code&gt;ssh -p 2020 root@localhost&lt;/code&gt;) и посмотреть переменные окружения, то будет ясно, что gate &amp;ldquo;видит&amp;rdquo; exposed-порты и IP-адрес контейнера-зависимости:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;root@aba982937531:~# env | grep APP1
+APP1_NAME=/gate/app1
+APP1_PORT_22_TCP=tcp://172.17.0.28:22
+APP1_PORT_80_TCP=tcp://172.17.0.28:80
+APP1_PORT_22_TCP_ADDR=172.17.0.28
+APP1_PORT_80_TCP_ADDR=172.17.0.28
+APP1_PORT_22_TCP_PORT=22
+APP1_PORT_80_TCP_PORT=80
+APP1_PORT_80_TCP_PROTO=tcp
+APP1_PORT_22_TCP_PROTO=tcp
+APP1_PORT=tcp://172.17.0.28:22
+...
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Еще лучше дела обстоят с &lt;em&gt;/etc/hosts&lt;/em&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;root@aba982937531:~# grep app1 /etc/hosts
+172.17.0.28	app1
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Модификация &lt;em&gt;/etc/hosts&lt;/em&gt;, например, дает возможность писать следующие кофиги Nginx:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;server {
+    listen 80 default_server;
+    server_name _;
+
+    location /app1 {
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; #
+        proxy_pass http://app1:80/app1;                              # app1 host here
+        proxy_redirect http://127.0.0.1:8081/app1 /app1;             #
+    }
+
+    location /app2 {
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; #
+        proxy_pass http://app2:80/app2;                              # and app2 host here
+        proxy_redirect http://127.0.0.1:8082/app2 /app2;             #
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Таким образом, в первом приближении, встроенная возможность связывания контейнеров в Docker решает наши проблемы.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Подготовка и запуск docker-контейнеров</title>
+      <link>https://dddpaul.github.io/blog/2015/01/04/docker-prepare/</link>
+      <pubDate>Sun, 04 Jan 2015 13:49:06 +0000</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2015/01/04/docker-prepare/</guid>
+      <description>
+
+&lt;p&gt;Это первая статья цикла 
+&lt;a href=&#39;https://dddpaul.github.io/blog//series/building-test-environments-with-docker/&#39;&gt;Building test environments with Docker&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Сразу оговорюсь, что все docker-контейнеры основаны на &lt;a href=&#34;http://phusion.github.io/baseimage-docker/&#34;&gt;baseimage-docker&lt;/a&gt;. Этот образ позволяет запускать в контейнере несколько приложений с помощью супервизора &lt;a href=&#34;http://smarden.org/runit/&#34;&gt;runit&lt;/a&gt; и содержит ssh, cron, syslog &amp;ldquo;из коробки&amp;rdquo;.&lt;/p&gt;
+
+&lt;p&gt;Хотя подобный подход &lt;a href=&#34;http://jpetazzo.github.io/2014/06/23/docker-ssh-considered-evil/&#34;&gt;не рекомендуется разработчиками Docker&lt;/a&gt;, он очень удобен в эксплуатации и не принуждает разработчика к своему &amp;ldquo;proper way&amp;rdquo;. Всегда можно использовать канонический подход от Docker с volumes и nsenter, а, при желании, подключаться к контейнерам по ssh.&lt;/p&gt;
+
+&lt;p&gt;Кроме того, я привык использовать сервера приложений в связке с nginx, и baseimage-docker позволяет легко это сделать.&lt;/p&gt;
+
+&lt;h3 id=&#34;базовый-образ:4df06129fe4804053dfd65ac4e205d9e&#34;&gt;Базовый образ&lt;/h3&gt;
+
+&lt;p&gt;При создании базового образа выполняются две вещи:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;публичный ssh-ключ добавляется в список разрешенных для суперпользователя контейнера;&lt;/li&gt;
+&lt;li&gt;задается локаль.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;em&gt;Dockerfile&lt;/em&gt; базового образа:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;FROM phusion/baseimage:0.9.15
+
+# Add public SSH keys
+ADD my_rsa_public_key /tmp/my_rsa_public_key
+RUN cat /tmp/my_rsa_public_key &amp;gt;&amp;gt; /root/.ssh/authorized_keys &amp;amp;&amp;amp; rm -f /tmp/my_rsa_public_key
+
+# Locale
+ENV LANG=en_US.utf8
+
+# Use baseimage-docker&#39;s init system
+CMD [&amp;quot;/sbin/my_init&amp;quot;]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Свой публичный ssh-ключ, естественно, надо положить в &lt;em&gt;my_rsa_public_key&lt;/em&gt; рядом с &lt;em&gt;Dockerfile&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;Сборка: &lt;code&gt;docker build -t smile/base .&lt;/code&gt; и запуск:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;docker run --rm -it -p 2022:22 smile/base /sbin/my_init -- bash -l
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;code&gt;--rm&lt;/code&gt; используется для удаления контейнера после его остановки, &lt;code&gt;-it&lt;/code&gt; — для терминального интеракивного режима, а &lt;code&gt;-- bash -l&lt;/code&gt; — для запуска шелла после запуска всех сервисов.&lt;/p&gt;
+
+&lt;p&gt;Также на контейнер можно зайти по ssh: &lt;code&gt;ssh -p 2022 root@localhost&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;образ-с-nginx:4df06129fe4804053dfd65ac4e205d9e&#34;&gt;Образ с nginx&lt;/h3&gt;
+
+&lt;p&gt;Сборка &lt;a href=&#34;https://github.com/dddpaul/docker-nginx&#34;&gt;docker-nginx&lt;/a&gt;: &lt;code&gt;docker build -t smile/nginx .&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;Основная особенность этого образа в том, что при запуске контейнера отключается IPv6.&lt;/p&gt;
+
+&lt;p&gt;Сделано это для того, чтобы обойти известную проблему с проксированием Nginx. Т.к. демон висит на tcp6, то апстрим иногда видит запрос от 127.0.0.1, а иногда от 0:0:0:0:0:0:0:1. Это принуждает к изменению ACL на сервере приложений, что не всегда удобно.&lt;/p&gt;
+
+&lt;p&gt;IPv6 отключается после выполнения серии sysctl-команд, которые требуют, чтобы контейнер был запущен в привилегированном режиме, т.е. команда запуска слегка усложняется:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;docker run --privileged --rm -it -p 2022:22 smile/nginx /sbin/my_init -- bash -l
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;остальные-образы:4df06129fe4804053dfd65ac4e205d9e&#34;&gt;Остальные образы&lt;/h3&gt;
+
+&lt;p&gt;На основе docker-nginx можно строить более сложные образы, такие как &lt;a href=&#34;https://github.com/dddpaul/docker-java7-server&#34;&gt;docker-java7-server&lt;/a&gt; и  &lt;a href=&#34;https://github.com/dddpaul/docker-tomcat7&#34;&gt;docker-tomcat7&lt;/a&gt;. На основе последнего уже строятся образы для конечных приложений.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Using method handles to get logger</title>
+      <link>https://dddpaul.github.io/blog/2014/12/21/method-handle-logger/</link>
+      <pubDate>Sun, 21 Dec 2014 13:36:15 +0000</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2014/12/21/method-handle-logger/</guid>
+      <description>&lt;p&gt;One more quote from &lt;a href=&#34;http://www.manning.com/evans/&#34;&gt;The Well-Grounded Java Developer&lt;/a&gt; by Benjamin J. Evans and Martijn Verburg about useful feature of &lt;a href=&#34;http://docs.oracle.com/javase/7/docs/api/java/lang/invoke/MethodHandle.html&#34;&gt;MethodHandle&lt;/a&gt;.&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;One additional feature that method handles provide is the ability to determine the current class from a static context. If you’ve ever written logging code (such as for log4j) that looked like this,&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;Logger lgr = LoggerFactory.getLogger(MyClass.class);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;you know that this code is fragile. If it’s refactored to move into a superclass or subclass, the explicit class name would cause problems With Java 7, however, you can write this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;Logger lgr = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;It&amp;rsquo;s really works :)&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="generator" content="Hugo 0.16-DEV" />
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+  <title> Дистанционное управление Motion с помощью Go &middot; Dev notes </title>
+
+  
+  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/poole.css">
+  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/syntax.css">
+  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/hyde.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
+
+  
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144-precomposed.png">
+  <link rel="shortcut icon" href="/favicon.png">
+
+  
+  <link href="" rel="alternate" type="application/rss+xml" title="Dev notes" />
+</head>
+
+<body>
+
+<div class="sidebar">
+    <div class="container sidebar-sticky">
+        <div class="sidebar-about">
+            <h1>Dev notes</h1>
+            <p class="lead">
+                 Notes about Android, Java, JavaScript, Go and other technical stuff 
+            </p>
+        </div>
+
+        <ul class="sidebar-nav">
+            <li><a href="/">Home</a> </li>
+            
+            <li><a href="http://github.com/dddpaul"> GitHub </a></li>
+            
+            <li><a href="http://google.com/&#43;PavelDerendyaev1"> Google&#43; </a></li>
+            
+            <li><a href="/blog/index.xml"> RSS </a></li>
+            
+        </ul>
+
+        Tags:
+        <ul>
+            
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/android/">android</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/angularjs/">angularjs</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/ansible/">ansible</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/devops/">devops</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/docker/">docker</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/git/">git</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/golang/">golang</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/hugo/">hugo</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/java/">java</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/javascript/">javascript</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/linux/">linux</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/python/">python</a> </li>
+            
+        </ul>
+
+        <p>&copy; 2016. All rights reserved. </p>
+    </div>
+</div>
+
+
+<div class="content container">
+    <div class="post">
+        <h1 class="post-title">Дистанционное управление Motion с помощью Go</h1>
+        <span class="post-date">2014-11-14</span>
+
+        <p>Цель — сделать удобное управление для сервачка с системой motion detection.  В качестве сервера пригодился классический нетбук Asus Eee PC 701 4-х гигабайтным SSD на борту. На него была установлена Ubuntu 14.04.</p>
+
+<p>Задачи:</p>
+
+<ol>
+<li>Собственно, motion detection (для этого был использован <a href="http://www.lavrsen.dk/foswiki/bin/view/Motion/WebHome">Motion</a>).</li>
+<li>Управление настройками Motion через ИК-пульт.</li>
+<li>Вывод всех сообщений от Motion и сигналов от пульта на консоль (<em>/dev/tty1</em>).</li>
+<li>Минимальное время работы экрана (быстрый переход в энергосберегающйй режим, просыпание по сигналу от пульта).</li>
+</ol>
+
+<p><strong>1.</strong> Motion ставится элементарно — <code>apt-get install motion</code>. Важные настройки:</p>
+
+<div class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># Максимальный fps</span>
+framerate 5
+
+<span class="c"># Снимать на максимальном fps только во время движения</span>
+webcam_motion on
+
+<span class="c"># Выкрутил в максимум, чтобы избежать срабатывания на включение света</span>
+lightswitch 100
+
+<span class="c"># Кол-во кадров с движением, необходимых для генерации события</span>
+minimum_motion_frames 3
+
+<span class="c"># Записать кадры до движения</span>
+pre_capture 5
+
+<span class="c"># Записать кадры после движения</span>
+post_capture 5
+
+<span class="c"># Маска для определения области детекции, легко делается в Gimp&#39;е из снимка с камеры.</span>
+<span class="c"># Области, закрашенные черным, игнорируются.</span>
+mask_file /path/to/mask.pgm
+
+<span class="c"># Время определения окончания движения (если за 15 секунд после начала движения</span>
+<span class="c"># не было никаких поползновений, то считаем, что событие-движение закончилось)</span>
+gap 15
+
+<span class="c"># Отключить создание снимков</span>
+output_normal off
+
+<span class="c"># Обозначать движение прямоугольником </span>
+locate on
+
+<span class="c"># Запуск скрипта по началу движения (это симлимк, который указывает на реальный скрипт).</span>
+<span class="c"># Изменение симлинка осущестляется по команде с пульта (см. п. 2 про конфиг) </span>
+on_event_start <span class="s2">&quot;/etc/motion/handlers/on_event_start&quot;</span>
+</code></pre></div>
+
+
+<p>Для подгонки чувствительности, порога шумов и т.д., нужно использовать setup mode, который активируется при запуске <code>
+motion -s</code>.</p>
+
+<p>При этом в mjpeg-трансляции область детекции будет обозначена черным, шумы — серым, а распознанное движение — синим.</p>
+
+<p><strong>2.</strong> Для управления нетбуком был использован <a href="http://www.dx.com/p/multimedia-ir-remote-controller-with-usb-receiver-for-pc-1-cr2025-26368#.VGYO33WUe24">ИК-пульт с USB-приемником</a>. Подобные пульты есть и на aliexpress, и ebay. USB-приемник эмулирует HID-устройство, по сути — обычную клавиатуру.</p>
+
+<p>Для работы с символьными устройствами ввода в Linux есть подсистема <a href="http://en.wikipedia.org/wiki/Evdev">evdev</a>. Потестить распознавание сигналов с пульта можно с помощью утилиты <a href="http://manpages.ubuntu.com/manpages/trusty/man1/evtest.1.html">evtest</a>.</p>
+
+<p>На гитхабе нашелся <a href="https://github.com/gvalkov/golang-evdev">пакет для работы с evdev на Go</a>. Проект больше не поддерживается, так что я отфоркался от <a href="https://github.com/ungerik/golang-evdev">более свежего форка</a> и сделал rebase на ядро Ubuntu 14.04 (3.13.0-39-generic на данный момент):</p>
+
+<pre><code>cd evdev
+make ecodes.go
+</code></pre>
+
+<p>Поверх golang-evdev я написал <a href="https://github.com/dddpaul/go-evhandler">evhandler</a>. Эта программа запускается от root&rsquo;а и слушает события от input device, указанного в конфиге (как правило, <em>/etc/evhandler.toml</em>).  Мой конфиг:</p>
+
+<pre><code>[params]
+    device = &quot;/dev/input/eventXXX&quot;
+
+[actions]
+    KEY_STOPCD = &quot;service motion stop&quot;
+    KEY_PLAYPAUSE = &quot;service motion start&quot;
+    KEY_PAGEUP = &quot;/etc/motion/handlers/handler-select up&quot;
+    KEY_PAGEDOWN = &quot;/etc/motion/handlers/handler-select down&quot;
+</code></pre>
+
+<p>В разделе <em>actions</em> на кнопки пульта вешаются команды: остановка и запуск motion, и выбор скрипта, который будет запущен при детекции движения. Скрипт <em>handler-select</em> &ldquo;передвигает&rdquo; симлинк <em>on_event_start</em> вверх/вниз, устанавливая, таким образом, реальный скрипт, который будет запускаться. Коллекцию этих скриптов я выложил в <a href="https://github.com/dddpaul/motion-handlers">отдельный проект</a>.</p>
+
+<p>Для чтения и парсинга конфигов я использовал пакет <a href="http://spf13.com/project/viper">Viper</a>. Это очень классная либа от автора <a href="http://gohugo.io/">Hugo</a>, которая умеет:</p>
+
+<ul>
+<li>парсить YAML, TOML и JSON;</li>
+<li>искать конфиги в разных местах (например, сначала в $HOME, а потом в <em>/etc</em>);</li>
+<li>устанавливать значение по-умолчанию и переопределять значения из конфига значениями из CLI.</li>
+</ul>
+
+<p><strong>3.</strong> Имя устройства неплохо бы зафиксировать, т.к. оно назначается udev&rsquo;ом и может меняться при перетыках из порта в порт, а также при перезагрузках. Но для начала надо узнать текущее имя устройства.</p>
+
+<pre><code># lsusb
+...
+Bus 003 Device 002: ID 073a:2230 Chaplet Systems, Inc. infrared dongle for remote
+
+# evtest 2&gt;&amp;1 | grep &quot;073a:2230&quot;
+/dev/input/event10:	HID 073a:2230
+</code></pre>
+
+<p>Итак, имя устройства в системе — <em>/dev/input/event10</em>. Получим необходимую информацию для построения udev-правила:</p>
+
+<pre><code># udevadm info -a -p $(udevadm info -q path -n /dev/input/event10)
+...
+  looking at device '/devices/pci0000:00/0000:00:1d.1/usb3/3-2/3-2:1.0/input/input12/event10':
+    KERNEL==&quot;event10&quot;
+    SUBSYSTEM==&quot;input&quot;
+    DRIVER==&quot;&quot;
+
+  looking at parent device '/devices/pci0000:00/0000:00:1d.1/usb3/3-2/3-2:1.0/input/input12':
+    KERNELS==&quot;input12&quot;
+    SUBSYSTEMS==&quot;input&quot;
+    DRIVERS==&quot;&quot;
+    ATTRS{name}==&quot;HID 073a:2230&quot;
+...
+</code></pre>
+
+<p>Теперь можно навесить на устройство фиксированный симлинк:</p>
+
+<pre><code># cat &gt; /etc/udev/rules.d/10-local.rules
+KERNEL==&quot;event*&quot;, SUBSYSTEM==&quot;input&quot;, ATTRS{name}==&quot;HID 073a:2230&quot;, SYMLINK+=&quot;input/event100&quot;
+</code></pre>
+
+<p>Для проверки нужно воспользоваться командой <code>udevadm trigger</code> или перезагрузиться. Даже если исходное имя устройства изменится (например, на <em>/dev/input/event11</em>), наш симлинк <em>/dev/input/event100</em> будет указывать на него.</p>
+
+<p><strong>4.</strong> evhandler должен использовать в качестве стандартного вывода <em>/dev/tty1</em>. Сделать это очень просто.</p>
+
+<p>Сначала отключим ввод с <em>/dev/tty1</em> — <code>rm /etc/init/tty1.conf</code>.</p>
+
+<p>И создадим новый upstart job в <em>/etc/init/evhandler.conf</em>:</p>
+
+<div class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># evhandler - Simple key press listener and handler written in Go</span>
+
+start on runlevel <span class="o">[</span>2345<span class="o">]</span>
+stop on runlevel <span class="o">[</span>!2345<span class="o">]</span>
+
+respawn
+
+<span class="nb">exec</span> /path/to/go-evhandler &gt; /dev/tty1 2&gt;<span class="p">&amp;</span>1
+</code></pre></div>
+
+
+<p>Теперь evhandler будет запускаться при загрузке, а также перезапускаться, если его процесс будет прибит. Для ручного запуска — <code>
+start evhandler</code>.</p>
+
+<ol>
+<li>Управлять включением энергосберегающего режима (а именно, гашением экрана) можно з-мя способами:</li>
+<li>указать <code>consoleblank=sss</code> (где sss - секунды) в параметрах ядра (<em>GRUB_CMDLINE_LINUX</em> в <em>/etc/default/grub</em>);</li>
+<li>использовать команду <code>setterm -blank mm</code> (где mm - минуты), для включения — <code>setterm -blank poke</code>;</li>
+<li>использовать специальные ESC-последовательности в команде <code>echo</code>.</li>
+</ol>
+
+<p><code>consoleblank</code> давал странный эффект - после загрузки системы экран становился пустым, но было видно, что подсветка работает. При нажатии клавиш он загорался и полностью погасал через заданное время.</p>
+
+<p><code>setterm</code> через ssh у меня как-то не заработал.</p>
+
+<p>И только управляющая ESC-последовательность для терминала подошла отлично — <code>echo -e '\033[9;X]</code> (где X - минуты).</p>
+
+<p>Для автоматического запуска этой команды создадим job <em>/etc/init/tty1.conf</em>:</p>
+
+<p><div class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># tty1 - getty</span>
+<span class="c">#</span>
+<span class="c"># This service is used to maintain a getty on tty1 from the point the system is</span>
+<span class="c"># started until it is shut down again.</span>
+
+start on stopped rc <span class="nv">RUNLEVEL</span><span class="o">=[</span>2345<span class="o">]</span> and <span class="o">(</span>
+            not-container or
+            container <span class="nv">CONTAINER</span><span class="o">=</span>lxc or
+            container <span class="nv">CONTAINER</span><span class="o">=</span>lxc-libvirt<span class="o">)</span>
+
+stop on runlevel <span class="o">[</span>!2345<span class="o">]</span>
+
+<span class="c"># Blank screen after 1 minute timeout</span>
+<span class="c"># See http://www.armadeus.com/wiki/index.php?title=FrameBuffer</span>
+<span class="nb">exec echo</span> -ne <span class="s2">&quot;\033[9;1]&quot;</span> &gt; /dev/tty1
+</code></pre></div>
+</p>
+
+<p>Ссылки:</p>
+
+<ul>
+<li><a href="https://github.com/dddpaul/go-evhandler">Evhandler : Simple key press listener and handler written in Go</a></li>
+<li><a href="http://spf13.com/project/viper">Viper : Go Configuration Management With Fangs</a></li>
+<li><a href="http://superuser.com/a/154388">Change Linux console screen blanking behavior</a></li>
+<li><a href="http://raspberrypi.stackexchange.com/questions/10374/wake-console-screen-with-ssh">Wake console screen with SSH</a></li>
+<li><a href="http://www.armadeus.com/wiki/index.php?title=FrameBuffer">ArmadeusWiki - Framebuffer</a></li>
+<li><a href="https://wiki.archlinux.org/index.php/Udev#Writing_udev_rules">Writing udev rules</a></li>
+</ul>
+
+    </div>
+
+    
+
+    Tags:
+    <ul id="tags">
+        
+        
+        <li><a href="https://dddpaul.github.io/blog//tags/golang">Golang</a> </li>
+        
+        <li><a href="https://dddpaul.github.io/blog//tags/linux">Linux</a> </li>
+        
+    </ul>
+
+    <div id="disqus_thread"></div>
+<script type="text/javascript">
+
+(function() {
+    
+    
+    if (window.location.hostname == "localhost")
+        return;
+
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    var disqus_shortname = 'dddpaul-github';
+    var disqus_identifier = 'https:\/\/dddpaul.github.io\/blog\/2014\/11\/14\/motion-remote-control\/';
+    var disqus_title = 'Дистанционное управление Motion с помощью Go';
+    var disqus_url = 'https:\/\/dddpaul.github.io\/blog\/2014\/11\/14\/motion-remote-control\/';
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+
+</div>
+
+</body>
+</html>
+

@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="generator" content="Hugo 0.16-DEV" />
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+  <title> Подводные камни смены ориентации в Android &middot; Dev notes </title>
+
+  
+  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/poole.css">
+  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/syntax.css">
+  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/hyde.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
+
+  
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144-precomposed.png">
+  <link rel="shortcut icon" href="/favicon.png">
+
+  
+  <link href="" rel="alternate" type="application/rss+xml" title="Dev notes" />
+</head>
+
+<body>
+
+<div class="sidebar">
+    <div class="container sidebar-sticky">
+        <div class="sidebar-about">
+            <h1>Dev notes</h1>
+            <p class="lead">
+                 Notes about Android, Java, JavaScript, Go and other technical stuff 
+            </p>
+        </div>
+
+        <ul class="sidebar-nav">
+            <li><a href="/">Home</a> </li>
+            
+            <li><a href="http://github.com/dddpaul"> GitHub </a></li>
+            
+            <li><a href="http://google.com/&#43;PavelDerendyaev1"> Google&#43; </a></li>
+            
+            <li><a href="/blog/index.xml"> RSS </a></li>
+            
+        </ul>
+
+        Tags:
+        <ul>
+            
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/android/">android</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/angularjs/">angularjs</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/ansible/">ansible</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/devops/">devops</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/docker/">docker</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/git/">git</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/golang/">golang</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/hugo/">hugo</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/java/">java</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/javascript/">javascript</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/linux/">linux</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/python/">python</a> </li>
+            
+        </ul>
+
+        <p>&copy; 2016. All rights reserved. </p>
+    </div>
+</div>
+
+
+<div class="content container">
+    <div class="post">
+        <h1 class="post-title">Подводные камни смены ориентации в Android</h1>
+        <span class="post-date">2014-08-02</span>
+
+        
+
+<p>После нескольких дней отладки приложения пришел к выводу, что смена ориентации (rotation, orientation change) требует к себе особого внимания. Наконец-то я понял тех разработчиков, которые напрочь запрещают смену ориентации в своем софте. Ведь, не зная некоторых неочевидных нюансов, можно легко получить крах приложения или утечку памяти.</p>
+
+<p>Опишу в порядке возрастания сложности, на какие подводные камни мне пришлось натолкнуться.</p>
+
+<h3 id="beginner-s-level:ab7bd6db0fbb770c5dbfe85b3a43d6b3">Beginner&rsquo;s level</h3>
+
+<p>Надо сохранять состояние (state) фрагментов. Не сохранил — потерял, т.к. активити и фрагменты будут пересозданы. Если стейт фрагмента сериализуется в строку, то просто переопределяем метод onSaveInstanceState(). Способ описан как в <a href="http://developer.android.com/guide/components/fragments.html#Lifecycle">официальной документации</a>, так и в множестве других мест.</p>
+
+<h3 id="intermediate:ab7bd6db0fbb770c5dbfe85b3a43d6b3">Intermediate</h3>
+
+<p>Не забываем про AsyncTask. Их тоже надо сохранять, ибо иначе при смене ориентации мы его потеряем. Или он что-нибудь обвалит :) Для решения этой проблемы придумана такая отличная штука, как retaining fragments. Всего один вызов setRetainInstance(true) продляет жизнь фрагменту и связанному с ним асинктаску (назовем это длинный стейт).</p>
+
+<p>Тут и начинаются подводные камни. Что если мы хотим в портретном режиме свайпить фрагменты (через ViewPager), а в landscape — просто показать их всех в линеечку (с помощью LinearLayout безо всякого ViewPager)? Запустим приложение в portrait mode, перевернем, и получим &ldquo;IllegalArgumentException: No view found&rdquo;.</p>
+
+<p>Суть в том, что изначальный фрагмент с портретного режима останется и даже сохранит ссылку на ViewPager, которого в landscape layout уже просто нет :) Отсюда вывод - использовать для сохранения длинного стейта нужно headless fragments, т.е. фрагменты без UI. Тогда получается красиво: в &ldquo;обычных&rdquo; фрагментах формочки и кнопочки, а асинктаски — в отдельных, которые ничего про UI не знают.</p>
+
+<p>Остался последний вопрос — как этот headless fragment создать/запустить? В android-samples есть пример <a href="https://android.googlesource.com/platform/development/+/master/samples/ApiDemos/src/com/example/android/apis/app/FragmentRetainInstance.java">FragmentRetainInstance.java</a>, в котором используется способ матрешки - активити запускает parent fragment, parent запускает worker fragment, внутри которого сидит асинктаск.</p>
+
+<p>Вроде хорошая схема, но если вы, не дай бог, возьмете Robolectric и напишите юнит-тест для родительского фрагмента, то получите что-то типа recursive transaction exception. Суть в том, что роболектрик создает тестируемый фрагмент обычным способом (через транзакцию), а внутри запускается новая транзакция (для worker fragment). А так нельзя, это вам не JPA какой-нибудь :)</p>
+
+<p>Итого — держим асинктаски в headless-фрагменте, который запускаем из активити. В целом, это отличная схема на все случаи жизни, а не только для приведенного примера.</p>
+
+<h3 id="veteran:ab7bd6db0fbb770c5dbfe85b3a43d6b3">Veteran</h3>
+
+<p>Копаем в сторону уже вскользь упомянутого multi-pane. Как его сделать правильно на одних фрагментах? Внятно описанный <a href="http://www.vogella.com/tutorials/AndroidFragments/article.html">способ от Ларса Вогеля</a> требует разных активити, а я не хочу плодить сущности.</p>
+
+<p>Используем уже описанный метод с двумя layout&rsquo;ами (ведь мы же за декларативный подход!):</p>
+
+<ul>
+<li>1-й layout состоит из одного ViewPager&rsquo;а;</li>
+<li>2-й — LinearLayout с двумя фрагментами.</li>
+</ul>
+
+<p>В чем прелесть подхода — 2-й layout можно положить в папочку, например, layout-w600dp и он будет автоматически использован, если ширина экрана больше 600dp. Красота!</p>
+
+<p>Оно даже работает и не падает. Правда, появился какой-то странный глюк с <a href="http://github.com/greenrobot/EventBus">EventBus</a>: иногда фрагмент получает два сообщения вместо одного. При более пристальном изучении оказалось наоборот - два одинаковых фрагмента получают одно сообщение. Откуда они берутся? А кто его знает :)</p>
+
+<p>Была убита куча времени в DDMS/VisualVM/MAT, в результате чего появился <a href="https://github.com/dddpaul/android-ViewPagerBug">тестовый проект</a>, также описал симптомы на <a href="http://stackoverflow.com/questions/25033824/dublicate-fragment-allocation-when-using-viewpager-with-different-layouts">StackOverflow</a>. Вкратце, именно при использовании такого варианта multi-pane (когда в одном layout есть ViewPager, а в другом нет), фрагменты при перевороте создаются ДВАЖДЫ. Причем, оба в RESUMED state, поэтому они оба и ловят сообщения по EventBus.</p>
+
+<p>Плюнув, отказался от второго layout&rsquo;а, теперь ViewPager используется везде. Чтобы показать сразу 2 фрагмента, можно использовать разные <a href="http://commonsware.com/blog/2012/08/20/multiple-view-viewpager-options.html">хитрые способы</a>. Они, в общем, несложные, и, в моем случае, способ с переопределением getPageWidth() даже не внес никаких сайд-эффектов. Правда, определение ширины экрана, когда надо показать multi-pane пришлось вынести в код, получилось чуть менее декларативненько.</p>
+
+<h3 id="hardcore:ab7bd6db0fbb770c5dbfe85b3a43d6b3">Hardcore</h3>
+
+<p>Плавно переходим к утечкам памяти :)</p>
+
+<p>Очень веселая ситуация, когда после, например, после 10 ротаций эмулятора и нескольких запусков GC в хипе болтаются 11 activities. Решив идти до конца, вооружившись методом исключения и вырезав почти весь код и вьюхи, удалось докопаться до причины. Утекал компонент TextView с опцией <a href="http://stackoverflow.com/questions/22990634/textview-with-id-and-textisselectable-true-causes-leaking-of-the-activity-obje">textIsSelectable=&ldquo;true&rdquo;</a>. Очень порадовало начало топика &ldquo;It took me three days to narrow my problem &hellip;&rdquo; :)</p>
+
+<p>Убрал одну строчку в layout, утечка исчезла, ура. Вернулся в основную ветку, вставил этот коммит, прогнал тест (10 ротаций), получил 10 activities. Уже лучше :)</p>
+
+<p>Оказалось, компонент EditText также замечательно утекает. Причина, вроде бы в том, что он слишком умный (у него по-умолчанию включен спеллчекер). Если отключить, то утечка может пропасть, а может и нет. Прогнал тест на разных эмуляторах, оказалось, что в 4.3 баг починен, уже хорошо! А я все тестил на 4.1.2.</p>
+
+<p>Раз версия 4.3 такая замечательная, может быть, там починена утечка textIsSelectable? А то вдруг понадобится эта опция? Нет, все без изменений. Версия 4.4.2? А вот фиг вам - <a href="https://code.google.com/p/android/issues/detail?id=61671">баг в эмуляторе</a>. Вы не можете повернуть эмулятор с этой версией Андроида :) Тест запустить не удалось.</p>
+
+<p>Фрагменты также могут утекать. В сети полно примеров организации свайпа с ViewPager (это где фрагменты создаются в классе-потомке FragmentPagerAdapter и т.д.) Все замечательно, но не забываем вставлять в onDestroy():</p>
+
+<pre><code>pager.removeAllViews();
+pager.setAdapter( null );
+</code></pre>
+
+<p>Иначе, каждый раз при rotation старые фрагменты не будут собираться GC. Если у вас приложение с 2-мя фраментами, то после 10 ротаций будет 22, плюс 11 activities. По крайней мере, в 4.1.2. В 4.3 уже можно этим не заморачиваться :)</p>
+
+<h3 id="заключение:ab7bd6db0fbb770c5dbfe85b3a43d6b3">Заключение</h3>
+
+<p>К чему весь этот пост - выложил обновление <a href="https://play.google.com/store/apps/details?id=com.github.dddpaul.netcat">Simple NetCat</a>. Версия 1.4 поддерживает multi-pane на планшетах, содержит меньше багов (скрестил два пальца) и практически не течет по памяти.</p>
+
+    </div>
+
+    
+        
+        
+        <hr/>
+        <p><a href="" id="series"></a>This is a post in the <b>Memory leaks</b> series.<br/>
+            Other posts in this series:</p>
+        
+        
+        <ul class="series">
+            
+            <li>2015-01-17 -
+                
+                    <a href="https://dddpaul.github.io/blog/2015/01/17/memory-leaks-articles/">List of memory leaks articles </a>
+                
+            </li>
+            
+            <li>2014-10-21 -
+                
+                    <a href="https://dddpaul.github.io/blog/2014/10/21/android-memory-leak-badoo/">Борьба с утечками памяти в Android (Badoo) </a>
+                
+            </li>
+            
+            <li>2014-08-02 -
+                
+                    Подводные камни смены ориентации в Android
+                
+            </li>
+            
+            <li>2014-08-01 -
+                
+                    <a href="https://dddpaul.github.io/blog/2014/08/01/android-memory-leaks/">Android memory leaks </a>
+                
+            </li>
+            
+        </ul>
+    
+
+    Tags:
+    <ul id="tags">
+        
+        
+        <li><a href="https://dddpaul.github.io/blog//tags/android">Android</a> </li>
+        
+        <li><a href="https://dddpaul.github.io/blog//tags/java">Java</a> </li>
+        
+    </ul>
+
+    <div id="disqus_thread"></div>
+<script type="text/javascript">
+
+(function() {
+    
+    
+    if (window.location.hostname == "localhost")
+        return;
+
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    var disqus_shortname = 'dddpaul-github';
+    var disqus_identifier = 'https:\/\/dddpaul.github.io\/blog\/2014\/08\/02\/orientation-change\/';
+    var disqus_title = 'Подводные камни смены ориентации в Android';
+    var disqus_url = 'https:\/\/dddpaul.github.io\/blog\/2014\/08\/02\/orientation-change\/';
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+
+</div>
+
+</body>
+</html>
+

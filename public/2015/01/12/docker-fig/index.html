@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="generator" content="Hugo 0.16-DEV" />
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+  <title> Запуск контейнеров с помощью Fig &middot; Dev notes </title>
+
+  
+  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/poole.css">
+  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/syntax.css">
+  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/hyde.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
+
+  
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144-precomposed.png">
+  <link rel="shortcut icon" href="/favicon.png">
+
+  
+  <link href="" rel="alternate" type="application/rss+xml" title="Dev notes" />
+</head>
+
+<body>
+
+<div class="sidebar">
+    <div class="container sidebar-sticky">
+        <div class="sidebar-about">
+            <h1>Dev notes</h1>
+            <p class="lead">
+                 Notes about Android, Java, JavaScript, Go and other technical stuff 
+            </p>
+        </div>
+
+        <ul class="sidebar-nav">
+            <li><a href="/">Home</a> </li>
+            
+            <li><a href="http://github.com/dddpaul"> GitHub </a></li>
+            
+            <li><a href="http://google.com/&#43;PavelDerendyaev1"> Google&#43; </a></li>
+            
+            <li><a href="/blog/index.xml"> RSS </a></li>
+            
+        </ul>
+
+        Tags:
+        <ul>
+            
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/android/">android</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/angularjs/">angularjs</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/ansible/">ansible</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/devops/">devops</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/docker/">docker</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/git/">git</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/golang/">golang</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/hugo/">hugo</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/java/">java</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/javascript/">javascript</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/linux/">linux</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/python/">python</a> </li>
+            
+        </ul>
+
+        <p>&copy; 2016. All rights reserved. </p>
+    </div>
+</div>
+
+
+<div class="content container">
+    <div class="post">
+        <h1 class="post-title">Запуск контейнеров с помощью Fig</h1>
+        <span class="post-date">2015-01-12</span>
+
+        
+
+<p>Это третья статья цикла 
+<a href='https://dddpaul.github.io/blog//series/building-test-environments-with-docker/'>Building test environments with Docker</a>.</p>
+
+<p>Как мы уже убедились, запуск контейнеров с помощью <code>docker run</code> — занятие весьма муторное, т.к. необходимо указывать множество опций. При запуске же нескольких контейнеров ситуация только ухудшается, т.к. теперь нужно задавать имена и линки.</p>
+
+<p>Эту проблему решает инструмент <a href="http://www.fig.sh/">Fig</a>, который может запустить/остановить целое тестовое окружение, состоящее из набора контейнеров. Описание контейнеров задано в YAML-файле. Таким образом, этот YAML-файл представляет собой конфигурацию тестового окружения.</p>
+
+<p>Конфигурация нашего тестового окружения <em>test-env/fig.yml</em>:</p>
+
+<pre><code>app1:
+  image: smile/app1
+  ports: ['2021:22', '8081:80']
+  privileged: true
+
+app2:
+  image: smile/app2
+  ports: ['2022:22', '8082:80']
+  privileged: true
+
+gate:
+  image: smile/gate
+  links: [app1, app2]
+  ports: ['2020:22', '80:80']
+  privileged: true
+</code></pre>
+
+<p>Запуск тестового окружения (находясь в каталоге с файлом <em>fig.yml</em>): <code>fig up</code>.</p>
+
+<p>По-умолчанию, Fig захватывает консоль и мультиплексирует вывод всех контейнеров. Для запуска в detached mode нужно использовать опцию <code>-d</code>. Посмотреть вывод контейнеров в этом режиме можно с помощью команды <code>fig logs</code>.</p>
+
+<p>Статус тестового окружения: <code>fig ps</code>.</p>
+
+<p>Остановка тестового окружения: <code>fig stop</code>.</p>
+
+<h3 id="запуск-тестового-окружения-с-помощью-upstart:d4c1615d910942891ab8ffffd8a5f2e3">Запуск тестового окружения с помощью Upstart</h3>
+
+<p>Job <em>/etc/init/fig-test-env.conf</em> создан на основе <a href="https://gist.github.com/HeyImAlex/9649374">HeyImAlex/fig.conf</a>. Для отключения автостарта нужно закомментировать вторую строчку (&ldquo;start on &hellip;&rdquo;).</p>
+
+<pre><code>description &quot;Test environment runner&quot;
+start on filesystem and started docker
+stop on runlevel [!2345]
+respawn
+chdir /path/to/test-env
+script
+  # Wait for docker to finish starting up first.
+  FILE=/var/run/docker.sock
+  while [ ! -e $FILE ] ; do
+    inotifywait -t 2 -e create $(dirname $FILE)
+  done
+  /usr/local/bin/fig up
+end script
+post-stop script
+ /usr/local/bin/fig stop
+end script
+</code></pre>
+
+<p>Теперь можно запустить тестовое окружение из любого места командой <code>start fig-test-env</code>, а остановить — <code>stop fig-test-env</code>.</p>
+
+    </div>
+
+    
+        
+        
+        <hr/>
+        <p><a href="" id="series"></a>This is a post in the <b>Building test environments with Docker</b> series.<br/>
+            Other posts in this series:</p>
+        
+        
+        <ul class="series">
+            
+            <li>2015-01-12 -
+                
+                    Запуск контейнеров с помощью Fig
+                
+            </li>
+            
+            <li>2015-01-08 -
+                
+                    <a href="https://dddpaul.github.io/blog/2015/01/08/docker-linking/">Связывание контейнеров </a>
+                
+            </li>
+            
+            <li>2015-01-04 -
+                
+                    <a href="https://dddpaul.github.io/blog/2015/01/04/docker-prepare/">Подготовка и запуск docker-контейнеров </a>
+                
+            </li>
+            
+        </ul>
+    
+
+    Tags:
+    <ul id="tags">
+        
+        
+        <li><a href="https://dddpaul.github.io/blog//tags/devops">Devops</a> </li>
+        
+        <li><a href="https://dddpaul.github.io/blog//tags/docker">Docker</a> </li>
+        
+    </ul>
+
+    <div id="disqus_thread"></div>
+<script type="text/javascript">
+
+(function() {
+    
+    
+    if (window.location.hostname == "localhost")
+        return;
+
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    var disqus_shortname = 'dddpaul-github';
+    var disqus_identifier = 'https:\/\/dddpaul.github.io\/blog\/2015\/01\/12\/docker-fig\/';
+    var disqus_title = 'Запуск контейнеров с помощью Fig';
+    var disqus_url = 'https:\/\/dddpaul.github.io\/blog\/2015\/01\/12\/docker-fig\/';
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+
+</div>
+
+</body>
+</html>
+

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="generator" content="Hugo 0.16-DEV" />
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+  <title> Подготовка и запуск docker-контейнеров &middot; Dev notes </title>
+
+  
+  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/poole.css">
+  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/syntax.css">
+  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/hyde.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
+
+  
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144-precomposed.png">
+  <link rel="shortcut icon" href="/favicon.png">
+
+  
+  <link href="" rel="alternate" type="application/rss+xml" title="Dev notes" />
+</head>
+
+<body>
+
+<div class="sidebar">
+    <div class="container sidebar-sticky">
+        <div class="sidebar-about">
+            <h1>Dev notes</h1>
+            <p class="lead">
+                 Notes about Android, Java, JavaScript, Go and other technical stuff 
+            </p>
+        </div>
+
+        <ul class="sidebar-nav">
+            <li><a href="/">Home</a> </li>
+            
+            <li><a href="http://github.com/dddpaul"> GitHub </a></li>
+            
+            <li><a href="http://google.com/&#43;PavelDerendyaev1"> Google&#43; </a></li>
+            
+            <li><a href="/blog/index.xml"> RSS </a></li>
+            
+        </ul>
+
+        Tags:
+        <ul>
+            
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/android/">android</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/angularjs/">angularjs</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/ansible/">ansible</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/devops/">devops</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/docker/">docker</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/git/">git</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/golang/">golang</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/hugo/">hugo</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/java/">java</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/javascript/">javascript</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/linux/">linux</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/python/">python</a> </li>
+            
+        </ul>
+
+        <p>&copy; 2016. All rights reserved. </p>
+    </div>
+</div>
+
+
+<div class="content container">
+    <div class="post">
+        <h1 class="post-title">Подготовка и запуск docker-контейнеров</h1>
+        <span class="post-date">2015-01-04</span>
+
+        
+
+<p>Это первая статья цикла 
+<a href='https://dddpaul.github.io/blog//series/building-test-environments-with-docker/'>Building test environments with Docker</a>.</p>
+
+<p>Сразу оговорюсь, что все docker-контейнеры основаны на <a href="http://phusion.github.io/baseimage-docker/">baseimage-docker</a>. Этот образ позволяет запускать в контейнере несколько приложений с помощью супервизора <a href="http://smarden.org/runit/">runit</a> и содержит ssh, cron, syslog &ldquo;из коробки&rdquo;.</p>
+
+<p>Хотя подобный подход <a href="http://jpetazzo.github.io/2014/06/23/docker-ssh-considered-evil/">не рекомендуется разработчиками Docker</a>, он очень удобен в эксплуатации и не принуждает разработчика к своему &ldquo;proper way&rdquo;. Всегда можно использовать канонический подход от Docker с volumes и nsenter, а, при желании, подключаться к контейнерам по ssh.</p>
+
+<p>Кроме того, я привык использовать сервера приложений в связке с nginx, и baseimage-docker позволяет легко это сделать.</p>
+
+<h3 id="базовый-образ:4df06129fe4804053dfd65ac4e205d9e">Базовый образ</h3>
+
+<p>При создании базового образа выполняются две вещи:</p>
+
+<ul>
+<li>публичный ssh-ключ добавляется в список разрешенных для суперпользователя контейнера;</li>
+<li>задается локаль.</li>
+</ul>
+
+<p><em>Dockerfile</em> базового образа:</p>
+
+<pre><code>FROM phusion/baseimage:0.9.15
+
+# Add public SSH keys
+ADD my_rsa_public_key /tmp/my_rsa_public_key
+RUN cat /tmp/my_rsa_public_key &gt;&gt; /root/.ssh/authorized_keys &amp;&amp; rm -f /tmp/my_rsa_public_key
+
+# Locale
+ENV LANG=en_US.utf8
+
+# Use baseimage-docker's init system
+CMD [&quot;/sbin/my_init&quot;]
+</code></pre>
+
+<p>Свой публичный ssh-ключ, естественно, надо положить в <em>my_rsa_public_key</em> рядом с <em>Dockerfile</em>.</p>
+
+<p>Сборка: <code>docker build -t smile/base .</code> и запуск:</p>
+
+<pre><code>docker run --rm -it -p 2022:22 smile/base /sbin/my_init -- bash -l
+</code></pre>
+
+<p><code>--rm</code> используется для удаления контейнера после его остановки, <code>-it</code> — для терминального интеракивного режима, а <code>-- bash -l</code> — для запуска шелла после запуска всех сервисов.</p>
+
+<p>Также на контейнер можно зайти по ssh: <code>ssh -p 2022 root@localhost</code>.</p>
+
+<h3 id="образ-с-nginx:4df06129fe4804053dfd65ac4e205d9e">Образ с nginx</h3>
+
+<p>Сборка <a href="https://github.com/dddpaul/docker-nginx">docker-nginx</a>: <code>docker build -t smile/nginx .</code></p>
+
+<p>Основная особенность этого образа в том, что при запуске контейнера отключается IPv6.</p>
+
+<p>Сделано это для того, чтобы обойти известную проблему с проксированием Nginx. Т.к. демон висит на tcp6, то апстрим иногда видит запрос от 127.0.0.1, а иногда от 0:0:0:0:0:0:0:1. Это принуждает к изменению ACL на сервере приложений, что не всегда удобно.</p>
+
+<p>IPv6 отключается после выполнения серии sysctl-команд, которые требуют, чтобы контейнер был запущен в привилегированном режиме, т.е. команда запуска слегка усложняется:</p>
+
+<pre><code>docker run --privileged --rm -it -p 2022:22 smile/nginx /sbin/my_init -- bash -l
+</code></pre>
+
+<h3 id="остальные-образы:4df06129fe4804053dfd65ac4e205d9e">Остальные образы</h3>
+
+<p>На основе docker-nginx можно строить более сложные образы, такие как <a href="https://github.com/dddpaul/docker-java7-server">docker-java7-server</a> и  <a href="https://github.com/dddpaul/docker-tomcat7">docker-tomcat7</a>. На основе последнего уже строятся образы для конечных приложений.</p>
+
+    </div>
+
+    
+        
+        
+        <hr/>
+        <p><a href="" id="series"></a>This is a post in the <b>Building test environments with Docker</b> series.<br/>
+            Other posts in this series:</p>
+        
+        
+        <ul class="series">
+            
+            <li>2015-01-12 -
+                
+                    <a href="https://dddpaul.github.io/blog/2015/01/12/docker-fig/">Запуск контейнеров с помощью Fig </a>
+                
+            </li>
+            
+            <li>2015-01-08 -
+                
+                    <a href="https://dddpaul.github.io/blog/2015/01/08/docker-linking/">Связывание контейнеров </a>
+                
+            </li>
+            
+            <li>2015-01-04 -
+                
+                    Подготовка и запуск docker-контейнеров
+                
+            </li>
+            
+        </ul>
+    
+
+    Tags:
+    <ul id="tags">
+        
+        
+        <li><a href="https://dddpaul.github.io/blog//tags/devops">Devops</a> </li>
+        
+        <li><a href="https://dddpaul.github.io/blog//tags/docker">Docker</a> </li>
+        
+    </ul>
+
+    <div id="disqus_thread"></div>
+<script type="text/javascript">
+
+(function() {
+    
+    
+    if (window.location.hostname == "localhost")
+        return;
+
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    var disqus_shortname = 'dddpaul-github';
+    var disqus_identifier = 'https:\/\/dddpaul.github.io\/blog\/2015\/01\/04\/docker-prepare\/';
+    var disqus_title = 'Подготовка и запуск docker-контейнеров';
+    var disqus_url = 'https:\/\/dddpaul.github.io\/blog\/2015\/01\/04\/docker-prepare\/';
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+
+</div>
+
+</body>
+</html>
+

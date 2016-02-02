@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="generator" content="Hugo 0.16-DEV" />
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+  <title> Retaining state with headless fragments &middot; Dev notes </title>
+
+  
+  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/poole.css">
+  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/syntax.css">
+  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/hyde.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
+
+  
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144-precomposed.png">
+  <link rel="shortcut icon" href="/favicon.png">
+
+  
+  <link href="" rel="alternate" type="application/rss+xml" title="Dev notes" />
+</head>
+
+<body>
+
+<div class="sidebar">
+    <div class="container sidebar-sticky">
+        <div class="sidebar-about">
+            <h1>Dev notes</h1>
+            <p class="lead">
+                 Notes about Android, Java, JavaScript, Go and other technical stuff 
+            </p>
+        </div>
+
+        <ul class="sidebar-nav">
+            <li><a href="/">Home</a> </li>
+            
+            <li><a href="http://github.com/dddpaul"> GitHub </a></li>
+            
+            <li><a href="http://google.com/&#43;PavelDerendyaev1"> Google&#43; </a></li>
+            
+            <li><a href="/blog/index.xml"> RSS </a></li>
+            
+        </ul>
+
+        Tags:
+        <ul>
+            
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/android/">android</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/angularjs/">angularjs</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/ansible/">ansible</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/devops/">devops</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/docker/">docker</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/git/">git</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/golang/">golang</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/hugo/">hugo</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/java/">java</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/javascript/">javascript</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/linux/">linux</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/python/">python</a> </li>
+            
+        </ul>
+
+        <p>&copy; 2016. All rights reserved. </p>
+    </div>
+</div>
+
+
+<div class="content container">
+    <div class="post">
+        <h1 class="post-title">Retaining state with headless fragments</h1>
+        <span class="post-date">2014-07-29</span>
+
+        <p>Some articles:</p>
+
+<ul>
+<li>Official <a href="http://developer.android.com/guide/components/fragments.html">Fragments guide</a>. Has some clues for headless fragments (see &ldquo;Adding a fragment without a UI&rdquo;).</li>
+<li>Superb <a href="http://www.vogella.com/tutorials/AndroidFragments/article.html">multi-pane fragments tutorial</a> from Lars Vogel. Contains some tips for <a href="http://www.vogella.com/tutorials/AndroidFragments/article.html#headlessfragments">headless fragments</a>.</li>
+<li><a href="http://techbandhu.wordpress.com/2013/07/02/android-headless-fragment/">Android best tip to work with fragments and orientation change</a>. More detailed headless fragments technique description.</li>
+<li>Headless fragment example - <a href="https://android.googlesource.com/platform/development/+/master/samples/ApiDemos/src/com/example/android/apis/app/FragmentRetainInstance.java">FragmentRetainInstance.java</a>. In this code headless fragment is created from other fragment. In my case it&rsquo;s inappropriate because of Robolectric testing (recursive fragment transactions).</li>
+<li><a href="http://www.intertech.com/Blog/saving-and-retrieving-android-instance-state-part-2/">Saving (And Retrieving) Android Instance State – Part 2</a>. Details about retained fragments. Neat retained fragment lifecycle.</li>
+<li><a href="http://www.androiddesignpatterns.com/2013/04/retaining-objects-across-config-changes.html">Handling Configuration Changes with Fragments</a>. Main advice - Manage the Object Inside a Retained Fragment.</li>
+<li><a href="http://ideaventure.blogspot.com.au/2014/01/android-activityfragment-life-cycle.html">Android Activity/Fragment life cycle analysis</a>. Full logging of all lifecycle method calls in different situations.</li>
+</ul>
+
+<p>And StackOverflow discussions:</p>
+
+<ul>
+<li><a href="http://stackoverflow.com/questions/11591302/unable-to-use-fragment-setretaininstance-as-a-replacement-for-activity-onretai">Unable to use Fragment.setRetainInstance() as a replacement for Activity.onRetainNonConfigurationInstance()</a>. How to preserve fragments with WebViews and AsyncTasks. One of the answers is to override Fragment.onDestroy() and save asynctasks to Application object.</li>
+<li><a href="http://stackoverflow.com/questions/12640316/further-understanding-setretaininstancetrue">Further understanding setRetainInstance(true)</a>. Retained fragment lifecycle logs.</li>
+<li><a href="http://stackoverflow.com/questions/8417885/android-fragments-retaining-an-asynctask-during-screen-rotation-or-configuratio">Android Fragments. Retaining an AsyncTask during screen rotation or configuration change</a>. Retained fragment with inner asynctask example and much more. AsyncTask has reference to fragment - it&rsquo;s interesting.</li>
+</ul>
+
+    </div>
+
+    
+
+    Tags:
+    <ul id="tags">
+        
+        
+        <li><a href="https://dddpaul.github.io/blog//tags/android">Android</a> </li>
+        
+        <li><a href="https://dddpaul.github.io/blog//tags/java">Java</a> </li>
+        
+    </ul>
+
+    <div id="disqus_thread"></div>
+<script type="text/javascript">
+
+(function() {
+    
+    
+    if (window.location.hostname == "localhost")
+        return;
+
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    var disqus_shortname = 'dddpaul-github';
+    var disqus_identifier = 'https:\/\/dddpaul.github.io\/blog\/2014\/07\/29\/headless-fragments\/';
+    var disqus_title = 'Retaining state with headless fragments';
+    var disqus_url = 'https:\/\/dddpaul.github.io\/blog\/2014\/07\/29\/headless-fragments\/';
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+
+</div>
+
+</body>
+</html>
+

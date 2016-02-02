@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="generator" content="Hugo 0.16-DEV" />
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+  <title> Тонкости использования аннотации @Value в Spring Boot &middot; Dev notes </title>
+
+  
+  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/poole.css">
+  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/syntax.css">
+  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/hyde.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
+
+  
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144-precomposed.png">
+  <link rel="shortcut icon" href="/favicon.png">
+
+  
+  <link href="" rel="alternate" type="application/rss+xml" title="Dev notes" />
+</head>
+
+<body>
+
+<div class="sidebar">
+    <div class="container sidebar-sticky">
+        <div class="sidebar-about">
+            <h1>Dev notes</h1>
+            <p class="lead">
+                 Notes about Android, Java, JavaScript, Go and other technical stuff 
+            </p>
+        </div>
+
+        <ul class="sidebar-nav">
+            <li><a href="/">Home</a> </li>
+            
+            <li><a href="http://github.com/dddpaul"> GitHub </a></li>
+            
+            <li><a href="http://google.com/&#43;PavelDerendyaev1"> Google&#43; </a></li>
+            
+            <li><a href="/blog/index.xml"> RSS </a></li>
+            
+        </ul>
+
+        Tags:
+        <ul>
+            
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/android/">android</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/angularjs/">angularjs</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/ansible/">ansible</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/devops/">devops</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/docker/">docker</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/git/">git</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/golang/">golang</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/hugo/">hugo</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/java/">java</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/javascript/">javascript</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/linux/">linux</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/python/">python</a> </li>
+            
+        </ul>
+
+        <p>&copy; 2016. All rights reserved. </p>
+    </div>
+</div>
+
+
+<div class="content container">
+    <div class="post">
+        <h1 class="post-title">Тонкости использования аннотации @Value в Spring Boot</h1>
+        <span class="post-date">2015-07-12</span>
+
+        <p>Аннотация <a href="http://docs.spring.io/spring/docs/current/javadoc-api/org/springframework/beans/factory/annotation/Value.html">@Value</a> - это самый простой способ для &ldquo;впрыскивания&rdquo; значений из конфигурации Spring Boot в код. При этом также можно задать значение по-умолчанию.</p>
+
+<p>Однако, стоит учитывать, что резолвинг значения будет выполняться для каждой аннотации @Value. Например, если аннотировать @Value два поля (в одном или разных классах - не суть важно) вот так:</p>
+
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="nd">@Value</span><span class="o">(</span><span class="s">&quot;${unique-param}&quot;</span><span class="o">)</span>
+<span class="kd">private</span> <span class="n">String</span> <span class="n">param1</span><span class="o">;</span>
+
+<span class="nd">@Value</span><span class="o">(</span><span class="s">&quot;${unique-param}&quot;</span><span class="o">)</span>
+<span class="kd">private</span> <span class="n">String</span> <span class="n">param2</span><span class="o">;</span>
+</code></pre></div>
+
+
+<p>, то в debug-логе мы увидим:</p>
+
+<pre><code>TRACE 23601 --- [lication.main()] o.s.c.e.PropertySourcesPropertyResolver  : getProperty(&quot;unique-param&quot;, String)
+DEBUG 23601 --- [lication.main()] o.s.c.e.PropertySourcesPropertyResolver  : Searching for key 'unique-param' in [environmentProperties]
+...
+TRACE 23601 --- [lication.main()] o.s.c.e.PropertySourcesPropertyResolver  : getProperty(&quot;unique-param&quot;, String)
+DEBUG 23601 --- [lication.main()] o.s.c.e.PropertySourcesPropertyResolver  : Searching for key 'unique-param' in [environmentProperties]
+...
+</code></pre>
+
+<p>Т.е. поиск (резолвинг) был проведен дважды. Конечно, это слишком мизерная операция, чтобы хоть как-то замедлить старт приложения, но знать об этом стоит.</p>
+
+<hr />
+
+<p>Еще более неоднозначная штука связана с передачей дефолтного значения через @Value.</p>
+
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="nd">@Value</span><span class="o">(</span><span class="s">&quot;${unique-param:DefaultValue}&quot;</span><span class="o">)</span>
+<span class="kd">private</span> <span class="n">String</span> <span class="n">param</span><span class="o">;</span>
+</code></pre></div>
+
+
+<p>При резолвинге значения будет сначала проведен поиск параметра &ldquo;unique-param:DefaultValue&rdquo;, а уже потом - &ldquo;unique-param&rdquo;. Таким образом, если в конфигурации указать:</p>
+
+<div class="highlight"><pre><code class="language-ini" data-lang="ini"><span class="na">unique-param\:DefaultValue</span> <span class="o">=</span> <span class="s">Another value</span>
+</code></pre></div>
+
+
+<p>, то param в коде будет равен &ldquo;Another value&rdquo;.</p>
+
+<p>Такая логика прописана в org.springframework.util.PropertyPlaceholderHelper#parseStringValue.</p>
+
+<hr />
+
+<p>Оба этих нюанса могут ответить на вопрос - почему debug-лог приложения на Spring Boot такой большой.</p>
+
+<p>Мораль - используйте <a href="http://docs.spring.io/autorepo/docs/spring-boot/current/api/org/springframework/boot/context/properties/ConfigurationProperties.html">ConfigurationProperties</a>, что, в конце-концов, и советуется в <a href="http://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-external-config.html">23. Externalized Configuration</a>, раздел &ldquo;23.7 Typesafe Configuration Properties&rdquo;.</p>
+
+<p>Например:</p>
+
+<p><div class="highlight"><pre><code class="language-java" data-lang="java"><span class="nd">@ConfigurationProperties</span><span class="o">(</span><span class="n">prefix</span> <span class="o">=</span> <span class="s">&quot;params&quot;</span><span class="o">)</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Config</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">uniqueParam</span> <span class="o">=</span> <span class="s">&quot;Default value&quot;</span><span class="o">;</span>
+
+    <span class="c1">// Getters are mandatory. Setters are mandatory for immutable types (such as String).</span>
+ <span class="o">}</span>
+</code></pre></div>
+</p>
+
+<p>Конфигурация:</p>
+
+<p><div class="highlight"><pre><code class="language-ini" data-lang="ini"><span class="na">params.unique-param</span> <span class="o">=</span> <span class="s">Another value</span>
+</code></pre></div>
+</p>
+
+    </div>
+
+    
+
+    Tags:
+    <ul id="tags">
+        
+        
+        <li><a href="https://dddpaul.github.io/blog//tags/java">Java</a> </li>
+        
+    </ul>
+
+    <div id="disqus_thread"></div>
+<script type="text/javascript">
+
+(function() {
+    
+    
+    if (window.location.hostname == "localhost")
+        return;
+
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    var disqus_shortname = 'dddpaul-github';
+    var disqus_identifier = 'https:\/\/dddpaul.github.io\/blog\/2015\/07\/12\/spring-boot-value\/';
+    var disqus_title = 'Тонкости использования аннотации @Value в Spring Boot';
+    var disqus_url = 'https:\/\/dddpaul.github.io\/blog\/2015\/07\/12\/spring-boot-value\/';
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+
+</div>
+
+</body>
+</html>
+

@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Linux on Dev notes</title>
+    <link>https://dddpaul.github.io/blog/tags/linux/</link>
+    <description>Recent content in Linux on Dev notes</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 28 Jul 2015 10:45:00 +0300</lastBuildDate>
+    <atom:link href="https://dddpaul.github.io/blog/tags/linux/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Bind interfaces to multiple zones with Firewalld on CentOS-7</title>
+      <link>https://dddpaul.github.io/blog/2015/07/28/firewalld-zones/</link>
+      <pubDate>Tue, 28 Jul 2015 10:45:00 +0300</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2015/07/28/firewalld-zones/</guid>
+      <description>&lt;p&gt;As you can expect from &lt;a href=&#34;http://linuxmanpages.net/manpages/fedora20/man1/firewall-cmd.1.html&#34;&gt;man firewall-cmd&lt;/a&gt; interface binding to zone other than default (public) could be achieved with the following command sequence:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;firewall-cmd --zone public --remove-interface eth1 --permanent
+firewall-cmd --zone internal --add-interface eth1 --permanent
+firewall-cmd --reload
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Seems like it&amp;rsquo;s done:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;firewall-cmd --get-zone-of-interface=eth1
+internal
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;But after firewalld restart or server reboot things aren&amp;rsquo;t so bright:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;firewall-cmd --get-zone-of-interface=eth1
+public
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The reason is in this &lt;a href=&#34;https://bugs.centos.org/view.php?id=7526&#34;&gt;CentOS-7 bug&lt;/a&gt;. The only workaround is to specify zone in &lt;em&gt;/etc/sysconfig/network-scripts/ifcfg-eth1&lt;/em&gt; file:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;TYPE=Ethernet
+NAME=&amp;quot;eth1&amp;quot;
+IPADDR=x.x.x.x
+...
+ZONE=internal
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Дистанционное управление Motion с помощью Go</title>
+      <link>https://dddpaul.github.io/blog/2014/11/14/motion-remote-control/</link>
+      <pubDate>Fri, 14 Nov 2014 16:04:00 +0000</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2014/11/14/motion-remote-control/</guid>
+      <description>&lt;p&gt;Цель — сделать удобное управление для сервачка с системой motion detection.  В качестве сервера пригодился классический нетбук Asus Eee PC 701 4-х гигабайтным SSD на борту. На него была установлена Ubuntu 14.04.&lt;/p&gt;
+
+&lt;p&gt;Задачи:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Собственно, motion detection (для этого был использован &lt;a href=&#34;http://www.lavrsen.dk/foswiki/bin/view/Motion/WebHome&#34;&gt;Motion&lt;/a&gt;).&lt;/li&gt;
+&lt;li&gt;Управление настройками Motion через ИК-пульт.&lt;/li&gt;
+&lt;li&gt;Вывод всех сообщений от Motion и сигналов от пульта на консоль (&lt;em&gt;/dev/tty1&lt;/em&gt;).&lt;/li&gt;
+&lt;li&gt;Минимальное время работы экрана (быстрый переход в энергосберегающйй режим, просыпание по сигналу от пульта).&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;&lt;strong&gt;1.&lt;/strong&gt; Motion ставится элементарно — &lt;code&gt;apt-get install motion&lt;/code&gt;. Важные настройки:&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;c&#34;&gt;# Максимальный fps&lt;/span&gt;
+framerate 5
+
+&lt;span class=&#34;c&#34;&gt;# Снимать на максимальном fps только во время движения&lt;/span&gt;
+webcam_motion on
+
+&lt;span class=&#34;c&#34;&gt;# Выкрутил в максимум, чтобы избежать срабатывания на включение света&lt;/span&gt;
+lightswitch 100
+
+&lt;span class=&#34;c&#34;&gt;# Кол-во кадров с движением, необходимых для генерации события&lt;/span&gt;
+minimum_motion_frames 3
+
+&lt;span class=&#34;c&#34;&gt;# Записать кадры до движения&lt;/span&gt;
+pre_capture 5
+
+&lt;span class=&#34;c&#34;&gt;# Записать кадры после движения&lt;/span&gt;
+post_capture 5
+
+&lt;span class=&#34;c&#34;&gt;# Маска для определения области детекции, легко делается в Gimp&amp;#39;е из снимка с камеры.&lt;/span&gt;
+&lt;span class=&#34;c&#34;&gt;# Области, закрашенные черным, игнорируются.&lt;/span&gt;
+mask_file /path/to/mask.pgm
+
+&lt;span class=&#34;c&#34;&gt;# Время определения окончания движения (если за 15 секунд после начала движения&lt;/span&gt;
+&lt;span class=&#34;c&#34;&gt;# не было никаких поползновений, то считаем, что событие-движение закончилось)&lt;/span&gt;
+gap 15
+
+&lt;span class=&#34;c&#34;&gt;# Отключить создание снимков&lt;/span&gt;
+output_normal off
+
+&lt;span class=&#34;c&#34;&gt;# Обозначать движение прямоугольником &lt;/span&gt;
+locate on
+
+&lt;span class=&#34;c&#34;&gt;# Запуск скрипта по началу движения (это симлимк, который указывает на реальный скрипт).&lt;/span&gt;
+&lt;span class=&#34;c&#34;&gt;# Изменение симлинка осущестляется по команде с пульта (см. п. 2 про конфиг) &lt;/span&gt;
+on_event_start &lt;span class=&#34;s2&#34;&gt;&amp;quot;/etc/motion/handlers/on_event_start&amp;quot;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Для подгонки чувствительности, порога шумов и т.д., нужно использовать setup mode, который активируется при запуске &lt;code&gt;
+motion -s&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;При этом в mjpeg-трансляции область детекции будет обозначена черным, шумы — серым, а распознанное движение — синим.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;2.&lt;/strong&gt; Для управления нетбуком был использован &lt;a href=&#34;http://www.dx.com/p/multimedia-ir-remote-controller-with-usb-receiver-for-pc-1-cr2025-26368#.VGYO33WUe24&#34;&gt;ИК-пульт с USB-приемником&lt;/a&gt;. Подобные пульты есть и на aliexpress, и ebay. USB-приемник эмулирует HID-устройство, по сути — обычную клавиатуру.&lt;/p&gt;
+
+&lt;p&gt;Для работы с символьными устройствами ввода в Linux есть подсистема &lt;a href=&#34;http://en.wikipedia.org/wiki/Evdev&#34;&gt;evdev&lt;/a&gt;. Потестить распознавание сигналов с пульта можно с помощью утилиты &lt;a href=&#34;http://manpages.ubuntu.com/manpages/trusty/man1/evtest.1.html&#34;&gt;evtest&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;На гитхабе нашелся &lt;a href=&#34;https://github.com/gvalkov/golang-evdev&#34;&gt;пакет для работы с evdev на Go&lt;/a&gt;. Проект больше не поддерживается, так что я отфоркался от &lt;a href=&#34;https://github.com/ungerik/golang-evdev&#34;&gt;более свежего форка&lt;/a&gt; и сделал rebase на ядро Ubuntu 14.04 (3.13.0-39-generic на данный момент):&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;cd evdev
+make ecodes.go
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Поверх golang-evdev я написал &lt;a href=&#34;https://github.com/dddpaul/go-evhandler&#34;&gt;evhandler&lt;/a&gt;. Эта программа запускается от root&amp;rsquo;а и слушает события от input device, указанного в конфиге (как правило, &lt;em&gt;/etc/evhandler.toml&lt;/em&gt;).  Мой конфиг:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;[params]
+    device = &amp;quot;/dev/input/eventXXX&amp;quot;
+
+[actions]
+    KEY_STOPCD = &amp;quot;service motion stop&amp;quot;
+    KEY_PLAYPAUSE = &amp;quot;service motion start&amp;quot;
+    KEY_PAGEUP = &amp;quot;/etc/motion/handlers/handler-select up&amp;quot;
+    KEY_PAGEDOWN = &amp;quot;/etc/motion/handlers/handler-select down&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;В разделе &lt;em&gt;actions&lt;/em&gt; на кнопки пульта вешаются команды: остановка и запуск motion, и выбор скрипта, который будет запущен при детекции движения. Скрипт &lt;em&gt;handler-select&lt;/em&gt; &amp;ldquo;передвигает&amp;rdquo; симлинк &lt;em&gt;on_event_start&lt;/em&gt; вверх/вниз, устанавливая, таким образом, реальный скрипт, который будет запускаться. Коллекцию этих скриптов я выложил в &lt;a href=&#34;https://github.com/dddpaul/motion-handlers&#34;&gt;отдельный проект&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Для чтения и парсинга конфигов я использовал пакет &lt;a href=&#34;http://spf13.com/project/viper&#34;&gt;Viper&lt;/a&gt;. Это очень классная либа от автора &lt;a href=&#34;http://gohugo.io/&#34;&gt;Hugo&lt;/a&gt;, которая умеет:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;парсить YAML, TOML и JSON;&lt;/li&gt;
+&lt;li&gt;искать конфиги в разных местах (например, сначала в $HOME, а потом в &lt;em&gt;/etc&lt;/em&gt;);&lt;/li&gt;
+&lt;li&gt;устанавливать значение по-умолчанию и переопределять значения из конфига значениями из CLI.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;3.&lt;/strong&gt; Имя устройства неплохо бы зафиксировать, т.к. оно назначается udev&amp;rsquo;ом и может меняться при перетыках из порта в порт, а также при перезагрузках. Но для начала надо узнать текущее имя устройства.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;# lsusb
+...
+Bus 003 Device 002: ID 073a:2230 Chaplet Systems, Inc. infrared dongle for remote
+
+# evtest 2&amp;gt;&amp;amp;1 | grep &amp;quot;073a:2230&amp;quot;
+/dev/input/event10:	HID 073a:2230
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Итак, имя устройства в системе — &lt;em&gt;/dev/input/event10&lt;/em&gt;. Получим необходимую информацию для построения udev-правила:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;# udevadm info -a -p $(udevadm info -q path -n /dev/input/event10)
+...
+  looking at device &#39;/devices/pci0000:00/0000:00:1d.1/usb3/3-2/3-2:1.0/input/input12/event10&#39;:
+    KERNEL==&amp;quot;event10&amp;quot;
+    SUBSYSTEM==&amp;quot;input&amp;quot;
+    DRIVER==&amp;quot;&amp;quot;
+
+  looking at parent device &#39;/devices/pci0000:00/0000:00:1d.1/usb3/3-2/3-2:1.0/input/input12&#39;:
+    KERNELS==&amp;quot;input12&amp;quot;
+    SUBSYSTEMS==&amp;quot;input&amp;quot;
+    DRIVERS==&amp;quot;&amp;quot;
+    ATTRS{name}==&amp;quot;HID 073a:2230&amp;quot;
+...
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Теперь можно навесить на устройство фиксированный симлинк:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;# cat &amp;gt; /etc/udev/rules.d/10-local.rules
+KERNEL==&amp;quot;event*&amp;quot;, SUBSYSTEM==&amp;quot;input&amp;quot;, ATTRS{name}==&amp;quot;HID 073a:2230&amp;quot;, SYMLINK+=&amp;quot;input/event100&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Для проверки нужно воспользоваться командой &lt;code&gt;udevadm trigger&lt;/code&gt; или перезагрузиться. Даже если исходное имя устройства изменится (например, на &lt;em&gt;/dev/input/event11&lt;/em&gt;), наш симлинк &lt;em&gt;/dev/input/event100&lt;/em&gt; будет указывать на него.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;4.&lt;/strong&gt; evhandler должен использовать в качестве стандартного вывода &lt;em&gt;/dev/tty1&lt;/em&gt;. Сделать это очень просто.&lt;/p&gt;
+
+&lt;p&gt;Сначала отключим ввод с &lt;em&gt;/dev/tty1&lt;/em&gt; — &lt;code&gt;rm /etc/init/tty1.conf&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;И создадим новый upstart job в &lt;em&gt;/etc/init/evhandler.conf&lt;/em&gt;:&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;c&#34;&gt;# evhandler - Simple key press listener and handler written in Go&lt;/span&gt;
+
+start on runlevel &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;2345&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
+stop on runlevel &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;!2345&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
+
+respawn
+
+&lt;span class=&#34;nb&#34;&gt;exec&lt;/span&gt; /path/to/go-evhandler &amp;gt; /dev/tty1 2&amp;gt;&lt;span class=&#34;p&#34;&gt;&amp;amp;&lt;/span&gt;1
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Теперь evhandler будет запускаться при загрузке, а также перезапускаться, если его процесс будет прибит. Для ручного запуска — &lt;code&gt;
+start evhandler&lt;/code&gt;.&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Управлять включением энергосберегающего режима (а именно, гашением экрана) можно з-мя способами:&lt;/li&gt;
+&lt;li&gt;указать &lt;code&gt;consoleblank=sss&lt;/code&gt; (где sss - секунды) в параметрах ядра (&lt;em&gt;GRUB_CMDLINE_LINUX&lt;/em&gt; в &lt;em&gt;/etc/default/grub&lt;/em&gt;);&lt;/li&gt;
+&lt;li&gt;использовать команду &lt;code&gt;setterm -blank mm&lt;/code&gt; (где mm - минуты), для включения — &lt;code&gt;setterm -blank poke&lt;/code&gt;;&lt;/li&gt;
+&lt;li&gt;использовать специальные ESC-последовательности в команде &lt;code&gt;echo&lt;/code&gt;.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;&lt;code&gt;consoleblank&lt;/code&gt; давал странный эффект - после загрузки системы экран становился пустым, но было видно, что подсветка работает. При нажатии клавиш он загорался и полностью погасал через заданное время.&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;setterm&lt;/code&gt; через ssh у меня как-то не заработал.&lt;/p&gt;
+
+&lt;p&gt;И только управляющая ESC-последовательность для терминала подошла отлично — &lt;code&gt;echo -e &#39;\033[9;X]&lt;/code&gt; (где X - минуты).&lt;/p&gt;
+
+&lt;p&gt;Для автоматического запуска этой команды создадим job &lt;em&gt;/etc/init/tty1.conf&lt;/em&gt;:&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;c&#34;&gt;# tty1 - getty&lt;/span&gt;
+&lt;span class=&#34;c&#34;&gt;#&lt;/span&gt;
+&lt;span class=&#34;c&#34;&gt;# This service is used to maintain a getty on tty1 from the point the system is&lt;/span&gt;
+&lt;span class=&#34;c&#34;&gt;# started until it is shut down again.&lt;/span&gt;
+
+start on stopped rc &lt;span class=&#34;nv&#34;&gt;RUNLEVEL&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=[&lt;/span&gt;2345&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; and &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;
+            not-container or
+            container &lt;span class=&#34;nv&#34;&gt;CONTAINER&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;lxc or
+            container &lt;span class=&#34;nv&#34;&gt;CONTAINER&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;lxc-libvirt&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
+
+stop on runlevel &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;!2345&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
+
+&lt;span class=&#34;c&#34;&gt;# Blank screen after 1 minute timeout&lt;/span&gt;
+&lt;span class=&#34;c&#34;&gt;# See http://www.armadeus.com/wiki/index.php?title=FrameBuffer&lt;/span&gt;
+&lt;span class=&#34;nb&#34;&gt;exec echo&lt;/span&gt; -ne &lt;span class=&#34;s2&#34;&gt;&amp;quot;\033[9;1]&amp;quot;&lt;/span&gt; &amp;gt; /dev/tty1
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;p&gt;Ссылки:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/dddpaul/go-evhandler&#34;&gt;Evhandler : Simple key press listener and handler written in Go&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://spf13.com/project/viper&#34;&gt;Viper : Go Configuration Management With Fangs&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://superuser.com/a/154388&#34;&gt;Change Linux console screen blanking behavior&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://raspberrypi.stackexchange.com/questions/10374/wake-console-screen-with-ssh&#34;&gt;Wake console screen with SSH&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.armadeus.com/wiki/index.php?title=FrameBuffer&#34;&gt;ArmadeusWiki - Framebuffer&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://wiki.archlinux.org/index.php/Udev#Writing_udev_rules&#34;&gt;Writing udev rules&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

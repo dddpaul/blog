@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="generator" content="Hugo 0.16-DEV" />
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+  <title> Oracle connectivity in Java &middot; Dev notes </title>
+
+  
+  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/poole.css">
+  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/syntax.css">
+  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/hyde.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
+
+  
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144-precomposed.png">
+  <link rel="shortcut icon" href="/favicon.png">
+
+  
+  <link href="" rel="alternate" type="application/rss+xml" title="Dev notes" />
+</head>
+
+<body>
+
+<div class="sidebar">
+    <div class="container sidebar-sticky">
+        <div class="sidebar-about">
+            <h1>Dev notes</h1>
+            <p class="lead">
+                 Notes about Android, Java, JavaScript, Go and other technical stuff 
+            </p>
+        </div>
+
+        <ul class="sidebar-nav">
+            <li><a href="/">Home</a> </li>
+            
+            <li><a href="http://github.com/dddpaul"> GitHub </a></li>
+            
+            <li><a href="http://google.com/&#43;PavelDerendyaev1"> Google&#43; </a></li>
+            
+            <li><a href="/blog/index.xml"> RSS </a></li>
+            
+        </ul>
+
+        Tags:
+        <ul>
+            
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/android/">android</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/angularjs/">angularjs</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/ansible/">ansible</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/devops/">devops</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/docker/">docker</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/git/">git</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/golang/">golang</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/hugo/">hugo</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/java/">java</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/javascript/">javascript</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/linux/">linux</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/python/">python</a> </li>
+            
+        </ul>
+
+        <p>&copy; 2016. All rights reserved. </p>
+    </div>
+</div>
+
+
+<div class="content container">
+    <div class="post">
+        <h1 class="post-title">Oracle connectivity in Java</h1>
+        <span class="post-date">2015-02-14</span>
+
+        <p>A new small <a href="https://github.com/dddpaul/java-oracle-connectivity">test project</a> is intended to answer the question - what is the proper way to specify network timeout for database connection?</p>
+
+<p>There so many ways in JDBC API:</p>
+
+<ul>
+<li>[CommonDataSource.setLoginTimeout](<a href="http://docs.oracle.com/javase/7/docs/api/javax/sql/CommonDataSource.html#setLoginTimeout(int)">http://docs.oracle.com/javase/7/docs/api/javax/sql/CommonDataSource.html#setLoginTimeout(int)</a>)</li>
+<li>[Connection.setNetworkTimeout](<a href="http://docs.oracle.com/javase/7/docs/api/java/sql/Connection.html#setNetworkTimeout(java.util.concurrent.Executor,%20int)">http://docs.oracle.com/javase/7/docs/api/java/sql/Connection.html#setNetworkTimeout(java.util.concurrent.Executor,%20int)</a>)</li>
+<li>[Statement.setQueryTimeout](<a href="http://docs.oracle.com/javase/7/docs/api/java/sql/Statement.html#setQueryTimeout(int)">http://docs.oracle.com/javase/7/docs/api/java/sql/Statement.html#setQueryTimeout(int)</a>)</li>
+</ul>
+
+<p>And every database has it&rsquo;s own non-standard ways in addition.</p>
+
+<p>But these tests have been lead us to a single conclusion — you must specify network timeouts on driver level. All these JDBC stuff isn&rsquo;t enough for Oracle database.</p>
+
+<p>This code is suitable for <a href="http://tomcat.apache.org/tomcat-7.0-doc/jdbc-pool.html">Tomcat JDBC Connection Pool</a>:</p>
+
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="c1">// Get datasource some way</span>
+<span class="n">Datasource</span> <span class="n">ds</span> <span class="o">=</span> <span class="n">createDataSource</span><span class="o">(</span><span class="n">host</span><span class="o">);</span>
+
+<span class="c1">// Set connect (login) timeout</span>
+<span class="n">ds</span><span class="o">.</span><span class="na">setConnectionProperties</span><span class="o">(</span><span class="n">OracleConnection</span><span class="o">.</span><span class="na">CONNECTION_PROPERTY_THIN_NET_CONNECT_TIMEOUT</span> <span class="o">+</span> <span class="s">&quot;=3000&quot;</span><span class="o">);</span>
+
+<span class="c1">// Set common network read timeout</span>
+<span class="n">ds</span><span class="o">.</span><span class="na">setConnectionProperties</span><span class="o">(</span><span class="n">OracleConnection</span><span class="o">.</span><span class="na">CONNECTION_PROPERTY_THIN_READ_TIMEOUT</span> <span class="o">+</span> <span class="s">&quot;=3000&quot;</span><span class="o">);</span>
+</code></pre></div>
+
+
+<p>The proper way to specify these timeouts in <a href="http://tomcat.apache.org/tomcat-7.0-doc/jndi-datasource-examples-howto.html">JNDI Datasource configuration</a>:</p>
+
+<p><div class="highlight"><pre><code class="language-xml" data-lang="xml"><span class="nt">&lt;Resource</span> <span class="na">name=</span><span class="s">&quot;jdbc/oracle&quot;</span>
+    <span class="na">driverClassName=</span><span class="s">&quot;oracle.jdbc.OracleDriver&quot;</span>
+    <span class="na">factory=</span><span class="s">&quot;org.apache.tomcat.jdbc.pool.DataSourceFactory&quot;</span>
+    <span class="na">connectionProperties=</span><span class="s">&quot;oracle.net.CONNECT_TIMEOUT=3000;oracle.jdbc.ReadTimeout=3000&quot;</span>
+    <span class="err">...</span>
+    <span class="nt">/&gt;</span>
+</code></pre></div>
+</p>
+
+    </div>
+
+    
+
+    Tags:
+    <ul id="tags">
+        
+        
+        <li><a href="https://dddpaul.github.io/blog//tags/java">Java</a> </li>
+        
+    </ul>
+
+    <div id="disqus_thread"></div>
+<script type="text/javascript">
+
+(function() {
+    
+    
+    if (window.location.hostname == "localhost")
+        return;
+
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    var disqus_shortname = 'dddpaul-github';
+    var disqus_identifier = 'https:\/\/dddpaul.github.io\/blog\/2015\/02\/14\/oracle-connectivity\/';
+    var disqus_title = 'Oracle connectivity in Java';
+    var disqus_url = 'https:\/\/dddpaul.github.io\/blog\/2015\/02\/14\/oracle-connectivity\/';
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+
+</div>
+
+</body>
+</html>
+

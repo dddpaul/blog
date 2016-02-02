@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="generator" content="Hugo 0.16-DEV" />
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+  <title> Связывание контейнеров &middot; Dev notes </title>
+
+  
+  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/poole.css">
+  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/syntax.css">
+  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/hyde.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
+
+  
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144-precomposed.png">
+  <link rel="shortcut icon" href="/favicon.png">
+
+  
+  <link href="" rel="alternate" type="application/rss+xml" title="Dev notes" />
+</head>
+
+<body>
+
+<div class="sidebar">
+    <div class="container sidebar-sticky">
+        <div class="sidebar-about">
+            <h1>Dev notes</h1>
+            <p class="lead">
+                 Notes about Android, Java, JavaScript, Go and other technical stuff 
+            </p>
+        </div>
+
+        <ul class="sidebar-nav">
+            <li><a href="/">Home</a> </li>
+            
+            <li><a href="http://github.com/dddpaul"> GitHub </a></li>
+            
+            <li><a href="http://google.com/&#43;PavelDerendyaev1"> Google&#43; </a></li>
+            
+            <li><a href="/blog/index.xml"> RSS </a></li>
+            
+        </ul>
+
+        Tags:
+        <ul>
+            
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/android/">android</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/angularjs/">angularjs</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/ansible/">ansible</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/devops/">devops</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/docker/">docker</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/git/">git</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/golang/">golang</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/hugo/">hugo</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/java/">java</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/javascript/">javascript</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/linux/">linux</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/python/">python</a> </li>
+            
+        </ul>
+
+        <p>&copy; 2016. All rights reserved. </p>
+    </div>
+</div>
+
+
+<div class="content container">
+    <div class="post">
+        <h1 class="post-title">Связывание контейнеров</h1>
+        <span class="post-date">2015-01-08</span>
+
+        <p>Это вторая статья цикла 
+<a href='https://dddpaul.github.io/blog//series/building-test-environments-with-docker/'>Building test environments with Docker</a>.</p>
+
+<p>При создании тестовых окружений из нескольких контейнеров неизбежно возникает задача их взаимного связывания. Набивший оскомину пример: контейнеру с приложением нужен контейнер БД. В нашем же случае, контейнеру с балансером нужны контейнеры с апстримами.</p>
+
+<p>Статья <a href="https://docs.docker.com/userguide/dockerlinks/">Linking Containers Together</a> полностью раскрывает вопрос линковки контейнеров. Осветим вкратце лишь основные моменты:</p>
+
+<ul>
+<li>каждый контейнер необходимо как-то назвать с помощью опции <code>--name</code>;</li>
+<li>ссылка на контейнер-зависимость обозначается опцией <code>--link</code>;</li>
+<li>в итоге, внутри зависимого контейнера, инициализируется множество переменных окружения, содержащих параметры контейнера-зависимости, а также в <em>/etc/hosts</em> заносится IP-адрес контейнера-зависимости.</li>
+</ul>
+
+<p>Например, так выглядит последовательный запуск 3-х контейнеров, причем 3-й зависит от первых двух:</p>
+
+<pre><code>docker run -d --privileged -p 2021:22 -p 8081:80 --name app1 smile/tomcat7
+docker run -d --privileged -p 2022:22 -p 8082:80 --name app2 smile/tomcat7
+docker run -d --privileged -p 2020:22 -p 80:80 --name gate --link app1:app1 --link app2:app2 smile/gate
+</code></pre>
+
+<p>Для проверки можно использовать вывод <code>docker inspect</code>:</p>
+
+<pre><code>docker inspect -f &quot;{{ .HostConfig.Links }}&quot; gate
+
+[/app1:/gate/app1 /app2:/gate/app2]
+</code></pre>
+
+<p>Опция <code>-d (detach mode)</code> здесь необходима, чтобы контейнеры запускались в фоновом режиме и не захватывали консоль.</p>
+
+<p>Теперь, если зайти в контейнер gate (<code>ssh -p 2020 root@localhost</code>) и посмотреть переменные окружения, то будет ясно, что gate &ldquo;видит&rdquo; exposed-порты и IP-адрес контейнера-зависимости:</p>
+
+<pre><code>root@aba982937531:~# env | grep APP1
+APP1_NAME=/gate/app1
+APP1_PORT_22_TCP=tcp://172.17.0.28:22
+APP1_PORT_80_TCP=tcp://172.17.0.28:80
+APP1_PORT_22_TCP_ADDR=172.17.0.28
+APP1_PORT_80_TCP_ADDR=172.17.0.28
+APP1_PORT_22_TCP_PORT=22
+APP1_PORT_80_TCP_PORT=80
+APP1_PORT_80_TCP_PROTO=tcp
+APP1_PORT_22_TCP_PROTO=tcp
+APP1_PORT=tcp://172.17.0.28:22
+...
+</code></pre>
+
+<p>Еще лучше дела обстоят с <em>/etc/hosts</em>:</p>
+
+<pre><code>root@aba982937531:~# grep app1 /etc/hosts
+172.17.0.28	app1
+
+</code></pre>
+
+<p>Модификация <em>/etc/hosts</em>, например, дает возможность писать следующие кофиги Nginx:</p>
+
+<pre><code>server {
+    listen 80 default_server;
+    server_name _;
+
+    location /app1 {
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; #
+        proxy_pass http://app1:80/app1;                              # app1 host here
+        proxy_redirect http://127.0.0.1:8081/app1 /app1;             #
+    }
+
+    location /app2 {
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; #
+        proxy_pass http://app2:80/app2;                              # and app2 host here
+        proxy_redirect http://127.0.0.1:8082/app2 /app2;             #
+    }
+}
+</code></pre>
+
+<p>Таким образом, в первом приближении, встроенная возможность связывания контейнеров в Docker решает наши проблемы.</p>
+
+    </div>
+
+    
+        
+        
+        <hr/>
+        <p><a href="" id="series"></a>This is a post in the <b>Building test environments with Docker</b> series.<br/>
+            Other posts in this series:</p>
+        
+        
+        <ul class="series">
+            
+            <li>2015-01-12 -
+                
+                    <a href="https://dddpaul.github.io/blog/2015/01/12/docker-fig/">Запуск контейнеров с помощью Fig </a>
+                
+            </li>
+            
+            <li>2015-01-08 -
+                
+                    Связывание контейнеров
+                
+            </li>
+            
+            <li>2015-01-04 -
+                
+                    <a href="https://dddpaul.github.io/blog/2015/01/04/docker-prepare/">Подготовка и запуск docker-контейнеров </a>
+                
+            </li>
+            
+        </ul>
+    
+
+    Tags:
+    <ul id="tags">
+        
+        
+        <li><a href="https://dddpaul.github.io/blog//tags/devops">Devops</a> </li>
+        
+        <li><a href="https://dddpaul.github.io/blog//tags/docker">Docker</a> </li>
+        
+    </ul>
+
+    <div id="disqus_thread"></div>
+<script type="text/javascript">
+
+(function() {
+    
+    
+    if (window.location.hostname == "localhost")
+        return;
+
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    var disqus_shortname = 'dddpaul-github';
+    var disqus_identifier = 'https:\/\/dddpaul.github.io\/blog\/2015\/01\/08\/docker-linking\/';
+    var disqus_title = 'Связывание контейнеров';
+    var disqus_url = 'https:\/\/dddpaul.github.io\/blog\/2015\/01\/08\/docker-linking\/';
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+
+</div>
+
+</body>
+</html>
+

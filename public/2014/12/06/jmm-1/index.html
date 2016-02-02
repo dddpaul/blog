@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="generator" content="Hugo 0.16-DEV" />
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+  <title> Java Memory Model in few words &middot; Dev notes </title>
+
+  
+  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/poole.css">
+  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/syntax.css">
+  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/hyde.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
+
+  
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144-precomposed.png">
+  <link rel="shortcut icon" href="/favicon.png">
+
+  
+  <link href="" rel="alternate" type="application/rss+xml" title="Dev notes" />
+</head>
+
+<body>
+
+<div class="sidebar">
+    <div class="container sidebar-sticky">
+        <div class="sidebar-about">
+            <h1>Dev notes</h1>
+            <p class="lead">
+                 Notes about Android, Java, JavaScript, Go and other technical stuff 
+            </p>
+        </div>
+
+        <ul class="sidebar-nav">
+            <li><a href="/">Home</a> </li>
+            
+            <li><a href="http://github.com/dddpaul"> GitHub </a></li>
+            
+            <li><a href="http://google.com/&#43;PavelDerendyaev1"> Google&#43; </a></li>
+            
+            <li><a href="/blog/index.xml"> RSS </a></li>
+            
+        </ul>
+
+        Tags:
+        <ul>
+            
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/android/">android</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/angularjs/">angularjs</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/ansible/">ansible</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/devops/">devops</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/docker/">docker</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/git/">git</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/golang/">golang</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/hugo/">hugo</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/java/">java</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/javascript/">javascript</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/linux/">linux</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/python/">python</a> </li>
+            
+        </ul>
+
+        <p>&copy; 2016. All rights reserved. </p>
+    </div>
+</div>
+
+
+<div class="content container">
+    <div class="post">
+        <h1 class="post-title">Java Memory Model in few words</h1>
+        <span class="post-date">2014-12-06</span>
+
+        <p>This article is mostly consist of quotes from <a href="http://www.manning.com/evans/">The Well-Grounded Java Developer</a> by Benjamin J. Evans and Martijn Verburg. I like simplicity and brevity of their explanation approach.</p>
+
+<p>And that&rsquo;s how <em>Happens-Before</em> and <em>Synchronizes-With</em> relationships are explained.</p>
+
+<hr />
+
+<ul>
+<li>Happens-Before — This relationship indicates that one block of code fully completes before the other can start.</li>
+<li>Synchronizes-With — This means that an action will synchronize its view of an object with main memory before continuing.</li>
+</ul>
+
+<p>The JMM has these main rules:</p>
+
+<ul>
+<li>An unlock operation on a monitor <em>Synchronizes-With</em> later lock operations.</li>
+<li>A write to a volatile variable <em>Synchronizes-With</em> later reads of the variable.</li>
+<li>If an action A <em>Synchronizes-With</em> action B, then A <em>Happens-Before</em> B.</li>
+<li>If A comes before B in program order, within a thread, then A <em>Happens-Before</em> B.</li>
+</ul>
+
+<p>The general statement of the first two rules is that <em>&ldquo;releases happen before acquires&rdquo;</em>. In other words, the locks that a thread holds when writing are released before the locks can be acquired by other operations (including reads).</p>
+
+<p>There are additional rules, which are really about sensible behavior:</p>
+
+<ul>
+<li>The completion of a constructor <em>Happens-Before</em> the finalizer for that object starts to run (an object has to be fully constructed before it can be finalized).</li>
+<li>An action that starts a thread <em>Synchronizes-With</em> the first action of the new thread.</li>
+<li>Thread.join() <em>Synchronizes-With</em> the last (and all other) actions in the thread being joined.*</li>
+<li>If X <em>Happens-Before</em> Y and Y <em>Happens-Before</em> Z then X <em>Happens-Before</em> Z (transitivity).</li>
+</ul>
+
+<hr />
+
+<p>They even have granted free access to entire <a href="http://www.manning.com/evans/TWGJD_sample_ch04.pdf">Chapter 4. Modern concurrency</a>. Although I&rsquo;m not relish with the code style (using trailing underscore to emphasize method parameters - why?) this chapter definitely deserves to read it.</p>
+
+<p>Footnotes:</p>
+
+<p>* <a href="https://docs.oracle.com/javase/specs/jls/se7/html/jls-17.html">JLS. Chapter 17. Threads and Locks</a> assures that:</p>
+
+<blockquote>
+<p>All actions in a thread happen-before any other thread successfully returns from a join() on that thread.</p>
+</blockquote>
+
+<p>So, the truth is that thread actions happens-before Thread.join().</p>
+
+    </div>
+
+    
+        
+        
+        <hr/>
+        <p><a href="" id="series"></a>This is a post in the <b>JMM</b> series.<br/>
+            Other posts in this series:</p>
+        
+        
+        <ul class="series">
+            
+            <li>2014-12-06 -
+                
+                    Java Memory Model in few words
+                
+            </li>
+            
+        </ul>
+    
+
+    Tags:
+    <ul id="tags">
+        
+        
+        <li><a href="https://dddpaul.github.io/blog//tags/java">Java</a> </li>
+        
+    </ul>
+
+    <div id="disqus_thread"></div>
+<script type="text/javascript">
+
+(function() {
+    
+    
+    if (window.location.hostname == "localhost")
+        return;
+
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    var disqus_shortname = 'dddpaul-github';
+    var disqus_identifier = 'https:\/\/dddpaul.github.io\/blog\/2014\/12\/06\/jmm-1\/';
+    var disqus_title = 'Java Memory Model in few words';
+    var disqus_url = 'https:\/\/dddpaul.github.io\/blog\/2014\/12\/06\/jmm-1\/';
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+
+</div>
+
+</body>
+</html>
+

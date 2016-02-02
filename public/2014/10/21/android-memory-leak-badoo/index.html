@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="generator" content="Hugo 0.16-DEV" />
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+  <title> Борьба с утечками памяти в Android (Badoo) &middot; Dev notes </title>
+
+  
+  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/poole.css">
+  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/syntax.css">
+  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/hyde.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
+
+  
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144-precomposed.png">
+  <link rel="shortcut icon" href="/favicon.png">
+
+  
+  <link href="" rel="alternate" type="application/rss+xml" title="Dev notes" />
+</head>
+
+<body>
+
+<div class="sidebar">
+    <div class="container sidebar-sticky">
+        <div class="sidebar-about">
+            <h1>Dev notes</h1>
+            <p class="lead">
+                 Notes about Android, Java, JavaScript, Go and other technical stuff 
+            </p>
+        </div>
+
+        <ul class="sidebar-nav">
+            <li><a href="/">Home</a> </li>
+            
+            <li><a href="http://github.com/dddpaul"> GitHub </a></li>
+            
+            <li><a href="http://google.com/&#43;PavelDerendyaev1"> Google&#43; </a></li>
+            
+            <li><a href="/blog/index.xml"> RSS </a></li>
+            
+        </ul>
+
+        Tags:
+        <ul>
+            
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/android/">android</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/angularjs/">angularjs</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/ansible/">ansible</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/devops/">devops</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/docker/">docker</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/git/">git</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/golang/">golang</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/hugo/">hugo</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/java/">java</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/javascript/">javascript</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/linux/">linux</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/python/">python</a> </li>
+            
+        </ul>
+
+        <p>&copy; 2016. All rights reserved. </p>
+    </div>
+</div>
+
+
+<div class="content container">
+    <div class="post">
+        <h1 class="post-title">Борьба с утечками памяти в Android (Badoo)</h1>
+        <span class="post-date">2014-10-21</span>
+
+        
+
+<p>На хабре появилась статья <a href="http://habrahabr.ru/company/badoo/blog/240479/">Борьба с утечками памяти в Android. Часть 1</a> от компании Badoo. Т.к. тема созвучна с моими постами из серии 
+<a href='https://dddpaul.github.io/blog//series/memory-leaks/'>Memory leaks</a>, то решил вкратце описать их методы.</p>
+
+<p>Суть проблемы — использование android.os.Handler, в который постится анонимный Runnable с помощью метода [postDelayed](<a href="http://developer.android.com/reference/android/os/Handler.html#postDelayed(java.lang.Runnable">http://developer.android.com/reference/android/os/Handler.html#postDelayed(java.lang.Runnable</a>, long). Для демонстрации, Runnable просто меняет какой-либо TextView (т.е. содержит внутри себя ссылку mTextView), и время до выполнения Runnable берется довольно большим. Так вот, если за этот промежуток времени повернуть девайс несколько раз, то старые активити не будут собираться GC, т.к. в Java любой анонимный класс всегда имеет неявную ссылку на внешний класс.</p>
+
+<h3 id="решение-с-использованием-статического-класса:b5ecc8a59da209189d194d532f575ae4">Решение с использованием статического класса</h3>
+
+<p>Переделка анонимного класса в статический проблему не решает — Activity сохранен в ссылке mContext из mTextView внутри нашей реализации Runnable.</p>
+
+<h3 id="решение-с-использованием-статического-класса-и-weakreference:b5ecc8a59da209189d194d532f575ae4">Решение с использованием статического класса и WeakReference</h3>
+
+<p>В реализации Runnable сохраняем ссылку на TextView в WeakReference. Использование WeakReference требует особой аккуратности: такая ссылка в любой момент может обнулиться. Поэтому сначала сохраняем ссылку в локальную переменную и работаем только с последней, проверив ее на null.</p>
+
+<p>Для использования данного подхода нам необходимо:</p>
+
+<ul>
+<li>использовать статический внутренний или внешний класс;</li>
+<li>использовать WeakReference для всех объектов, на которые мы ссылаемся.</li>
+</ul>
+
+<p>Это решает проблему.</p>
+
+<h3 id="очистка-всех-сообщений-в-ondestroy:b5ecc8a59da209189d194d532f575ae4">Очистка всех сообщений в onDestroy</h3>
+
+<p>Добавим в onDestroy вызов метода класса Handler <a href="http://developer.android.com/reference/android/os/Handler.html#removeCallbacksAndMessages(java.lang.Object)">removeCallbacksAndMessages</a>. Он удаляет все сообщения, находящиеся в очереди данного Handler&rsquo;а. Это очень хороший способ защититься от утечки памяти, но во-первых, нужно не забыть это сделать, а во-вторых, в комментах к статье пишут, что вызов onDestroy в общем случае не гарантирован.</p>
+
+<p>Цитата из документации — <a href="http://developer.android.com/training/basics/activity-lifecycle/stopping.html">Stopping and Restarting an Activity</a>:</p>
+
+<blockquote>
+<p>When your activity receives a call to the onStop() method, it&rsquo;s no longer visible and should release almost all resources that aren&rsquo;t needed while the user is not using it. Once your activity is stopped, the system might destroy the instance if it needs to recover system memory. In extreme cases, the system might simply kill your app process without calling the activity&rsquo;s final onDestroy() callback, so it&rsquo;s important you use onStop() to release resources that might leak memory.</p>
+</blockquote>
+
+<h3 id="решение-с-использованием-weakhandler:b5ecc8a59da209189d194d532f575ae4">Решение с использованием WeakHandler</h3>
+
+<p>Команда Badoo написала свой Handler — <a href="github.com/badoo/android-weak-handler">WeakHandler</a>. Это класс, который ведет себя совершенно как Handler, но исключает утечки памяти за счет использования слабых ссылок.</p>
+
+<p>Главная идея — держать жесткую ссылку на сообщения или Runnable до тех пор, пока существует жесткая ссылка на WeakHandler. Как только WeakHandler может быть удален из памяти, все остальное должно быть удалено вместе с ним.</p>
+
+<h3 id="выводы:b5ecc8a59da209189d194d532f575ae4">Выводы</h3>
+
+<p>Отличная и годная статья :)</p>
+
+<p>Ссылки:</p>
+
+<ul>
+<li><a href="http://corner.squareup.com/2013/10/android-main-thread-1.html">A journey on the Android Main Thread - PSVM</a>. Рассказ про про внутренности Main Thread: Loopers, Handlers и т.д.</li>
+<li><a href="http://corner.squareup.com/2013/12/android-main-thread-2.html">A journey on the Android Main Thread - Lifecycle bits</a>. Продолжение — про lifecycle и orientation change.</li>
+</ul>
+
+    </div>
+
+    
+        
+        
+        <hr/>
+        <p><a href="" id="series"></a>This is a post in the <b>Memory leaks</b> series.<br/>
+            Other posts in this series:</p>
+        
+        
+        <ul class="series">
+            
+            <li>2015-01-17 -
+                
+                    <a href="https://dddpaul.github.io/blog/2015/01/17/memory-leaks-articles/">List of memory leaks articles </a>
+                
+            </li>
+            
+            <li>2014-10-21 -
+                
+                    Борьба с утечками памяти в Android (Badoo)
+                
+            </li>
+            
+            <li>2014-08-02 -
+                
+                    <a href="https://dddpaul.github.io/blog/2014/08/02/orientation-change/">Подводные камни смены ориентации в Android </a>
+                
+            </li>
+            
+            <li>2014-08-01 -
+                
+                    <a href="https://dddpaul.github.io/blog/2014/08/01/android-memory-leaks/">Android memory leaks </a>
+                
+            </li>
+            
+        </ul>
+    
+
+    Tags:
+    <ul id="tags">
+        
+        
+        <li><a href="https://dddpaul.github.io/blog//tags/android">Android</a> </li>
+        
+        <li><a href="https://dddpaul.github.io/blog//tags/java">Java</a> </li>
+        
+    </ul>
+
+    <div id="disqus_thread"></div>
+<script type="text/javascript">
+
+(function() {
+    
+    
+    if (window.location.hostname == "localhost")
+        return;
+
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    var disqus_shortname = 'dddpaul-github';
+    var disqus_identifier = 'https:\/\/dddpaul.github.io\/blog\/2014\/10\/21\/android-memory-leak-badoo\/';
+    var disqus_title = 'Борьба с утечками памяти в Android (Badoo)';
+    var disqus_url = 'https:\/\/dddpaul.github.io\/blog\/2014\/10\/21\/android-memory-leak-badoo\/';
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+
+</div>
+
+</body>
+</html>
+
