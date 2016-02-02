@@ -29,9 +29,17 @@ There are additional rules, which are really about sensible behavior:
 
 * The completion of a constructor *Happens-Before* the finalizer for that object starts to run (an object has to be fully constructed before it can be finalized).
 * An action that starts a thread *Synchronizes-With* the first action of the new thread.
-* Thread.join() *Synchronizes-With* the last (and all other) actions in the thread being joined.
+* Thread.join() *Synchronizes-With* the last (and all other) actions in the thread being joined.*
 * If X *Happens-Before* Y and Y *Happens-Before* Z then X *Happens-Before* Z (transitivity).
 
 ***
 
 They even have granted free access to entire [Chapter 4. Modern concurrency](http://www.manning.com/evans/TWGJD_sample_ch04.pdf). Although I'm not relish with the code style (using trailing underscore to emphasize method parameters - why?) this chapter definitely deserves to read it.
+
+Footnotes:
+
+\* [JLS. Chapter 17. Threads and Locks](https://docs.oracle.com/javase/specs/jls/se7/html/jls-17.html) assures that:
+
+> All actions in a thread happen-before any other thread successfully returns from a join() on that thread.
+
+So, the truth is that thread actions happens-before Thread.join().
