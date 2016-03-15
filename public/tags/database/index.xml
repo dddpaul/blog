@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Database on Dev notes</title>
+    <link>https://dddpaul.github.io/blog/tags/database/</link>
+    <description>Recent content in Database on Dev notes</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 17 Mar 2016 11:00:00 +0300</lastBuildDate>
+    <atom:link href="https://dddpaul.github.io/blog/tags/database/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Linearizability, serializability, transaction isolation and consistency models</title>
+      <link>https://dddpaul.github.io/blog/2016/03/17/linearizability-and-serializability/</link>
+      <pubDate>Thu, 17 Mar 2016 11:00:00 +0300</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2016/03/17/linearizability-and-serializability/</guid>
+      <description>&lt;p&gt;&lt;a href=&#34;http://www.bailis.org/blog/linearizability-versus-serializability/&#34;&gt;Linearizability versus Serializability&lt;/a&gt;:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;Linearizability&lt;/strong&gt; is a guarantee about single operations on single objects. It provides a real-time (i.e., wall-clock) guarantee on the behavior of a set of single operations (often reads and writes) on a single object (e.g., distributed register or data item).&lt;/p&gt;
+
+&lt;p&gt;Linearizability for read and write operations is synonymous with the term “atomic consistency” and is the “C,” or “consistency,” in Gilbert and Lynch’s proof of the CAP Theorem. We say linearizability is composable (or “local”) because, if operations on each object in a system are linearizable, then all operations in the system are linearizable.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Serializability&lt;/strong&gt; is a guarantee about transactions, or groups of one or more operations over one or more objects. It guarantees that the execution of a set of transactions (usually containing read and write operations) over multiple items is equivalent to some serial execution (total ordering) of the transactions.&lt;/p&gt;
+
+&lt;p&gt;Serializability is the traditional “I,” or isolation, in ACID. If users’ transactions each preserve application correctness (“C,” or consistency, in ACID), a serializable execution also preserves correctness. Therefore, serializability is a mechanism for guaranteeing database correctness.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://blog.acolyer.org/2016/02/26/distributed-consistency-and-session-anomalies/&#34;&gt;Distributed Consistency and Session Anomalies&lt;/a&gt;:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;In the database systems community, the gold standard is serializability. We’ve spent plenty of time looking at this in the last couple of days. Serializability concerns transactions that group multiple operations across potentially multiple objects. A serializable schedule is one that corresponds to some ordering of the transactions such that they happen one after the other in time (no concurrent / overlapping transactions). It’s the highest form of isolation between transactions.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+
+&lt;img src=&#39;https://dddpaul.github.io/blog//media/serializable.png&#39;/&gt;
+
+
+&lt;blockquote&gt;
+&lt;p&gt;In the distributed systems community, the gold standard is linearizability. Linearizability concerns single operations on single objects. A linearizable schedule is one where each operation appears to happen atomically at a single point in time. Once a write completes, all later reads (wall-clock time) should see the value of that write or the value of a later write. In a distributed context, we may have multiple replicas of an object’s state, and in a linearizable schedule it is as if they were all updated at once at a single point in time.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+
+&lt;img src=&#39;https://dddpaul.github.io/blog//media/linearizable.png&#39;/&gt;
+
+
+&lt;hr /&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://blog.acolyer.org/2016/02/24/a-critique-of-ansi-sql-isolation-levels/&#34;&gt;A Critique of ANSI SQL Isolation Levels&lt;/a&gt;:&lt;/p&gt;
+
+
+&lt;img src=&#39;https://dddpaul.github.io/blog//media/ansi-sql-isolation-levels.png&#39;/&gt;
+
+
+&lt;hr /&gt;
+
+&lt;p&gt;Other articles:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://aphyr.com/posts/313-strong-consistency-models&#34;&gt;Strong consistency models&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://vladmihalcea.com/2014/09/14/a-beginners-guide-to-database-locking-and-the-lost-update-phenomena/&#34;&gt;A beginner’s guide to database locking and the lost update phenomena&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://blog.acolyer.org/2016/02/25/generalized-isolation-level-definitions/&#34;&gt;Generalized Isolation Level Definitions&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.postgresql.org/docs/current/static/transaction-iso.html&#34;&gt;PostgreSQL - 13.2. Transaction Isolation&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

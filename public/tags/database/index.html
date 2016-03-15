@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
 
-  <title> Bind interfaces to multiple zones with Firewalld on CentOS-7 &middot; Dev notes </title>
+  <title> Database &middot; Dev notes </title>
 
   
   <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/poole.css">
@@ -21,7 +21,7 @@
   <link rel="shortcut icon" href="/favicon.png">
 
   
-  <link href="" rel="alternate" type="application/rss+xml" title="Dev notes" />
+  <link href="https://dddpaul.github.io/blog/tags/database/index.xml" rel="alternate" type="application/rss+xml" title="Dev notes" />
 </head>
 
 <body>
@@ -86,74 +86,18 @@
 
 
 <div class="content container">
-    <div class="post">
-        <h1 class="post-title">Bind interfaces to multiple zones with Firewalld on CentOS-7</h1>
-        <span class="post-date">2015-07-28</span>
 
-        <p>As you can expect from <a href="http://linuxmanpages.net/manpages/fedora20/man1/firewall-cmd.1.html">man firewall-cmd</a> interface binding to zone other than default (public) could be achieved with the following command sequence:</p>
+    <h1 id="title">Database</h1>
 
-<pre><code>firewall-cmd --zone public --remove-interface eth1 --permanent
-firewall-cmd --zone internal --add-interface eth1 --permanent
-firewall-cmd --reload
-</code></pre>
-
-<p>Seems like it&rsquo;s done:</p>
-
-<pre><code>firewall-cmd --get-zone-of-interface=eth1
-internal
-</code></pre>
-
-<p>But after firewalld restart or server reboot things aren&rsquo;t so bright:</p>
-
-<pre><code>firewall-cmd --get-zone-of-interface=eth1
-public
-</code></pre>
-
-<p>The reason is in this <a href="https://bugs.centos.org/view.php?id=7526">CentOS-7 bug</a>. The only workaround is to specify zone in <em>/etc/sysconfig/network-scripts/ifcfg-eth1</em> file:</p>
-
-<pre><code>TYPE=Ethernet
-NAME=&quot;eth1&quot;
-IPADDR=x.x.x.x
-...
-ZONE=internal
-</code></pre>
-
-    </div>
-
+    <ul class="posts">
     
-
-    Tags:
-    <ul id="tags">
-        
-        
-        <li><a href="https://dddpaul.github.io/blog//tags/linux">Linux</a> </li>
-        
-    </ul>
-
-    <div id="disqus_thread"></div>
-<script type="text/javascript">
-
-(function() {
+        <li>
+            <time class="pull-right post-list">2016-03-17</time>
+            - <a href="https://dddpaul.github.io/blog/2016/03/17/linearizability-and-serializability/">Linearizability, serializability, transaction isolation and consistency models</a>
+        </li>
     
-    
-    if (window.location.hostname == "localhost")
-        return;
-
-    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-    var disqus_shortname = 'dddpaul-github';
-    var disqus_identifier = 'https:\/\/dddpaul.github.io\/blog\/2015\/07\/28\/firewalld-zones\/';
-    var disqus_title = 'Bind interfaces to multiple zones with Firewalld on CentOS-7';
-    var disqus_url = 'https:\/\/dddpaul.github.io\/blog\/2015\/07\/28\/firewalld-zones\/';
-    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-})();
-</script>
-<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
-
-
+  </ul>
 </div>
 
 </body>
 </html>
-

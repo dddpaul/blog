@@ -56,6 +56,10 @@
             
             <li><a href="https://dddpaul.github.io/blog//tags/ansible/">ansible</a> </li>
             
+            <li><a href="https://dddpaul.github.io/blog//tags/concurrency/">concurrency</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/database/">database</a> </li>
+            
             <li><a href="https://dddpaul.github.io/blog//tags/devops/">devops</a> </li>
             
             <li><a href="https://dddpaul.github.io/blog//tags/docker/">docker</a> </li>
@@ -84,6 +88,68 @@
 <div class="content container">
     <div class="posts">
 
+        
+        <div class="post">
+            <h1 class="post-title">
+                <a href="https://dddpaul.github.io/blog/2016/03/17/linearizability-and-serializability/">
+                    Linearizability, serializability, transaction isolation and consistency models
+                </a>
+            </h1>
+
+            <span class="post-date">2016-03-17</span>
+
+            <p><a href="http://www.bailis.org/blog/linearizability-versus-serializability/">Linearizability versus Serializability</a>:</p>
+
+<blockquote>
+<p><strong>Linearizability</strong> is a guarantee about single operations on single objects. It provides a real-time (i.e., wall-clock) guarantee on the behavior of a set of single operations (often reads and writes) on a single object (e.g., distributed register or data item).</p>
+
+<p>Linearizability for read and write operations is synonymous with the term “atomic consistency” and is the “C,” or “consistency,” in Gilbert and Lynch’s proof of the CAP Theorem. We say linearizability is composable (or “local”) because, if operations on each object in a system are linearizable, then all operations in the system are linearizable.</p>
+
+<p><strong>Serializability</strong> is a guarantee about transactions, or groups of one or more operations over one or more objects. It guarantees that the execution of a set of transactions (usually containing read and write operations) over multiple items is equivalent to some serial execution (total ordering) of the transactions.</p>
+
+<p>Serializability is the traditional “I,” or isolation, in ACID. If users’ transactions each preserve application correctness (“C,” or consistency, in ACID), a serializable execution also preserves correctness. Therefore, serializability is a mechanism for guaranteeing database correctness.</p>
+</blockquote>
+
+<hr />
+
+<p><a href="http://blog.acolyer.org/2016/02/26/distributed-consistency-and-session-anomalies/">Distributed Consistency and Session Anomalies</a>:</p>
+
+<blockquote>
+<p>In the database systems community, the gold standard is serializability. We’ve spent plenty of time looking at this in the last couple of days. Serializability concerns transactions that group multiple operations across potentially multiple objects. A serializable schedule is one that corresponds to some ordering of the transactions such that they happen one after the other in time (no concurrent / overlapping transactions). It’s the highest form of isolation between transactions.</p>
+</blockquote>
+
+
+<img src='https://dddpaul.github.io/blog//media/serializable.png'/>
+
+
+<blockquote>
+<p>In the distributed systems community, the gold standard is linearizability. Linearizability concerns single operations on single objects. A linearizable schedule is one where each operation appears to happen atomically at a single point in time. Once a write completes, all later reads (wall-clock time) should see the value of that write or the value of a later write. In a distributed context, we may have multiple replicas of an object’s state, and in a linearizable schedule it is as if they were all updated at once at a single point in time.</p>
+</blockquote>
+
+
+<img src='https://dddpaul.github.io/blog//media/linearizable.png'/>
+
+
+<hr />
+
+<p><a href="http://blog.acolyer.org/2016/02/24/a-critique-of-ansi-sql-isolation-levels/">A Critique of ANSI SQL Isolation Levels</a>:</p>
+
+
+<img src='https://dddpaul.github.io/blog//media/ansi-sql-isolation-levels.png'/>
+
+
+<hr />
+
+<p>Other articles:</p>
+
+<ul>
+<li><a href="https://aphyr.com/posts/313-strong-consistency-models">Strong consistency models</a></li>
+<li><a href="http://vladmihalcea.com/2014/09/14/a-beginners-guide-to-database-locking-and-the-lost-update-phenomena/">A beginner’s guide to database locking and the lost update phenomena</a></li>
+<li><a href="http://blog.acolyer.org/2016/02/25/generalized-isolation-level-definitions/">Generalized Isolation Level Definitions</a></li>
+<li><a href="http://www.postgresql.org/docs/current/static/transaction-iso.html">PostgreSQL - 13.2. Transaction Isolation</a></li>
+</ul>
+
+        </div>
         
         <div class="post">
             <h1 class="post-title">
@@ -1053,51 +1119,6 @@ DEBUG 23601 --- [lication.main()] o.s.c.e.PropertySourcesPropertyResolver  : Sea
     <span class="nt">/&gt;</span>
 </code></pre></div>
 </p>
-
-        </div>
-        
-        <div class="post">
-            <h1 class="post-title">
-                <a href="https://dddpaul.github.io/blog/2015/02/01/java-listeners/">
-                    Java network listeners
-                </a>
-            </h1>
-
-            <span class="post-date">2015-02-01</span>
-
-            <p>I&rsquo;ve written a small <a href="https://github.com/dddpaul/java-network-listeners">listeners library</a> today. It allows to create Callables which can be submitted to <a href="http://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ExecutorService.html">ExecutorService</a>. The callable itself implements creating server socket and binding it to local port.</p>
-
-<p>There two principal type of listeners: blocking and non-blocking (thanks to <a href="http://en.wikipedia.org/wiki/Non-blocking_I/O_(Java)">Java NIO</a>.</p>
-
-<hr />
-
-<p>Blocking listener is very simple but in can&rsquo;t be interrupted by calling thread. So there&rsquo;s no point in that:</p>
-
-<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="n">Future</span><span class="o">&lt;</span><span class="n">Socket</span><span class="o">&gt;</span> <span class="n">future</span> <span class="o">=</span> <span class="n">executor</span><span class="o">.</span><span class="na">submit</span><span class="o">(</span> <span class="n">Listeners</span><span class="o">.</span><span class="na">createListener</span><span class="o">(</span> <span class="n">PORT</span> <span class="o">)</span> <span class="o">);</span>
-<span class="k">try</span> <span class="o">{</span>
-    <span class="n">Socket</span> <span class="n">socket</span> <span class="o">=</span> <span class="n">future</span><span class="o">.</span><span class="na">get</span><span class="o">(</span> <span class="mi">1</span><span class="o">,</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="na">SECONDS</span> <span class="o">);</span>
-<span class="o">}</span> <span class="k">catch</span><span class="o">(</span> <span class="n">TimeoutException</span> <span class="n">e</span> <span class="o">)</span> <span class="o">{</span>
-    <span class="n">future</span><span class="o">.</span><span class="na">cancel</span><span class="o">(</span> <span class="kc">true</span> <span class="o">);</span>
-<span class="o">}</span>
-</code></pre></div>
-
-
-<p>Listener will stay active and PORT will be bound still. The reason is in usage of the uninterruptible <a href="http://docs.oracle.com/javase/7/docs/api/java/net/ServerSocket.html#accept()">ServerSocket.accept()</a>.</p>
-
-<hr />
-
-<p>In contrary non-blocking listener is more sophisticated but it can be interrupted by calling thread. So you can do that:</p>
-
-<p><div class="highlight"><pre><code class="language-java" data-lang="java"><span class="n">Future</span><span class="o">&lt;</span><span class="n">Socket</span><span class="o">&gt;</span> <span class="n">future</span> <span class="o">=</span> <span class="n">executor</span><span class="o">.</span><span class="na">submit</span><span class="o">(</span> <span class="n">Listeners</span><span class="o">.</span><span class="na">createListener</span><span class="o">(</span> <span class="n">PORT</span> <span class="o">)</span> <span class="o">);</span>
-<span class="k">try</span> <span class="o">{</span>
-    <span class="n">Socket</span> <span class="n">socket</span> <span class="o">=</span> <span class="n">future</span><span class="o">.</span><span class="na">get</span><span class="o">(</span> <span class="mi">1</span><span class="o">,</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="na">SECONDS</span> <span class="o">);</span>
-<span class="o">}</span> <span class="k">catch</span><span class="o">(</span> <span class="n">TimeoutException</span> <span class="n">e</span> <span class="o">)</span> <span class="o">{</span>
-    <span class="n">future</span><span class="o">.</span><span class="na">cancel</span><span class="o">(</span> <span class="kc">true</span> <span class="o">);</span>
-<span class="o">}</span>
-</code></pre></div>
-</p>
-
-<p>Listener will be terminated and PORT will be freed.</p>
 
         </div>
         
