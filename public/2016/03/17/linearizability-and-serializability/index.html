@@ -122,6 +122,24 @@
 <img src='https://dddpaul.github.io/blog//media/linearizable.png'/>
 
 
+<blockquote>
+<p>Also, small correction: the “C” in ACID is the <em>assumption</em> that the application program is correct (each transaction in isolation brings the database from a correct state to another correct state), whereas the AID properties are <em>guarantees</em> provided by the database. Together they imply serializability.</p>
+</blockquote>
+
+<hr />
+
+<p><a href="https://en.wikipedia.org/wiki/Consistency_model:">https://en.wikipedia.org/wiki/Consistency_model:</a></p>
+
+<blockquote>
+<p><strong>Strict consistency</strong> is the strongest consistency model. It requires that if a process reads any memory location, the value returned by the read operation is the value written by the most recent write operation to that location.</p>
+
+<p>The <strong>sequential consistency</strong> model as defined by Lamport(1979) is a weaker memory model than strict consistency.</p>
+
+<p><strong>Linearizability</strong> (also known as atomic consistency) can be defined as sequential consistency with the real-time constraint.</p>
+
+<p><strong>Causal consistency</strong> can be considered a weakening model of sequential consistency by categorizing events into those causally related and those that are not. It defines that only write operations that are causally related must be seen in the same order by all processes.</p>
+</blockquote>
+
 <hr />
 
 <p><a href="http://blog.acolyer.org/2016/02/24/a-critique-of-ansi-sql-isolation-levels/">A Critique of ANSI SQL Isolation Levels</a>:</p>
