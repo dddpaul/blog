@@ -55,3 +55,5 @@ Other articles:
 * [A beginner’s guide to database locking and the lost update phenomena](http://vladmihalcea.com/2014/09/14/a-beginners-guide-to-database-locking-and-the-lost-update-phenomena/)
 * [Generalized Isolation Level Definitions](http://blog.acolyer.org/2016/02/25/generalized-isolation-level-definitions/)
 * [PostgreSQL - 13.2. Transaction Isolation](http://www.postgresql.org/docs/current/static/transaction-iso.html)
+* [Забудьте САР теорему как более не актуальную](https://habrahabr.ru/post/258145/)
+
