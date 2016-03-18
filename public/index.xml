@@ -82,6 +82,7 @@
 &lt;li&gt;&lt;a href=&#34;http://vladmihalcea.com/2014/09/14/a-beginners-guide-to-database-locking-and-the-lost-update-phenomena/&#34;&gt;A beginner’s guide to database locking and the lost update phenomena&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;http://blog.acolyer.org/2016/02/25/generalized-isolation-level-definitions/&#34;&gt;Generalized Isolation Level Definitions&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;http://www.postgresql.org/docs/current/static/transaction-iso.html&#34;&gt;PostgreSQL - 13.2. Transaction Isolation&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://habrahabr.ru/post/258145/&#34;&gt;Забудьте САР теорему как более не актуальную&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 </description>
     </item>
