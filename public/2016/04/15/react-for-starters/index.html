@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="generator" content="Hugo 0.16-DEV" />
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+  <title> Быстрое погружение в React &middot; Dev notes </title>
+
+  
+  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/poole.css">
+  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/syntax.css">
+  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/hyde.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
+
+  
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144-precomposed.png">
+  <link rel="shortcut icon" href="/favicon.png">
+
+  
+  <link href="" rel="alternate" type="application/rss+xml" title="Dev notes" />
+</head>
+
+<body>
+
+<div class="sidebar">
+    <div class="container sidebar-sticky">
+        <div class="sidebar-about">
+            <h1>Dev notes</h1>
+            <p class="lead">
+                 Notes about Android, Java, JavaScript, Go and other technical stuff 
+            </p>
+        </div>
+
+        <ul class="sidebar-nav">
+            <li><a href="/">Home</a> </li>
+            
+            <li><a href="http://github.com/dddpaul"> GitHub </a></li>
+            
+            <li><a href="http://google.com/&#43;PavelDerendyaev1"> Google&#43; </a></li>
+            
+            <li><a href="/blog/index.xml"> RSS </a></li>
+            
+        </ul>
+
+        Tags:
+        <ul>
+            
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/android/">android</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/angularjs/">angularjs</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/ansible/">ansible</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/concurrency/">concurrency</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/database/">database</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/devops/">devops</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/docker/">docker</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/git/">git</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/golang/">golang</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/hugo/">hugo</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/java/">java</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/javascript/">javascript</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/javasscript/">javasscript</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/linux/">linux</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/python/">python</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/react/">react</a> </li>
+            
+        </ul>
+
+        <p>&copy; 2016. All rights reserved. </p>
+    </div>
+</div>
+
+
+<div class="content container">
+    <div class="post">
+        <h1 class="post-title">Быстрое погружение в React</h1>
+        <span class="post-date">2016-04-15</span>
+
+        <p>Для разогрева:</p>
+
+<ul>
+<li><a href="https://facebook.github.io/react/docs/tutorial.html">React tutorial</a></li>
+<li><a href="https://ru.hexlet.io/courses/reactjs">Курс на Хекслете</a></li>
+</ul>
+
+<p>После этого более-менее должно оформиться понимание, что:</p>
+
+<ul>
+<li>React - это V в MVC;</li>
+<li>основа React - это компоненты;</li>
+<li>у компонента есть главный метод render(), который дергается React&rsquo;ом, когда нужно отобразить или перерисовать компонент;</li>
+<li>компоненты инициализируется через properties, и хранят state;</li>
+<li>компоненты пишутся на JSX - специальный синтаксис, который &ldquo;бесшовно&rdquo; внедряет HTML в JS;</li>
+<li>компоненты можно связывать в иерархические структуры;</li>
+<li>состояние нельзя менять напрямую, а только через специальный метод setState() - таким образом React точно узнает, что состояние изменилось и объект надо перерисовать;</li>
+<li>состояние принято хранить в родительском компоненте, и передавать его в дочерние компоненты через properties.</li>
+</ul>
+
+<p>Далее надо слегка погрузиться в ECMAScript 6 aka ES2015:</p>
+
+<ul>
+<li><a href="https://babeljs.io/docs/learn-es2015/">Learn ES2015</a> - кратенько про отличия от ES5</li>
+<li><a href="http://www.2ality.com/2012/07/esnext-classes.html">ECMAScript 6: classes</a></li>
+<li><a href="http://www.2ality.com/2012/04/arrow-functions.html">ECMAScript 6: arrow functions and method definitions</a></li>
+<li><a href="http://www.benmvp.com/learning-es6-enhanced-object-literals/">Learning ES6: Enhanced object literals</a></li>
+</ul>
+
+<p>Теперь рекомендую форкнуть <a href="https://github.com/reactjs/react-tutorial">React tutorial</a> и поиграться с ним, например:</p>
+
+<ul>
+<li>заменить &ldquo;var&rdquo; на &ldquo;let/const&rdquo;;</li>
+<li>заменить определения методов внутри объектов (Enhanced object literals);</li>
+<li>заменить потенциально опасные манипуляции со сложным стейтом (объекты, массивы) с помощью <a href="https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Global_Objects/Array/splice">Array.prototype.splice()</a> или <a href="https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Global_Objects/Array/concat">Array.prototype.concat()</a> на изменения с помощью идеологически верных <a href="https://facebook.github.io/react/docs/update.html">Immutability Helpers</a>.</li>
+</ul>
+
+<p>Про модули:</p>
+
+<ul>
+<li><a href="http://frontender.info/es6-modules/">Модули в ECMAScript 6: будущее уже сейчас</a></li>
+<li><a href="https://habrahabr.ru/post/250103/">Как мы готовим React, Require и Backbone</a></li>
+</ul>
+
+<p>Переходим к тяжелым упражнениям:</p>
+
+<ul>
+<li><a href="https://spring.io/guides/tutorials/react-and-spring-data-rest/">React.js and Spring Data REST</a> - мегаматериал про связку со Spring Boot</li>
+</ul>
+
+<p>Чтобы не ставить nodejs, npm и bower локально, можно использовать:</p>
+
+<ul>
+<li><a href="https://github.com/eirslett/frontend-maven-plugin">Frontend maven plugin</a> - для проектов на Java</li>
+<li><a href="https://github.com/DigitallySeamless/docker-nodejs-bower-grunt">Node.js w/ Bower &amp; Grunt</a> - для всего остального</li>
+</ul>
+
+<p>Дополнительные компоненты:</p>
+
+<ul>
+<li><a href="https://react-bootstrap.github.io/">React-Bootstrap</a> - Bootstrap-компоненты, переписанные на React</li>
+<li><a href="https://github.com/AllenFang/react-bootstrap-table">react-bootstrap-table</a> - крутая Bootstrap-compartible табличка</li>
+</ul>
+
+<p>Тестирование:</p>
+
+<ul>
+<li><a href="http://facebook.github.io/react/docs/test-utils.html">ReactTestUtils</a></li>
+</ul>
+
+<p>Просто интересные ресурсы:</p>
+
+<ul>
+<li><a href="http://geowarin.github.io/spring-boot-and-react-hot.html">Spring Boot and React hot loader</a> - пока не читал</li>
+<li><a href="https://blog.risingstack.com/the-react-way-getting-started-tutorial/">The React.js Way: Getting Started Tutorial</a> - пока не читал</li>
+<li><a href="https://github.com/winterbe/spring-react-example">Spring Boot React Example</a></li>
+</ul>
+
+    </div>
+
+    
+
+    Tags:
+    <ul id="tags">
+        
+        
+        <li><a href="https://dddpaul.github.io/blog//tags/react">React</a> </li>
+        
+        <li><a href="https://dddpaul.github.io/blog//tags/javasscript">JavasScript</a> </li>
+        
+    </ul>
+
+    <div id="disqus_thread"></div>
+<script type="text/javascript">
+
+(function() {
+    
+    
+    if (window.location.hostname == "localhost")
+        return;
+
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    var disqus_shortname = 'dddpaul-github';
+    var disqus_identifier = 'https:\/\/dddpaul.github.io\/blog\/2016\/04\/15\/react-for-starters\/';
+    var disqus_title = 'Быстрое погружение в React';
+    var disqus_url = 'https:\/\/dddpaul.github.io\/blog\/2016\/04\/15\/react-for-starters\/';
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+
+</div>
+
+</body>
+</html>
+

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Javasscript on Dev notes</title>
+    <link>https://dddpaul.github.io/blog/tags/javasscript/</link>
+    <description>Recent content in Javasscript on Dev notes</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Fri, 15 Apr 2016 13:00:00 +0300</lastBuildDate>
+    <atom:link href="https://dddpaul.github.io/blog/tags/javasscript/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Быстрое погружение в React</title>
+      <link>https://dddpaul.github.io/blog/2016/04/15/react-for-starters/</link>
+      <pubDate>Fri, 15 Apr 2016 13:00:00 +0300</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2016/04/15/react-for-starters/</guid>
+      <description>&lt;p&gt;Для разогрева:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://facebook.github.io/react/docs/tutorial.html&#34;&gt;React tutorial&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://ru.hexlet.io/courses/reactjs&#34;&gt;Курс на Хекслете&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;После этого более-менее должно оформиться понимание, что:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;React - это V в MVC;&lt;/li&gt;
+&lt;li&gt;основа React - это компоненты;&lt;/li&gt;
+&lt;li&gt;у компонента есть главный метод render(), который дергается React&amp;rsquo;ом, когда нужно отобразить или перерисовать компонент;&lt;/li&gt;
+&lt;li&gt;компоненты инициализируется через properties, и хранят state;&lt;/li&gt;
+&lt;li&gt;компоненты пишутся на JSX - специальный синтаксис, который &amp;ldquo;бесшовно&amp;rdquo; внедряет HTML в JS;&lt;/li&gt;
+&lt;li&gt;компоненты можно связывать в иерархические структуры;&lt;/li&gt;
+&lt;li&gt;состояние нельзя менять напрямую, а только через специальный метод setState() - таким образом React точно узнает, что состояние изменилось и объект надо перерисовать;&lt;/li&gt;
+&lt;li&gt;состояние принято хранить в родительском компоненте, и передавать его в дочерние компоненты через properties.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Далее надо слегка погрузиться в ECMAScript 6 aka ES2015:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://babeljs.io/docs/learn-es2015/&#34;&gt;Learn ES2015&lt;/a&gt; - кратенько про отличия от ES5&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.2ality.com/2012/07/esnext-classes.html&#34;&gt;ECMAScript 6: classes&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.2ality.com/2012/04/arrow-functions.html&#34;&gt;ECMAScript 6: arrow functions and method definitions&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.benmvp.com/learning-es6-enhanced-object-literals/&#34;&gt;Learning ES6: Enhanced object literals&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Теперь рекомендую форкнуть &lt;a href=&#34;https://github.com/reactjs/react-tutorial&#34;&gt;React tutorial&lt;/a&gt; и поиграться с ним, например:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;заменить &amp;ldquo;var&amp;rdquo; на &amp;ldquo;let/const&amp;rdquo;;&lt;/li&gt;
+&lt;li&gt;заменить определения методов внутри объектов (Enhanced object literals);&lt;/li&gt;
+&lt;li&gt;заменить потенциально опасные манипуляции со сложным стейтом (объекты, массивы) с помощью &lt;a href=&#34;https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Global_Objects/Array/splice&#34;&gt;Array.prototype.splice()&lt;/a&gt; или &lt;a href=&#34;https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Global_Objects/Array/concat&#34;&gt;Array.prototype.concat()&lt;/a&gt; на изменения с помощью идеологически верных &lt;a href=&#34;https://facebook.github.io/react/docs/update.html&#34;&gt;Immutability Helpers&lt;/a&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Про модули:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://frontender.info/es6-modules/&#34;&gt;Модули в ECMAScript 6: будущее уже сейчас&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://habrahabr.ru/post/250103/&#34;&gt;Как мы готовим React, Require и Backbone&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Переходим к тяжелым упражнениям:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://spring.io/guides/tutorials/react-and-spring-data-rest/&#34;&gt;React.js and Spring Data REST&lt;/a&gt; - мегаматериал про связку со Spring Boot&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Чтобы не ставить nodejs, npm и bower локально, можно использовать:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/eirslett/frontend-maven-plugin&#34;&gt;Frontend maven plugin&lt;/a&gt; - для проектов на Java&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/DigitallySeamless/docker-nodejs-bower-grunt&#34;&gt;Node.js w/ Bower &amp;amp; Grunt&lt;/a&gt; - для всего остального&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Дополнительные компоненты:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://react-bootstrap.github.io/&#34;&gt;React-Bootstrap&lt;/a&gt; - Bootstrap-компоненты, переписанные на React&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/AllenFang/react-bootstrap-table&#34;&gt;react-bootstrap-table&lt;/a&gt; - крутая Bootstrap-compartible табличка&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Тестирование:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://facebook.github.io/react/docs/test-utils.html&#34;&gt;ReactTestUtils&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Просто интересные ресурсы:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://geowarin.github.io/spring-boot-and-react-hot.html&#34;&gt;Spring Boot and React hot loader&lt;/a&gt; - пока не читал&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://blog.risingstack.com/the-react-way-getting-started-tutorial/&#34;&gt;The React.js Way: Getting Started Tutorial&lt;/a&gt; - пока не читал&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/winterbe/spring-react-example&#34;&gt;Spring Boot React Example&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

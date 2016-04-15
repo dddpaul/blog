@@ -74,9 +74,13 @@
             
             <li><a href="https://dddpaul.github.io/blog//tags/javascript/">javascript</a> </li>
             
+            <li><a href="https://dddpaul.github.io/blog//tags/javasscript/">javasscript</a> </li>
+            
             <li><a href="https://dddpaul.github.io/blog//tags/linux/">linux</a> </li>
             
             <li><a href="https://dddpaul.github.io/blog//tags/python/">python</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/react/">react</a> </li>
             
         </ul>
 
@@ -88,6 +92,95 @@
 <div class="content container">
     <div class="posts">
 
+        
+        <div class="post">
+            <h1 class="post-title">
+                <a href="https://dddpaul.github.io/blog/2016/04/15/react-for-starters/">
+                    Быстрое погружение в React
+                </a>
+            </h1>
+
+            <span class="post-date">2016-04-15</span>
+
+            <p>Для разогрева:</p>
+
+<ul>
+<li><a href="https://facebook.github.io/react/docs/tutorial.html">React tutorial</a></li>
+<li><a href="https://ru.hexlet.io/courses/reactjs">Курс на Хекслете</a></li>
+</ul>
+
+<p>После этого более-менее должно оформиться понимание, что:</p>
+
+<ul>
+<li>React - это V в MVC;</li>
+<li>основа React - это компоненты;</li>
+<li>у компонента есть главный метод render(), который дергается React&rsquo;ом, когда нужно отобразить или перерисовать компонент;</li>
+<li>компоненты инициализируется через properties, и хранят state;</li>
+<li>компоненты пишутся на JSX - специальный синтаксис, который &ldquo;бесшовно&rdquo; внедряет HTML в JS;</li>
+<li>компоненты можно связывать в иерархические структуры;</li>
+<li>состояние нельзя менять напрямую, а только через специальный метод setState() - таким образом React точно узнает, что состояние изменилось и объект надо перерисовать;</li>
+<li>состояние принято хранить в родительском компоненте, и передавать его в дочерние компоненты через properties.</li>
+</ul>
+
+<p>Далее надо слегка погрузиться в ECMAScript 6 aka ES2015:</p>
+
+<ul>
+<li><a href="https://babeljs.io/docs/learn-es2015/">Learn ES2015</a> - кратенько про отличия от ES5</li>
+<li><a href="http://www.2ality.com/2012/07/esnext-classes.html">ECMAScript 6: classes</a></li>
+<li><a href="http://www.2ality.com/2012/04/arrow-functions.html">ECMAScript 6: arrow functions and method definitions</a></li>
+<li><a href="http://www.benmvp.com/learning-es6-enhanced-object-literals/">Learning ES6: Enhanced object literals</a></li>
+</ul>
+
+<p>Теперь рекомендую форкнуть <a href="https://github.com/reactjs/react-tutorial">React tutorial</a> и поиграться с ним, например:</p>
+
+<ul>
+<li>заменить &ldquo;var&rdquo; на &ldquo;let/const&rdquo;;</li>
+<li>заменить определения методов внутри объектов (Enhanced object literals);</li>
+<li>заменить потенциально опасные манипуляции со сложным стейтом (объекты, массивы) с помощью <a href="https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Global_Objects/Array/splice">Array.prototype.splice()</a> или <a href="https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Global_Objects/Array/concat">Array.prototype.concat()</a> на изменения с помощью идеологически верных <a href="https://facebook.github.io/react/docs/update.html">Immutability Helpers</a>.</li>
+</ul>
+
+<p>Про модули:</p>
+
+<ul>
+<li><a href="http://frontender.info/es6-modules/">Модули в ECMAScript 6: будущее уже сейчас</a></li>
+<li><a href="https://habrahabr.ru/post/250103/">Как мы готовим React, Require и Backbone</a></li>
+</ul>
+
+<p>Переходим к тяжелым упражнениям:</p>
+
+<ul>
+<li><a href="https://spring.io/guides/tutorials/react-and-spring-data-rest/">React.js and Spring Data REST</a> - мегаматериал про связку со Spring Boot</li>
+</ul>
+
+<p>Чтобы не ставить nodejs, npm и bower локально, можно использовать:</p>
+
+<ul>
+<li><a href="https://github.com/eirslett/frontend-maven-plugin">Frontend maven plugin</a> - для проектов на Java</li>
+<li><a href="https://github.com/DigitallySeamless/docker-nodejs-bower-grunt">Node.js w/ Bower &amp; Grunt</a> - для всего остального</li>
+</ul>
+
+<p>Дополнительные компоненты:</p>
+
+<ul>
+<li><a href="https://react-bootstrap.github.io/">React-Bootstrap</a> - Bootstrap-компоненты, переписанные на React</li>
+<li><a href="https://github.com/AllenFang/react-bootstrap-table">react-bootstrap-table</a> - крутая Bootstrap-compartible табличка</li>
+</ul>
+
+<p>Тестирование:</p>
+
+<ul>
+<li><a href="http://facebook.github.io/react/docs/test-utils.html">ReactTestUtils</a></li>
+</ul>
+
+<p>Просто интересные ресурсы:</p>
+
+<ul>
+<li><a href="http://geowarin.github.io/spring-boot-and-react-hot.html">Spring Boot and React hot loader</a> - пока не читал</li>
+<li><a href="https://blog.risingstack.com/the-react-way-getting-started-tutorial/">The React.js Way: Getting Started Tutorial</a> - пока не читал</li>
+<li><a href="https://github.com/winterbe/spring-react-example">Spring Boot React Example</a></li>
+</ul>
+
+        </div>
         
         <div class="post">
             <h1 class="post-title">
@@ -1089,55 +1182,6 @@ DEBUG 23601 --- [lication.main()] o.s.c.e.PropertySourcesPropertyResolver  : Sea
 </ul>
 
 <p>But do not forget about AutoValue because it&rsquo;s backed by Google itself.</p>
-
-        </div>
-        
-        <div class="post">
-            <h1 class="post-title">
-                <a href="https://dddpaul.github.io/blog/2015/02/14/oracle-connectivity/">
-                    Oracle connectivity in Java
-                </a>
-            </h1>
-
-            <span class="post-date">2015-02-14</span>
-
-            <p>A new small <a href="https://github.com/dddpaul/java-oracle-connectivity">test project</a> is intended to answer the question - what is the proper way to specify network timeout for database connection?</p>
-
-<p>There so many ways in JDBC API:</p>
-
-<ul>
-<li>[CommonDataSource.setLoginTimeout](<a href="http://docs.oracle.com/javase/7/docs/api/javax/sql/CommonDataSource.html#setLoginTimeout(int)">http://docs.oracle.com/javase/7/docs/api/javax/sql/CommonDataSource.html#setLoginTimeout(int)</a>)</li>
-<li>[Connection.setNetworkTimeout](<a href="http://docs.oracle.com/javase/7/docs/api/java/sql/Connection.html#setNetworkTimeout(java.util.concurrent.Executor,%20int)">http://docs.oracle.com/javase/7/docs/api/java/sql/Connection.html#setNetworkTimeout(java.util.concurrent.Executor,%20int)</a>)</li>
-<li>[Statement.setQueryTimeout](<a href="http://docs.oracle.com/javase/7/docs/api/java/sql/Statement.html#setQueryTimeout(int)">http://docs.oracle.com/javase/7/docs/api/java/sql/Statement.html#setQueryTimeout(int)</a>)</li>
-</ul>
-
-<p>And every database has it&rsquo;s own non-standard ways in addition.</p>
-
-<p>But these tests have been lead us to a single conclusion — you must specify network timeouts on driver level. All these JDBC stuff isn&rsquo;t enough for Oracle database.</p>
-
-<p>This code is suitable for <a href="http://tomcat.apache.org/tomcat-7.0-doc/jdbc-pool.html">Tomcat JDBC Connection Pool</a>:</p>
-
-<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="c1">// Get datasource some way</span>
-<span class="n">Datasource</span> <span class="n">ds</span> <span class="o">=</span> <span class="n">createDataSource</span><span class="o">(</span><span class="n">host</span><span class="o">);</span>
-
-<span class="c1">// Set connect (login) timeout</span>
-<span class="n">ds</span><span class="o">.</span><span class="na">setConnectionProperties</span><span class="o">(</span><span class="n">OracleConnection</span><span class="o">.</span><span class="na">CONNECTION_PROPERTY_THIN_NET_CONNECT_TIMEOUT</span> <span class="o">+</span> <span class="s">&quot;=3000&quot;</span><span class="o">);</span>
-
-<span class="c1">// Set common network read timeout</span>
-<span class="n">ds</span><span class="o">.</span><span class="na">setConnectionProperties</span><span class="o">(</span><span class="n">OracleConnection</span><span class="o">.</span><span class="na">CONNECTION_PROPERTY_THIN_READ_TIMEOUT</span> <span class="o">+</span> <span class="s">&quot;=3000&quot;</span><span class="o">);</span>
-</code></pre></div>
-
-
-<p>The proper way to specify these timeouts in <a href="http://tomcat.apache.org/tomcat-7.0-doc/jndi-datasource-examples-howto.html">JNDI Datasource configuration</a>:</p>
-
-<p><div class="highlight"><pre><code class="language-xml" data-lang="xml"><span class="nt">&lt;Resource</span> <span class="na">name=</span><span class="s">&quot;jdbc/oracle&quot;</span>
-    <span class="na">driverClassName=</span><span class="s">&quot;oracle.jdbc.OracleDriver&quot;</span>
-    <span class="na">factory=</span><span class="s">&quot;org.apache.tomcat.jdbc.pool.DataSourceFactory&quot;</span>
-    <span class="na">connectionProperties=</span><span class="s">&quot;oracle.net.CONNECT_TIMEOUT=3000;oracle.jdbc.ReadTimeout=3000&quot;</span>
-    <span class="err">...</span>
-    <span class="nt">/&gt;</span>
-</code></pre></div>
-</p>
 
         </div>
         
