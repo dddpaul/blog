@@ -28,7 +28,7 @@ tags = [ "React", "JavasScript" ]
 * [ECMAScript 6: classes](http://www.2ality.com/2012/07/esnext-classes.html) - новый синтаксис классов
 * [ECMAScript 6: arrow functions and method definitions](http://www.2ality.com/2012/04/arrow-functions.html) - лямбды!
 * [Learning ES6: Enhanced object literals](http://www.benmvp.com/learning-es6-enhanced-object-literals/) - less boilerplate in objects
-* (React на ES6+)[https://habrahabr.ru/post/262183/] - кратко обо всем, пока не читал
+* [React на ES6+](https://habrahabr.ru/post/262183/) - кратко обо всем, пока не читал
 
 Теперь рекомендую форкнуть [React tutorial](https://github.com/reactjs/react-tutorial) и поиграться с ним, например:
 
