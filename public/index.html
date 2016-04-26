@@ -125,26 +125,110 @@
 <p>Далее надо слегка погрузиться в ECMAScript 6 aka ES2015:</p>
 
 <ul>
+<li><a href="https://learn.javascript.ru/es-modern-usage">ES-2015 сейчас</a> - введение</li>
 <li><a href="https://babeljs.io/docs/learn-es2015/">Learn ES2015</a> - кратенько про отличия от ES5</li>
-<li><a href="http://www.2ality.com/2012/07/esnext-classes.html">ECMAScript 6: classes</a></li>
-<li><a href="http://www.2ality.com/2012/04/arrow-functions.html">ECMAScript 6: arrow functions and method definitions</a></li>
-<li><a href="http://www.benmvp.com/learning-es6-enhanced-object-literals/">Learning ES6: Enhanced object literals</a></li>
+<li><a href="http://www.2ality.com/2012/07/esnext-classes.html">ECMAScript 6: classes</a> - новый синтаксис классов</li>
+<li><a href="http://www.2ality.com/2012/04/arrow-functions.html">ECMAScript 6: arrow functions and method definitions</a> - лямбды!</li>
+<li><a href="http://www.benmvp.com/learning-es6-enhanced-object-literals/">Learning ES6: Enhanced object literals</a> - less boilerplate in objects</li>
+<li>(React на ES6+)[<a href="https://habrahabr.ru/post/262183/">https://habrahabr.ru/post/262183/</a>] - кратко обо всем, пока не читал</li>
 </ul>
 
 <p>Теперь рекомендую форкнуть <a href="https://github.com/reactjs/react-tutorial">React tutorial</a> и поиграться с ним, например:</p>
 
 <ul>
+<li>перевести проект на Webpack для дальнейшей работы с модулями, см. <a href="https://www.twilio.com/blog/2015/08/setting-up-react-for-es6-with-webpack-and-babel-2.html">Setting up React for ES6 with Webpack and Babel</a></li>
+<li>подключить live and <a href="http://gaearon.github.io/react-hot-loader/getstarted/">hot reload</a>;</li>
 <li>заменить &ldquo;var&rdquo; на &ldquo;let/const&rdquo;;</li>
 <li>заменить определения методов внутри объектов (Enhanced object literals);</li>
-<li>заменить потенциально опасные манипуляции со сложным стейтом (объекты, массивы) с помощью <a href="https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Global_Objects/Array/splice">Array.prototype.splice()</a> или <a href="https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Global_Objects/Array/concat">Array.prototype.concat()</a> на изменения с помощью идеологически верных <a href="https://facebook.github.io/react/docs/update.html">Immutability Helpers</a>.</li>
+<li>заменить потенциально опасные манипуляции со сложным стейтом (объекты, массивы) с помощью <a href="https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Global_Objects/Array/splice">Array.prototype.splice()</a> или <a href="https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Global_Objects/Array/concat">Array.prototype.concat()</a> на изменения с помощью идеологически верных <a href="https://facebook.github.io/react/docs/update.html">Immutability Helpers</a>;</li>
+<li>заменить XHR-вызовы через jQuery на что-то более REST&rsquo;овое, например <a href="https://github.com/github/fetch">fetch API</a>.</li>
 </ul>
+
+<hr />
+
+<p>Кракая выжимка для начала работы с Webpack:</p>
+
+<pre><code>npm install --save react
+npm install --save react-dom
+npm install --save-dev webpack
+npm install --save-dev babel-loader
+npm install --save-dev babel-core
+npm install --save-dev babel-preset-es2015
+npm install --save-dev babel-preset-react
+npm install --save-dev react-hot-loader
+</code></pre>
+
+<p>Для запуска webpack-dev-server надо запустить в $HOME:</p>
+
+<pre><code>npm install webpack-dev-server
+</code></pre>
+
+<p>В этом случае webpack-dev-server будет установлен в $HOME/node_modules, и симлинк на него будет в $HOME/node_modules/.bin. Этот каталог уже можно включить в $PATH и запускать webpack и webpack-dev-server из любого места.</p>
+
+<p>Типовое содержимое webpack.config.js:</p>
+
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">path</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;path&#39;</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">webpack</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;webpack&#39;</span><span class="p">);</span>
+
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="nx">entry</span><span class="o">:</span> <span class="s1">&#39;./public/scripts/example.js&#39;</span><span class="p">,</span>
+  <span class="nx">output</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">path</span><span class="o">:</span> <span class="nx">__dirname</span> <span class="o">+</span> <span class="s2">&quot;/public/build&quot;</span><span class="p">,</span>
+    <span class="nx">filename</span><span class="o">:</span> <span class="s1">&#39;bundle.js&#39;</span>
+  <span class="p">},</span>
+  <span class="nx">module</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">loaders</span><span class="o">:</span> <span class="p">[{</span>
+      <span class="nx">test</span><span class="o">:</span> <span class="sr">/.jsx?$/</span><span class="p">,</span>
+      <span class="nx">loaders</span><span class="o">:</span> <span class="p">[</span><span class="s2">&quot;react-hot&quot;</span><span class="p">,</span> <span class="s2">&quot;babel-loader?presets[]=react,presets[]=es2015&quot;</span><span class="p">],</span>
+      <span class="nx">exclude</span><span class="o">:</span> <span class="sr">/node_modules/</span>
+    <span class="p">}]</span>
+  <span class="p">},</span>
+  <span class="nx">plugins</span><span class="o">:</span> <span class="p">[</span>
+    <span class="k">new</span> <span class="nx">webpack</span><span class="p">.</span><span class="nx">HotModuleReplacementPlugin</span><span class="p">(),</span>
+    <span class="k">new</span> <span class="nx">webpack</span><span class="p">.</span><span class="nx">NoErrorsPlugin</span><span class="p">(),</span> <span class="c1">// don&#39;t reload if there is an error</span>
+  <span class="p">]</span>
+<span class="p">};</span>
+</code></pre></div>
+
+
+<p>Теперь можно запустить <code>webpack -w</code> и, при любых изменениях js-файлов, будет автоматически пересобираться bundle.js. Reload в браузере все-таки придется сделать. Полноценный hot&amp;live reload можно организовать только с помощью webpack-dev-server.</p>
+
+<hr />
 
 <p>Про модули:</p>
 
 <ul>
 <li><a href="http://frontender.info/es6-modules/">Модули в ECMAScript 6: будущее уже сейчас</a></li>
+<li><a href="http://www.2ality.com/2015/12/babel-commonjs.html">Babel and CommonJS modules</a></li>
+<li><a href="http://frontender.info/packing-the-web-like-a-boss/">Пакуем как боги</a></li>
 <li><a href="https://habrahabr.ru/post/250103/">Как мы готовим React, Require и Backbone</a></li>
+<li><a href="https://medium.com/@rajaraodv/webpack-the-confusing-parts-58712f8fcad9#.7ffl30blv">Webpack — The Confusing Parts</a></li>
 </ul>
+
+<p>Про компоненты:</p>
+
+<ul>
+<li><a href="https://facebook.github.io/react/docs/reusable-components.html">Reusable Components</a> - пока не читал</li>
+</ul>
+
+<hr />
+
+<p>Внедрение <a href="https://github.com/github/fetch">fetch API</a>:</p>
+
+<pre><code>npm install --save whatwg-fetch
+npm install --save imports-loader exports-loader
+</code></pre>
+
+<p>Остальные ссылки по fetch:</p>
+
+<ul>
+<li><a href="https://davidwalsh.name/fetch">fetch API</a></li>
+<li><a href="https://habrahabr.ru/post/252941/">Введение в fetch</a></li>
+<li><a href="https://hacks.mozilla.org/2015/03/this-api-is-so-fetching/">This API is so Fetching!</a></li>
+<li><a href="http://mts.io/2015/04/08/webpack-shims-polyfills/">Using webpack with shims and polyfills</a></li>
+</ul>
+
+<hr />
 
 <p>Переходим к тяжелым упражнениям:</p>
 
@@ -156,8 +240,10 @@
 
 <ul>
 <li><a href="https://github.com/eirslett/frontend-maven-plugin">Frontend maven plugin</a> - для проектов на Java</li>
-<li><a href="https://github.com/DigitallySeamless/docker-nodejs-bower-grunt">Node.js w/ Bower &amp; Grunt</a> - для всего остального</li>
+<li>Docker-образ <a href="https://github.com/DigitallySeamless/docker-nodejs-bower-grunt">Node.js w/ Bower &amp; Grunt</a> - для всего остального</li>
 </ul>
+
+<p>Но проще всего установить nodejs &amp; npm с <a href="https://nodejs.org">https://nodejs.org</a>.</p>
 
 <p>Дополнительные компоненты:</p>
 
