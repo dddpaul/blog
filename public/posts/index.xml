@@ -43,7 +43,7 @@
 &lt;li&gt;&lt;a href=&#34;http://www.2ality.com/2012/07/esnext-classes.html&#34;&gt;ECMAScript 6: classes&lt;/a&gt; - новый синтаксис классов&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;http://www.2ality.com/2012/04/arrow-functions.html&#34;&gt;ECMAScript 6: arrow functions and method definitions&lt;/a&gt; - лямбды!&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;http://www.benmvp.com/learning-es6-enhanced-object-literals/&#34;&gt;Learning ES6: Enhanced object literals&lt;/a&gt; - less boilerplate in objects&lt;/li&gt;
-&lt;li&gt;(React на ES6+)[&lt;a href=&#34;https://habrahabr.ru/post/262183/&#34;&gt;https://habrahabr.ru/post/262183/&lt;/a&gt;] - кратко обо всем, пока не читал&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://habrahabr.ru/post/262183/&#34;&gt;React на ES6+&lt;/a&gt; - кратко обо всем, пока не читал&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;p&gt;Теперь рекомендую форкнуть &lt;a href=&#34;https://github.com/reactjs/react-tutorial&#34;&gt;React tutorial&lt;/a&gt; и поиграться с ним, например:&lt;/p&gt;
