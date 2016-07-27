@@ -20,6 +20,7 @@
 &lt;ul&gt;
 &lt;li&gt;&lt;a href=&#34;http://lk4d4.darth.io/posts/bench/&#34;&gt;Go Benchmarks&lt;/a&gt; - How to write and use benchmarks&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;http://dave.cheney.net/2013/07/07/introducing-profile-super-simple-profiling-for-go-programs&#34;&gt;Introducing profile, super simple profiling for Go programs&lt;/a&gt; - A simple way to profile an existing Go program&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://blog.ralch.com/tutorial/golang-performance-and-memory-analysis/&#34;&gt;Performance and memory analysis of Golang programs&lt;/a&gt; - Performance metrics analysis&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;http://eax.me/go-profiling/&#34;&gt;Профилирование в Go (гостевой пост Владимира Солонина)&lt;/a&gt; - Доступно о профилировании на русском&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;https://habrahabr.ru/company/badoo/blog/302134/&#34;&gt;Видео докладов с Весеннего Go митапа&lt;/a&gt; - Особо интересен доклад Марко Кеваца о профилировании (на русском)&lt;/li&gt;
 &lt;/ul&gt;
