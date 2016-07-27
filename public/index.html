@@ -93,6 +93,26 @@
         
         <div class="post">
             <h1 class="post-title">
+                <a href="https://dddpaul.github.io/blog/2016/07/15/golang-profiling-links/">
+                    Golang profiling links
+                </a>
+            </h1>
+
+            <span class="post-date">2016-07-15</span>
+
+            <p>Some useful articles &amp; videos about profiling &amp; benchmarking Go programs:</p>
+
+<ul>
+<li><a href="http://lk4d4.darth.io/posts/bench/">Go Benchmarks</a> - How to write and use benchmarks</li>
+<li><a href="http://dave.cheney.net/2013/07/07/introducing-profile-super-simple-profiling-for-go-programs">Introducing profile, super simple profiling for Go programs</a> - A simple way to profile an existing Go program</li>
+<li><a href="http://eax.me/go-profiling/">Профилирование в Go (гостевой пост Владимира Солонина)</a> - Доступно о профилировании на русском</li>
+<li><a href="https://habrahabr.ru/company/badoo/blog/302134/">Видео докладов с Весеннего Go митапа</a> - Особо интересен доклад Марко Кеваца о профилировании (на русском)</li>
+</ul>
+
+        </div>
+        
+        <div class="post">
+            <h1 class="post-title">
                 <a href="https://dddpaul.github.io/blog/2016/04/15/react-for-starters/">
                     Быстрое погружение в React
                 </a>
@@ -1232,40 +1252,6 @@ DEBUG 23601 --- [lication.main()] o.s.c.e.PropertySourcesPropertyResolver  : Sea
 <li><a href="https://raw.githubusercontent.com/rabbitmq/rabbitmq-java-client/master/test/src/com/rabbitmq/examples/ConfirmDontLoseMessages.java">ConfirmDontLoseMessages.java</a></li>
 <li><a href="http://habrahabr.ru/post/262069/">RabbitMQ Spring tutorial</a> &amp; <a href="https://github.com/Dmitry-Shweikus/rabbitmq-examples">rabbitmq-examples</a></li>
 </ul>
-
-        </div>
-        
-        <div class="post">
-            <h1 class="post-title">
-                <a href="https://dddpaul.github.io/blog/2015/04/12/java-builders/">
-                    Java builders
-                </a>
-            </h1>
-
-            <span class="post-date">2015-04-12</span>
-
-            <p>So it&rsquo;s time to scrutinize <a href="http://en.wikipedia.org/wiki/Builder_pattern">a builder pattern</a>. There are bunch of options to implement builder pattern in Java:</p>
-
-<ul>
-<li><a href="http://habrahabr.ru/post/86252/">classic</a> builder;</li>
-<li><a href="http://habrahabr.ru/post/244521/">elegant</a> builder;</li>
-<li>classic builder with <a href="https://github.com/analytically/innerbuilder">IntelliJ IDEA plugin</a>;</li>
-<li><a href="https://github.com/google/auto/tree/master/value">Google AutoValue</a> builder;</li>
-<li><a href="http://projectlombok.org/features/Builder.html">Project Lombok</a> builder;</li>
-<li><a href="https://github.com/mkarneim/pojobuilder">POJO</a> builder;</li>
-<li><a href="http://immutables.github.io/">Immutables</a> builder.</li>
-</ul>
-
-<p>All of these variants have been examined in <a href="https://github.com/dddpaul/java-builders">Java builders</a> GitHub project.</p>
-
-<p>The winners are (and this a tough IMHO):</p>
-
-<ul>
-<li>IDEA InnerBuilder plugin if you use builder class from frameworks like <a href="http://spring.io/">Spring/Spring MVC</a> or <a href="https://www.playframework.com/">Play</a>. You can&rsquo;t pass validation annotations to generated class. Despite everything if there is a way to do this I&rsquo;ll be happy to mistake.</li>
-<li>Immutables.org builder in all other cases. It&rsquo;s features rich and generates beautiful code.</li>
-</ul>
-
-<p>But do not forget about AutoValue because it&rsquo;s backed by Google itself.</p>
 
         </div>
         

@@ -6,8 +6,25 @@
     <description>Recent content on Dev notes</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 15 Apr 2016 13:00:00 +0300</lastBuildDate>
+    <lastBuildDate>Fri, 15 Jul 2016 15:45:00 +0300</lastBuildDate>
     <atom:link href="https://dddpaul.github.io/blog/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Golang profiling links</title>
+      <link>https://dddpaul.github.io/blog/2016/07/15/golang-profiling-links/</link>
+      <pubDate>Fri, 15 Jul 2016 15:45:00 +0300</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2016/07/15/golang-profiling-links/</guid>
+      <description>&lt;p&gt;Some useful articles &amp;amp; videos about profiling &amp;amp; benchmarking Go programs:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://lk4d4.darth.io/posts/bench/&#34;&gt;Go Benchmarks&lt;/a&gt; - How to write and use benchmarks&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://dave.cheney.net/2013/07/07/introducing-profile-super-simple-profiling-for-go-programs&#34;&gt;Introducing profile, super simple profiling for Go programs&lt;/a&gt; - A simple way to profile an existing Go program&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://eax.me/go-profiling/&#34;&gt;Профилирование в Go (гостевой пост Владимира Солонина)&lt;/a&gt; - Доступно о профилировании на русском&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://habrahabr.ru/company/badoo/blog/302134/&#34;&gt;Видео докладов с Весеннего Go митапа&lt;/a&gt; - Особо интересен доклад Марко Кеваца о профилировании (на русском)&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
     
     <item>
       <title>Быстрое погружение в React</title>
@@ -1374,88 +1391,6 @@ end script
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;Теперь можно запустить тестовое окружение из любого места командой &lt;code&gt;start fig-test-env&lt;/code&gt;, а остановить — &lt;code&gt;stop fig-test-env&lt;/code&gt;.&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Связывание контейнеров</title>
-      <link>https://dddpaul.github.io/blog/2015/01/08/docker-linking/</link>
-      <pubDate>Thu, 08 Jan 2015 13:49:06 +0000</pubDate>
-      
-      <guid>https://dddpaul.github.io/blog/2015/01/08/docker-linking/</guid>
-      <description>&lt;p&gt;Это вторая статья цикла 
-&lt;a href=&#39;https://dddpaul.github.io/blog//series/building-test-environments-with-docker/&#39;&gt;Building test environments with Docker&lt;/a&gt;.&lt;/p&gt;
-
-&lt;p&gt;При создании тестовых окружений из нескольких контейнеров неизбежно возникает задача их взаимного связывания. Набивший оскомину пример: контейнеру с приложением нужен контейнер БД. В нашем же случае, контейнеру с балансером нужны контейнеры с апстримами.&lt;/p&gt;
-
-&lt;p&gt;Статья &lt;a href=&#34;https://docs.docker.com/userguide/dockerlinks/&#34;&gt;Linking Containers Together&lt;/a&gt; полностью раскрывает вопрос линковки контейнеров. Осветим вкратце лишь основные моменты:&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;каждый контейнер необходимо как-то назвать с помощью опции &lt;code&gt;--name&lt;/code&gt;;&lt;/li&gt;
-&lt;li&gt;ссылка на контейнер-зависимость обозначается опцией &lt;code&gt;--link&lt;/code&gt;;&lt;/li&gt;
-&lt;li&gt;в итоге, внутри зависимого контейнера, инициализируется множество переменных окружения, содержащих параметры контейнера-зависимости, а также в &lt;em&gt;/etc/hosts&lt;/em&gt; заносится IP-адрес контейнера-зависимости.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;Например, так выглядит последовательный запуск 3-х контейнеров, причем 3-й зависит от первых двух:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;docker run -d --privileged -p 2021:22 -p 8081:80 --name app1 smile/tomcat7
-docker run -d --privileged -p 2022:22 -p 8082:80 --name app2 smile/tomcat7
-docker run -d --privileged -p 2020:22 -p 80:80 --name gate --link app1:app1 --link app2:app2 smile/gate
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Для проверки можно использовать вывод &lt;code&gt;docker inspect&lt;/code&gt;:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;docker inspect -f &amp;quot;{{ .HostConfig.Links }}&amp;quot; gate
-
-[/app1:/gate/app1 /app2:/gate/app2]
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Опция &lt;code&gt;-d (detach mode)&lt;/code&gt; здесь необходима, чтобы контейнеры запускались в фоновом режиме и не захватывали консоль.&lt;/p&gt;
-
-&lt;p&gt;Теперь, если зайти в контейнер gate (&lt;code&gt;ssh -p 2020 root@localhost&lt;/code&gt;) и посмотреть переменные окружения, то будет ясно, что gate &amp;ldquo;видит&amp;rdquo; exposed-порты и IP-адрес контейнера-зависимости:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;root@aba982937531:~# env | grep APP1
-APP1_NAME=/gate/app1
-APP1_PORT_22_TCP=tcp://172.17.0.28:22
-APP1_PORT_80_TCP=tcp://172.17.0.28:80
-APP1_PORT_22_TCP_ADDR=172.17.0.28
-APP1_PORT_80_TCP_ADDR=172.17.0.28
-APP1_PORT_22_TCP_PORT=22
-APP1_PORT_80_TCP_PORT=80
-APP1_PORT_80_TCP_PROTO=tcp
-APP1_PORT_22_TCP_PROTO=tcp
-APP1_PORT=tcp://172.17.0.28:22
-...
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Еще лучше дела обстоят с &lt;em&gt;/etc/hosts&lt;/em&gt;:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;root@aba982937531:~# grep app1 /etc/hosts
-172.17.0.28	app1
-
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Модификация &lt;em&gt;/etc/hosts&lt;/em&gt;, например, дает возможность писать следующие кофиги Nginx:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;server {
-    listen 80 default_server;
-    server_name _;
-
-    location /app1 {
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; #
-        proxy_pass http://app1:80/app1;                              # app1 host here
-        proxy_redirect http://127.0.0.1:8081/app1 /app1;             #
-    }
-
-    location /app2 {
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; #
-        proxy_pass http://app2:80/app2;                              # and app2 host here
-        proxy_redirect http://127.0.0.1:8082/app2 /app2;             #
-    }
-}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Таким образом, в первом приближении, встроенная возможность связывания контейнеров в Docker решает наши проблемы.&lt;/p&gt;
 </description>
     </item>
     

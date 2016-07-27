@@ -6,8 +6,25 @@
     <description>Recent content in Golang on Dev notes</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 14 Nov 2014 16:04:00 +0000</lastBuildDate>
+    <lastBuildDate>Fri, 15 Jul 2016 15:45:00 +0300</lastBuildDate>
     <atom:link href="https://dddpaul.github.io/blog/tags/golang/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Golang profiling links</title>
+      <link>https://dddpaul.github.io/blog/2016/07/15/golang-profiling-links/</link>
+      <pubDate>Fri, 15 Jul 2016 15:45:00 +0300</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2016/07/15/golang-profiling-links/</guid>
+      <description>&lt;p&gt;Some useful articles &amp;amp; videos about profiling &amp;amp; benchmarking Go programs:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://lk4d4.darth.io/posts/bench/&#34;&gt;Go Benchmarks&lt;/a&gt; - How to write and use benchmarks&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://dave.cheney.net/2013/07/07/introducing-profile-super-simple-profiling-for-go-programs&#34;&gt;Introducing profile, super simple profiling for Go programs&lt;/a&gt; - A simple way to profile an existing Go program&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://eax.me/go-profiling/&#34;&gt;Профилирование в Go (гостевой пост Владимира Солонина)&lt;/a&gt; - Доступно о профилировании на русском&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://habrahabr.ru/company/badoo/blog/302134/&#34;&gt;Видео докладов с Весеннего Go митапа&lt;/a&gt; - Особо интересен доклад Марко Кеваца о профилировании (на русском)&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
     
     <item>
       <title>Дистанционное управление Motion с помощью Go</title>
