@@ -10,7 +10,7 @@
     <atom:link href="https://dddpaul.github.io/blog/tags/docker/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
-      <title>Ddcker network and Swarm mode links</title>
+      <title>Docker network and Swarm mode links</title>
       <link>https://dddpaul.github.io/blog/2016/08/02/docker-network-swarm-links/</link>
       <pubDate>Tue, 02 Aug 2016 15:45:00 +0300</pubDate>
       
@@ -28,7 +28,7 @@
 
 &lt;ul&gt;
 &lt;li&gt;&lt;a href=&#34;https://blog.docker.com/2016/07/docker-built-in-orchestration-ready-for-production-docker-1-12-goes-ga/&#34;&gt;Docker Built-In Orchestration Ready For Production: Docker 1.12 Goes GA&lt;/a&gt; - Post from Docker blog about Swarm mode release. It contains some links to the videos.&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://blog.hypriot.com/post/more-microservice-bliss-with-docker-1-12/&#34;&gt;More Microservices Bliss with Docker 1.12 and Swarm only&lt;/a&gt; - &lt;a href=&#34;https://traefik.io/&#34;&gt;Traefik&lt;/a&gt; can be replaced with Docker 1.12. routing mesh.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://blog.hypriot.com/post/more-microservice-bliss-with-docker-1-12/&#34;&gt;More Microservices Bliss with Docker 1.12 and Swarm only&lt;/a&gt; - Seems like &lt;a href=&#34;https://traefik.io/&#34;&gt;Traefik&lt;/a&gt; can be partially replaced with Docker 1.12. routing mesh.&lt;/li&gt;
 &lt;/ul&gt;
 </description>
     </item>

@@ -1,7 +1,7 @@
 +++
 date = "2016-08-02T15:45:00+03:00"
 draft = false
-title = "Ddcker network and Swarm mode links"
+title = "Docker network and Swarm mode links"
 tags = ["docker", "linux"]
 
 +++
@@ -16,4 +16,4 @@ Some useful articles & videos about modern networking in Docker:
 Swarm mode was presented in Docker 1.12:
 
 * [Docker Built-In Orchestration Ready For Production: Docker 1.12 Goes GA](https://blog.docker.com/2016/07/docker-built-in-orchestration-ready-for-production-docker-1-12-goes-ga/) - Post from Docker blog about Swarm mode release. It contains some links to the videos.
-* [More Microservices Bliss with Docker 1.12 and Swarm only](http://blog.hypriot.com/post/more-microservice-bliss-with-docker-1-12/) - [Traefik](https://traefik.io/) can be replaced with Docker 1.12. routing mesh.
+* [More Microservices Bliss with Docker 1.12 and Swarm only](http://blog.hypriot.com/post/more-microservice-bliss-with-docker-1-12/) - Seems like [Traefik](https://traefik.io/) can be partially replaced with Docker 1.12. routing mesh.
