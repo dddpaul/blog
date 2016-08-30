@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
 
-  <title> Docker &middot; Dev notes </title>
+  <title> Ddcker network and Swarm mode links &middot; Dev notes </title>
 
   
   <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/poole.css">
@@ -21,7 +21,7 @@
   <link rel="shortcut icon" href="/favicon.png">
 
   
-  <link href="https://dddpaul.github.io/blog/tags/docker/index.xml" rel="alternate" type="application/rss+xml" title="Dev notes" />
+  <link href="" rel="alternate" type="application/rss+xml" title="Dev notes" />
 </head>
 
 <body>
@@ -88,33 +88,64 @@
 
 
 <div class="content container">
+    <div class="post">
+        <h1 class="post-title">Ddcker network and Swarm mode links</h1>
+        <span class="post-date">2016-08-02</span>
 
-    <h1 id="title">Docker</h1>
+        <p>Some useful articles &amp; videos about modern networking in Docker:</p>
 
-    <ul class="posts">
+<ul>
+<li><a href="https://github.com/docker/libnetwork/blob/master/docs/macvlan.md">Macvlan Driver</a> - Docker Macvlan driver is out of experimental in Docker 1.12.</li>
+<li><a href="http://networkstatic.net/configuring-macvlan-ipvlan-linux-networking/">Configuring Macvlan and Ipvlan Linux Networking</a> - What Docker Macvlan driver does under the hood.</li>
+<li><a href="https://github.com/lowescott/2016-dnf-materials">Materials for 2016 DevOps Networking Forum (DNF) Presentation</a> - Slides about Docker networking with Ansible playbooks.</li>
+<li><a href="https://habrahabr.ru/company/badoo/blog/304702/">Видео докладов с Docker митапа</a> - Особо интересен доклад Константина Назарова &ldquo;Каждому контейнеру по IP&rdquo; (на русском).</li>
+</ul>
+
+<p>Swarm mode was presented in Docker 1.12:</p>
+
+<ul>
+<li><a href="https://blog.docker.com/2016/07/docker-built-in-orchestration-ready-for-production-docker-1-12-goes-ga/">Docker Built-In Orchestration Ready For Production: Docker 1.12 Goes GA</a> - Post from Docker blog about Swarm mode release. It contains some links to the videos.</li>
+<li><a href="http://blog.hypriot.com/post/more-microservice-bliss-with-docker-1-12/">More Microservices Bliss with Docker 1.12 and Swarm only</a> - <a href="https://traefik.io/">Traefik</a> can be replaced with Docker 1.12. routing mesh.</li>
+</ul>
+
+    </div>
+
     
-        <li>
-            <time class="pull-right post-list">2016-08-02</time>
-            - <a href="https://dddpaul.github.io/blog/2016/08/02/docker-network-swarm-links/">Ddcker network and Swarm mode links</a>
-        </li>
+
+    Tags:
+    <ul id="tags">
+        
+        
+        <li><a href="https://dddpaul.github.io/blog//tags/docker">docker</a> </li>
+        
+        <li><a href="https://dddpaul.github.io/blog//tags/linux">linux</a> </li>
+        
+    </ul>
+
+    <div id="disqus_thread"></div>
+<script type="text/javascript">
+
+(function() {
     
-        <li>
-            <time class="pull-right post-list">2015-01-12</time>
-            - <a href="https://dddpaul.github.io/blog/2015/01/12/docker-fig/">Запуск контейнеров с помощью Fig</a>
-        </li>
     
-        <li>
-            <time class="pull-right post-list">2015-01-08</time>
-            - <a href="https://dddpaul.github.io/blog/2015/01/08/docker-linking/">Связывание контейнеров</a>
-        </li>
-    
-        <li>
-            <time class="pull-right post-list">2015-01-04</time>
-            - <a href="https://dddpaul.github.io/blog/2015/01/04/docker-prepare/">Подготовка и запуск docker-контейнеров</a>
-        </li>
-    
-  </ul>
+    if (window.location.hostname == "localhost")
+        return;
+
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    var disqus_shortname = 'dddpaul-github';
+    var disqus_identifier = 'https:\/\/dddpaul.github.io\/blog\/2016\/08\/02\/docker-network-swarm-links\/';
+    var disqus_title = 'Ddcker network and Swarm mode links';
+    var disqus_url = 'https:\/\/dddpaul.github.io\/blog\/2016\/08\/02\/docker-network-swarm-links\/';
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+
 </div>
 
 </body>
 </html>
+

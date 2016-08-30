@@ -6,8 +6,32 @@
     <description>Recent content in Docker on Dev notes</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 12 Jan 2015 10:42:00 +0000</lastBuildDate>
+    <lastBuildDate>Tue, 02 Aug 2016 15:45:00 +0300</lastBuildDate>
     <atom:link href="https://dddpaul.github.io/blog/tags/docker/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Ddcker network and Swarm mode links</title>
+      <link>https://dddpaul.github.io/blog/2016/08/02/docker-network-swarm-links/</link>
+      <pubDate>Tue, 02 Aug 2016 15:45:00 +0300</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2016/08/02/docker-network-swarm-links/</guid>
+      <description>&lt;p&gt;Some useful articles &amp;amp; videos about modern networking in Docker:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/docker/libnetwork/blob/master/docs/macvlan.md&#34;&gt;Macvlan Driver&lt;/a&gt; - Docker Macvlan driver is out of experimental in Docker 1.12.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://networkstatic.net/configuring-macvlan-ipvlan-linux-networking/&#34;&gt;Configuring Macvlan and Ipvlan Linux Networking&lt;/a&gt; - What Docker Macvlan driver does under the hood.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/lowescott/2016-dnf-materials&#34;&gt;Materials for 2016 DevOps Networking Forum (DNF) Presentation&lt;/a&gt; - Slides about Docker networking with Ansible playbooks.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://habrahabr.ru/company/badoo/blog/304702/&#34;&gt;Видео докладов с Docker митапа&lt;/a&gt; - Особо интересен доклад Константина Назарова &amp;ldquo;Каждому контейнеру по IP&amp;rdquo; (на русском).&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Swarm mode was presented in Docker 1.12:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://blog.docker.com/2016/07/docker-built-in-orchestration-ready-for-production-docker-1-12-goes-ga/&#34;&gt;Docker Built-In Orchestration Ready For Production: Docker 1.12 Goes GA&lt;/a&gt; - Post from Docker blog about Swarm mode release. It contains some links to the videos.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://blog.hypriot.com/post/more-microservice-bliss-with-docker-1-12/&#34;&gt;More Microservices Bliss with Docker 1.12 and Swarm only&lt;/a&gt; - &lt;a href=&#34;https://traefik.io/&#34;&gt;Traefik&lt;/a&gt; can be replaced with Docker 1.12. routing mesh.&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
     
     <item>
       <title>Запуск контейнеров с помощью Fig</title>
