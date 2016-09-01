@@ -68,6 +68,8 @@
             
             <li><a href="https://dddpaul.github.io/blog//tags/golang/">golang</a> </li>
             
+            <li><a href="https://dddpaul.github.io/blog//tags/golang-linux/">golang-linux</a> </li>
+            
             <li><a href="https://dddpaul.github.io/blog//tags/hugo/">hugo</a> </li>
             
             <li><a href="https://dddpaul.github.io/blog//tags/java/">java</a> </li>
@@ -90,6 +92,156 @@
 <div class="content container">
     <div class="posts">
 
+        
+        <div class="post">
+            <h1 class="post-title">
+                <a href="https://dddpaul.github.io/blog/2016/08/30/gonc/">
+                    Simple Netcat tool written in Go
+                </a>
+            </h1>
+
+            <span class="post-date">2016-08-30</span>
+
+            <p>It&rsquo;s spectacularly simple to implement TCP Netcat in Go thanks to <a href="https://golang.org/pkg/io/#Copy">io.Copy</a>.</p>
+
+<div class="highlight"><pre><code class="language-go" data-lang="go"><span class="kd">type</span> <span class="nx">Progress</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">bytes</span> <span class="kt">uint64</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nx">TransferStreams</span><span class="p">(</span><span class="nx">con</span> <span class="nx">net</span><span class="p">.</span><span class="nx">Conn</span><span class="p">)</span> <span class="p">{</span>
+	<span class="nx">c</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="nx">Progress</span><span class="p">)</span>
+
+	<span class="c1">// Read from Reader and write to Writer until EOF</span>
+	<span class="nx">copy</span> <span class="o">:=</span> <span class="kd">func</span><span class="p">(</span><span class="nx">r</span> <span class="nx">io</span><span class="p">.</span><span class="nx">ReadCloser</span><span class="p">,</span> <span class="nx">w</span> <span class="nx">io</span><span class="p">.</span><span class="nx">WriteCloser</span><span class="p">)</span> <span class="p">{</span>
+		<span class="k">defer</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+			<span class="nx">r</span><span class="p">.</span><span class="nx">Close</span><span class="p">()</span>
+			<span class="nx">w</span><span class="p">.</span><span class="nx">Close</span><span class="p">()</span>
+		<span class="p">}()</span>
+		<span class="nx">n</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">io</span><span class="p">.</span><span class="nx">Copy</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span> <span class="nx">r</span><span class="p">)</span>
+		<span class="nx">c</span> <span class="o">&lt;-</span> <span class="nx">Progress</span><span class="p">{</span><span class="nx">bytes</span><span class="p">:</span> <span class="nb">uint64</span><span class="p">(</span><span class="nx">n</span><span class="p">)}</span>
+	<span class="p">}</span>
+
+	<span class="k">go</span> <span class="nb">copy</span><span class="p">(</span><span class="nx">con</span><span class="p">,</span> <span class="nx">os</span><span class="p">.</span><span class="nx">Stdout</span><span class="p">)</span>
+	<span class="k">go</span> <span class="nb">copy</span><span class="p">(</span><span class="nx">os</span><span class="p">.</span><span class="nx">Stdin</span><span class="p">,</span> <span class="nx">con</span><span class="p">)</span>
+
+	<span class="nx">p</span> <span class="o">:=</span> <span class="o">&lt;-</span><span class="nx">c</span>
+	<span class="nx">log</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">&quot;[%s]: Connection has been closed by remote peer, %d bytes has been received\n&quot;</span><span class="p">,</span> <span class="nx">con</span><span class="p">.</span><span class="nx">RemoteAddr</span><span class="p">(),</span> <span class="nx">p</span><span class="p">.</span><span class="nx">bytes</span><span class="p">)</span>
+	<span class="nx">p</span> <span class="p">=</span> <span class="o">&lt;-</span><span class="nx">c</span>
+	<span class="nx">log</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">&quot;[%s]: Local peer has been stopped, %d bytes has been sent\n&quot;</span><span class="p">,</span> <span class="nx">con</span><span class="p">.</span><span class="nx">RemoteAddr</span><span class="p">(),</span> <span class="nx">p</span><span class="p">.</span><span class="nx">bytes</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div>
+
+
+<p>But it&rsquo;s much more harder to do the same for UDP. UDP is connectionless so there is no &ldquo;streams&rdquo; that can be copied. You must tediously read data from connection to buffer and write this buffer to stdout by one goroutine. And read data from stdin and write it to connection from other goroutine.</p>
+
+<p>Some remarks:</p>
+
+<ul>
+<li>Without streams there is no EOF so we must use some predefined disconnect sequence to terminate transfer.</li>
+<li>Without established connection a listener doesn&rsquo;t know the remote peer address until actual data will be received. So listener must wait for data, then read this data and remote address with <a href="https://golang.org/pkg/net/#UDPConn.ReadFrom">*net.UDPConn.ReadFrom</a>.</li>
+</ul>
+
+<p><div class="highlight"><pre><code class="language-go" data-lang="go"><span class="kd">const</span> <span class="p">(</span>
+	<span class="c1">// BufferLimit specifies buffer size that is sufficient to</span>
+	<span class="c1">// handle full-size UDP datagram or TCP segment in one step</span>
+	<span class="nx">BufferLimit</span> <span class="p">=</span> <span class="mi">2</span><span class="o">&lt;&lt;</span><span class="mi">16</span> <span class="o">-</span> <span class="mi">1</span>
+	<span class="c1">// DisconnectSequence is used to disconnect UDP sessions</span>
+	<span class="nx">DisconnectSequence</span> <span class="p">=</span> <span class="s">&quot;~.&quot;</span>
+<span class="p">)</span>
+
+<span class="c1">// Progress indicates transfer status</span>
+<span class="kd">type</span> <span class="nx">Progress</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">remoteAddr</span> <span class="nx">net</span><span class="p">.</span><span class="nx">Addr</span>
+	<span class="nx">bytes</span>      <span class="kt">uint64</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nx">TransferPackets</span><span class="p">(</span><span class="nx">con</span> <span class="nx">net</span><span class="p">.</span><span class="nx">Conn</span><span class="p">)</span> <span class="p">{</span>
+	<span class="nx">c</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="nx">Progress</span><span class="p">)</span>
+
+	<span class="c1">// Read from Reader and write to Writer until EOF.</span>
+	<span class="c1">// ra is an address to whom packets must be sent in listen mode.</span>
+	<span class="nx">copy</span> <span class="o">:=</span> <span class="kd">func</span><span class="p">(</span><span class="nx">r</span> <span class="nx">io</span><span class="p">.</span><span class="nx">ReadCloser</span><span class="p">,</span> <span class="nx">w</span> <span class="nx">io</span><span class="p">.</span><span class="nx">WriteCloser</span><span class="p">,</span> <span class="nx">ra</span> <span class="nx">net</span><span class="p">.</span><span class="nx">Addr</span><span class="p">)</span> <span class="p">{</span>
+		<span class="k">defer</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+			<span class="nx">r</span><span class="p">.</span><span class="nx">Close</span><span class="p">()</span>
+			<span class="nx">w</span><span class="p">.</span><span class="nx">Close</span><span class="p">()</span>
+		<span class="p">}()</span>
+
+		<span class="nx">buf</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">BufferLimit</span><span class="p">)</span>
+		<span class="nx">bytes</span> <span class="o">:=</span> <span class="nb">uint64</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+		<span class="kd">var</span> <span class="nx">n</span> <span class="kt">int</span>
+		<span class="kd">var</span> <span class="nx">err</span> <span class="kt">error</span>
+		<span class="kd">var</span> <span class="nx">addr</span> <span class="nx">net</span><span class="p">.</span><span class="nx">Addr</span>
+
+		<span class="k">for</span> <span class="p">{</span>
+			<span class="c1">// Read</span>
+			<span class="k">if</span> <span class="nx">con</span><span class="p">,</span> <span class="nx">ok</span> <span class="o">:=</span> <span class="nx">r</span><span class="p">.(</span><span class="o">*</span><span class="nx">net</span><span class="p">.</span><span class="nx">UDPConn</span><span class="p">);</span> <span class="nx">ok</span> <span class="p">{</span>
+				<span class="nx">n</span><span class="p">,</span> <span class="nx">addr</span><span class="p">,</span> <span class="nx">err</span> <span class="p">=</span> <span class="nx">con</span><span class="p">.</span><span class="nx">ReadFrom</span><span class="p">(</span><span class="nx">buf</span><span class="p">)</span>
+				<span class="c1">// In listen mode remote address is unknown until read from</span>
+				<span class="c1">// connection. Inform caller function with this address.</span>
+				<span class="k">if</span> <span class="nx">con</span><span class="p">.</span><span class="nx">RemoteAddr</span><span class="p">()</span> <span class="o">==</span> <span class="kc">nil</span> <span class="o">&amp;&amp;</span> <span class="nx">ra</span> <span class="o">==</span> <span class="kc">nil</span> <span class="p">{</span>
+					<span class="nx">ra</span> <span class="p">=</span> <span class="nx">addr</span>
+					<span class="nx">c</span> <span class="o">&lt;-</span> <span class="nx">Progress</span><span class="p">{</span><span class="nx">remoteAddr</span><span class="p">:</span> <span class="nx">ra</span><span class="p">}</span>
+				<span class="p">}</span>
+			<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+				<span class="nx">n</span><span class="p">,</span> <span class="nx">err</span> <span class="p">=</span> <span class="nx">r</span><span class="p">.</span><span class="nx">Read</span><span class="p">(</span><span class="nx">buf</span><span class="p">)</span>
+			<span class="p">}</span>
+			<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+				<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="nx">io</span><span class="p">.</span><span class="nx">EOF</span> <span class="p">{</span>
+					<span class="nx">log</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">&quot;[%s]: ERROR: %s\n&quot;</span><span class="p">,</span> <span class="nx">ra</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+				<span class="p">}</span>
+				<span class="k">break</span>
+			<span class="p">}</span>
+			<span class="k">if</span> <span class="nb">string</span><span class="p">(</span><span class="nx">buf</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nx">n</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">==</span> <span class="nx">DisconnectSequence</span> <span class="p">{</span>
+				<span class="k">break</span>
+			<span class="p">}</span>
+
+			<span class="c1">// Write</span>
+			<span class="k">if</span> <span class="nx">con</span><span class="p">,</span> <span class="nx">ok</span> <span class="o">:=</span> <span class="nx">w</span><span class="p">.(</span><span class="o">*</span><span class="nx">net</span><span class="p">.</span><span class="nx">UDPConn</span><span class="p">);</span> <span class="nx">ok</span> <span class="o">&amp;&amp;</span> <span class="nx">con</span><span class="p">.</span><span class="nx">RemoteAddr</span><span class="p">()</span> <span class="o">==</span> <span class="kc">nil</span> <span class="p">{</span>
+				<span class="c1">// Connection remote address must be nil otherwise</span>
+				<span class="c1">// &quot;WriteTo with pre-connected connection&quot; will be thrown</span>
+				<span class="nx">n</span><span class="p">,</span> <span class="nx">err</span> <span class="p">=</span> <span class="nx">con</span><span class="p">.</span><span class="nx">WriteTo</span><span class="p">(</span><span class="nx">buf</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nx">n</span><span class="p">],</span> <span class="nx">ra</span><span class="p">)</span>
+			<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+				<span class="nx">n</span><span class="p">,</span> <span class="nx">err</span> <span class="p">=</span> <span class="nx">w</span><span class="p">.</span><span class="nx">Write</span><span class="p">(</span><span class="nx">buf</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nx">n</span><span class="p">])</span>
+			<span class="p">}</span>
+			<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+				<span class="nx">log</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">&quot;[%s]: ERROR: %s\n&quot;</span><span class="p">,</span> <span class="nx">ra</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+				<span class="k">break</span>
+			<span class="p">}</span>
+			<span class="nx">bytes</span> <span class="o">+=</span> <span class="nb">uint64</span><span class="p">(</span><span class="nx">n</span><span class="p">)</span>
+		<span class="p">}</span>
+		<span class="nx">c</span> <span class="o">&lt;-</span> <span class="nx">Progress</span><span class="p">{</span><span class="nx">bytes</span><span class="p">:</span> <span class="nx">bytes</span><span class="p">}</span>
+	<span class="p">}</span>
+
+	<span class="nx">ra</span> <span class="o">:=</span> <span class="nx">con</span><span class="p">.</span><span class="nx">RemoteAddr</span><span class="p">()</span>
+	<span class="k">go</span> <span class="nb">copy</span><span class="p">(</span><span class="nx">con</span><span class="p">,</span> <span class="nx">os</span><span class="p">.</span><span class="nx">Stdout</span><span class="p">,</span> <span class="nx">ra</span><span class="p">)</span>
+	<span class="c1">// If connection hasn&#39;t got remote address then wait for it from receiver goroutine</span>
+	<span class="k">if</span> <span class="nx">ra</span> <span class="o">==</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="nx">p</span> <span class="o">:=</span> <span class="o">&lt;-</span><span class="nx">c</span>
+		<span class="nx">ra</span> <span class="p">=</span> <span class="nx">p</span><span class="p">.</span><span class="nx">remoteAddr</span>
+		<span class="nx">log</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">&quot;[%s]: Datagram has been received\n&quot;</span><span class="p">,</span> <span class="nx">ra</span><span class="p">)</span>
+	<span class="p">}</span>
+	<span class="k">go</span> <span class="nb">copy</span><span class="p">(</span><span class="nx">os</span><span class="p">.</span><span class="nx">Stdin</span><span class="p">,</span> <span class="nx">con</span><span class="p">,</span> <span class="nx">ra</span><span class="p">)</span>
+
+	<span class="nx">p</span> <span class="o">:=</span> <span class="o">&lt;-</span><span class="nx">c</span>
+	<span class="nx">log</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">&quot;[%s]: Connection has been closed, %d bytes has been received\n&quot;</span><span class="p">,</span> <span class="nx">ra</span><span class="p">,</span> <span class="nx">p</span><span class="p">.</span><span class="nx">bytes</span><span class="p">)</span>
+	<span class="nx">p</span> <span class="p">=</span> <span class="o">&lt;-</span><span class="nx">c</span>
+	<span class="nx">log</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">&quot;[%s]: Local peer has been stopped, %d bytes has been sent\n&quot;</span><span class="p">,</span> <span class="nx">ra</span><span class="p">,</span> <span class="nx">p</span><span class="p">.</span><span class="nx">bytes</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div>
+</p>
+
+<p>Links:</p>
+
+<ul>
+<li><a href="https://github.com/dddpaul/gonc">Simple Netcat tool written in Go (gonc)</a> - gonc Github project</li>
+<li><a href="http://www.minaandrawos.com/2016/05/14/udp-vs-tcp-in-golang/">Implementing UDP vs TCP in Golang</a> - Golang TCP/UDP tips and tricks</li>
+<li><a href="https://betabug.nl/golang-bits-and-pieces-io-with-readers-and-writers/">Golang bits and pieces: IO with readers and writers</a> - Readers and Writers everywhere</li>
+<li><a href="https://medium.com/@benbjohnson/go-walkthrough-io-package-8ac5e95a9fbd">Go Walkthrough: io package</a> - Tips and bits of Go io package</li>
+<li><a href="https://habrahabr.ru/post/306914/">Разбираемся в Go: пакет io</a> - Previous article translated</li>
+<li><a href="https://github.com/yanzay/netcat">Simple netcat on go</a> - Another Netcat implementation</li>
+</ul>
+
+        </div>
         
         <div class="post">
             <h1 class="post-title">
@@ -1084,175 +1236,6 @@ DEBUG 23601 --- [lication.main()] o.s.c.e.PropertySourcesPropertyResolver  : Sea
 <p>Конфигурация:</p>
 
 <p><div class="highlight"><pre><code class="language-ini" data-lang="ini"><span class="na">params.unique-param</span> <span class="o">=</span> <span class="s">Another value</span>
-</code></pre></div>
-</p>
-
-        </div>
-        
-        <div class="post">
-            <h1 class="post-title">
-                <a href="https://dddpaul.github.io/blog/2015/06/30/tomcat-http-logging/">
-                    Логирование HTTP-запросов в Tomcat
-                </a>
-            </h1>
-
-            <span class="post-date">2015-06-30</span>
-
-            
-
-<h2 id="apache-tomcat-request-dumper-filter:e82678ac23d6d6c6d716963b71ef486f">Apache Tomcat Request Dumper Filter</h2>
-
-<p><a href="http://tomcat.apache.org/tomcat-7.0-doc/config/filter.html#Request_Dumper_Filter">Request Dumper Filter</a> входит в состав Tomcat. Рассмотрим способы его конфигурации.</p>
-
-<h3 id="spring-boot:e82678ac23d6d6c6d716963b71ef486f">Spring Boot</h3>
-
-<p>Достаточно поместить вот такой bean в класс, аннотированный @Configuration:</p>
-
-<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="nd">@Bean</span>
-<span class="n">RequestDumperFilter</span> <span class="nf">requestDumper</span><span class="o">()</span> <span class="o">{</span>
-    <span class="k">return</span> <span class="k">new</span> <span class="n">RequestDumperFilter</span><span class="o">();</span>
-<span class="o">}</span>
-</code></pre></div>
-
-
-<p>Вывод дампа запросов в отдельный лог здесь не рассматриваем.</p>
-
-<h3 id="tomcat-7:e82678ac23d6d6c6d716963b71ef486f">Tomcat 7</h3>
-
-<p>Стандартный способ конфигурации фильтра — server.xml / context.xml / web.xml, в зависимости от того, какой scope нам нужен. Для логирования запросов в рамках одного приложения — web.xml.</p>
-
-<div class="highlight"><pre><code class="language-xml" data-lang="xml"><span class="nt">&lt;filter&gt;</span>
-    <span class="nt">&lt;filter-name&gt;</span>RequestDumper<span class="nt">&lt;/filter-name&gt;</span>
-    <span class="nt">&lt;filter-class&gt;</span>org.apache.catalina.filters.RequestDumperFilter<span class="nt">&lt;/filter-class&gt;</span>
-<span class="nt">&lt;/filter&gt;</span>
-
-<span class="nt">&lt;filter-mapping&gt;</span>
-    <span class="nt">&lt;filter-name&gt;</span>RequestDumper<span class="nt">&lt;/filter-name&gt;</span>
-    <span class="nt">&lt;url-pattern&gt;</span>*<span class="nt">&lt;/url-pattern&gt;</span>
-<span class="nt">&lt;/filter-mapping&gt;</span>
-</code></pre></div>
-
-
-<p>Для логирования в отдельный файл нужно сконфигурировать <a href="https://tomcat.apache.org/tomcat-7.0-doc/logging.html">Tomcat JULI</a>. По-идее, можно логировать через Apache Commons Logging, но в доке дается пример для JULI. Поэтому, вот такой logging.properties можно смело кидать в webapp/WEB-INF/classes:</p>
-
-<div class="highlight"><pre><code class="language-ini" data-lang="ini"><span class="c1"># Uncomment to dump HTTP request data, see http://tomcat.apache.org/tomcat-7.0-doc/config/filter.html#Request_Dumper_Filter</span>
-<span class="c1">#handlers = 1request-dumper.org.apache.juli.FileHandler</span>
-
-<span class="c1"># To this configuration below, 1request-dumper.org.apache.juli.FileHandler</span>
-<span class="c1"># also needs to be added to the handlers property near the top of the file</span>
-<span class="na">1request-dumper.org.apache.juli.FileHandler.level</span> <span class="o">=</span> <span class="s">INFO</span>
-<span class="na">1request-dumper.org.apache.juli.FileHandler.directory</span> <span class="o">=</span> <span class="s">${catalina.base}/logs</span>
-<span class="na">1request-dumper.org.apache.juli.FileHandler.prefix</span> <span class="o">=</span> <span class="s">request-dumper.</span>
-<span class="na">1request-dumper.org.apache.juli.FileHandler.formatter</span> <span class="o">=</span> <span class="s">org.apache.juli.VerbatimFormatter</span>
-<span class="na">org.apache.catalina.filters.RequestDumperFilter.level</span> <span class="o">=</span> <span class="s">INFO</span>
-<span class="na">org.apache.catalina.filters.RequestDumperFilter.handlers</span> <span class="o">=</span> <span class="s">1request-dumper.org.apache.juli.FileHandler</span>
-</code></pre></div>
-
-
-<p>Получился почти production-ready вариант, для включения логирования можно раскомментировать строчку с handlers и перезапустить приложение. Совсем по-хорошему это нужно сделать через JMX, тогда, быть может, получится избежать перезапуска приложения.</p>
-
-<h3 id="tomcat-5:e82678ac23d6d6c6d716963b71ef486f">Tomcat 5</h3>
-
-<p>Для старого Томката нужно использовать <a href="https://tomcat.apache.org/tomcat-5.5-doc/config/valve.html#Request_Dumper_Valve">Request_Dumper_Valve</a>. Фильтра в базовой поставке еще нет, его нужно отдельно собирать из servlet-examples.</p>
-
-<p>Для включения дампа нужно просто вставить строчку в server.xml (в блоки Engine или Host) и перезапустить сервер Tomcat:</p>
-
-<div class="highlight"><pre><code class="language-xml" data-lang="xml"><span class="nt">&lt;Valve</span> <span class="na">className=</span><span class="s">&quot;org.apache.catalina.valves.RequestDumperValve&quot;</span><span class="nt">/&gt;</span>
-</code></pre></div>
-
-
-<p>В первом случае (Engine) дамп будет выдаваться в catalina.out, а во втором (Host) - в localhost.log.</p>
-
-<hr />
-
-<p>У Request Dumper Filter есть два недостатка:</p>
-
-<ul>
-<li>нельзя залогировать тело запроса, только GET- и POST-параметры;</li>
-<li>нет возможности логировать HTTP-ответы сервера.</li>
-</ul>
-
-<h2 id="кастомные-фильтры:e82678ac23d6d6c6d716963b71ef486f">Кастомные фильтры</h2>
-
-<p>Основная проблема логирования тела запроса — это то, что body из <a href="http://docs.oracle.com/javaee/6/api/javax/servlet/ServletRequest.html">ServletRequest</a> достается из InputStream, т.е. это одноразовая операция. Мы не можем сначала где-то в фильтре прочитать body, залогировать, а потом второй раз прочитать body в обработчике запроса в приложении. В этом случае выскочит что-то вроде &ldquo;java.io.IOException: Attempted read on closed stream&rdquo;.</p>
-
-<p>Различные кастомные способы обходят эту проблему, используя wrapper&rsquo;ы или декораторы. Т.е. в фильтре мы читаем body из ServletRequest в String-поле wrapper&rsquo;а, и далее по цепочке передаем уже wrapper. Метод же getInputStream() создает stream из этого String-поля wrapper&rsquo;а.</p>
-
-<p>Есть две большие статьи с кусками почти работающего кода, реализующего этот подход:</p>
-
-<ul>
-<li><a href="http://natch3z.blogspot.co.uk/2009/01/read-request-body-in-filter.html">Read Request Body in Filter</a></li>
-<li><a href="http://wetfeetblog.com/servlet-filer-to-log-request-and-response-details-and-payload/431">Servlet Filer to Log Request and Response Payload</a></li>
-</ul>
-
-<p>Также есть маленький, но многообещающий проект <a href="https://github.com/isrsal/spring-mvc-logger">spring-mvc-logger</a>, заточенный под Spring MVC (он использует его logging filters). Его я, к сожалению, не смотрел.</p>
-
-<h2 id="logback-access:e82678ac23d6d6c6d716963b71ef486f">Logback-access</h2>
-
-<p>100% работающий способ логировать HTTP-ответы и запросы. Это <a href="http://logback.qos.ch/access.html">Logback-access</a>, часть проекта Logback. Подробнее см. <a href="http://logback.qos.ch/recipes/captureHttp.html">Capturing HTTP requests and responses</a>.</p>
-
-<p>Для выборочного отключения логирования (например, для тестовых или мониторинговых платежей) используется библиотека <a href="http://janino.net/changelog.html">Janino</a>. С ее помощью можно задать для logback-access фильтры (правила), которым должен соответствовать логируемый HTTP-пакет.</p>
-
-<p>Однако, весь набор библиотек:</p>
-
-<ul>
-<li>logback-access.jar + logback-core.jar as dependency,</li>
-<li>janino.jar + commons-compiler.jar as dependency,</li>
-</ul>
-
-<p>должен лежать в $TOMCAT_HOME/lib/.</p>
-
-<p>Конфигурация logback-access.xml кладется в $TOMCAT_HOME/conf/:</p>
-
-<p><div class="highlight"><pre><code class="language-xml" data-lang="xml"><span class="nt">&lt;configuration&gt;</span>
-    <span class="c">&lt;!-- Tomcat&#39;s lib folder must contain logback-core.jar and logback-access.jar to dump HTTP requests and responses --&gt;</span>
-    <span class="nt">&lt;appender</span> <span class="na">name=</span><span class="s">&quot;DUMPER&quot;</span> <span class="na">class=</span><span class="s">&quot;ch.qos.logback.core.rolling.RollingFileAppender&quot;</span><span class="nt">&gt;</span>
-        <span class="c">&lt;!-- Tomcat&#39;s lib folder must contain janino.jar and commons-compiler.jar to filter which HTTP requests and responses to dump --&gt;</span>
-        <span class="nt">&lt;filter</span> <span class="na">class=</span><span class="s">&quot;ch.qos.logback.core.filter.EvaluatorFilter&quot;</span><span class="nt">&gt;</span>
-            <span class="nt">&lt;evaluator&gt;</span>
-                <span class="c">&lt;!-- Disable dumping for HTTP requests for all apps except specified one and for requests with specific header --&gt;</span>
-                <span class="c">&lt;!-- Responses to these requests will not be dumped too --&gt;</span>
-                <span class="nt">&lt;expression&gt;</span>!event.getRequestURI().startsWith(&quot;/webapp&quot;) || event.getRequestHeader(&quot;X-Logging-Disabled&quot;).equals(&quot;true&quot;)<span class="nt">&lt;/expression&gt;</span>
-            <span class="nt">&lt;/evaluator&gt;</span>
-            <span class="nt">&lt;onMismatch&gt;</span>NEUTRAL<span class="nt">&lt;/onMismatch&gt;</span>
-            <span class="nt">&lt;onMatch&gt;</span>DENY<span class="nt">&lt;/onMatch&gt;</span>
-        <span class="nt">&lt;/filter&gt;</span>
-        <span class="nt">&lt;encoder&gt;</span>
-            <span class="nt">&lt;pattern&gt;</span>
-                %date{yyyy-MM-dd HH:mm:ss.SSS} REQUEST: %fullRequest%n%n%date{yyyy-MM-dd HH:mm:ss.SSS} RESPONSE: %fullResponse
-            <span class="nt">&lt;/pattern&gt;</span>
-        <span class="nt">&lt;/encoder&gt;</span>
-        <span class="nt">&lt;file&gt;</span>${catalina.base}/logs/dumper.log<span class="nt">&lt;/file&gt;</span>
-        <span class="nt">&lt;rollingPolicy</span> <span class="na">class=</span><span class="s">&quot;ch.qos.logback.core.rolling.TimeBasedRollingPolicy&quot;</span><span class="nt">&gt;</span>
-            <span class="nt">&lt;fileNamePattern&gt;</span>${catalina.base}/logs/dumper.%d.%i.log<span class="nt">&lt;/fileNamePattern&gt;</span>
-            <span class="nt">&lt;timeBasedFileNamingAndTriggeringPolicy</span> <span class="na">class=</span><span class="s">&quot;ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP&quot;</span><span class="nt">&gt;</span>
-                <span class="nt">&lt;maxFileSize&gt;</span>10MB<span class="nt">&lt;/maxFileSize&gt;</span>
-            <span class="nt">&lt;/timeBasedFileNamingAndTriggeringPolicy&gt;</span>
-        <span class="nt">&lt;/rollingPolicy&gt;</span>
-    <span class="nt">&lt;/appender&gt;</span>
-    <span class="nt">&lt;appender-ref</span> <span class="na">ref=</span><span class="s">&quot;DUMPER&quot;</span><span class="nt">/&gt;</span>
-<span class="nt">&lt;/configuration&gt;</span>
-</code></pre></div>
-</p>
-
-<p>Эта конфигурация устанавливает логирование всех HTTP-запросов на /webapp без HTTP-заголовка X-Logging-Disabled.</p>
-
-<p>Также, должен быть активирован LogbackAccessValve в $TOMCAT_HOME/conf/server.xml (в блоке Host):</p>
-
-<p><div class="highlight"><pre><code class="language-xml" data-lang="xml"><span class="nt">&lt;Valve</span> <span class="na">className=</span><span class="s">&quot;ch.qos.logback.access.tomcat.LogbackValve&quot;</span><span class="nt">/&gt;</span>
-</code></pre></div>
-</p>
-
-<p>Последний штрих — объявление фильтра <a href="http://logback.qos.ch/apidocs/ch/qos/logback/access/servlet/TeeFilter.html">TeeFilter</a>. В Spring Boot это делается элементарно:</p>
-
-<p><div class="highlight"><pre><code class="language-java" data-lang="java"><span class="cm">/**</span>
-<span class="cm"> * Enable HTTP response logging, see &lt;a href=&quot;http://logback.qos.ch/recipes/captureHttp.html&quot;&gt;Capturing HTTP requests and responses&lt;/a&gt;.</span>
-<span class="cm"> * Tomcat&#39;s lib folder must contain logback-core.jar and logback-access.jar.</span>
-<span class="cm"> */</span>
-<span class="nd">@Bean</span>
-<span class="n">Filter</span> <span class="nf">httpRequestAndResponseDumper</span><span class="o">()</span> <span class="o">{</span>
-    <span class="k">return</span> <span class="k">new</span> <span class="n">TeeFilter</span><span class="o">();</span>
-<span class="o">}</span>
 </code></pre></div>
 </p>
 

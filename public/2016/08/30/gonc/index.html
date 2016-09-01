@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="generator" content="Hugo 0.16-DEV" />
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+  <title> Simple Netcat tool written in Go &middot; Dev notes </title>
+
+  
+  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/poole.css">
+  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/syntax.css">
+  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/hyde.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
+
+  
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144-precomposed.png">
+  <link rel="shortcut icon" href="/favicon.png">
+
+  
+  <link href="" rel="alternate" type="application/rss+xml" title="Dev notes" />
+</head>
+
+<body>
+
+<div class="sidebar">
+    <div class="container sidebar-sticky">
+        <div class="sidebar-about">
+            <h1>Dev notes</h1>
+            <p class="lead">
+                 Notes about Android, Java, JavaScript, Go and other technical stuff 
+            </p>
+        </div>
+
+        <ul class="sidebar-nav">
+            <li><a href="/">Home</a> </li>
+            
+            <li><a href="http://github.com/dddpaul"> GitHub </a></li>
+            
+            <li><a href="http://google.com/&#43;PavelDerendyaev1"> Google&#43; </a></li>
+            
+            <li><a href="/blog/index.xml"> RSS </a></li>
+            
+        </ul>
+
+        Tags:
+        <ul>
+            
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/android/">android</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/angularjs/">angularjs</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/ansible/">ansible</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/concurrency/">concurrency</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/database/">database</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/devops/">devops</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/docker/">docker</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/git/">git</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/golang/">golang</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/golang-linux/">golang-linux</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/hugo/">hugo</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/java/">java</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/javascript/">javascript</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/linux/">linux</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/python/">python</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/react/">react</a> </li>
+            
+        </ul>
+
+        <p>&copy; 2016. All rights reserved. </p>
+    </div>
+</div>
+
+
+<div class="content container">
+    <div class="post">
+        <h1 class="post-title">Simple Netcat tool written in Go</h1>
+        <span class="post-date">2016-08-30</span>
+
+        <p>It&rsquo;s spectacularly simple to implement TCP Netcat in Go thanks to <a href="https://golang.org/pkg/io/#Copy">io.Copy</a>.</p>
+
+<div class="highlight"><pre><code class="language-go" data-lang="go"><span class="kd">type</span> <span class="nx">Progress</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">bytes</span> <span class="kt">uint64</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nx">TransferStreams</span><span class="p">(</span><span class="nx">con</span> <span class="nx">net</span><span class="p">.</span><span class="nx">Conn</span><span class="p">)</span> <span class="p">{</span>
+	<span class="nx">c</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="nx">Progress</span><span class="p">)</span>
+
+	<span class="c1">// Read from Reader and write to Writer until EOF</span>
+	<span class="nx">copy</span> <span class="o">:=</span> <span class="kd">func</span><span class="p">(</span><span class="nx">r</span> <span class="nx">io</span><span class="p">.</span><span class="nx">ReadCloser</span><span class="p">,</span> <span class="nx">w</span> <span class="nx">io</span><span class="p">.</span><span class="nx">WriteCloser</span><span class="p">)</span> <span class="p">{</span>
+		<span class="k">defer</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+			<span class="nx">r</span><span class="p">.</span><span class="nx">Close</span><span class="p">()</span>
+			<span class="nx">w</span><span class="p">.</span><span class="nx">Close</span><span class="p">()</span>
+		<span class="p">}()</span>
+		<span class="nx">n</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">io</span><span class="p">.</span><span class="nx">Copy</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span> <span class="nx">r</span><span class="p">)</span>
+		<span class="nx">c</span> <span class="o">&lt;-</span> <span class="nx">Progress</span><span class="p">{</span><span class="nx">bytes</span><span class="p">:</span> <span class="nb">uint64</span><span class="p">(</span><span class="nx">n</span><span class="p">)}</span>
+	<span class="p">}</span>
+
+	<span class="k">go</span> <span class="nb">copy</span><span class="p">(</span><span class="nx">con</span><span class="p">,</span> <span class="nx">os</span><span class="p">.</span><span class="nx">Stdout</span><span class="p">)</span>
+	<span class="k">go</span> <span class="nb">copy</span><span class="p">(</span><span class="nx">os</span><span class="p">.</span><span class="nx">Stdin</span><span class="p">,</span> <span class="nx">con</span><span class="p">)</span>
+
+	<span class="nx">p</span> <span class="o">:=</span> <span class="o">&lt;-</span><span class="nx">c</span>
+	<span class="nx">log</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">&quot;[%s]: Connection has been closed by remote peer, %d bytes has been received\n&quot;</span><span class="p">,</span> <span class="nx">con</span><span class="p">.</span><span class="nx">RemoteAddr</span><span class="p">(),</span> <span class="nx">p</span><span class="p">.</span><span class="nx">bytes</span><span class="p">)</span>
+	<span class="nx">p</span> <span class="p">=</span> <span class="o">&lt;-</span><span class="nx">c</span>
+	<span class="nx">log</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">&quot;[%s]: Local peer has been stopped, %d bytes has been sent\n&quot;</span><span class="p">,</span> <span class="nx">con</span><span class="p">.</span><span class="nx">RemoteAddr</span><span class="p">(),</span> <span class="nx">p</span><span class="p">.</span><span class="nx">bytes</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div>
+
+
+<p>But it&rsquo;s much more harder to do the same for UDP. UDP is connectionless so there is no &ldquo;streams&rdquo; that can be copied. You must tediously read data from connection to buffer and write this buffer to stdout by one goroutine. And read data from stdin and write it to connection from other goroutine.</p>
+
+<p>Some remarks:</p>
+
+<ul>
+<li>Without streams there is no EOF so we must use some predefined disconnect sequence to terminate transfer.</li>
+<li>Without established connection a listener doesn&rsquo;t know the remote peer address until actual data will be received. So listener must wait for data, then read this data and remote address with <a href="https://golang.org/pkg/net/#UDPConn.ReadFrom">*net.UDPConn.ReadFrom</a>.</li>
+</ul>
+
+<p><div class="highlight"><pre><code class="language-go" data-lang="go"><span class="kd">const</span> <span class="p">(</span>
+	<span class="c1">// BufferLimit specifies buffer size that is sufficient to</span>
+	<span class="c1">// handle full-size UDP datagram or TCP segment in one step</span>
+	<span class="nx">BufferLimit</span> <span class="p">=</span> <span class="mi">2</span><span class="o">&lt;&lt;</span><span class="mi">16</span> <span class="o">-</span> <span class="mi">1</span>
+	<span class="c1">// DisconnectSequence is used to disconnect UDP sessions</span>
+	<span class="nx">DisconnectSequence</span> <span class="p">=</span> <span class="s">&quot;~.&quot;</span>
+<span class="p">)</span>
+
+<span class="c1">// Progress indicates transfer status</span>
+<span class="kd">type</span> <span class="nx">Progress</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">remoteAddr</span> <span class="nx">net</span><span class="p">.</span><span class="nx">Addr</span>
+	<span class="nx">bytes</span>      <span class="kt">uint64</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nx">TransferPackets</span><span class="p">(</span><span class="nx">con</span> <span class="nx">net</span><span class="p">.</span><span class="nx">Conn</span><span class="p">)</span> <span class="p">{</span>
+	<span class="nx">c</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="nx">Progress</span><span class="p">)</span>
+
+	<span class="c1">// Read from Reader and write to Writer until EOF.</span>
+	<span class="c1">// ra is an address to whom packets must be sent in listen mode.</span>
+	<span class="nx">copy</span> <span class="o">:=</span> <span class="kd">func</span><span class="p">(</span><span class="nx">r</span> <span class="nx">io</span><span class="p">.</span><span class="nx">ReadCloser</span><span class="p">,</span> <span class="nx">w</span> <span class="nx">io</span><span class="p">.</span><span class="nx">WriteCloser</span><span class="p">,</span> <span class="nx">ra</span> <span class="nx">net</span><span class="p">.</span><span class="nx">Addr</span><span class="p">)</span> <span class="p">{</span>
+		<span class="k">defer</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+			<span class="nx">r</span><span class="p">.</span><span class="nx">Close</span><span class="p">()</span>
+			<span class="nx">w</span><span class="p">.</span><span class="nx">Close</span><span class="p">()</span>
+		<span class="p">}()</span>
+
+		<span class="nx">buf</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">BufferLimit</span><span class="p">)</span>
+		<span class="nx">bytes</span> <span class="o">:=</span> <span class="nb">uint64</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+		<span class="kd">var</span> <span class="nx">n</span> <span class="kt">int</span>
+		<span class="kd">var</span> <span class="nx">err</span> <span class="kt">error</span>
+		<span class="kd">var</span> <span class="nx">addr</span> <span class="nx">net</span><span class="p">.</span><span class="nx">Addr</span>
+
+		<span class="k">for</span> <span class="p">{</span>
+			<span class="c1">// Read</span>
+			<span class="k">if</span> <span class="nx">con</span><span class="p">,</span> <span class="nx">ok</span> <span class="o">:=</span> <span class="nx">r</span><span class="p">.(</span><span class="o">*</span><span class="nx">net</span><span class="p">.</span><span class="nx">UDPConn</span><span class="p">);</span> <span class="nx">ok</span> <span class="p">{</span>
+				<span class="nx">n</span><span class="p">,</span> <span class="nx">addr</span><span class="p">,</span> <span class="nx">err</span> <span class="p">=</span> <span class="nx">con</span><span class="p">.</span><span class="nx">ReadFrom</span><span class="p">(</span><span class="nx">buf</span><span class="p">)</span>
+				<span class="c1">// In listen mode remote address is unknown until read from</span>
+				<span class="c1">// connection. Inform caller function with this address.</span>
+				<span class="k">if</span> <span class="nx">con</span><span class="p">.</span><span class="nx">RemoteAddr</span><span class="p">()</span> <span class="o">==</span> <span class="kc">nil</span> <span class="o">&amp;&amp;</span> <span class="nx">ra</span> <span class="o">==</span> <span class="kc">nil</span> <span class="p">{</span>
+					<span class="nx">ra</span> <span class="p">=</span> <span class="nx">addr</span>
+					<span class="nx">c</span> <span class="o">&lt;-</span> <span class="nx">Progress</span><span class="p">{</span><span class="nx">remoteAddr</span><span class="p">:</span> <span class="nx">ra</span><span class="p">}</span>
+				<span class="p">}</span>
+			<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+				<span class="nx">n</span><span class="p">,</span> <span class="nx">err</span> <span class="p">=</span> <span class="nx">r</span><span class="p">.</span><span class="nx">Read</span><span class="p">(</span><span class="nx">buf</span><span class="p">)</span>
+			<span class="p">}</span>
+			<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+				<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="nx">io</span><span class="p">.</span><span class="nx">EOF</span> <span class="p">{</span>
+					<span class="nx">log</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">&quot;[%s]: ERROR: %s\n&quot;</span><span class="p">,</span> <span class="nx">ra</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+				<span class="p">}</span>
+				<span class="k">break</span>
+			<span class="p">}</span>
+			<span class="k">if</span> <span class="nb">string</span><span class="p">(</span><span class="nx">buf</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nx">n</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">==</span> <span class="nx">DisconnectSequence</span> <span class="p">{</span>
+				<span class="k">break</span>
+			<span class="p">}</span>
+
+			<span class="c1">// Write</span>
+			<span class="k">if</span> <span class="nx">con</span><span class="p">,</span> <span class="nx">ok</span> <span class="o">:=</span> <span class="nx">w</span><span class="p">.(</span><span class="o">*</span><span class="nx">net</span><span class="p">.</span><span class="nx">UDPConn</span><span class="p">);</span> <span class="nx">ok</span> <span class="o">&amp;&amp;</span> <span class="nx">con</span><span class="p">.</span><span class="nx">RemoteAddr</span><span class="p">()</span> <span class="o">==</span> <span class="kc">nil</span> <span class="p">{</span>
+				<span class="c1">// Connection remote address must be nil otherwise</span>
+				<span class="c1">// &quot;WriteTo with pre-connected connection&quot; will be thrown</span>
+				<span class="nx">n</span><span class="p">,</span> <span class="nx">err</span> <span class="p">=</span> <span class="nx">con</span><span class="p">.</span><span class="nx">WriteTo</span><span class="p">(</span><span class="nx">buf</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nx">n</span><span class="p">],</span> <span class="nx">ra</span><span class="p">)</span>
+			<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+				<span class="nx">n</span><span class="p">,</span> <span class="nx">err</span> <span class="p">=</span> <span class="nx">w</span><span class="p">.</span><span class="nx">Write</span><span class="p">(</span><span class="nx">buf</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nx">n</span><span class="p">])</span>
+			<span class="p">}</span>
+			<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+				<span class="nx">log</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">&quot;[%s]: ERROR: %s\n&quot;</span><span class="p">,</span> <span class="nx">ra</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+				<span class="k">break</span>
+			<span class="p">}</span>
+			<span class="nx">bytes</span> <span class="o">+=</span> <span class="nb">uint64</span><span class="p">(</span><span class="nx">n</span><span class="p">)</span>
+		<span class="p">}</span>
+		<span class="nx">c</span> <span class="o">&lt;-</span> <span class="nx">Progress</span><span class="p">{</span><span class="nx">bytes</span><span class="p">:</span> <span class="nx">bytes</span><span class="p">}</span>
+	<span class="p">}</span>
+
+	<span class="nx">ra</span> <span class="o">:=</span> <span class="nx">con</span><span class="p">.</span><span class="nx">RemoteAddr</span><span class="p">()</span>
+	<span class="k">go</span> <span class="nb">copy</span><span class="p">(</span><span class="nx">con</span><span class="p">,</span> <span class="nx">os</span><span class="p">.</span><span class="nx">Stdout</span><span class="p">,</span> <span class="nx">ra</span><span class="p">)</span>
+	<span class="c1">// If connection hasn&#39;t got remote address then wait for it from receiver goroutine</span>
+	<span class="k">if</span> <span class="nx">ra</span> <span class="o">==</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="nx">p</span> <span class="o">:=</span> <span class="o">&lt;-</span><span class="nx">c</span>
+		<span class="nx">ra</span> <span class="p">=</span> <span class="nx">p</span><span class="p">.</span><span class="nx">remoteAddr</span>
+		<span class="nx">log</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">&quot;[%s]: Datagram has been received\n&quot;</span><span class="p">,</span> <span class="nx">ra</span><span class="p">)</span>
+	<span class="p">}</span>
+	<span class="k">go</span> <span class="nb">copy</span><span class="p">(</span><span class="nx">os</span><span class="p">.</span><span class="nx">Stdin</span><span class="p">,</span> <span class="nx">con</span><span class="p">,</span> <span class="nx">ra</span><span class="p">)</span>
+
+	<span class="nx">p</span> <span class="o">:=</span> <span class="o">&lt;-</span><span class="nx">c</span>
+	<span class="nx">log</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">&quot;[%s]: Connection has been closed, %d bytes has been received\n&quot;</span><span class="p">,</span> <span class="nx">ra</span><span class="p">,</span> <span class="nx">p</span><span class="p">.</span><span class="nx">bytes</span><span class="p">)</span>
+	<span class="nx">p</span> <span class="p">=</span> <span class="o">&lt;-</span><span class="nx">c</span>
+	<span class="nx">log</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">&quot;[%s]: Local peer has been stopped, %d bytes has been sent\n&quot;</span><span class="p">,</span> <span class="nx">ra</span><span class="p">,</span> <span class="nx">p</span><span class="p">.</span><span class="nx">bytes</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div>
+</p>
+
+<p>Links:</p>
+
+<ul>
+<li><a href="https://github.com/dddpaul/gonc">Simple Netcat tool written in Go (gonc)</a> - gonc Github project</li>
+<li><a href="http://www.minaandrawos.com/2016/05/14/udp-vs-tcp-in-golang/">Implementing UDP vs TCP in Golang</a> - Golang TCP/UDP tips and tricks</li>
+<li><a href="https://betabug.nl/golang-bits-and-pieces-io-with-readers-and-writers/">Golang bits and pieces: IO with readers and writers</a> - Readers and Writers everywhere</li>
+<li><a href="https://medium.com/@benbjohnson/go-walkthrough-io-package-8ac5e95a9fbd">Go Walkthrough: io package</a> - Tips and bits of Go io package</li>
+<li><a href="https://habrahabr.ru/post/306914/">Разбираемся в Go: пакет io</a> - Previous article translated</li>
+<li><a href="https://github.com/yanzay/netcat">Simple netcat on go</a> - Another Netcat implementation</li>
+</ul>
+
+    </div>
+
+    
+
+    Tags:
+    <ul id="tags">
+        
+        
+        <li><a href="https://dddpaul.github.io/blog//tags/golang-linux">golang, linux</a> </li>
+        
+    </ul>
+
+    <div id="disqus_thread"></div>
+<script type="text/javascript">
+
+(function() {
+    
+    
+    if (window.location.hostname == "localhost")
+        return;
+
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    var disqus_shortname = 'dddpaul-github';
+    var disqus_identifier = 'https:\/\/dddpaul.github.io\/blog\/2016\/08\/30\/gonc\/';
+    var disqus_title = 'Simple Netcat tool written in Go';
+    var disqus_url = 'https:\/\/dddpaul.github.io\/blog\/2016\/08\/30\/gonc\/';
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+
+</div>
+
+</body>
+</html>
+
