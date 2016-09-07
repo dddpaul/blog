@@ -348,6 +348,7 @@ dosdev -r -d x:
 &lt;li&gt;&lt;a href=&#34;https://medium.com/@benbjohnson/go-walkthrough-io-package-8ac5e95a9fbd&#34;&gt;Go Walkthrough: io package&lt;/a&gt; - Tips and bits of Go io package&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;https://habrahabr.ru/post/306914/&#34;&gt;Разбираемся в Go: пакет io&lt;/a&gt; - Previous article translated&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;https://github.com/yanzay/netcat&#34;&gt;Simple netcat on go&lt;/a&gt; - Another Netcat implementation&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.joyent.com/blog/tcp-puzzlers&#34;&gt;TCP Puzzlers&lt;/a&gt; - TCP connection tricky parts&lt;/li&gt;
 &lt;/ul&gt;
 </description>
     </item>
