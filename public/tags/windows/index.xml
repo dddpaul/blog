@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Windows on Dev notes</title>
+    <link>https://dddpaul.github.io/blog/tags/windows/</link>
+    <description>Recent content in Windows on Dev notes</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Wed, 07 Sep 2016 09:00:00 +0300</lastBuildDate>
+    <atom:link href="https://dddpaul.github.io/blog/tags/windows/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Выбор простого бэкапа для Windows</title>
+      <link>https://dddpaul.github.io/blog/2016/09/07/windows-backup/</link>
+      <pubDate>Wed, 07 Sep 2016 09:00:00 +0300</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2016/09/07/windows-backup/</guid>
+      <description>
+
+&lt;p&gt;Доступные и функциональные системы бэкапа под Windows.&lt;/p&gt;
+
+&lt;p&gt;Требования:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Основное - использование жестких или символьных ссылок для дедупликации содержимого архива.&lt;/li&gt;
+&lt;li&gt;Дополнительное - использование VSS (Volume Shadow Copy Service) для предварительного создания снэпшота.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Не рассматриваются сложные распределенные (и дорогие) системы бэкапа. Один компьютер, одна программа или скрипт.&lt;/p&gt;
+
+&lt;h3 id=&#34;dublicati-http-www-duplicati-com:0a283e5b4c781814abe20e36e5fd4350&#34;&gt;&lt;a href=&#34;http://www.duplicati.com/&#34;&gt;Dublicati&lt;/a&gt;&lt;/h3&gt;
+
+&lt;p&gt;Duplicati is a free backup client that securely stores encrypted, incremental, compressed backups on cloud storage services and remote file servers. It works with Amazon S3, Windows Live SkyDrive, Google Drive (Google Docs), Rackspace Cloud Files or WebDAV, SSH, FTP (and many more).&lt;/p&gt;
+
+&lt;p&gt;Рассматривалась версия 1.3.4.&lt;/p&gt;
+
+&lt;p&gt;Особенности:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;архив - zip-файл.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Преимущества:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;бесплатность;&lt;/li&gt;
+&lt;li&gt;кроссплатформенность (требуются .NET 2.0+ или Mono);&lt;/li&gt;
+&lt;li&gt;полные и инкрементальные бэкапы;&lt;/li&gt;
+&lt;li&gt;есть возможность шифрования архивов;&lt;/li&gt;
+&lt;li&gt;используется VSS;&lt;/li&gt;
+&lt;li&gt;есть русский язык;&lt;/li&gt;
+&lt;li&gt;есть мастер восстановления.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Недостатки:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;корявый интерфейс;&lt;/li&gt;
+&lt;li&gt;файловые ссылки не используются;&lt;/li&gt;
+&lt;li&gt;наглядность при просмотре архивов отсутствует;&lt;/li&gt;
+&lt;li&gt;субъективно низкая скорость работы.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;cobian-backup-http-www-cobiansoft-com:0a283e5b4c781814abe20e36e5fd4350&#34;&gt;&lt;a href=&#34;http://www.cobiansoft.com/&#34;&gt;Cobian Backup&lt;/a&gt;&lt;/h3&gt;
+
+&lt;p&gt;Рассматривалась версия 11.&lt;/p&gt;
+
+&lt;p&gt;Особенности:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;архив - каталог.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Преимущества:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;отличный интерфейс;&lt;/li&gt;
+&lt;li&gt;бесплатность;&lt;/li&gt;
+&lt;li&gt;полные, инкрементальные и дифференциальные бэкапы;&lt;/li&gt;
+&lt;li&gt;есть возможность шифрования файлов в архиве (каждый файл пакуется в зашифрованный архив);&lt;/li&gt;
+&lt;li&gt;субъективно высокая скорость работы.&lt;/li&gt;
+&lt;li&gt;есть русский язык;&lt;/li&gt;
+&lt;li&gt;используется VSS.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Недостатки:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;файловые ссылки не используются;&lt;/li&gt;
+&lt;li&gt;вообще, отличная программа, но отсутствие программы восстановления сводит все преимущества на нет - не руками же восстанавливать файлы из инкрементальных (разностных) архивов.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;hardlink-backup-http-www-lupinho-net-hardlinkbackup:0a283e5b4c781814abe20e36e5fd4350&#34;&gt;&lt;a href=&#34;http://www.lupinho.net/hardlinkbackup/&#34;&gt;Hardlink Backup&lt;/a&gt;&lt;/h3&gt;
+
+&lt;p&gt;Рассматривалась версия 2.1.1.&lt;/p&gt;
+
+&lt;p&gt;Особенности:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;архив - каталог.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Идеальная программа - подходит и под основное, и под дополнительное требования.&lt;/p&gt;
+
+&lt;p&gt;Преимущества:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;отличный интерфейс;&lt;/li&gt;
+&lt;li&gt;используется VSS;&lt;/li&gt;
+&lt;li&gt;используются файловые ссылки;&lt;/li&gt;
+&lt;li&gt;наглядный просмотр архивов (из Проводника или программы);&lt;/li&gt;
+&lt;li&gt;субъективно высокая скорость работы;&lt;/li&gt;
+&lt;li&gt;есть возможность восстановления из программы.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Недостатки:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;нет русского языка;&lt;/li&gt;
+&lt;li&gt;самый главный минус - в бесплатной версии отсутствует запуск процесса бэкапа по расписанию.&lt;/li&gt;
+&lt;li&gt;платная версия стоит 29 евро.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;скрипт-roboshot-http-roboshot-sourceforge-net:0a283e5b4c781814abe20e36e5fd4350&#34;&gt;&lt;a href=&#34;http://roboshot.sourceforge.net/&#34;&gt;Скрипт RoboShot&lt;/a&gt;&lt;/h3&gt;
+
+&lt;p&gt;Рассматривалась версия 0.3.&lt;/p&gt;
+
+&lt;p&gt;Особенности:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;написан на PowerShell;&lt;/li&gt;
+&lt;li&gt;для копирования использует robocopy (т.е. высокая скорость работы);&lt;/li&gt;
+&lt;li&gt;вроде использует VSS;&lt;/li&gt;
+&lt;li&gt;использует файловые ссылки.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Недостатки:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;требует доработки напильником (например, надо править регекспы с немецкой локализации Windows на русской);&lt;/li&gt;
+&lt;li&gt;на мой взгляд, слишком большой объем кода.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;комбайн-из-bat-скрипта-rsync-и-vssadmin-http-blog-jay2k1-com-2011-08-13-how-to-create-rsync-like-hard-link-backups-with-vss-on-windows:0a283e5b4c781814abe20e36e5fd4350&#34;&gt;&lt;a href=&#34;http://blog.jay2k1.com/2011/08/13/how-to-create-rsync-like-hard-link-backups-with-vss-on-windows/&#34;&gt;Комбайн из bat-скрипта, rsync и vssadmin&lt;/a&gt;&lt;/h3&gt;
+
+&lt;p&gt;Недостатки:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;требует доработки напильником;&lt;/li&gt;
+&lt;li&gt;для rsync требуется cygwin, что субъективно дает просадку по скорости.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;утилита-ln-и-скрипт-deloreancopy-http-schinagl-priv-at-nt-ln-ln-html:0a283e5b4c781814abe20e36e5fd4350&#34;&gt;&lt;a href=&#34;http://schinagl.priv.at/nt/ln/ln.html&#34;&gt;Утилита LN и скрипт DeloreanCopy&lt;/a&gt;&lt;/h3&gt;
+
+&lt;p&gt;На мой взгляд, самое простое и лучшее решение, если не нужен VSS из коробки.&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://schinagl.priv.at/nt/hardlinkshellext/hardlinkshellext.html&#34;&gt;Link Shell Extension&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://schinagl.priv.at/nt/ln/ln.html&#34;&gt;ln&lt;/a&gt; - command line hardlinks&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;DeLoreanCopy.bat требует 3 ясных параметра:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;Usage: DeLoreanCopy &amp;lt;SourcePath&amp;gt; &amp;lt;DestPath&amp;gt; (&amp;lt;KeepMaxCopies&amp;gt;)
+SourcePath directory containing the files to be backed up
+DestPath directory where &amp;quot;DeLorean copy&amp;quot; sets will be created
+KeepMaxCopies (opt.) remove any exceeding number of DLC sets before copying
+e.g. DeLoreanCopy c:\data\source c:\data\backup 90
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Преимущества:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;простота;&lt;/li&gt;
+&lt;li&gt;бесплатность;&lt;/li&gt;
+&lt;li&gt;используются файловые ссылки;&lt;/li&gt;
+&lt;li&gt;очень просто прикручивается VSS.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Создание снэпшота с помощью &lt;a href=&#34;http://msdn.microsoft.com/en-us/library/windows/desktop/bb530725(v=vs.85).aspx&#34;&gt;vshadow&lt;/a&gt; и запуск скрипта vss-exec-delorean.cmd:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;vshadow.exe -script=vss-setvar.cmd -exec=vss-exec-delorean.cmd c:
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Скрипт vss-exec-delorean.cmd:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;REM
+REM called from vshadow via commandline e.g
+REM
+REM vshadow.exe -script=vss-setvar.cmd -exec=vss-exec.cmd e:
+REM
+REM vss-setvar.cmd is generated by vshadow.exe
+REM
+call vss-setvar.cmd
+REM assign a DOS device to the created snapshot
+REM
+dosdev x: %shadow_device_1%
+REM run the intended copy job
+REM
+DeLoreanCopy.bat X:\Users\paul\Documents C:\backup\ 3
+REM finally remove the drive letter
+REM
+dosdev -r -d x:
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

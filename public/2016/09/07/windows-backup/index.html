@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="generator" content="Hugo 0.16-DEV" />
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+  <title> Выбор простого бэкапа для Windows &middot; Dev notes </title>
+
+  
+  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/poole.css">
+  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/syntax.css">
+  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/hyde.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
+
+  
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144-precomposed.png">
+  <link rel="shortcut icon" href="/favicon.png">
+
+  
+  <link href="" rel="alternate" type="application/rss+xml" title="Dev notes" />
+</head>
+
+<body>
+
+<div class="sidebar">
+    <div class="container sidebar-sticky">
+        <div class="sidebar-about">
+            <h1>Dev notes</h1>
+            <p class="lead">
+                 Notes about Android, Java, JavaScript, Go and other technical stuff 
+            </p>
+        </div>
+
+        <ul class="sidebar-nav">
+            <li><a href="/">Home</a> </li>
+            
+            <li><a href="http://github.com/dddpaul"> GitHub </a></li>
+            
+            <li><a href="http://google.com/&#43;PavelDerendyaev1"> Google&#43; </a></li>
+            
+            <li><a href="/blog/index.xml"> RSS </a></li>
+            
+        </ul>
+
+        Tags:
+        <ul>
+            
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/android/">android</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/angularjs/">angularjs</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/ansible/">ansible</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/concurrency/">concurrency</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/database/">database</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/devops/">devops</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/docker/">docker</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/git/">git</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/golang/">golang</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/golang-linux/">golang-linux</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/hugo/">hugo</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/java/">java</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/javascript/">javascript</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/linux/">linux</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/python/">python</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/react/">react</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/windows/">windows</a> </li>
+            
+        </ul>
+
+        <p>&copy; 2016. All rights reserved. </p>
+    </div>
+</div>
+
+
+<div class="content container">
+    <div class="post">
+        <h1 class="post-title">Выбор простого бэкапа для Windows</h1>
+        <span class="post-date">2016-09-07</span>
+
+        
+
+<p>Доступные и функциональные системы бэкапа под Windows.</p>
+
+<p>Требования:</p>
+
+<ul>
+<li>Основное - использование жестких или символьных ссылок для дедупликации содержимого архива.</li>
+<li>Дополнительное - использование VSS (Volume Shadow Copy Service) для предварительного создания снэпшота.</li>
+</ul>
+
+<p>Не рассматриваются сложные распределенные (и дорогие) системы бэкапа. Один компьютер, одна программа или скрипт.</p>
+
+<h3 id="dublicati-http-www-duplicati-com:0a283e5b4c781814abe20e36e5fd4350"><a href="http://www.duplicati.com/">Dublicati</a></h3>
+
+<p>Duplicati is a free backup client that securely stores encrypted, incremental, compressed backups on cloud storage services and remote file servers. It works with Amazon S3, Windows Live SkyDrive, Google Drive (Google Docs), Rackspace Cloud Files or WebDAV, SSH, FTP (and many more).</p>
+
+<p>Рассматривалась версия 1.3.4.</p>
+
+<p>Особенности:</p>
+
+<ul>
+<li>архив - zip-файл.</li>
+</ul>
+
+<p>Преимущества:</p>
+
+<ul>
+<li>бесплатность;</li>
+<li>кроссплатформенность (требуются .NET 2.0+ или Mono);</li>
+<li>полные и инкрементальные бэкапы;</li>
+<li>есть возможность шифрования архивов;</li>
+<li>используется VSS;</li>
+<li>есть русский язык;</li>
+<li>есть мастер восстановления.</li>
+</ul>
+
+<p>Недостатки:</p>
+
+<ul>
+<li>корявый интерфейс;</li>
+<li>файловые ссылки не используются;</li>
+<li>наглядность при просмотре архивов отсутствует;</li>
+<li>субъективно низкая скорость работы.</li>
+</ul>
+
+<h3 id="cobian-backup-http-www-cobiansoft-com:0a283e5b4c781814abe20e36e5fd4350"><a href="http://www.cobiansoft.com/">Cobian Backup</a></h3>
+
+<p>Рассматривалась версия 11.</p>
+
+<p>Особенности:</p>
+
+<ul>
+<li>архив - каталог.</li>
+</ul>
+
+<p>Преимущества:</p>
+
+<ul>
+<li>отличный интерфейс;</li>
+<li>бесплатность;</li>
+<li>полные, инкрементальные и дифференциальные бэкапы;</li>
+<li>есть возможность шифрования файлов в архиве (каждый файл пакуется в зашифрованный архив);</li>
+<li>субъективно высокая скорость работы.</li>
+<li>есть русский язык;</li>
+<li>используется VSS.</li>
+</ul>
+
+<p>Недостатки:</p>
+
+<ul>
+<li>файловые ссылки не используются;</li>
+<li>вообще, отличная программа, но отсутствие программы восстановления сводит все преимущества на нет - не руками же восстанавливать файлы из инкрементальных (разностных) архивов.</li>
+</ul>
+
+<h3 id="hardlink-backup-http-www-lupinho-net-hardlinkbackup:0a283e5b4c781814abe20e36e5fd4350"><a href="http://www.lupinho.net/hardlinkbackup/">Hardlink Backup</a></h3>
+
+<p>Рассматривалась версия 2.1.1.</p>
+
+<p>Особенности:</p>
+
+<ul>
+<li>архив - каталог.</li>
+</ul>
+
+<p>Идеальная программа - подходит и под основное, и под дополнительное требования.</p>
+
+<p>Преимущества:</p>
+
+<ul>
+<li>отличный интерфейс;</li>
+<li>используется VSS;</li>
+<li>используются файловые ссылки;</li>
+<li>наглядный просмотр архивов (из Проводника или программы);</li>
+<li>субъективно высокая скорость работы;</li>
+<li>есть возможность восстановления из программы.</li>
+</ul>
+
+<p>Недостатки:</p>
+
+<ul>
+<li>нет русского языка;</li>
+<li>самый главный минус - в бесплатной версии отсутствует запуск процесса бэкапа по расписанию.</li>
+<li>платная версия стоит 29 евро.</li>
+</ul>
+
+<h3 id="скрипт-roboshot-http-roboshot-sourceforge-net:0a283e5b4c781814abe20e36e5fd4350"><a href="http://roboshot.sourceforge.net/">Скрипт RoboShot</a></h3>
+
+<p>Рассматривалась версия 0.3.</p>
+
+<p>Особенности:</p>
+
+<ul>
+<li>написан на PowerShell;</li>
+<li>для копирования использует robocopy (т.е. высокая скорость работы);</li>
+<li>вроде использует VSS;</li>
+<li>использует файловые ссылки.</li>
+</ul>
+
+<p>Недостатки:</p>
+
+<ul>
+<li>требует доработки напильником (например, надо править регекспы с немецкой локализации Windows на русской);</li>
+<li>на мой взгляд, слишком большой объем кода.</li>
+</ul>
+
+<h3 id="комбайн-из-bat-скрипта-rsync-и-vssadmin-http-blog-jay2k1-com-2011-08-13-how-to-create-rsync-like-hard-link-backups-with-vss-on-windows:0a283e5b4c781814abe20e36e5fd4350"><a href="http://blog.jay2k1.com/2011/08/13/how-to-create-rsync-like-hard-link-backups-with-vss-on-windows/">Комбайн из bat-скрипта, rsync и vssadmin</a></h3>
+
+<p>Недостатки:</p>
+
+<ul>
+<li>требует доработки напильником;</li>
+<li>для rsync требуется cygwin, что субъективно дает просадку по скорости.</li>
+</ul>
+
+<h3 id="утилита-ln-и-скрипт-deloreancopy-http-schinagl-priv-at-nt-ln-ln-html:0a283e5b4c781814abe20e36e5fd4350"><a href="http://schinagl.priv.at/nt/ln/ln.html">Утилита LN и скрипт DeloreanCopy</a></h3>
+
+<p>На мой взгляд, самое простое и лучшее решение, если не нужен VSS из коробки.</p>
+
+<ul>
+<li><a href="http://schinagl.priv.at/nt/hardlinkshellext/hardlinkshellext.html">Link Shell Extension</a></li>
+<li><a href="http://schinagl.priv.at/nt/ln/ln.html">ln</a> - command line hardlinks</li>
+</ul>
+
+<p>DeLoreanCopy.bat требует 3 ясных параметра:</p>
+
+<pre><code>Usage: DeLoreanCopy &lt;SourcePath&gt; &lt;DestPath&gt; (&lt;KeepMaxCopies&gt;)
+SourcePath directory containing the files to be backed up
+DestPath directory where &quot;DeLorean copy&quot; sets will be created
+KeepMaxCopies (opt.) remove any exceeding number of DLC sets before copying
+e.g. DeLoreanCopy c:\data\source c:\data\backup 90
+</code></pre>
+
+<p>Преимущества:</p>
+
+<ul>
+<li>простота;</li>
+<li>бесплатность;</li>
+<li>используются файловые ссылки;</li>
+<li>очень просто прикручивается VSS.</li>
+</ul>
+
+<p>Создание снэпшота с помощью <a href="http://msdn.microsoft.com/en-us/library/windows/desktop/bb530725(v=vs.85).aspx">vshadow</a> и запуск скрипта vss-exec-delorean.cmd:</p>
+
+<pre><code>vshadow.exe -script=vss-setvar.cmd -exec=vss-exec-delorean.cmd c:
+</code></pre>
+
+<p>Скрипт vss-exec-delorean.cmd:</p>
+
+<pre><code>REM
+REM called from vshadow via commandline e.g
+REM
+REM vshadow.exe -script=vss-setvar.cmd -exec=vss-exec.cmd e:
+REM
+REM vss-setvar.cmd is generated by vshadow.exe
+REM
+call vss-setvar.cmd
+REM assign a DOS device to the created snapshot
+REM
+dosdev x: %shadow_device_1%
+REM run the intended copy job
+REM
+DeLoreanCopy.bat X:\Users\paul\Documents C:\backup\ 3
+REM finally remove the drive letter
+REM
+dosdev -r -d x:
+</code></pre>
+
+    </div>
+
+    
+
+    Tags:
+    <ul id="tags">
+        
+        
+        <li><a href="https://dddpaul.github.io/blog//tags/windows">windows</a> </li>
+        
+    </ul>
+
+    <div id="disqus_thread"></div>
+<script type="text/javascript">
+
+(function() {
+    
+    
+    if (window.location.hostname == "localhost")
+        return;
+
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    var disqus_shortname = 'dddpaul-github';
+    var disqus_identifier = 'https:\/\/dddpaul.github.io\/blog\/2016\/09\/07\/windows-backup\/';
+    var disqus_title = 'Выбор простого бэкапа для Windows';
+    var disqus_url = 'https:\/\/dddpaul.github.io\/blog\/2016\/09\/07\/windows-backup\/';
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+
+</div>
+
+</body>
+</html>
+

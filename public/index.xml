@@ -6,8 +6,204 @@
     <description>Recent content on Dev notes</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 30 Aug 2016 17:45:00 +0300</lastBuildDate>
+    <lastBuildDate>Wed, 07 Sep 2016 09:00:00 +0300</lastBuildDate>
     <atom:link href="https://dddpaul.github.io/blog/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Выбор простого бэкапа для Windows</title>
+      <link>https://dddpaul.github.io/blog/2016/09/07/windows-backup/</link>
+      <pubDate>Wed, 07 Sep 2016 09:00:00 +0300</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2016/09/07/windows-backup/</guid>
+      <description>
+
+&lt;p&gt;Доступные и функциональные системы бэкапа под Windows.&lt;/p&gt;
+
+&lt;p&gt;Требования:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Основное - использование жестких или символьных ссылок для дедупликации содержимого архива.&lt;/li&gt;
+&lt;li&gt;Дополнительное - использование VSS (Volume Shadow Copy Service) для предварительного создания снэпшота.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Не рассматриваются сложные распределенные (и дорогие) системы бэкапа. Один компьютер, одна программа или скрипт.&lt;/p&gt;
+
+&lt;h3 id=&#34;dublicati-http-www-duplicati-com:0a283e5b4c781814abe20e36e5fd4350&#34;&gt;&lt;a href=&#34;http://www.duplicati.com/&#34;&gt;Dublicati&lt;/a&gt;&lt;/h3&gt;
+
+&lt;p&gt;Duplicati is a free backup client that securely stores encrypted, incremental, compressed backups on cloud storage services and remote file servers. It works with Amazon S3, Windows Live SkyDrive, Google Drive (Google Docs), Rackspace Cloud Files or WebDAV, SSH, FTP (and many more).&lt;/p&gt;
+
+&lt;p&gt;Рассматривалась версия 1.3.4.&lt;/p&gt;
+
+&lt;p&gt;Особенности:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;архив - zip-файл.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Преимущества:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;бесплатность;&lt;/li&gt;
+&lt;li&gt;кроссплатформенность (требуются .NET 2.0+ или Mono);&lt;/li&gt;
+&lt;li&gt;полные и инкрементальные бэкапы;&lt;/li&gt;
+&lt;li&gt;есть возможность шифрования архивов;&lt;/li&gt;
+&lt;li&gt;используется VSS;&lt;/li&gt;
+&lt;li&gt;есть русский язык;&lt;/li&gt;
+&lt;li&gt;есть мастер восстановления.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Недостатки:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;корявый интерфейс;&lt;/li&gt;
+&lt;li&gt;файловые ссылки не используются;&lt;/li&gt;
+&lt;li&gt;наглядность при просмотре архивов отсутствует;&lt;/li&gt;
+&lt;li&gt;субъективно низкая скорость работы.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;cobian-backup-http-www-cobiansoft-com:0a283e5b4c781814abe20e36e5fd4350&#34;&gt;&lt;a href=&#34;http://www.cobiansoft.com/&#34;&gt;Cobian Backup&lt;/a&gt;&lt;/h3&gt;
+
+&lt;p&gt;Рассматривалась версия 11.&lt;/p&gt;
+
+&lt;p&gt;Особенности:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;архив - каталог.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Преимущества:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;отличный интерфейс;&lt;/li&gt;
+&lt;li&gt;бесплатность;&lt;/li&gt;
+&lt;li&gt;полные, инкрементальные и дифференциальные бэкапы;&lt;/li&gt;
+&lt;li&gt;есть возможность шифрования файлов в архиве (каждый файл пакуется в зашифрованный архив);&lt;/li&gt;
+&lt;li&gt;субъективно высокая скорость работы.&lt;/li&gt;
+&lt;li&gt;есть русский язык;&lt;/li&gt;
+&lt;li&gt;используется VSS.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Недостатки:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;файловые ссылки не используются;&lt;/li&gt;
+&lt;li&gt;вообще, отличная программа, но отсутствие программы восстановления сводит все преимущества на нет - не руками же восстанавливать файлы из инкрементальных (разностных) архивов.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;hardlink-backup-http-www-lupinho-net-hardlinkbackup:0a283e5b4c781814abe20e36e5fd4350&#34;&gt;&lt;a href=&#34;http://www.lupinho.net/hardlinkbackup/&#34;&gt;Hardlink Backup&lt;/a&gt;&lt;/h3&gt;
+
+&lt;p&gt;Рассматривалась версия 2.1.1.&lt;/p&gt;
+
+&lt;p&gt;Особенности:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;архив - каталог.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Идеальная программа - подходит и под основное, и под дополнительное требования.&lt;/p&gt;
+
+&lt;p&gt;Преимущества:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;отличный интерфейс;&lt;/li&gt;
+&lt;li&gt;используется VSS;&lt;/li&gt;
+&lt;li&gt;используются файловые ссылки;&lt;/li&gt;
+&lt;li&gt;наглядный просмотр архивов (из Проводника или программы);&lt;/li&gt;
+&lt;li&gt;субъективно высокая скорость работы;&lt;/li&gt;
+&lt;li&gt;есть возможность восстановления из программы.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Недостатки:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;нет русского языка;&lt;/li&gt;
+&lt;li&gt;самый главный минус - в бесплатной версии отсутствует запуск процесса бэкапа по расписанию.&lt;/li&gt;
+&lt;li&gt;платная версия стоит 29 евро.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;скрипт-roboshot-http-roboshot-sourceforge-net:0a283e5b4c781814abe20e36e5fd4350&#34;&gt;&lt;a href=&#34;http://roboshot.sourceforge.net/&#34;&gt;Скрипт RoboShot&lt;/a&gt;&lt;/h3&gt;
+
+&lt;p&gt;Рассматривалась версия 0.3.&lt;/p&gt;
+
+&lt;p&gt;Особенности:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;написан на PowerShell;&lt;/li&gt;
+&lt;li&gt;для копирования использует robocopy (т.е. высокая скорость работы);&lt;/li&gt;
+&lt;li&gt;вроде использует VSS;&lt;/li&gt;
+&lt;li&gt;использует файловые ссылки.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Недостатки:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;требует доработки напильником (например, надо править регекспы с немецкой локализации Windows на русской);&lt;/li&gt;
+&lt;li&gt;на мой взгляд, слишком большой объем кода.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;комбайн-из-bat-скрипта-rsync-и-vssadmin-http-blog-jay2k1-com-2011-08-13-how-to-create-rsync-like-hard-link-backups-with-vss-on-windows:0a283e5b4c781814abe20e36e5fd4350&#34;&gt;&lt;a href=&#34;http://blog.jay2k1.com/2011/08/13/how-to-create-rsync-like-hard-link-backups-with-vss-on-windows/&#34;&gt;Комбайн из bat-скрипта, rsync и vssadmin&lt;/a&gt;&lt;/h3&gt;
+
+&lt;p&gt;Недостатки:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;требует доработки напильником;&lt;/li&gt;
+&lt;li&gt;для rsync требуется cygwin, что субъективно дает просадку по скорости.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;утилита-ln-и-скрипт-deloreancopy-http-schinagl-priv-at-nt-ln-ln-html:0a283e5b4c781814abe20e36e5fd4350&#34;&gt;&lt;a href=&#34;http://schinagl.priv.at/nt/ln/ln.html&#34;&gt;Утилита LN и скрипт DeloreanCopy&lt;/a&gt;&lt;/h3&gt;
+
+&lt;p&gt;На мой взгляд, самое простое и лучшее решение, если не нужен VSS из коробки.&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://schinagl.priv.at/nt/hardlinkshellext/hardlinkshellext.html&#34;&gt;Link Shell Extension&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://schinagl.priv.at/nt/ln/ln.html&#34;&gt;ln&lt;/a&gt; - command line hardlinks&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;DeLoreanCopy.bat требует 3 ясных параметра:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;Usage: DeLoreanCopy &amp;lt;SourcePath&amp;gt; &amp;lt;DestPath&amp;gt; (&amp;lt;KeepMaxCopies&amp;gt;)
+SourcePath directory containing the files to be backed up
+DestPath directory where &amp;quot;DeLorean copy&amp;quot; sets will be created
+KeepMaxCopies (opt.) remove any exceeding number of DLC sets before copying
+e.g. DeLoreanCopy c:\data\source c:\data\backup 90
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Преимущества:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;простота;&lt;/li&gt;
+&lt;li&gt;бесплатность;&lt;/li&gt;
+&lt;li&gt;используются файловые ссылки;&lt;/li&gt;
+&lt;li&gt;очень просто прикручивается VSS.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Создание снэпшота с помощью &lt;a href=&#34;http://msdn.microsoft.com/en-us/library/windows/desktop/bb530725(v=vs.85).aspx&#34;&gt;vshadow&lt;/a&gt; и запуск скрипта vss-exec-delorean.cmd:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;vshadow.exe -script=vss-setvar.cmd -exec=vss-exec-delorean.cmd c:
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Скрипт vss-exec-delorean.cmd:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;REM
+REM called from vshadow via commandline e.g
+REM
+REM vshadow.exe -script=vss-setvar.cmd -exec=vss-exec.cmd e:
+REM
+REM vss-setvar.cmd is generated by vshadow.exe
+REM
+call vss-setvar.cmd
+REM assign a DOS device to the created snapshot
+REM
+dosdev x: %shadow_device_1%
+REM run the intended copy job
+REM
+DeLoreanCopy.bat X:\Users\paul\Documents C:\backup\ 3
+REM finally remove the drive letter
+REM
+dosdev -r -d x:
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
     
     <item>
       <title>Simple Netcat tool written in Go</title>
@@ -1389,48 +1585,6 @@ DEBUG 23601 --- [lication.main()] o.s.c.e.PropertySourcesPropertyResolver  : Sea
     &lt;span class=&#34;nt&#34;&gt;/&amp;gt;&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Java network listeners</title>
-      <link>https://dddpaul.github.io/blog/2015/02/01/java-listeners/</link>
-      <pubDate>Sun, 01 Feb 2015 18:44:06 +0300</pubDate>
-      
-      <guid>https://dddpaul.github.io/blog/2015/02/01/java-listeners/</guid>
-      <description>&lt;p&gt;I&amp;rsquo;ve written a small &lt;a href=&#34;https://github.com/dddpaul/java-network-listeners&#34;&gt;listeners library&lt;/a&gt; today. It allows to create Callables which can be submitted to &lt;a href=&#34;http://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ExecutorService.html&#34;&gt;ExecutorService&lt;/a&gt;. The callable itself implements creating server socket and binding it to local port.&lt;/p&gt;
-
-&lt;p&gt;There two principal type of listeners: blocking and non-blocking (thanks to &lt;a href=&#34;http://en.wikipedia.org/wiki/Non-blocking_I/O_(Java)&#34;&gt;Java NIO&lt;/a&gt;.&lt;/p&gt;
-
-&lt;hr /&gt;
-
-&lt;p&gt;Blocking listener is very simple but in can&amp;rsquo;t be interrupted by calling thread. So there&amp;rsquo;s no point in that:&lt;/p&gt;
-
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span class=&#34;n&#34;&gt;Future&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;Socket&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;future&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;executor&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;submit&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Listeners&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;createListener&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;PORT&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
-&lt;span class=&#34;k&#34;&gt;try&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
-    &lt;span class=&#34;n&#34;&gt;Socket&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;socket&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;future&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;get&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;TimeUnit&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;SECONDS&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
-&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;catch&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;TimeoutException&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;e&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
-    &lt;span class=&#34;n&#34;&gt;future&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;cancel&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt; &lt;span class=&#34;kc&#34;&gt;true&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
-&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;p&gt;Listener will stay active and PORT will be bound still. The reason is in usage of the uninterruptible &lt;a href=&#34;http://docs.oracle.com/javase/7/docs/api/java/net/ServerSocket.html#accept()&#34;&gt;ServerSocket.accept()&lt;/a&gt;.&lt;/p&gt;
-
-&lt;hr /&gt;
-
-&lt;p&gt;In contrary non-blocking listener is more sophisticated but it can be interrupted by calling thread. So you can do that:&lt;/p&gt;
-
-&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span class=&#34;n&#34;&gt;Future&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;Socket&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;future&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;executor&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;submit&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Listeners&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;createListener&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;PORT&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
-&lt;span class=&#34;k&#34;&gt;try&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
-    &lt;span class=&#34;n&#34;&gt;Socket&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;socket&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;future&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;get&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;TimeUnit&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;SECONDS&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
-&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;catch&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;TimeoutException&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;e&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
-    &lt;span class=&#34;n&#34;&gt;future&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;cancel&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt; &lt;span class=&#34;kc&#34;&gt;true&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
-&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;/p&gt;
-
-&lt;p&gt;Listener will be terminated and PORT will be freed.&lt;/p&gt;
 </description>
     </item>
     
