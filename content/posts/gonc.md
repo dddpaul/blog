@@ -141,3 +141,4 @@ Links:
 * [Go Walkthrough: io package](https://medium.com/@benbjohnson/go-walkthrough-io-package-8ac5e95a9fbd) - Tips and bits of Go io package
 * [Разбираемся в Go: пакет io](https://habrahabr.ru/post/306914/) - Previous article translated 
 * [Simple netcat on go](https://github.com/yanzay/netcat) - Another Netcat implementation
+* [TCP Puzzlers](https://www.joyent.com/blog/tcp-puzzlers) - TCP connection tricky parts
