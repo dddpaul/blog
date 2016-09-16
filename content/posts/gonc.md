@@ -2,7 +2,7 @@
 date = "2016-08-30T17:45:00+03:00"
 draft = false
 title = "Simple Netcat tool written in Go"
-tags = ["golang, linux"]
+tags = ["golang", "linux"]
 
 +++
 
