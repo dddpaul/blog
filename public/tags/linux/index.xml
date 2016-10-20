@@ -6,8 +6,74 @@
     <description>Recent content in Linux on Dev notes</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 30 Aug 2016 17:45:00 +0300</lastBuildDate>
+    <lastBuildDate>Thu, 20 Oct 2016 11:00:00 +0300</lastBuildDate>
     <atom:link href="https://dddpaul.github.io/blog/tags/linux/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Let&#39;s Encrypt with xenolf/lego and Nginx</title>
+      <link>https://dddpaul.github.io/blog/2016/10/20/lego-nginx/</link>
+      <pubDate>Thu, 20 Oct 2016 11:00:00 +0300</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2016/10/20/lego-nginx/</guid>
+      <description>&lt;p&gt;&lt;strong&gt;1.&lt;/strong&gt; Prepare Nginx server&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;server {
+    listen 443 ssl;
+    server_name example.org www.example.org;
+
+    ssl_certificate /etc/pki/tls/lego/certificates/usvt.info.crt;
+    ssl_certificate_key /etc/pki/tls/lego/certificates/usvt.info.key;
+
+    location /.well-known/acme-challenge {
+        proxy_pass http://127.0.0.1:444;
+        proxy_set_header Host $host;
+    }
+
+    # Other directives
+}
+
+server {
+    listen 80 default;
+    server_name example.org www.example.org;
+
+    location /.well-known/acme-challenge {
+        proxy_pass http://127.0.0.1:81;
+        proxy_set_header Host $host;
+    }
+
+    # Other directives
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;strong&gt;2.&lt;/strong&gt; Update ca-certificates for CentOS 5 (optional)&lt;/p&gt;
+
+&lt;p&gt;Let&amp;rsquo;s Encrypt CA certificate is not included into root CA bundle of old Linux distributions like RHEL/Centos 5. You have to replace this bundle manually with fresh one from &lt;a href=&#34;http://curl.haxx.se/&#34;&gt;cURL website&lt;/a&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;cp /etc/pki/tls/certs/ca-bundle.crt /etc/pki/tls/certs/ca-bundle.crt.bak
+wget -O /etc/pki/tls/certs/ca-bundle.crt http://curl.haxx.se/ca/cacert.pem
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;strong&gt;3.&lt;/strong&gt; Order the certificate from Let&amp;rsquo;s Encrypt&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;lego -d example.org -d www.example.org -m cert-owner@example.org -a --path=/etc/pki/tls/lego --http=:81 --tls=:444 run
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;strong&gt;4.&lt;/strong&gt; Renew certificate every 2 month at 01:30 of first day of the month&lt;/p&gt;
+
+&lt;p&gt;Add to crontab:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;30 01 01 */2 * /usr/local/bin/lego -d example.org -d www.example.org -m cert-owner@example.org -a --path=/etc/pki/tls/lego --http=:81 --tls=:444 renew &amp;amp;&amp;amp; /usr/sbin/nginx -s reload
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Links:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/xenolf/lego&#34;&gt;Let&amp;rsquo;s Encrypt client and ACME library written in Go&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://code.kuederle.com/letsencrypt/&#34;&gt;LET’S ENCRYPT WITH LEGO AND NGINX&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://raymii.org/s/snippets/CentOS_5_CA_Certificate_Bundle_Update.html&#34;&gt;CentOS 5 CA Certificate Bundle Update&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
     
     <item>
       <title>Simple Netcat tool written in Go</title>
@@ -236,40 +302,40 @@ ZONE=internal
 
 &lt;p&gt;&lt;strong&gt;1.&lt;/strong&gt; Motion ставится элементарно — &lt;code&gt;apt-get install motion&lt;/code&gt;. Важные настройки:&lt;/p&gt;
 
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# Максимальный fps&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;c&#34;&gt;# Максимальный fps&lt;/span&gt;
 framerate 5
 
-&lt;span class=&#34;c1&#34;&gt;# Снимать на максимальном fps только во время движения&lt;/span&gt;
+&lt;span class=&#34;c&#34;&gt;# Снимать на максимальном fps только во время движения&lt;/span&gt;
 webcam_motion on
 
-&lt;span class=&#34;c1&#34;&gt;# Выкрутил в максимум, чтобы избежать срабатывания на включение света&lt;/span&gt;
+&lt;span class=&#34;c&#34;&gt;# Выкрутил в максимум, чтобы избежать срабатывания на включение света&lt;/span&gt;
 lightswitch 100
 
-&lt;span class=&#34;c1&#34;&gt;# Кол-во кадров с движением, необходимых для генерации события&lt;/span&gt;
+&lt;span class=&#34;c&#34;&gt;# Кол-во кадров с движением, необходимых для генерации события&lt;/span&gt;
 minimum_motion_frames 3
 
-&lt;span class=&#34;c1&#34;&gt;# Записать кадры до движения&lt;/span&gt;
+&lt;span class=&#34;c&#34;&gt;# Записать кадры до движения&lt;/span&gt;
 pre_capture 5
 
-&lt;span class=&#34;c1&#34;&gt;# Записать кадры после движения&lt;/span&gt;
+&lt;span class=&#34;c&#34;&gt;# Записать кадры после движения&lt;/span&gt;
 post_capture 5
 
-&lt;span class=&#34;c1&#34;&gt;# Маска для определения области детекции, легко делается в Gimp&amp;#39;е из снимка с камеры.&lt;/span&gt;
-&lt;span class=&#34;c1&#34;&gt;# Области, закрашенные черным, игнорируются.&lt;/span&gt;
+&lt;span class=&#34;c&#34;&gt;# Маска для определения области детекции, легко делается в Gimp&amp;#39;е из снимка с камеры.&lt;/span&gt;
+&lt;span class=&#34;c&#34;&gt;# Области, закрашенные черным, игнорируются.&lt;/span&gt;
 mask_file /path/to/mask.pgm
 
-&lt;span class=&#34;c1&#34;&gt;# Время определения окончания движения (если за 15 секунд после начала движения&lt;/span&gt;
-&lt;span class=&#34;c1&#34;&gt;# не было никаких поползновений, то считаем, что событие-движение закончилось)&lt;/span&gt;
+&lt;span class=&#34;c&#34;&gt;# Время определения окончания движения (если за 15 секунд после начала движения&lt;/span&gt;
+&lt;span class=&#34;c&#34;&gt;# не было никаких поползновений, то считаем, что событие-движение закончилось)&lt;/span&gt;
 gap 15
 
-&lt;span class=&#34;c1&#34;&gt;# Отключить создание снимков&lt;/span&gt;
+&lt;span class=&#34;c&#34;&gt;# Отключить создание снимков&lt;/span&gt;
 output_normal off
 
-&lt;span class=&#34;c1&#34;&gt;# Обозначать движение прямоугольником &lt;/span&gt;
+&lt;span class=&#34;c&#34;&gt;# Обозначать движение прямоугольником &lt;/span&gt;
 locate on
 
-&lt;span class=&#34;c1&#34;&gt;# Запуск скрипта по началу движения (это симлимк, который указывает на реальный скрипт).&lt;/span&gt;
-&lt;span class=&#34;c1&#34;&gt;# Изменение симлинка осущестляется по команде с пульта (см. п. 2 про конфиг) &lt;/span&gt;
+&lt;span class=&#34;c&#34;&gt;# Запуск скрипта по началу движения (это симлимк, который указывает на реальный скрипт).&lt;/span&gt;
+&lt;span class=&#34;c&#34;&gt;# Изменение симлинка осущестляется по команде с пульта (см. п. 2 про конфиг) &lt;/span&gt;
 on_event_start &lt;span class=&#34;s2&#34;&gt;&amp;quot;/etc/motion/handlers/on_event_start&amp;quot;&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
@@ -352,7 +418,7 @@ KERNEL==&amp;quot;event*&amp;quot;, SUBSYSTEM==&amp;quot;input&amp;quot;, ATTRS{
 
 &lt;p&gt;И создадим новый upstart job в &lt;em&gt;/etc/init/evhandler.conf&lt;/em&gt;:&lt;/p&gt;
 
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# evhandler - Simple key press listener and handler written in Go&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;c&#34;&gt;# evhandler - Simple key press listener and handler written in Go&lt;/span&gt;
 
 start on runlevel &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;2345&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
 stop on runlevel &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;!2345&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
@@ -381,10 +447,10 @@ start evhandler&lt;/code&gt;.&lt;/p&gt;
 
 &lt;p&gt;Для автоматического запуска этой команды создадим job &lt;em&gt;/etc/init/tty1.conf&lt;/em&gt;:&lt;/p&gt;
 
-&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# tty1 - getty&lt;/span&gt;
-&lt;span class=&#34;c1&#34;&gt;#&lt;/span&gt;
-&lt;span class=&#34;c1&#34;&gt;# This service is used to maintain a getty on tty1 from the point the system is&lt;/span&gt;
-&lt;span class=&#34;c1&#34;&gt;# started until it is shut down again.&lt;/span&gt;
+&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;c&#34;&gt;# tty1 - getty&lt;/span&gt;
+&lt;span class=&#34;c&#34;&gt;#&lt;/span&gt;
+&lt;span class=&#34;c&#34;&gt;# This service is used to maintain a getty on tty1 from the point the system is&lt;/span&gt;
+&lt;span class=&#34;c&#34;&gt;# started until it is shut down again.&lt;/span&gt;
 
 start on stopped rc &lt;span class=&#34;nv&#34;&gt;RUNLEVEL&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=[&lt;/span&gt;2345&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; and &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;
             not-container or
@@ -393,9 +459,9 @@ start on stopped rc &lt;span class=&#34;nv&#34;&gt;RUNLEVEL&lt;/span&gt;&lt;span
 
 stop on runlevel &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;!2345&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
 
-&lt;span class=&#34;c1&#34;&gt;# Blank screen after 1 minute timeout&lt;/span&gt;
-&lt;span class=&#34;c1&#34;&gt;# See http://www.armadeus.com/wiki/index.php?title=FrameBuffer&lt;/span&gt;
-&lt;span class=&#34;nb&#34;&gt;exec&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; -ne &lt;span class=&#34;s2&#34;&gt;&amp;quot;\033[9;1]&amp;quot;&lt;/span&gt; &amp;gt; /dev/tty1
+&lt;span class=&#34;c&#34;&gt;# Blank screen after 1 minute timeout&lt;/span&gt;
+&lt;span class=&#34;c&#34;&gt;# See http://www.armadeus.com/wiki/index.php?title=FrameBuffer&lt;/span&gt;
+&lt;span class=&#34;nb&#34;&gt;exec echo&lt;/span&gt; -ne &lt;span class=&#34;s2&#34;&gt;&amp;quot;\033[9;1]&amp;quot;&lt;/span&gt; &amp;gt; /dev/tty1
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;/p&gt;
 

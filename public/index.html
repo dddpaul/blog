@@ -95,6 +95,75 @@
         
         <div class="post">
             <h1 class="post-title">
+                <a href="https://dddpaul.github.io/blog/2016/10/20/lego-nginx/">
+                    Let&#39;s Encrypt with xenolf/lego and Nginx
+                </a>
+            </h1>
+
+            <span class="post-date">2016-10-20</span>
+
+            <p><strong>1.</strong> Prepare Nginx server</p>
+
+<pre><code>server {
+    listen 443 ssl;
+    server_name example.org www.example.org;
+
+    ssl_certificate /etc/pki/tls/lego/certificates/usvt.info.crt;
+    ssl_certificate_key /etc/pki/tls/lego/certificates/usvt.info.key;
+
+    location /.well-known/acme-challenge {
+        proxy_pass http://127.0.0.1:444;
+        proxy_set_header Host $host;
+    }
+
+    # Other directives
+}
+
+server {
+    listen 80 default;
+    server_name example.org www.example.org;
+
+    location /.well-known/acme-challenge {
+        proxy_pass http://127.0.0.1:81;
+        proxy_set_header Host $host;
+    }
+
+    # Other directives
+}
+</code></pre>
+
+<p><strong>2.</strong> Update ca-certificates for CentOS 5 (optional)</p>
+
+<p>Let&rsquo;s Encrypt CA certificate is not included into root CA bundle of old Linux distributions like RHEL/Centos 5. You have to replace this bundle manually with fresh one from <a href="http://curl.haxx.se/">cURL website</a>:</p>
+
+<pre><code>cp /etc/pki/tls/certs/ca-bundle.crt /etc/pki/tls/certs/ca-bundle.crt.bak
+wget -O /etc/pki/tls/certs/ca-bundle.crt http://curl.haxx.se/ca/cacert.pem
+</code></pre>
+
+<p><strong>3.</strong> Order the certificate from Let&rsquo;s Encrypt</p>
+
+<pre><code>lego -d example.org -d www.example.org -m cert-owner@example.org -a --path=/etc/pki/tls/lego --http=:81 --tls=:444 run
+</code></pre>
+
+<p><strong>4.</strong> Renew certificate every 2 month at 01:30 of first day of the month</p>
+
+<p>Add to crontab:</p>
+
+<pre><code>30 01 01 */2 * /usr/local/bin/lego -d example.org -d www.example.org -m cert-owner@example.org -a --path=/etc/pki/tls/lego --http=:81 --tls=:444 renew &amp;&amp; /usr/sbin/nginx -s reload
+</code></pre>
+
+<p>Links:</p>
+
+<ul>
+<li><a href="https://github.com/xenolf/lego">Let&rsquo;s Encrypt client and ACME library written in Go</a></li>
+<li><a href="https://code.kuederle.com/letsencrypt/">LET’S ENCRYPT WITH LEGO AND NGINX</a></li>
+<li><a href="https://raymii.org/s/snippets/CentOS_5_CA_Certificate_Bundle_Update.html">CentOS 5 CA Certificate Bundle Update</a></li>
+</ul>
+
+        </div>
+        
+        <div class="post">
+            <h1 class="post-title">
                 <a href="https://dddpaul.github.io/blog/2016/09/07/windows-backup/">
                     Выбор простого бэкапа для Windows
                 </a>
@@ -979,7 +1048,7 @@ init_by_lua_block {
 
 <p>First of all, <code>d</code> is an alias for <code>default</code>, and <code>default</code> filter is defined in <a href="https://github.com/mitsuhiko/jinja2/blob/master/jinja2/filters.py">jinja2/filters.py</a>:</p>
 
-<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">do_default</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">default_value</span><span class="o">=</span><span class="s1">u&#39;&#39;</span><span class="p">,</span> <span class="n">boolean</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">do_default</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">default_value</span><span class="o">=</span><span class="s">u&#39;&#39;</span><span class="p">,</span> <span class="n">boolean</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;If the value is undefined it will return the passed default value,</span>
 <span class="sd">    otherwise the value of the variable:</span>
 
@@ -1008,49 +1077,49 @@ init_by_lua_block {
 
 <p>With <code>default</code> filter:
 <div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Template</span>
-<span class="n">tmpl</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s1">&#39;{{ var | d() }}&#39;</span><span class="p">)</span>
+<span class="n">tmpl</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s">&#39;{{ var | d() }}&#39;</span><span class="p">)</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">()</span>
-                                  <span class="c1"># An empty string</span>
+                                  <span class="c"># An empty string</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
 <span class="bp">None</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
-                                  <span class="c1"># An empty string</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s1">&#39;abc&#39;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">)</span>
+                                  <span class="c"># An empty string</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39;abc&#39;</span><span class="p">)</span>
 <span class="n">abc</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
-                                  <span class="c1"># A space</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39; &#39;</span><span class="p">)</span>
+                                  <span class="c"># A space</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">[])</span>
 <span class="p">[]</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;list&#39;</span><span class="p">])</span>
-<span class="p">[</span><span class="s1">&#39;list&#39;</span><span class="p">]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;list&#39;</span><span class="p">])</span>
+<span class="p">[</span><span class="s">&#39;list&#39;</span><span class="p">]</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">{})</span>
 <span class="p">{}</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;key&#39;</span><span class="p">:</span> <span class="s1">&#39;value&#39;</span><span class="p">})</span>
-<span class="p">{</span><span class="s1">&#39;key&#39;</span><span class="p">:</span> <span class="s1">&#39;value&#39;</span><span class="p">}</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;key&#39;</span><span class="p">:</span> <span class="s">&#39;value&#39;</span><span class="p">})</span>
+<span class="p">{</span><span class="s">&#39;key&#39;</span><span class="p">:</span> <span class="s">&#39;value&#39;</span><span class="p">}</span>
 </code></pre></div>
 </p>
 
 <p>Without <code>default</code> filter:
 <div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Template</span>
-<span class="n">tmpl</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s1">&#39;{{ var }}&#39;</span><span class="p">)</span>
+<span class="n">tmpl</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s">&#39;{{ var }}&#39;</span><span class="p">)</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">()</span>
-                                  <span class="c1"># An empty string</span>
+                                  <span class="c"># An empty string</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
 <span class="bp">None</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
-                                  <span class="c1"># An empty string</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s1">&#39;abc&#39;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">)</span>
+                                  <span class="c"># An empty string</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39;abc&#39;</span><span class="p">)</span>
 <span class="n">abc</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
-                                  <span class="c1"># A space</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39; &#39;</span><span class="p">)</span>
+                                  <span class="c"># A space</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">[])</span>
 <span class="p">[]</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;list&#39;</span><span class="p">])</span>
-<span class="p">[</span><span class="s1">&#39;list&#39;</span><span class="p">]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;list&#39;</span><span class="p">])</span>
+<span class="p">[</span><span class="s">&#39;list&#39;</span><span class="p">]</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">{})</span>
 <span class="p">{}</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;key&#39;</span><span class="p">:</span> <span class="s1">&#39;value&#39;</span><span class="p">})</span>
-<span class="p">{</span><span class="s1">&#39;key&#39;</span><span class="p">:</span> <span class="s1">&#39;value&#39;</span><span class="p">}</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;key&#39;</span><span class="p">:</span> <span class="s">&#39;value&#39;</span><span class="p">})</span>
+<span class="p">{</span><span class="s">&#39;key&#39;</span><span class="p">:</span> <span class="s">&#39;value&#39;</span><span class="p">}</span>
 </code></pre></div>
 </p>
 
@@ -1061,27 +1130,27 @@ init_by_lua_block {
 <p>With <code>default</code> filter:
 <div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Template</span>
 <span class="kn">from</span> <span class="nn">ansible.runner.filter_plugins.core</span> <span class="kn">import</span> <span class="nb">bool</span>
-<span class="n">Template</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">filters</span><span class="p">[</span><span class="s1">&#39;bool&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">bool</span>
-<span class="n">tmpl</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s1">&#39;{{ var | d() | bool }}&#39;</span><span class="p">)</span>
+<span class="n">Template</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">filters</span><span class="p">[</span><span class="s">&#39;bool&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">bool</span>
+<span class="n">tmpl</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s">&#39;{{ var | d() | bool }}&#39;</span><span class="p">)</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">()</span>
 <span class="bp">False</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
 <span class="bp">None</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">)</span>
 <span class="bp">False</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s1">&#39;abc&#39;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39;abc&#39;</span><span class="p">)</span>
 <span class="bp">False</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39; &#39;</span><span class="p">)</span>
 <span class="bp">False</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s1">&#39;True&#39;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39;True&#39;</span><span class="p">)</span>
 <span class="bp">True</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">[])</span>
 <span class="bp">False</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;list&#39;</span><span class="p">])</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;list&#39;</span><span class="p">])</span>
 <span class="bp">False</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">{})</span>
 <span class="bp">False</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;key&#39;</span><span class="p">:</span> <span class="s1">&#39;value&#39;</span><span class="p">})</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;key&#39;</span><span class="p">:</span> <span class="s">&#39;value&#39;</span><span class="p">})</span>
 <span class="bp">False</span>
 </code></pre></div>
 </p>
@@ -1089,27 +1158,27 @@ init_by_lua_block {
 <p>Without <code>default</code> filter:
 <div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Template</span>
 <span class="kn">from</span> <span class="nn">ansible.runner.filter_plugins.core</span> <span class="kn">import</span> <span class="nb">bool</span>
-<span class="n">Template</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">filters</span><span class="p">[</span><span class="s1">&#39;bool&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">bool</span>
-<span class="n">tmpl</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s1">&#39;{{ var | bool }}&#39;</span><span class="p">)</span>
+<span class="n">Template</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">filters</span><span class="p">[</span><span class="s">&#39;bool&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">bool</span>
+<span class="n">tmpl</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s">&#39;{{ var | bool }}&#39;</span><span class="p">)</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">()</span>
 <span class="bp">False</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
 <span class="bp">None</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">)</span>
 <span class="bp">False</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s1">&#39;abc&#39;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39;abc&#39;</span><span class="p">)</span>
 <span class="bp">False</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39; &#39;</span><span class="p">)</span>
 <span class="bp">False</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s1">&#39;True&#39;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39;True&#39;</span><span class="p">)</span>
 <span class="bp">True</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">[])</span>
 <span class="bp">False</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;list&#39;</span><span class="p">])</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;list&#39;</span><span class="p">])</span>
 <span class="bp">False</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">{})</span>
 <span class="bp">False</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;key&#39;</span><span class="p">:</span> <span class="s1">&#39;value&#39;</span><span class="p">})</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;key&#39;</span><span class="p">:</span> <span class="s">&#39;value&#39;</span><span class="p">})</span>
 <span class="bp">False</span>
 </code></pre></div>
 </p>
@@ -1139,7 +1208,7 @@ init_by_lua_block {
         <span class="k">return</span> <span class="n">a</span>
     <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="ow">in</span> <span class="n">types</span><span class="o">.</span><span class="n">StringTypes</span><span class="p">:</span>
         <span class="n">a</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">a</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;yes&#39;</span><span class="p">,</span> <span class="s1">&#39;on&#39;</span><span class="p">,</span> <span class="s1">&#39;1&#39;</span><span class="p">,</span> <span class="s1">&#39;true&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="n">a</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&#39;yes&#39;</span><span class="p">,</span> <span class="s">&#39;on&#39;</span><span class="p">,</span> <span class="s">&#39;1&#39;</span><span class="p">,</span> <span class="s">&#39;true&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">]:</span>
         <span class="k">return</span> <span class="bp">True</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">False</span>
@@ -1257,24 +1326,24 @@ init_by_lua_block {
 <p>It&rsquo;s all just mere words without proper testing, so let&rsquo;s test long version <code>var is defined and var</code>:</p>
 
 <div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Template</span>
-<span class="n">tmpl</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s1">&#39;{</span><span class="si">% i</span><span class="s1">f var is defined and var %} True {</span><span class="si">% e</span><span class="s1">lse %} False {</span><span class="si">% e</span><span class="s1">ndif %}&#39;</span><span class="p">)</span>
+<span class="n">tmpl</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s">&#39;{</span><span class="si">% i</span><span class="s">f var is defined and var %} True {</span><span class="si">% e</span><span class="s">lse %} False {</span><span class="si">% e</span><span class="s">ndif %}&#39;</span><span class="p">)</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">()</span>
  <span class="bp">False</span> 
 <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
  <span class="bp">False</span> 
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">)</span>
  <span class="bp">False</span> 
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s1">&#39;abc&#39;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39;abc&#39;</span><span class="p">)</span>
  <span class="bp">True</span> 
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39; &#39;</span><span class="p">)</span>
  <span class="bp">True</span> 
 <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">[])</span>                                                                                                                                                                                                                                           
  <span class="bp">False</span> 
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;list&#39;</span><span class="p">])</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;list&#39;</span><span class="p">])</span>
  <span class="bp">True</span> 
 <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">{})</span>                                                                                                                                                                                                                                           
  <span class="bp">False</span> 
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;key&#39;</span><span class="p">:</span> <span class="s1">&#39;value&#39;</span><span class="p">})</span>                                                                                                                                                                                                                             
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;key&#39;</span><span class="p">:</span> <span class="s">&#39;value&#39;</span><span class="p">})</span>                                                                                                                                                                                                                             
  <span class="bp">True</span> 
 </code></pre></div>
 
@@ -1282,24 +1351,24 @@ init_by_lua_block {
 <p>And the short version — <code>var</code>:</p>
 
 <p><div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Template</span>
-<span class="n">tmpl</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s1">&#39;{</span><span class="si">% i</span><span class="s1">f var %} True {</span><span class="si">% e</span><span class="s1">lse %} False {</span><span class="si">% e</span><span class="s1">ndif %}&#39;</span><span class="p">)</span>
+<span class="n">tmpl</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s">&#39;{</span><span class="si">% i</span><span class="s">f var %} True {</span><span class="si">% e</span><span class="s">lse %} False {</span><span class="si">% e</span><span class="s">ndif %}&#39;</span><span class="p">)</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">()</span>
  <span class="bp">False</span> 
 <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
  <span class="bp">False</span> 
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">)</span>
  <span class="bp">False</span> 
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s1">&#39;abc&#39;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39;abc&#39;</span><span class="p">)</span>
  <span class="bp">True</span> 
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39; &#39;</span><span class="p">)</span>
  <span class="bp">True</span> 
 <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">[])</span>
  <span class="bp">False</span> 
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;list&#39;</span><span class="p">])</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;list&#39;</span><span class="p">])</span>
  <span class="bp">True</span> 
 <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">{})</span>
  <span class="bp">False</span> 
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;key&#39;</span><span class="p">:</span> <span class="s1">&#39;value&#39;</span><span class="p">})</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;key&#39;</span><span class="p">:</span> <span class="s">&#39;value&#39;</span><span class="p">})</span>
  <span class="bp">True</span> 
 </code></pre></div>
 </p>
@@ -1307,60 +1376,21 @@ init_by_lua_block {
 <p>So there are no differences at all. For the sake of thrust, let&rsquo;s test <code>var is defined</code>:</p>
 
 <p><div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Template</span>
-<span class="n">tmpl</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s1">&#39;{</span><span class="si">% i</span><span class="s1">f var is defined %} True {</span><span class="si">% e</span><span class="s1">lse %} False {</span><span class="si">% e</span><span class="s1">ndif %}&#39;</span><span class="p">)</span>
+<span class="n">tmpl</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s">&#39;{</span><span class="si">% i</span><span class="s">f var is defined %} True {</span><span class="si">% e</span><span class="s">lse %} False {</span><span class="si">% e</span><span class="s">ndif %}&#39;</span><span class="p">)</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">()</span>
  <span class="bp">False</span> 
 <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
  <span class="bp">True</span> 
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">)</span>
  <span class="bp">True</span> 
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s1">&#39;abc&#39;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39;abc&#39;</span><span class="p">)</span>
  <span class="bp">True</span> 
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39; &#39;</span><span class="p">)</span>
  <span class="bp">True</span> 
 </code></pre></div>
 </p>
 
 <p>So just use <code>var</code> and not <code>var is defined and var</code>, Luke!</p>
-
-        </div>
-        
-        <div class="post">
-            <h1 class="post-title">
-                <a href="https://dddpaul.github.io/blog/2015/07/28/firewalld-zones/">
-                    Bind interfaces to multiple zones with Firewalld on CentOS-7
-                </a>
-            </h1>
-
-            <span class="post-date">2015-07-28</span>
-
-            <p>As you can expect from <a href="http://linuxmanpages.net/manpages/fedora20/man1/firewall-cmd.1.html">man firewall-cmd</a> interface binding to zone other than default (public) could be achieved with the following command sequence:</p>
-
-<pre><code>firewall-cmd --zone public --remove-interface eth1 --permanent
-firewall-cmd --zone internal --add-interface eth1 --permanent
-firewall-cmd --reload
-</code></pre>
-
-<p>Seems like it&rsquo;s done:</p>
-
-<pre><code>firewall-cmd --get-zone-of-interface=eth1
-internal
-</code></pre>
-
-<p>But after firewalld restart or server reboot things aren&rsquo;t so bright:</p>
-
-<pre><code>firewall-cmd --get-zone-of-interface=eth1
-public
-</code></pre>
-
-<p>The reason is in this <a href="https://bugs.centos.org/view.php?id=7526">CentOS-7 bug</a>. The only workaround is to specify zone in <em>/etc/sysconfig/network-scripts/ifcfg-eth1</em> file:</p>
-
-<pre><code>TYPE=Ethernet
-NAME=&quot;eth1&quot;
-IPADDR=x.x.x.x
-...
-ZONE=internal
-</code></pre>
 
         </div>
         

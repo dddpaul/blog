@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="generator" content="Hugo 0.16-DEV" />
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+  <title> Let&#39;s Encrypt with xenolf/lego and Nginx &middot; Dev notes </title>
+
+  
+  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/poole.css">
+  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/syntax.css">
+  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/hyde.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
+
+  
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144-precomposed.png">
+  <link rel="shortcut icon" href="/favicon.png">
+
+  
+  <link href="" rel="alternate" type="application/rss+xml" title="Dev notes" />
+</head>
+
+<body>
+
+<div class="sidebar">
+    <div class="container sidebar-sticky">
+        <div class="sidebar-about">
+            <h1>Dev notes</h1>
+            <p class="lead">
+                 Notes about Android, Java, JavaScript, Go and other technical stuff 
+            </p>
+        </div>
+
+        <ul class="sidebar-nav">
+            <li><a href="/">Home</a> </li>
+            
+            <li><a href="http://github.com/dddpaul"> GitHub </a></li>
+            
+            <li><a href="http://google.com/&#43;PavelDerendyaev1"> Google&#43; </a></li>
+            
+            <li><a href="/blog/index.xml"> RSS </a></li>
+            
+        </ul>
+
+        Tags:
+        <ul>
+            
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/android/">android</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/angularjs/">angularjs</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/ansible/">ansible</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/concurrency/">concurrency</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/database/">database</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/devops/">devops</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/docker/">docker</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/git/">git</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/golang/">golang</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/hugo/">hugo</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/java/">java</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/javascript/">javascript</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/linux/">linux</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/python/">python</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/react/">react</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/windows/">windows</a> </li>
+            
+        </ul>
+
+        <p>&copy; 2016. All rights reserved. </p>
+    </div>
+</div>
+
+
+<div class="content container">
+    <div class="post">
+        <h1 class="post-title">Let&#39;s Encrypt with xenolf/lego and Nginx</h1>
+        <span class="post-date">2016-10-20</span>
+
+        <p><strong>1.</strong> Prepare Nginx server</p>
+
+<pre><code>server {
+    listen 443 ssl;
+    server_name example.org www.example.org;
+
+    ssl_certificate /etc/pki/tls/lego/certificates/usvt.info.crt;
+    ssl_certificate_key /etc/pki/tls/lego/certificates/usvt.info.key;
+
+    location /.well-known/acme-challenge {
+        proxy_pass http://127.0.0.1:444;
+        proxy_set_header Host $host;
+    }
+
+    # Other directives
+}
+
+server {
+    listen 80 default;
+    server_name example.org www.example.org;
+
+    location /.well-known/acme-challenge {
+        proxy_pass http://127.0.0.1:81;
+        proxy_set_header Host $host;
+    }
+
+    # Other directives
+}
+</code></pre>
+
+<p><strong>2.</strong> Update ca-certificates for CentOS 5 (optional)</p>
+
+<p>Let&rsquo;s Encrypt CA certificate is not included into root CA bundle of old Linux distributions like RHEL/Centos 5. You have to replace this bundle manually with fresh one from <a href="http://curl.haxx.se/">cURL website</a>:</p>
+
+<pre><code>cp /etc/pki/tls/certs/ca-bundle.crt /etc/pki/tls/certs/ca-bundle.crt.bak
+wget -O /etc/pki/tls/certs/ca-bundle.crt http://curl.haxx.se/ca/cacert.pem
+</code></pre>
+
+<p><strong>3.</strong> Order the certificate from Let&rsquo;s Encrypt</p>
+
+<pre><code>lego -d example.org -d www.example.org -m cert-owner@example.org -a --path=/etc/pki/tls/lego --http=:81 --tls=:444 run
+</code></pre>
+
+<p><strong>4.</strong> Renew certificate every 2 month at 01:30 of first day of the month</p>
+
+<p>Add to crontab:</p>
+
+<pre><code>30 01 01 */2 * /usr/local/bin/lego -d example.org -d www.example.org -m cert-owner@example.org -a --path=/etc/pki/tls/lego --http=:81 --tls=:444 renew &amp;&amp; /usr/sbin/nginx -s reload
+</code></pre>
+
+<p>Links:</p>
+
+<ul>
+<li><a href="https://github.com/xenolf/lego">Let&rsquo;s Encrypt client and ACME library written in Go</a></li>
+<li><a href="https://code.kuederle.com/letsencrypt/">LET’S ENCRYPT WITH LEGO AND NGINX</a></li>
+<li><a href="https://raymii.org/s/snippets/CentOS_5_CA_Certificate_Bundle_Update.html">CentOS 5 CA Certificate Bundle Update</a></li>
+</ul>
+
+    </div>
+
+    
+
+    Tags:
+    <ul id="tags">
+        
+        
+        <li><a href="https://dddpaul.github.io/blog//tags/linux">linux</a> </li>
+        
+    </ul>
+
+    <div id="disqus_thread"></div>
+<script type="text/javascript">
+
+(function() {
+    
+    
+    if (window.location.hostname == "localhost")
+        return;
+
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    var disqus_shortname = 'dddpaul-github';
+    var disqus_identifier = 'https:\/\/dddpaul.github.io\/blog\/2016\/10\/20\/lego-nginx\/';
+    var disqus_title = 'Let\x27s Encrypt with xenolf\/lego and Nginx';
+    var disqus_url = 'https:\/\/dddpaul.github.io\/blog\/2016\/10\/20\/lego-nginx\/';
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+
+</div>
+
+</body>
+</html>
+
