@@ -1,29 +1,16 @@
 +++
 date = "2016-10-20T11:00:00+03:00"
 draft = false
-title = "Let's Encrypt with xenolf/lego and Nginx"
+title = "Let's Encrypt with lego and Nginx"
 tags = ["linux"]
 
 +++
 
+[xenolf/lego](https://github.com/xenolf/lego) it's a feature-rich Let's Encrypt client and ACME library written in Go.
+
 **1.** Prepare Nginx server
 
 ```
-server {
-    listen 443 ssl;
-    server_name example.org www.example.org;
-
-    ssl_certificate /etc/pki/tls/lego/certificates/usvt.info.crt;
-    ssl_certificate_key /etc/pki/tls/lego/certificates/usvt.info.key;
-
-    location /.well-known/acme-challenge {
-        proxy_pass http://127.0.0.1:444;
-        proxy_set_header Host $host;
-    }
-
-    # Other directives
-}
-
 server {
     listen 80 default;
     server_name example.org www.example.org;
@@ -49,10 +36,42 @@ wget -O /etc/pki/tls/certs/ca-bundle.crt http://curl.haxx.se/ca/cacert.pem
 **3.** Order the certificate from Let's Encrypt
 
 ```
-lego -d example.org -d www.example.org -m cert-owner@example.org -a --path=/etc/pki/tls/lego --http=:81 --tls=:444 run
+lego -d example.org -d www.example.org -m cert-owner@example.org -a --path=/etc/pki/tls/lego --http=:81 run
 ```
 
-**4.** Renew certificate every 2 month at 01:30 of first day of the month
+**4.** Update Nginx server
+
+```
+server {
+    listen 80 default;
+    server_name example.org www.example.org;
+
+    location /.well-known/acme-challenge {
+        proxy_pass http://127.0.0.1:81;
+        proxy_set_header Host $host;
+    }
+
+    # Other directives
+}
+
+server {
+    listen 443 ssl;
+    server_name example.org www.example.org;
+
+    ssl_certificate /etc/pki/tls/lego/certificates/example.org.crt;
+    ssl_certificate_key /etc/pki/tls/lego/certificates/example.org.key;
+
+    location /.well-known/acme-challenge {
+        proxy_pass http://127.0.0.1:444;
+        proxy_set_header Host $host;
+    }
+
+    # Other directives
+}
+
+```
+
+**5.** Renew certificate every 2 month at 01:30 of first day of the month
 
 Add to crontab:
 

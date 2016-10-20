@@ -10,29 +10,16 @@
     <atom:link href="https://dddpaul.github.io/blog/tags/linux/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
-      <title>Let&#39;s Encrypt with xenolf/lego and Nginx</title>
+      <title>Let&#39;s Encrypt with lego and Nginx</title>
       <link>https://dddpaul.github.io/blog/2016/10/20/lego-nginx/</link>
       <pubDate>Thu, 20 Oct 2016 11:00:00 +0300</pubDate>
       
       <guid>https://dddpaul.github.io/blog/2016/10/20/lego-nginx/</guid>
-      <description>&lt;p&gt;&lt;strong&gt;1.&lt;/strong&gt; Prepare Nginx server&lt;/p&gt;
+      <description>&lt;p&gt;&lt;a href=&#34;https://github.com/xenolf/lego&#34;&gt;xenolf/lego&lt;/a&gt; it&amp;rsquo;s a feature-rich Let&amp;rsquo;s Encrypt client and ACME library written in Go.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;1.&lt;/strong&gt; Prepare Nginx server&lt;/p&gt;
 
 &lt;pre&gt;&lt;code&gt;server {
-    listen 443 ssl;
-    server_name example.org www.example.org;
-
-    ssl_certificate /etc/pki/tls/lego/certificates/usvt.info.crt;
-    ssl_certificate_key /etc/pki/tls/lego/certificates/usvt.info.key;
-
-    location /.well-known/acme-challenge {
-        proxy_pass http://127.0.0.1:444;
-        proxy_set_header Host $host;
-    }
-
-    # Other directives
-}
-
-server {
     listen 80 default;
     server_name example.org www.example.org;
 
@@ -55,10 +42,41 @@ wget -O /etc/pki/tls/certs/ca-bundle.crt http://curl.haxx.se/ca/cacert.pem
 
 &lt;p&gt;&lt;strong&gt;3.&lt;/strong&gt; Order the certificate from Let&amp;rsquo;s Encrypt&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;lego -d example.org -d www.example.org -m cert-owner@example.org -a --path=/etc/pki/tls/lego --http=:81 --tls=:444 run
+&lt;pre&gt;&lt;code&gt;lego -d example.org -d www.example.org -m cert-owner@example.org -a --path=/etc/pki/tls/lego --http=:81 run
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;&lt;strong&gt;4.&lt;/strong&gt; Renew certificate every 2 month at 01:30 of first day of the month&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;4.&lt;/strong&gt; Update Nginx server&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;server {
+    listen 80 default;
+    server_name example.org www.example.org;
+
+    location /.well-known/acme-challenge {
+        proxy_pass http://127.0.0.1:81;
+        proxy_set_header Host $host;
+    }
+
+    # Other directives
+}
+
+server {
+    listen 443 ssl;
+    server_name example.org www.example.org;
+
+    ssl_certificate /etc/pki/tls/lego/certificates/example.org.crt;
+    ssl_certificate_key /etc/pki/tls/lego/certificates/example.org.key;
+
+    location /.well-known/acme-challenge {
+        proxy_pass http://127.0.0.1:444;
+        proxy_set_header Host $host;
+    }
+
+    # Other directives
+}
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;strong&gt;5.&lt;/strong&gt; Renew certificate every 2 month at 01:30 of first day of the month&lt;/p&gt;
 
 &lt;p&gt;Add to crontab:&lt;/p&gt;
 

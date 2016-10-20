@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
 
-  <title> Let&#39;s Encrypt with xenolf/lego and Nginx &middot; Dev notes </title>
+  <title> Let&#39;s Encrypt with lego and Nginx &middot; Dev notes </title>
 
   
   <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/poole.css">
@@ -91,27 +91,14 @@
 
 <div class="content container">
     <div class="post">
-        <h1 class="post-title">Let&#39;s Encrypt with xenolf/lego and Nginx</h1>
+        <h1 class="post-title">Let&#39;s Encrypt with lego and Nginx</h1>
         <span class="post-date">2016-10-20</span>
 
-        <p><strong>1.</strong> Prepare Nginx server</p>
+        <p><a href="https://github.com/xenolf/lego">xenolf/lego</a> it&rsquo;s a feature-rich Let&rsquo;s Encrypt client and ACME library written in Go.</p>
+
+<p><strong>1.</strong> Prepare Nginx server</p>
 
 <pre><code>server {
-    listen 443 ssl;
-    server_name example.org www.example.org;
-
-    ssl_certificate /etc/pki/tls/lego/certificates/usvt.info.crt;
-    ssl_certificate_key /etc/pki/tls/lego/certificates/usvt.info.key;
-
-    location /.well-known/acme-challenge {
-        proxy_pass http://127.0.0.1:444;
-        proxy_set_header Host $host;
-    }
-
-    # Other directives
-}
-
-server {
     listen 80 default;
     server_name example.org www.example.org;
 
@@ -134,10 +121,41 @@ wget -O /etc/pki/tls/certs/ca-bundle.crt http://curl.haxx.se/ca/cacert.pem
 
 <p><strong>3.</strong> Order the certificate from Let&rsquo;s Encrypt</p>
 
-<pre><code>lego -d example.org -d www.example.org -m cert-owner@example.org -a --path=/etc/pki/tls/lego --http=:81 --tls=:444 run
+<pre><code>lego -d example.org -d www.example.org -m cert-owner@example.org -a --path=/etc/pki/tls/lego --http=:81 run
 </code></pre>
 
-<p><strong>4.</strong> Renew certificate every 2 month at 01:30 of first day of the month</p>
+<p><strong>4.</strong> Update Nginx server</p>
+
+<pre><code>server {
+    listen 80 default;
+    server_name example.org www.example.org;
+
+    location /.well-known/acme-challenge {
+        proxy_pass http://127.0.0.1:81;
+        proxy_set_header Host $host;
+    }
+
+    # Other directives
+}
+
+server {
+    listen 443 ssl;
+    server_name example.org www.example.org;
+
+    ssl_certificate /etc/pki/tls/lego/certificates/example.org.crt;
+    ssl_certificate_key /etc/pki/tls/lego/certificates/example.org.key;
+
+    location /.well-known/acme-challenge {
+        proxy_pass http://127.0.0.1:444;
+        proxy_set_header Host $host;
+    }
+
+    # Other directives
+}
+
+</code></pre>
+
+<p><strong>5.</strong> Renew certificate every 2 month at 01:30 of first day of the month</p>
 
 <p>Add to crontab:</p>
 
@@ -176,7 +194,7 @@ wget -O /etc/pki/tls/certs/ca-bundle.crt http://curl.haxx.se/ca/cacert.pem
     var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
     var disqus_shortname = 'dddpaul-github';
     var disqus_identifier = 'https:\/\/dddpaul.github.io\/blog\/2016\/10\/20\/lego-nginx\/';
-    var disqus_title = 'Let\x27s Encrypt with xenolf\/lego and Nginx';
+    var disqus_title = 'Let\x27s Encrypt with lego and Nginx';
     var disqus_url = 'https:\/\/dddpaul.github.io\/blog\/2016\/10\/20\/lego-nginx\/';
     dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
     (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
