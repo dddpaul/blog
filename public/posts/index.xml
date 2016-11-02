@@ -6,8 +6,151 @@
     <description>Recent content in Posts on Dev notes</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 20 Oct 2016 11:00:00 +0300</lastBuildDate>
+    <lastBuildDate>Wed, 02 Nov 2016 09:00:00 +0300</lastBuildDate>
     <atom:link href="https://dddpaul.github.io/blog/posts/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Docker registry on Centos 7</title>
+      <link>https://dddpaul.github.io/blog/2016/11/02/docker-registry/</link>
+      <pubDate>Wed, 02 Nov 2016 09:00:00 +0300</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2016/11/02/docker-registry/</guid>
+      <description>&lt;p&gt;&lt;strong&gt;1.&lt;/strong&gt; Create logical volumes for &lt;code&gt;direct-lvm&lt;/code&gt; production mode&lt;/p&gt;
+
+&lt;p&gt;Official &lt;a href=&#34;https://docs.docker.com/engine/userguide/storagedriver/device-mapper-driver/&#34;&gt;Device Mapper storage driver guide&lt;/a&gt; recommends to use &lt;a href=&#34;https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/6/html/Logical_Volume_Manager_Administration/thinprovisioned_volumes.html&#34;&gt;thin pools&lt;/a&gt; now. But we will follow more simple way :)&lt;/p&gt;
+
+&lt;p&gt;Assume that we have 40 GByte block device named as &lt;code&gt;/dev/sdb&lt;/code&gt; with one full-size Linux partition on it.&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;pvcreate /dev/sdb1                  &lt;span class=&#34;c&#34;&gt;# Create physical volume&lt;/span&gt;
+vgcreate docker /dev/sdb1           &lt;span class=&#34;c&#34;&gt;# Create volume group and add this physical volume to it&lt;/span&gt;
+lvcreate -L 2G -n metadata docker   &lt;span class=&#34;c&#34;&gt;# Create logical volume for Docker metadata&lt;/span&gt;
+lvcreate -L 15G -n data docker      &lt;span class=&#34;c&#34;&gt;# Create logical volume for Docker data (images, layers, containers)&lt;/span&gt;
+lvcreate -L 15G -n registry docker  &lt;span class=&#34;c&#34;&gt;# Create logical volume for Docker Registry data&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Mount volume for Docker registry:&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;mkfs.xfs /dev/docker/registry
+&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;/dev/docker/registry /var/lib/docker-registry    xfs     defaults        1 3&amp;quot;&lt;/span&gt; &amp;gt;&amp;gt; /etc/fstab 
+mount -a
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Check:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;lsblk
+NAME                             MAJ:MIN RM   SIZE RO TYPE MOUNTPOINT
+sda                                8:0    0   120G  0 disk
+├─sda1                             8:1    0   876M  0 part /boot
+└─sda2                             8:2    0 119,1G  0 part
+  ├─centos-swap                  253:0    0     2G  0 lvm  [SWAP]
+  └─centos-root                  253:1    0 117,2G  0 lvm  /
+sdb                                8:16   0    40G  0 disk
+└─sdb1                             8:17   0    40G  0 part
+  ├─docker-metadata              253:2    0     2G  0 lvm
+  │ └─docker-253:1-23762136-pool 253:5    0    15G  0 dm
+  ├─docker-data                  253:3    0    15G  0 lvm
+  │ └─docker-253:1-23762136-pool 253:5    0    15G  0 dm
+  └─docker-registry              253:4    0    15G  0 lvm  /var/lib/docker-registry
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;strong&gt;2.&lt;/strong&gt; Configure Docker daemon&lt;/p&gt;
+
+&lt;p&gt;Create systemd drop-in file:&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;mkdir -p /etc/systemd/system/docker.service.d
+cat &amp;gt; /etc/systemd/system/docker.service.d/env.conf 
+&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;Service&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;EnvironmentFile&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;-/etc/sysconfig/docker
+&lt;span class=&#34;nv&#34;&gt;ExecStart&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;ExecStart&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/usr/bin/dockerd &lt;span class=&#34;nv&#34;&gt;$OPTIONS&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$DOCKER_NETWORK_OPTIONS&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$DOCKER_STORAGE_OPTIONS&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Specify Docker configuration:&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;cat &amp;gt; /etc/sysconfig/docker 
+&lt;span class=&#34;nv&#34;&gt;OPTIONS&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;--iptables=false&amp;#39;&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;DOCKER_NETWORK_OPTIONS&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;&amp;#39;&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;DOCKER_STORAGE_OPTIONS&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;--storage-driver=devicemapper --storage-opt dm.datadev=/dev/docker/data --storage-opt dm.metadatadev=/dev/docker/metadata&amp;#39;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;p&gt;Check:&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;systemctl daemon-reload
+systemctl show docker &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; grep EnvironmentFile
+&lt;span class=&#34;nv&#34;&gt;EnvironmentFile&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/etc/sysconfig/docker &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;ignore_errors&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;yes&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;p&gt;And run:&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;systemctl &lt;span class=&#34;nb&#34;&gt;enable &lt;/span&gt;docker
+systemctl restart docker
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;p&gt;Check again:&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;docker info &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; grep data
+ Data file: /dev/docker/data
+ Metadata file: /dev/docker/metadata
+ Metadata Space Used: &lt;span class=&#34;m&#34;&gt;639&lt;/span&gt; kB
+ Metadata Space Total: 2.147 GB
+ Metadata Space Available: 2.147 GB
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;3.&lt;/strong&gt; Obtain SSL certificate from Let&amp;rsquo;s Encrypt&lt;/p&gt;
+
+&lt;p&gt;It&amp;rsquo;s can be done by different ways, see &lt;a href=&#34;https://dddpaul.github.io/blog/2016/10/20/lego-nginx/&#34;&gt;Let&amp;rsquo;s Encrypt with lego and Nginx&lt;/a&gt; for one of these.&lt;/p&gt;
+
+&lt;p&gt;Assume that certificate and key was obtained and stored in &lt;code&gt;/etc/pki/tls/lego/certificates&lt;/code&gt; directory.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;4.&lt;/strong&gt; Run Docker registry container as systemd unit&lt;/p&gt;
+
+&lt;p&gt;Create systemd unit:&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;cat &amp;gt; /etc/systemd/system/docker-registry.service
+&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;Unit&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;Description&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;Docker registry container
+&lt;span class=&#34;nv&#34;&gt;Requires&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;docker.service
+&lt;span class=&#34;nv&#34;&gt;After&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;docker.service
+
+&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;Service&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;Restart&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;always
+&lt;span class=&#34;nv&#34;&gt;ExecStartPre&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/usr/bin/docker create -p 5000:5000 -v /var/lib/docker-registry:/var/lib/registry -v /etc/pki/tls/lego/certificates:/certs -e &lt;span class=&#34;nv&#34;&gt;REGISTRY_HTTP_TLS_CERTIFICATE&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/certs/example.org.crt -e &lt;span class=&#34;nv&#34;&gt;REGISTRY_HTTP_TLS_KEY&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/certs/example.org.key --name registry registry:2
+&lt;span class=&#34;nv&#34;&gt;ExecStart&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/usr/bin/docker start -a registry
+&lt;span class=&#34;nv&#34;&gt;ExecStop&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/usr/bin/docker stop -t &lt;span class=&#34;m&#34;&gt;5&lt;/span&gt; registry
+&lt;span class=&#34;nv&#34;&gt;ExecStopPost&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/usr/bin/docker rm registry
+
+&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;Install&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;WantedBy&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;multi-user.target
+&amp;lt;/pre&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;5.&lt;/strong&gt; Permit access to Docker registry only from trusted networks&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;firewall-cmd --zone&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;trusted --add-port&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;5000/tcp --permanent
+firewall-cmd --zone&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;trusted --add-source&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;192.168.1.0/24 --permanent
+firewall-cmd --reload
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;p&gt;Since Docker daemon was launched with &lt;code&gt;--iptables=false&lt;/code&gt; option, Docker registry port may be accessed from trusted networks only.&lt;/p&gt;
+
+&lt;p&gt;Links:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://docs.docker.com/engine/admin/systemd/&#34;&gt;Control and configure Docker with systemd&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://docs.docker.com/engine/userguide/storagedriver/device-mapper-driver/&#34;&gt;Docker and the Device Mapper storage driver&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://trainingdevops.com/insights-and-tutorials/deploying-docker-registry-with-let-s-encrypt-ssl-tls-certs&#34;&gt;Deploying Docker Registry with Let&amp;rsquo;s Encrypt SSL/TLS Certs&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
     
     <item>
       <title>Let&#39;s Encrypt with lego and Nginx</title>
@@ -1593,37 +1736,6 @@ DEBUG 23601 --- [lication.main()] o.s.c.e.PropertySourcesPropertyResolver  : Sea
 &lt;li&gt;&lt;a href=&#34;https://raw.githubusercontent.com/rabbitmq/rabbitmq-java-client/master/test/src/com/rabbitmq/examples/ConfirmDontLoseMessages.java&#34;&gt;ConfirmDontLoseMessages.java&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;http://habrahabr.ru/post/262069/&#34;&gt;RabbitMQ Spring tutorial&lt;/a&gt; &amp;amp; &lt;a href=&#34;https://github.com/Dmitry-Shweikus/rabbitmq-examples&#34;&gt;rabbitmq-examples&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Java builders</title>
-      <link>https://dddpaul.github.io/blog/2015/04/12/java-builders/</link>
-      <pubDate>Sun, 12 Apr 2015 12:15:00 +0300</pubDate>
-      
-      <guid>https://dddpaul.github.io/blog/2015/04/12/java-builders/</guid>
-      <description>&lt;p&gt;So it&amp;rsquo;s time to scrutinize &lt;a href=&#34;http://en.wikipedia.org/wiki/Builder_pattern&#34;&gt;a builder pattern&lt;/a&gt;. There are bunch of options to implement builder pattern in Java:&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;http://habrahabr.ru/post/86252/&#34;&gt;classic&lt;/a&gt; builder;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://habrahabr.ru/post/244521/&#34;&gt;elegant&lt;/a&gt; builder;&lt;/li&gt;
-&lt;li&gt;classic builder with &lt;a href=&#34;https://github.com/analytically/innerbuilder&#34;&gt;IntelliJ IDEA plugin&lt;/a&gt;;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://github.com/google/auto/tree/master/value&#34;&gt;Google AutoValue&lt;/a&gt; builder;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://projectlombok.org/features/Builder.html&#34;&gt;Project Lombok&lt;/a&gt; builder;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://github.com/mkarneim/pojobuilder&#34;&gt;POJO&lt;/a&gt; builder;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://immutables.github.io/&#34;&gt;Immutables&lt;/a&gt; builder.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;All of these variants have been examined in &lt;a href=&#34;https://github.com/dddpaul/java-builders&#34;&gt;Java builders&lt;/a&gt; GitHub project.&lt;/p&gt;
-
-&lt;p&gt;The winners are (and this a tough IMHO):&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;IDEA InnerBuilder plugin if you use builder class from frameworks like &lt;a href=&#34;http://spring.io/&#34;&gt;Spring/Spring MVC&lt;/a&gt; or &lt;a href=&#34;https://www.playframework.com/&#34;&gt;Play&lt;/a&gt;. You can&amp;rsquo;t pass validation annotations to generated class. Despite everything if there is a way to do this I&amp;rsquo;ll be happy to mistake.&lt;/li&gt;
-&lt;li&gt;Immutables.org builder in all other cases. It&amp;rsquo;s features rich and generates beautiful code.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;But do not forget about AutoValue because it&amp;rsquo;s backed by Google itself.&lt;/p&gt;
 </description>
     </item>
     

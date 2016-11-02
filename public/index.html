@@ -95,6 +95,152 @@
         
         <div class="post">
             <h1 class="post-title">
+                <a href="https://dddpaul.github.io/blog/2016/11/02/docker-registry/">
+                    Docker registry on Centos 7
+                </a>
+            </h1>
+
+            <span class="post-date">2016-11-02</span>
+
+            <p><strong>1.</strong> Create logical volumes for <code>direct-lvm</code> production mode</p>
+
+<p>Official <a href="https://docs.docker.com/engine/userguide/storagedriver/device-mapper-driver/">Device Mapper storage driver guide</a> recommends to use <a href="https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/6/html/Logical_Volume_Manager_Administration/thinprovisioned_volumes.html">thin pools</a> now. But we will follow more simple way :)</p>
+
+<p>Assume that we have 40 GByte block device named as <code>/dev/sdb</code> with one full-size Linux partition on it.</p>
+
+<div class="highlight"><pre><code class="language-shell" data-lang="shell">pvcreate /dev/sdb1                  <span class="c"># Create physical volume</span>
+vgcreate docker /dev/sdb1           <span class="c"># Create volume group and add this physical volume to it</span>
+lvcreate -L 2G -n metadata docker   <span class="c"># Create logical volume for Docker metadata</span>
+lvcreate -L 15G -n data docker      <span class="c"># Create logical volume for Docker data (images, layers, containers)</span>
+lvcreate -L 15G -n registry docker  <span class="c"># Create logical volume for Docker Registry data</span>
+</code></pre></div>
+
+
+<p>Mount volume for Docker registry:</p>
+
+<div class="highlight"><pre><code class="language-shell" data-lang="shell">mkfs.xfs /dev/docker/registry
+<span class="nb">echo</span> <span class="s2">&quot;/dev/docker/registry /var/lib/docker-registry    xfs     defaults        1 3&quot;</span> &gt;&gt; /etc/fstab 
+mount -a
+</code></pre></div>
+
+
+<p>Check:</p>
+
+<pre><code>lsblk
+NAME                             MAJ:MIN RM   SIZE RO TYPE MOUNTPOINT
+sda                                8:0    0   120G  0 disk
+├─sda1                             8:1    0   876M  0 part /boot
+└─sda2                             8:2    0 119,1G  0 part
+  ├─centos-swap                  253:0    0     2G  0 lvm  [SWAP]
+  └─centos-root                  253:1    0 117,2G  0 lvm  /
+sdb                                8:16   0    40G  0 disk
+└─sdb1                             8:17   0    40G  0 part
+  ├─docker-metadata              253:2    0     2G  0 lvm
+  │ └─docker-253:1-23762136-pool 253:5    0    15G  0 dm
+  ├─docker-data                  253:3    0    15G  0 lvm
+  │ └─docker-253:1-23762136-pool 253:5    0    15G  0 dm
+  └─docker-registry              253:4    0    15G  0 lvm  /var/lib/docker-registry
+</code></pre>
+
+<p><strong>2.</strong> Configure Docker daemon</p>
+
+<p>Create systemd drop-in file:</p>
+
+<div class="highlight"><pre><code class="language-shell" data-lang="shell">mkdir -p /etc/systemd/system/docker.service.d
+cat &gt; /etc/systemd/system/docker.service.d/env.conf 
+<span class="o">[</span>Service<span class="o">]</span>
+<span class="nv">EnvironmentFile</span><span class="o">=</span>-/etc/sysconfig/docker
+<span class="nv">ExecStart</span><span class="o">=</span>
+<span class="nv">ExecStart</span><span class="o">=</span>/usr/bin/dockerd <span class="nv">$OPTIONS</span> <span class="nv">$DOCKER_NETWORK_OPTIONS</span> <span class="nv">$DOCKER_STORAGE_OPTIONS</span>
+</code></pre></div>
+
+
+<p>Specify Docker configuration:</p>
+
+<p><div class="highlight"><pre><code class="language-shell" data-lang="shell">cat &gt; /etc/sysconfig/docker 
+<span class="nv">OPTIONS</span><span class="o">=</span><span class="s1">&#39;--iptables=false&#39;</span>
+<span class="nv">DOCKER_NETWORK_OPTIONS</span><span class="o">=</span><span class="s1">&#39;&#39;</span>
+<span class="nv">DOCKER_STORAGE_OPTIONS</span><span class="o">=</span><span class="s1">&#39;--storage-driver=devicemapper --storage-opt dm.datadev=/dev/docker/data --storage-opt dm.metadatadev=/dev/docker/metadata&#39;</span>
+</code></pre></div>
+</p>
+
+<p>Check:</p>
+
+<p><div class="highlight"><pre><code class="language-shell" data-lang="shell">systemctl daemon-reload
+systemctl show docker <span class="p">|</span> grep EnvironmentFile
+<span class="nv">EnvironmentFile</span><span class="o">=</span>/etc/sysconfig/docker <span class="o">(</span><span class="nv">ignore_errors</span><span class="o">=</span>yes<span class="o">)</span>
+</code></pre></div>
+</p>
+
+<p>And run:</p>
+
+<p><div class="highlight"><pre><code class="language-shell" data-lang="shell">systemctl <span class="nb">enable </span>docker
+systemctl restart docker
+</code></pre></div>
+</p>
+
+<p>Check again:</p>
+
+<p><div class="highlight"><pre><code class="language-shell" data-lang="shell">docker info <span class="p">|</span> grep data
+ Data file: /dev/docker/data
+ Metadata file: /dev/docker/metadata
+ Metadata Space Used: <span class="m">639</span> kB
+ Metadata Space Total: 2.147 GB
+ Metadata Space Available: 2.147 GB
+</code></pre></div>
+</p>
+
+<p><strong>3.</strong> Obtain SSL certificate from Let&rsquo;s Encrypt</p>
+
+<p>It&rsquo;s can be done by different ways, see <a href="https://dddpaul.github.io/blog/2016/10/20/lego-nginx/">Let&rsquo;s Encrypt with lego and Nginx</a> for one of these.</p>
+
+<p>Assume that certificate and key was obtained and stored in <code>/etc/pki/tls/lego/certificates</code> directory.</p>
+
+<p><strong>4.</strong> Run Docker registry container as systemd unit</p>
+
+<p>Create systemd unit:</p>
+
+<p><div class="highlight"><pre><code class="language-shell" data-lang="shell">cat &gt; /etc/systemd/system/docker-registry.service
+<span class="o">[</span>Unit<span class="o">]</span>
+<span class="nv">Description</span><span class="o">=</span>Docker registry container
+<span class="nv">Requires</span><span class="o">=</span>docker.service
+<span class="nv">After</span><span class="o">=</span>docker.service
+
+<span class="o">[</span>Service<span class="o">]</span>
+<span class="nv">Restart</span><span class="o">=</span>always
+<span class="nv">ExecStartPre</span><span class="o">=</span>/usr/bin/docker create -p 5000:5000 -v /var/lib/docker-registry:/var/lib/registry -v /etc/pki/tls/lego/certificates:/certs -e <span class="nv">REGISTRY_HTTP_TLS_CERTIFICATE</span><span class="o">=</span>/certs/example.org.crt -e <span class="nv">REGISTRY_HTTP_TLS_KEY</span><span class="o">=</span>/certs/example.org.key --name registry registry:2
+<span class="nv">ExecStart</span><span class="o">=</span>/usr/bin/docker start -a registry
+<span class="nv">ExecStop</span><span class="o">=</span>/usr/bin/docker stop -t <span class="m">5</span> registry
+<span class="nv">ExecStopPost</span><span class="o">=</span>/usr/bin/docker rm registry
+
+<span class="o">[</span>Install<span class="o">]</span>
+<span class="nv">WantedBy</span><span class="o">=</span>multi-user.target
+&lt;/pre&gt;
+</code></pre></div>
+</p>
+
+<p><strong>5.</strong> Permit access to Docker registry only from trusted networks</p>
+
+<p><div class="highlight"><pre><code class="language-shell" data-lang="shell">firewall-cmd --zone<span class="o">=</span>trusted --add-port<span class="o">=</span>5000/tcp --permanent
+firewall-cmd --zone<span class="o">=</span>trusted --add-source<span class="o">=</span>192.168.1.0/24 --permanent
+firewall-cmd --reload
+</code></pre></div>
+</p>
+
+<p>Since Docker daemon was launched with <code>--iptables=false</code> option, Docker registry port may be accessed from trusted networks only.</p>
+
+<p>Links:</p>
+
+<ul>
+<li><a href="https://docs.docker.com/engine/admin/systemd/">Control and configure Docker with systemd</a></li>
+<li><a href="https://docs.docker.com/engine/userguide/storagedriver/device-mapper-driver/">Docker and the Device Mapper storage driver</a></li>
+<li><a href="http://trainingdevops.com/insights-and-tutorials/deploying-docker-registry-with-let-s-encrypt-ssl-tls-certs">Deploying Docker Registry with Let&rsquo;s Encrypt SSL/TLS Certs</a></li>
+</ul>
+
+        </div>
+        
+        <div class="post">
+            <h1 class="post-title">
                 <a href="https://dddpaul.github.io/blog/2016/10/20/lego-nginx/">
                     Let&#39;s Encrypt with lego and Nginx
                 </a>
@@ -1252,163 +1398,6 @@ init_by_lua_block {
 <ul>
 <li><a href="https://github.com/debops/ansible-docker/pull/2">No need to evaluate a variable two times</a></li>
 </ul>
-
-        </div>
-        
-        <div class="post">
-            <h1 class="post-title">
-                <a href="https://dddpaul.github.io/blog/2015/11/29/ansible-defined-keyword/">
-                    Ansible: &#34;defined&#34; keyword
-                </a>
-            </h1>
-
-            <span class="post-date">2015-11-29</span>
-
-            <p>Some hidden knowledge for the start:</p>
-
-<p>First of all, the Ansible <code>when</code> clause contains a Jinja2 expression (see <a href="http://docs.ansible.com/ansible/playbooks_conditionals.html">Ansible playbook conditionals</a>). It&rsquo;s confirmed with a quote from <a href="http://shop.oreilly.com/product/0636920035626.do">Ansible: Up And Running</a>, page 41:</p>
-
-<blockquote>
-<p>Ansible also uses the <strong>Jinja2 template engine</strong> to evaluate variables in playbooks.</p>
-</blockquote>
-
-<p>Secondly, that how <a href="http://jinja.pocoo.org/docs/dev/templates/">Jinja2</a> interprets the <code>if</code> condition:</p>
-
-<blockquote>
-<p>The if statement in Jinja is comparable with the Python if statement. In the simplest form, you can use it to test if <strong>a variable is defined, not empty or not false</strong>.</p>
-</blockquote>
-
-<p>Third, a bit of truth about <a href="https://www.python.org/dev/peps/pep-0008/">Python</a>:</p>
-
-<blockquote>
-<p>For sequences, (strings, lists, tuples), use the fact that <strong>empty sequences are false</strong>.</p>
-</blockquote>
-
-<p>More detailed — <a href="https://docs.python.org/2/library/stdtypes.html">5.1. Truth Value Testing</a>:</p>
-
-<blockquote>
-<p>Any object can be tested for truth value, for use in an if or while condition or as operand of the Boolean operations below. The following values are considered false:</p>
-
-<ul>
-<li><code>None</code></li>
-<li><code>False</code></li>
-<li>zero of any numeric type, for example, <code>0</code>, <code>0L</code>, <code>0.0</code>, <code>0j</code></li>
-<li>any empty sequence, for example, <code>''</code>, <code>()</code>, <code>[]</code></li>
-<li>any empty mapping, for example, <code>{}</code></li>
-<li>instances of user-defined classes, if the class defines a <code>__nonzero__()</code> or <code>__len__()</code> method, when that method returns the integer zero or bool value False.</li>
-</ul>
-
-<p>All other values are considered true — so objects of many types are always true.</p>
-
-<p>Operations and built-in functions that have a Boolean result always return 0 or False for false and 1 or True for true, unless otherwise stated. (Important exception: the Boolean operations or and and always return one of their operands.)</p>
-</blockquote>
-
-<p>At last, a quote from <a href="http://shop.oreilly.com/product/0636920035626.do">Ansible: Up And Running</a>, page 23:</p>
-
-<blockquote>
-<p>Ansible is pretty flexible on how you represent truthy and falsey values in playbooks. Strictly speaking, module arguments (like <code>update_cache=yes</code>) are treated differently from values elsewhere in playbooks (like <code>sudo: True</code>). Values elsewhere are handled by the YAML parser and so use the YAML conventions of truthiness, which are:</p>
-
-<p><em>YAML truthy:</em> true, True, TRUE, yes, Yes, YES, on, On, ON, y, Y</p>
-
-<p><em>YAML falsey:</em> false, False, FALSE, no, No, NO, off, Off, OFF, n, N</p>
-
-<p>Module arguments are passed as strings and use Ansible’s internal conventions, which are:</p>
-
-<p><em>module arg truthy:</em> yes, on, 1, true</p>
-
-<p><em>module arg falsey:</em> no, off, 0, false</p>
-</blockquote>
-
-<p>Why all of these are important? Because there are plenty of redundant <code>if</code> and <code>when</code> conditionals usage in Ansible playbooks and templates. For example in <a href="https://github.com/debops/ansible-nginx/blob/master/tasks/main.yml">debops/ansible-nginx</a>:</p>
-
-<pre><code>- name: Manage local server definitions - create symlinks
-  file:
-    src: '/etc/nginx/sites-local/{{ item.0 }}'
-    path: '/etc/nginx/sites-enabled/{{ item.1 }}'
-    state: 'link'
-    owner: 'root'
-    group: 'root'
-    mode: '0644'
-  with_together:
-    - '{{ nginx_local_servers.values() }}'
-    - '{{ nginx_local_servers.keys() }}'
-  notify: [ 'Test nginx and reload' ]
-  when: ((nginx_local_servers is defined and nginx_local_servers) and
-         (item.0 is defined and item.0))
-</code></pre>
-
-<p>See that overbloated <code>when</code> condition? Wouldn&rsquo;t be that simpler with <code>when: nginx_local_servers and item.0</code>?</p>
-
-<p>Though it&rsquo;s not a complete equivalent because it evaluates to False when nginx_local_servers <strong>is defined and empty</strong>. But it&rsquo;s definitely correct behaviour — surely we have no usage for the empty servers string.</p>
-
-<p>It&rsquo;s all just mere words without proper testing, so let&rsquo;s test long version <code>var is defined and var</code>:</p>
-
-<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Template</span>
-<span class="n">tmpl</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s">&#39;{</span><span class="si">% i</span><span class="s">f var is defined and var %} True {</span><span class="si">% e</span><span class="s">lse %} False {</span><span class="si">% e</span><span class="s">ndif %}&#39;</span><span class="p">)</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">()</span>
- <span class="bp">False</span> 
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
- <span class="bp">False</span> 
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">)</span>
- <span class="bp">False</span> 
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39;abc&#39;</span><span class="p">)</span>
- <span class="bp">True</span> 
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39; &#39;</span><span class="p">)</span>
- <span class="bp">True</span> 
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">[])</span>                                                                                                                                                                                                                                           
- <span class="bp">False</span> 
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;list&#39;</span><span class="p">])</span>
- <span class="bp">True</span> 
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">{})</span>                                                                                                                                                                                                                                           
- <span class="bp">False</span> 
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;key&#39;</span><span class="p">:</span> <span class="s">&#39;value&#39;</span><span class="p">})</span>                                                                                                                                                                                                                             
- <span class="bp">True</span> 
-</code></pre></div>
-
-
-<p>And the short version — <code>var</code>:</p>
-
-<p><div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Template</span>
-<span class="n">tmpl</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s">&#39;{</span><span class="si">% i</span><span class="s">f var %} True {</span><span class="si">% e</span><span class="s">lse %} False {</span><span class="si">% e</span><span class="s">ndif %}&#39;</span><span class="p">)</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">()</span>
- <span class="bp">False</span> 
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
- <span class="bp">False</span> 
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">)</span>
- <span class="bp">False</span> 
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39;abc&#39;</span><span class="p">)</span>
- <span class="bp">True</span> 
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39; &#39;</span><span class="p">)</span>
- <span class="bp">True</span> 
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">[])</span>
- <span class="bp">False</span> 
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;list&#39;</span><span class="p">])</span>
- <span class="bp">True</span> 
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">{})</span>
- <span class="bp">False</span> 
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;key&#39;</span><span class="p">:</span> <span class="s">&#39;value&#39;</span><span class="p">})</span>
- <span class="bp">True</span> 
-</code></pre></div>
-</p>
-
-<p>So there are no differences at all. For the sake of thrust, let&rsquo;s test <code>var is defined</code>:</p>
-
-<p><div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Template</span>
-<span class="n">tmpl</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s">&#39;{</span><span class="si">% i</span><span class="s">f var is defined %} True {</span><span class="si">% e</span><span class="s">lse %} False {</span><span class="si">% e</span><span class="s">ndif %}&#39;</span><span class="p">)</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">()</span>
- <span class="bp">False</span> 
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
- <span class="bp">True</span> 
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">)</span>
- <span class="bp">True</span> 
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39;abc&#39;</span><span class="p">)</span>
- <span class="bp">True</span> 
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39; &#39;</span><span class="p">)</span>
- <span class="bp">True</span> 
-</code></pre></div>
-</p>
-
-<p>So just use <code>var</code> and not <code>var is defined and var</code>, Luke!</p>
 
         </div>
         

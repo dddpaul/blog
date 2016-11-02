@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="generator" content="Hugo 0.16-DEV" />
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+  <title> Docker registry on Centos 7 &middot; Dev notes </title>
+
+  
+  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/poole.css">
+  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/syntax.css">
+  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/hyde.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
+
+  
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144-precomposed.png">
+  <link rel="shortcut icon" href="/favicon.png">
+
+  
+  <link href="" rel="alternate" type="application/rss+xml" title="Dev notes" />
+</head>
+
+<body>
+
+<div class="sidebar">
+    <div class="container sidebar-sticky">
+        <div class="sidebar-about">
+            <h1>Dev notes</h1>
+            <p class="lead">
+                 Notes about Android, Java, JavaScript, Go and other technical stuff 
+            </p>
+        </div>
+
+        <ul class="sidebar-nav">
+            <li><a href="/">Home</a> </li>
+            
+            <li><a href="http://github.com/dddpaul"> GitHub </a></li>
+            
+            <li><a href="http://google.com/&#43;PavelDerendyaev1"> Google&#43; </a></li>
+            
+            <li><a href="/blog/index.xml"> RSS </a></li>
+            
+        </ul>
+
+        Tags:
+        <ul>
+            
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/android/">android</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/angularjs/">angularjs</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/ansible/">ansible</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/concurrency/">concurrency</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/database/">database</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/devops/">devops</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/docker/">docker</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/git/">git</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/golang/">golang</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/hugo/">hugo</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/java/">java</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/javascript/">javascript</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/linux/">linux</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/python/">python</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/react/">react</a> </li>
+            
+            <li><a href="https://dddpaul.github.io/blog//tags/windows/">windows</a> </li>
+            
+        </ul>
+
+        <p>&copy; 2016. All rights reserved. </p>
+    </div>
+</div>
+
+
+<div class="content container">
+    <div class="post">
+        <h1 class="post-title">Docker registry on Centos 7</h1>
+        <span class="post-date">2016-11-02</span>
+
+        <p><strong>1.</strong> Create logical volumes for <code>direct-lvm</code> production mode</p>
+
+<p>Official <a href="https://docs.docker.com/engine/userguide/storagedriver/device-mapper-driver/">Device Mapper storage driver guide</a> recommends to use <a href="https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/6/html/Logical_Volume_Manager_Administration/thinprovisioned_volumes.html">thin pools</a> now. But we will follow more simple way :)</p>
+
+<p>Assume that we have 40 GByte block device named as <code>/dev/sdb</code> with one full-size Linux partition on it.</p>
+
+<div class="highlight"><pre><code class="language-shell" data-lang="shell">pvcreate /dev/sdb1                  <span class="c"># Create physical volume</span>
+vgcreate docker /dev/sdb1           <span class="c"># Create volume group and add this physical volume to it</span>
+lvcreate -L 2G -n metadata docker   <span class="c"># Create logical volume for Docker metadata</span>
+lvcreate -L 15G -n data docker      <span class="c"># Create logical volume for Docker data (images, layers, containers)</span>
+lvcreate -L 15G -n registry docker  <span class="c"># Create logical volume for Docker Registry data</span>
+</code></pre></div>
+
+
+<p>Mount volume for Docker registry:</p>
+
+<div class="highlight"><pre><code class="language-shell" data-lang="shell">mkfs.xfs /dev/docker/registry
+<span class="nb">echo</span> <span class="s2">&quot;/dev/docker/registry /var/lib/docker-registry    xfs     defaults        1 3&quot;</span> &gt;&gt; /etc/fstab 
+mount -a
+</code></pre></div>
+
+
+<p>Check:</p>
+
+<pre><code>lsblk
+NAME                             MAJ:MIN RM   SIZE RO TYPE MOUNTPOINT
+sda                                8:0    0   120G  0 disk
+├─sda1                             8:1    0   876M  0 part /boot
+└─sda2                             8:2    0 119,1G  0 part
+  ├─centos-swap                  253:0    0     2G  0 lvm  [SWAP]
+  └─centos-root                  253:1    0 117,2G  0 lvm  /
+sdb                                8:16   0    40G  0 disk
+└─sdb1                             8:17   0    40G  0 part
+  ├─docker-metadata              253:2    0     2G  0 lvm
+  │ └─docker-253:1-23762136-pool 253:5    0    15G  0 dm
+  ├─docker-data                  253:3    0    15G  0 lvm
+  │ └─docker-253:1-23762136-pool 253:5    0    15G  0 dm
+  └─docker-registry              253:4    0    15G  0 lvm  /var/lib/docker-registry
+</code></pre>
+
+<p><strong>2.</strong> Configure Docker daemon</p>
+
+<p>Create systemd drop-in file:</p>
+
+<div class="highlight"><pre><code class="language-shell" data-lang="shell">mkdir -p /etc/systemd/system/docker.service.d
+cat &gt; /etc/systemd/system/docker.service.d/env.conf 
+<span class="o">[</span>Service<span class="o">]</span>
+<span class="nv">EnvironmentFile</span><span class="o">=</span>-/etc/sysconfig/docker
+<span class="nv">ExecStart</span><span class="o">=</span>
+<span class="nv">ExecStart</span><span class="o">=</span>/usr/bin/dockerd <span class="nv">$OPTIONS</span> <span class="nv">$DOCKER_NETWORK_OPTIONS</span> <span class="nv">$DOCKER_STORAGE_OPTIONS</span>
+</code></pre></div>
+
+
+<p>Specify Docker configuration:</p>
+
+<p><div class="highlight"><pre><code class="language-shell" data-lang="shell">cat &gt; /etc/sysconfig/docker 
+<span class="nv">OPTIONS</span><span class="o">=</span><span class="s1">&#39;--iptables=false&#39;</span>
+<span class="nv">DOCKER_NETWORK_OPTIONS</span><span class="o">=</span><span class="s1">&#39;&#39;</span>
+<span class="nv">DOCKER_STORAGE_OPTIONS</span><span class="o">=</span><span class="s1">&#39;--storage-driver=devicemapper --storage-opt dm.datadev=/dev/docker/data --storage-opt dm.metadatadev=/dev/docker/metadata&#39;</span>
+</code></pre></div>
+</p>
+
+<p>Check:</p>
+
+<p><div class="highlight"><pre><code class="language-shell" data-lang="shell">systemctl daemon-reload
+systemctl show docker <span class="p">|</span> grep EnvironmentFile
+<span class="nv">EnvironmentFile</span><span class="o">=</span>/etc/sysconfig/docker <span class="o">(</span><span class="nv">ignore_errors</span><span class="o">=</span>yes<span class="o">)</span>
+</code></pre></div>
+</p>
+
+<p>And run:</p>
+
+<p><div class="highlight"><pre><code class="language-shell" data-lang="shell">systemctl <span class="nb">enable </span>docker
+systemctl restart docker
+</code></pre></div>
+</p>
+
+<p>Check again:</p>
+
+<p><div class="highlight"><pre><code class="language-shell" data-lang="shell">docker info <span class="p">|</span> grep data
+ Data file: /dev/docker/data
+ Metadata file: /dev/docker/metadata
+ Metadata Space Used: <span class="m">639</span> kB
+ Metadata Space Total: 2.147 GB
+ Metadata Space Available: 2.147 GB
+</code></pre></div>
+</p>
+
+<p><strong>3.</strong> Obtain SSL certificate from Let&rsquo;s Encrypt</p>
+
+<p>It&rsquo;s can be done by different ways, see <a href="https://dddpaul.github.io/blog/2016/10/20/lego-nginx/">Let&rsquo;s Encrypt with lego and Nginx</a> for one of these.</p>
+
+<p>Assume that certificate and key was obtained and stored in <code>/etc/pki/tls/lego/certificates</code> directory.</p>
+
+<p><strong>4.</strong> Run Docker registry container as systemd unit</p>
+
+<p>Create systemd unit:</p>
+
+<p><div class="highlight"><pre><code class="language-shell" data-lang="shell">cat &gt; /etc/systemd/system/docker-registry.service
+<span class="o">[</span>Unit<span class="o">]</span>
+<span class="nv">Description</span><span class="o">=</span>Docker registry container
+<span class="nv">Requires</span><span class="o">=</span>docker.service
+<span class="nv">After</span><span class="o">=</span>docker.service
+
+<span class="o">[</span>Service<span class="o">]</span>
+<span class="nv">Restart</span><span class="o">=</span>always
+<span class="nv">ExecStartPre</span><span class="o">=</span>/usr/bin/docker create -p 5000:5000 -v /var/lib/docker-registry:/var/lib/registry -v /etc/pki/tls/lego/certificates:/certs -e <span class="nv">REGISTRY_HTTP_TLS_CERTIFICATE</span><span class="o">=</span>/certs/example.org.crt -e <span class="nv">REGISTRY_HTTP_TLS_KEY</span><span class="o">=</span>/certs/example.org.key --name registry registry:2
+<span class="nv">ExecStart</span><span class="o">=</span>/usr/bin/docker start -a registry
+<span class="nv">ExecStop</span><span class="o">=</span>/usr/bin/docker stop -t <span class="m">5</span> registry
+<span class="nv">ExecStopPost</span><span class="o">=</span>/usr/bin/docker rm registry
+
+<span class="o">[</span>Install<span class="o">]</span>
+<span class="nv">WantedBy</span><span class="o">=</span>multi-user.target
+&lt;/pre&gt;
+</code></pre></div>
+</p>
+
+<p><strong>5.</strong> Permit access to Docker registry only from trusted networks</p>
+
+<p><div class="highlight"><pre><code class="language-shell" data-lang="shell">firewall-cmd --zone<span class="o">=</span>trusted --add-port<span class="o">=</span>5000/tcp --permanent
+firewall-cmd --zone<span class="o">=</span>trusted --add-source<span class="o">=</span>192.168.1.0/24 --permanent
+firewall-cmd --reload
+</code></pre></div>
+</p>
+
+<p>Since Docker daemon was launched with <code>--iptables=false</code> option, Docker registry port may be accessed from trusted networks only.</p>
+
+<p>Links:</p>
+
+<ul>
+<li><a href="https://docs.docker.com/engine/admin/systemd/">Control and configure Docker with systemd</a></li>
+<li><a href="https://docs.docker.com/engine/userguide/storagedriver/device-mapper-driver/">Docker and the Device Mapper storage driver</a></li>
+<li><a href="http://trainingdevops.com/insights-and-tutorials/deploying-docker-registry-with-let-s-encrypt-ssl-tls-certs">Deploying Docker Registry with Let&rsquo;s Encrypt SSL/TLS Certs</a></li>
+</ul>
+
+    </div>
+
+    
+
+    Tags:
+    <ul id="tags">
+        
+        
+        <li><a href="https://dddpaul.github.io/blog//tags/linux">linux</a> </li>
+        
+        <li><a href="https://dddpaul.github.io/blog//tags/docker">docker</a> </li>
+        
+    </ul>
+
+    <div id="disqus_thread"></div>
+<script type="text/javascript">
+
+(function() {
+    
+    
+    if (window.location.hostname == "localhost")
+        return;
+
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    var disqus_shortname = 'dddpaul-github';
+    var disqus_identifier = 'https:\/\/dddpaul.github.io\/blog\/2016\/11\/02\/docker-registry\/';
+    var disqus_title = 'Docker registry on Centos 7';
+    var disqus_url = 'https:\/\/dddpaul.github.io\/blog\/2016\/11\/02\/docker-registry\/';
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+
+</div>
+
+</body>
+</html>
+
