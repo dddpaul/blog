@@ -100,11 +100,11 @@
 
 <p>Assume that we have 40 GByte block device named as <code>/dev/sdb</code> with one full-size Linux partition on it.</p>
 
-<div class="highlight"><pre><code class="language-shell" data-lang="shell">pvcreate /dev/sdb1                 <span class="c"># Create physical volume</span>
-vgcreate docker /dev/sdb1          <span class="c"># Create volume group and add this physical volume to it</span>
-lvcreate -L 2G -n metadata docker  <span class="c"># Create logical volume for Docker metadata</span>
-lvcreate -L 15G -n data docker     <span class="c"># Create logical volume for Docker data (layers, containers etc)</span>
-lvcreate -L 15G -n registry docker <span class="c"># Create logical volume for Docker Registry data</span>
+<div class="highlight"><pre><code class="language-shell" data-lang="shell">pvcreate /dev/sdb1                 <span class="c1"># Create physical volume</span>
+vgcreate docker /dev/sdb1          <span class="c1"># Create volume group and add this physical volume to it</span>
+lvcreate -L 2G -n metadata docker  <span class="c1"># Create logical volume for Docker metadata</span>
+lvcreate -L 15G -n data docker     <span class="c1"># Create logical volume for Docker data (layers, containers etc)</span>
+lvcreate -L 15G -n registry docker <span class="c1"># Create logical volume for Docker Registry data</span>
 </code></pre></div>
 
 
@@ -143,7 +143,7 @@ cat &gt; /etc/systemd/system/docker.service.d/env.conf
 <span class="o">[</span>Service<span class="o">]</span>
 <span class="nv">EnvironmentFile</span><span class="o">=</span>-/etc/sysconfig/docker
 <span class="nv">ExecStart</span><span class="o">=</span>
-<span class="nv">ExecStart</span><span class="o">=</span>/usr/bin/dockerd <span class="nv">$OPTIONS</span> <span class="nv">$DOCKER_NETWORK_OPTIONS</span> <span class="nv">$DOCKER_STORAGE_OPTIONS</span>
+<span class="nv">ExecStart</span><span class="o">=</span>/usr/bin/dockerd $OPTIONS <span class="nv">$D</span>OCKER_NETWORK_OPTIONS <span class="nv">$D</span>OCKER_STORAGE_OPTIONS
 </code></pre></div>
 
 
@@ -166,7 +166,7 @@ systemctl show docker <span class="p">|</span> grep EnvironmentFile
 
 <p>And run:</p>
 
-<p><div class="highlight"><pre><code class="language-shell" data-lang="shell">systemctl <span class="nb">enable </span>docker
+<p><div class="highlight"><pre><code class="language-shell" data-lang="shell">systemctl <span class="nb">enable</span> docker
 systemctl restart docker
 </code></pre></div>
 </p>
@@ -207,7 +207,6 @@ systemctl restart docker
 
 <span class="o">[</span>Install<span class="o">]</span>
 <span class="nv">WantedBy</span><span class="o">=</span>multi-user.target
-&lt;/pre&gt;
 </code></pre></div>
 </p>
 

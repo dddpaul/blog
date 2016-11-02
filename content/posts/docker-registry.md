@@ -121,7 +121,6 @@ ExecStopPost=/usr/bin/docker rm registry
 
 [Install]
 WantedBy=multi-user.target
-</pre>
 {{< /highlight >}}
 
 **5.** Permit access to Docker registry only from trusted networks

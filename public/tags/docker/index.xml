@@ -21,11 +21,11 @@
 
 &lt;p&gt;Assume that we have 40 GByte block device named as &lt;code&gt;/dev/sdb&lt;/code&gt; with one full-size Linux partition on it.&lt;/p&gt;
 
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;pvcreate /dev/sdb1                 &lt;span class=&#34;c&#34;&gt;# Create physical volume&lt;/span&gt;
-vgcreate docker /dev/sdb1          &lt;span class=&#34;c&#34;&gt;# Create volume group and add this physical volume to it&lt;/span&gt;
-lvcreate -L 2G -n metadata docker  &lt;span class=&#34;c&#34;&gt;# Create logical volume for Docker metadata&lt;/span&gt;
-lvcreate -L 15G -n data docker     &lt;span class=&#34;c&#34;&gt;# Create logical volume for Docker data (layers, containers etc)&lt;/span&gt;
-lvcreate -L 15G -n registry docker &lt;span class=&#34;c&#34;&gt;# Create logical volume for Docker Registry data&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;pvcreate /dev/sdb1                 &lt;span class=&#34;c1&#34;&gt;# Create physical volume&lt;/span&gt;
+vgcreate docker /dev/sdb1          &lt;span class=&#34;c1&#34;&gt;# Create volume group and add this physical volume to it&lt;/span&gt;
+lvcreate -L 2G -n metadata docker  &lt;span class=&#34;c1&#34;&gt;# Create logical volume for Docker metadata&lt;/span&gt;
+lvcreate -L 15G -n data docker     &lt;span class=&#34;c1&#34;&gt;# Create logical volume for Docker data (layers, containers etc)&lt;/span&gt;
+lvcreate -L 15G -n registry docker &lt;span class=&#34;c1&#34;&gt;# Create logical volume for Docker Registry data&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
 
@@ -64,7 +64,7 @@ cat &amp;gt; /etc/systemd/system/docker.service.d/env.conf
 &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;Service&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
 &lt;span class=&#34;nv&#34;&gt;EnvironmentFile&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;-/etc/sysconfig/docker
 &lt;span class=&#34;nv&#34;&gt;ExecStart&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;
-&lt;span class=&#34;nv&#34;&gt;ExecStart&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/usr/bin/dockerd &lt;span class=&#34;nv&#34;&gt;$OPTIONS&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$DOCKER_NETWORK_OPTIONS&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$DOCKER_STORAGE_OPTIONS&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;ExecStart&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/usr/bin/dockerd $OPTIONS &lt;span class=&#34;nv&#34;&gt;$D&lt;/span&gt;OCKER_NETWORK_OPTIONS &lt;span class=&#34;nv&#34;&gt;$D&lt;/span&gt;OCKER_STORAGE_OPTIONS
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
 
@@ -87,7 +87,7 @@ systemctl show docker &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; grep Environm
 
 &lt;p&gt;And run:&lt;/p&gt;
 
-&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;systemctl &lt;span class=&#34;nb&#34;&gt;enable &lt;/span&gt;docker
+&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;systemctl &lt;span class=&#34;nb&#34;&gt;enable&lt;/span&gt; docker
 systemctl restart docker
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;/p&gt;
@@ -128,7 +128,6 @@ systemctl restart docker
 
 &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;Install&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
 &lt;span class=&#34;nv&#34;&gt;WantedBy&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;multi-user.target
-&amp;lt;/pre&amp;gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;/p&gt;
 
