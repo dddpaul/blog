@@ -100,11 +100,11 @@
 
 <p>Assume that we have 40 GByte block device named as <code>/dev/sdb</code> with one full-size Linux partition on it.</p>
 
-<div class="highlight"><pre><code class="language-shell" data-lang="shell">pvcreate /dev/sdb1                  <span class="c"># Create physical volume</span>
-vgcreate docker /dev/sdb1           <span class="c"># Create volume group and add this physical volume to it</span>
-lvcreate -L 2G -n metadata docker   <span class="c"># Create logical volume for Docker metadata</span>
-lvcreate -L 15G -n data docker      <span class="c"># Create logical volume for Docker data (images, layers, containers)</span>
-lvcreate -L 15G -n registry docker  <span class="c"># Create logical volume for Docker Registry data</span>
+<div class="highlight"><pre><code class="language-shell" data-lang="shell">pvcreate /dev/sdb1                 <span class="c"># Create physical volume</span>
+vgcreate docker /dev/sdb1          <span class="c"># Create volume group and add this physical volume to it</span>
+lvcreate -L 2G -n metadata docker  <span class="c"># Create logical volume for Docker metadata</span>
+lvcreate -L 15G -n data docker     <span class="c"># Create logical volume for Docker data (layers, containers etc)</span>
+lvcreate -L 15G -n registry docker <span class="c"># Create logical volume for Docker Registry data</span>
 </code></pre></div>
 
 

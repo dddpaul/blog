@@ -13,11 +13,11 @@ Official [Device Mapper storage driver guide](https://docs.docker.com/engine/use
 Assume that we have 40 GByte block device named as `/dev/sdb` with one full-size Linux partition on it. 
 
 {{< highlight shell >}}
-pvcreate /dev/sdb1                  # Create physical volume
-vgcreate docker /dev/sdb1           # Create volume group and add this physical volume to it
-lvcreate -L 2G -n metadata docker   # Create logical volume for Docker metadata
-lvcreate -L 15G -n data docker      # Create logical volume for Docker data (images, layers, containers)
-lvcreate -L 15G -n registry docker  # Create logical volume for Docker Registry data
+pvcreate /dev/sdb1                 # Create physical volume
+vgcreate docker /dev/sdb1          # Create volume group and add this physical volume to it
+lvcreate -L 2G -n metadata docker  # Create logical volume for Docker metadata
+lvcreate -L 15G -n data docker     # Create logical volume for Docker data (layers, containers etc)
+lvcreate -L 15G -n registry docker # Create logical volume for Docker Registry data
 {{< /highlight >}}
 
 Mount volume for Docker registry:
