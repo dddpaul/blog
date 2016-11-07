@@ -95,6 +95,163 @@
         
         <div class="post">
             <h1 class="post-title">
+                <a href="https://dddpaul.github.io/blog/2016/11/07/traefik-on-docker-swarm/">
+                    Træfik on Docker Swarm mode cluster
+                </a>
+            </h1>
+
+            <span class="post-date">2016-11-07</span>
+
+            <p>Træfɪk is a modern HTTP reverse proxy and load balancer made to deploy microservices with ease. Since 1.1.0-rc1 it supports Docker Swarm mode as backend. It means that Træfɪk will automatically create proxying frontends which will be binded to corresponding Docker Swarm services.</p>
+
+<p>This post is based on <a href="https://docs.traefik.io/user-guide/swarm-mode/">Docker Swarm (mode) cluster</a> example.</p>
+
+<p>Assuming we have Docker Swarm mode cluster already, we will need to create an overlay network:</p>
+
+<div class="highlight"><pre><code class="language-shell" data-lang="shell">docker network create --driver<span class="o">=</span>overlay traefik-net
+</code></pre></div>
+
+
+<p>Backends are the simple <a href="https://github.com/emilevauge/whoamI">emilevauge/whoami</a> services:</p>
+
+<div class="highlight"><pre><code class="language-shell" data-lang="shell">docker service create --name test1 --label traefik.port<span class="o">=</span><span class="m">80</span> --network traefik-net emilevauge/whoami
+docker service create --name test2 --label traefik.port<span class="o">=</span><span class="m">80</span> --network traefik-net emilevauge/whoami
+</code></pre></div>
+
+
+<p>Træfɪk itself may be ran in rich variety of configurations.</p>
+
+<p><strong>1.</strong> HTTP only proxy</p>
+
+<div class="highlight"><pre><code class="language-shell" data-lang="shell">docker service create <span class="se">\</span>
+--name traefik <span class="se">\</span>
+--constraint<span class="o">=</span>node.role<span class="o">==</span>manager <span class="se">\</span>
+--publish 80:80 --publish 8080:8080 <span class="se">\</span>
+--mount <span class="nv">type</span><span class="o">=</span>bind,source<span class="o">=</span>/var/run/docker.sock,target<span class="o">=</span>/var/run/docker.sock <span class="se">\</span>
+--network traefik-net <span class="se">\</span>
+traefik:v1.1.0-rc3 <span class="se">\</span>
+--docker <span class="se">\</span>
+--docker.swarmmode <span class="se">\</span>
+--docker.domain<span class="o">=</span>example.org <span class="se">\</span>
+--docker.watch <span class="se">\</span>
+--logLevel<span class="o">=</span>DEBUG <span class="se">\</span>
+--web
+</code></pre></div>
+
+
+<p>Remarks:</p>
+
+<ul>
+<li>Træfɪk web UI will we accessible on <a href="http://example.org:8080">http://example.org:8080</a>.</li>
+<li>Debug log level must be disabled on production.</li>
+</ul>
+
+<p><strong>2.</strong> HTTPS proxy with Let&rsquo;s Encrypt certificate and HTTP to HTTPS redirection</p>
+
+<p><div class="highlight"><pre><code class="language-shell" data-lang="shell">docker service create <span class="se">\</span>
+--name traefik <span class="se">\</span>
+--constraint<span class="o">=</span>node.role<span class="o">==</span>manager <span class="se">\</span>
+--publish 80:80 --publish 443:443 --publish 8080:8080 <span class="se">\</span>
+--mount <span class="nv">type</span><span class="o">=</span>bind,source<span class="o">=</span>/var/run/docker.sock,target<span class="o">=</span>/var/run/docker.sock,readonly <span class="se">\</span>
+--mount <span class="nv">type</span><span class="o">=</span>bind,source<span class="o">=</span>/var/tmp,target<span class="o">=</span>/etc/traefik/acme <span class="se">\</span>
+--network traefik-net <span class="se">\</span>
+traefik:v1.1.0-rc3 <span class="se">\</span>
+--entryPoints<span class="o">=</span><span class="s1">&#39;Name:http Address::80 Redirect.EntryPoint:https&#39;</span> <span class="se">\</span>
+--entryPoints<span class="o">=</span><span class="s1">&#39;Name:https Address::443 TLS&#39;</span> <span class="se">\</span>
+--defaultEntryPoints<span class="o">=</span>http,https <span class="se">\</span>
+--acme.entryPoint<span class="o">=</span>https <span class="se">\</span>
+--acme.email<span class="o">=</span>owner@example.org <span class="se">\</span>
+--acme.storage<span class="o">=</span>/etc/traefik/acme/acme.json <span class="se">\</span>
+--acme.domains<span class="o">=</span>example.org <span class="se">\</span>
+--acme.onHostRule<span class="o">=</span><span class="nb">true</span> <span class="se">\</span>
+--docker <span class="se">\</span>
+--docker.swarmmode <span class="se">\</span>
+--docker.domain<span class="o">=</span>example.org <span class="se">\</span>
+--docker.watch <span class="se">\</span>
+--web
+</code></pre></div>
+</p>
+
+<p><strong>3.</strong> HTTPS-only proxy with Let&rsquo;s Encrypt certificate</p>
+
+<p><div class="highlight"><pre><code class="language-shell" data-lang="shell">docker service create <span class="se">\</span>
+--name traefik <span class="se">\</span>
+--constraint<span class="o">=</span>node.role<span class="o">==</span>manager <span class="se">\</span>
+--publish 443:443 --publish 8080:8080 <span class="se">\</span>
+--mount <span class="nv">type</span><span class="o">=</span>bind,source<span class="o">=</span>/var/run/docker.sock,target<span class="o">=</span>/var/run/docker.sock,readonly <span class="se">\</span>
+--mount <span class="nv">type</span><span class="o">=</span>bind,source<span class="o">=</span>/var/tmp,target<span class="o">=</span>/etc/traefik/acme <span class="se">\</span>
+--network traefik-net <span class="se">\</span>
+traefik:v1.1.0-rc3 <span class="se">\</span>
+--entryPoints<span class="o">=</span><span class="s1">&#39;Name:https Address::443 TLS&#39;</span> <span class="se">\</span>
+--defaultEntryPoints<span class="o">=</span>https <span class="se">\</span>
+--acme.entryPoint<span class="o">=</span>https <span class="se">\</span>
+--acme.email<span class="o">=</span>owner@example.org <span class="se">\</span>
+--acme.storage<span class="o">=</span>/etc/traefik/acme/acme.json <span class="se">\</span>
+--acme.domains<span class="o">=</span>example.org <span class="se">\</span>
+--acme.onHostRule<span class="o">=</span><span class="nb">true</span> <span class="se">\</span>
+--docker <span class="se">\</span>
+--docker.swarmmode <span class="se">\</span>
+--docker.domain<span class="o">=</span>example.org <span class="se">\</span>
+--docker.watch <span class="se">\</span>
+--logLevel<span class="o">=</span>DEBUG <span class="se">\</span>
+--web
+</code></pre></div>
+</p>
+
+<p><strong>4.</strong> HTTPS-only proxy with Let&rsquo;s Encrypt certificate and HTTPS web UI</p>
+
+<p><div class="highlight"><pre><code class="language-shell" data-lang="shell">docker service create <span class="se">\</span>
+--name traefik <span class="se">\</span>
+--constraint<span class="o">=</span>node.role<span class="o">==</span>manager <span class="se">\</span>
+--publish 443:443 --publish 8443:8443 <span class="se">\</span>
+--mount <span class="nv">type</span><span class="o">=</span>bind,source<span class="o">=</span>/var/run/docker.sock,target<span class="o">=</span>/var/run/docker.sock,readonly <span class="se">\</span>
+--mount <span class="nv">type</span><span class="o">=</span>bind,source<span class="o">=</span>/etc/pki/realms/domain,target<span class="o">=</span>/etc/traefik/tls,readonly <span class="se">\</span>
+--mount <span class="nv">type</span><span class="o">=</span>bind,source<span class="o">=</span>/var/tmp,target<span class="o">=</span>/etc/traefik/acme <span class="se">\</span>
+--network traefik-net <span class="se">\</span>
+traefik:v1.1.0-rc3 <span class="se">\</span>
+--entryPoints<span class="o">=</span><span class="s1">&#39;Name:https Address::443 TLS:/etc/traefik/tls/default.crt,/etc/traefik/tls/default.key&#39;</span> <span class="se">\</span>
+--defaultEntryPoints<span class="o">=</span>https <span class="se">\</span>
+--acme.entryPoint<span class="o">=</span>https <span class="se">\</span>
+--acme.email<span class="o">=</span>owner@example.org <span class="se">\</span>
+--acme.storage<span class="o">=</span>/etc/traefik/acme/acme.json <span class="se">\</span>
+--acme.domains<span class="o">=</span>example.org <span class="se">\</span>
+--acme.onHostRule<span class="o">=</span><span class="nb">true</span> <span class="se">\</span>
+--docker <span class="se">\</span>
+--docker.swarmmode <span class="se">\</span>
+--docker.domain<span class="o">=</span>example.org <span class="se">\</span>
+--docker.watch <span class="se">\</span>
+--logLevel<span class="o">=</span>DEBUG <span class="se">\</span>
+--web.address<span class="o">=</span>:8443 <span class="se">\</span>
+--web.certfile<span class="o">=</span>/etc/traefik/tls/default.crt <span class="se">\</span>
+--web.keyfile<span class="o">=</span>/etc/traefik/tls/default.key
+</code></pre></div>
+</p>
+
+<p><strong>5.</strong> For debugging purposes you can run Træfɪk without Docker</p>
+
+<p><div class="highlight"><pre><code class="language-shell" data-lang="shell">traefik -d <span class="se">\</span>
+--entryPoints<span class="o">=</span><span class="s1">&#39;Name:http Address::8080 Redirect.EntryPoint:https&#39;</span> <span class="se">\</span>
+--entryPoints<span class="o">=</span><span class="s1">&#39;Name:https Address::8443 TLS&#39;</span> <span class="se">\</span>
+--defaultEntryPoints<span class="o">=</span>http,https <span class="se">\</span>
+--acme.entryPoint<span class="o">=</span>https <span class="se">\</span>
+--acme.email<span class="o">=</span>owner@example.org <span class="se">\</span>
+--acme.storage<span class="o">=</span>acme.json <span class="se">\</span>
+--acme.domains<span class="o">=</span>example.org
+--logLevel<span class="o">=</span>DEBUG <span class="se">\</span>
+--web
+</code></pre></div>
+</p>
+
+<p>Links:</p>
+
+<ul>
+<li><a href="https://traefik.io/">Træfɪk</a></li>
+</ul>
+
+        </div>
+        
+        <div class="post">
+            <h1 class="post-title">
                 <a href="https://dddpaul.github.io/blog/2016/11/02/docker-registry/">
                     Docker registry on Centos 7
                 </a>
@@ -1179,223 +1336,6 @@ init_by_lua_block {
 <li><a href="http://www.kennybastani.com/2015/07/spring-cloud-docker-microservices.html">Building Microservices with Spring Cloud and Docker</a></li>
 <li><a href="http://technologyconversations.com/2015/07/02/scaling-to-infinity-with-docker-swarm-docker-compose-and-consul-part-14-a-taste-of-what-is-to-come/">Scaling To Infinity with Docker Swarm, Docker Compose and Consul</a></li>
 <li><a href="http://technologyconversations.com/2015/11/25/deploying-containers-with-docker-swarm-and-docker-networking/">Deploying Containers with Docker Swarm and Docker Networking</a></li>
-</ul>
-
-        </div>
-        
-        <div class="post">
-            <h1 class="post-title">
-                <a href="https://dddpaul.github.io/blog/2015/11/30/ansible-default-and-bool-filters/">
-                    Ansible: &#34;default&#34; and &#34;bool&#34; filters
-                </a>
-            </h1>
-
-            <span class="post-date">2015-11-30</span>
-
-            
-
-<p>There are plenty of <code>bool</code> and <code>default</code> filters usage in Ansible playbooks and templates. For example, in <a href="https://github.com/debops/ansible-docker/blob/master/tasks/main.yml">debops/ansible-docker</a>: <code>when: docker_upstream| d() | bool</code>.</p>
-
-<p>Where <code>docker_upstream</code> is an YAML boolean: <code>docker_upstream: False</code>. It seems like &ldquo;when&rdquo; condition is <a href="https://dddpaul.github.io/blog/2015/11/29/ansible-defined-keyword/">overbloated again</a> :)</p>
-
-<p>The <code>var | d() | bool</code> construction is spread all over the place, for example, in <a href="https://github.com/debops/ansible-docker/blob/master/templates/etc/default/docker.j2">docker config template</a>:</p>
-
-<pre><code>{% if docker_listen | d() | bool %}
-</code></pre>
-
-<p>Where <code>docker_listen</code> is an YAML list: <code>docker_listen: [ '{{ docker_tcp_listen }}' ]</code>.</p>
-
-<p>Is there a more simpler way to express things? Maybe <code>when: docker_upstream</code> or <code>%{ if docker_listen %}</code> will be enough?</p>
-
-<hr />
-
-<p>First of all, <code>d</code> is an alias for <code>default</code>, and <code>default</code> filter is defined in <a href="https://github.com/mitsuhiko/jinja2/blob/master/jinja2/filters.py">jinja2/filters.py</a>:</p>
-
-<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">do_default</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">default_value</span><span class="o">=</span><span class="s1">u&#39;&#39;</span><span class="p">,</span> <span class="n">boolean</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;If the value is undefined it will return the passed default value,</span>
-<span class="sd">    otherwise the value of the variable:</span>
-
-<span class="sd">    .. sourcecode:: jinja</span>
-
-<span class="sd">        {{ my_variable|default(&#39;my_variable is not defined&#39;) }}</span>
-
-<span class="sd">    This will output the value of ``my_variable`` if the variable was</span>
-<span class="sd">    defined, otherwise ``&#39;my_variable is not defined&#39;``. If you want</span>
-<span class="sd">    to use default with variables that evaluate to false you have to</span>
-<span class="sd">    set the second parameter to `true`:</span>
-
-<span class="sd">    .. sourcecode:: jinja</span>
-
-<span class="sd">        {{ &#39;&#39;|default(&#39;the string was empty&#39;, true) }}</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Undefined</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">boolean</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">value</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">default_value</span>
-    <span class="k">return</span> <span class="n">value</span>
-</code></pre></div>
-
-
-<p>So, the default &ldquo;default value&rdquo; is an empty string.</p>
-
-<h3 id="var-d-test:df8aec350edd46b4d7f3e3e66fee95bc">&ldquo;var | d()&rdquo; test</h3>
-
-<p>With <code>default</code> filter:
-<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Template</span>
-<span class="n">tmpl</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s1">&#39;{{ var | d() }}&#39;</span><span class="p">)</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">()</span>
-                                  <span class="c1"># An empty string</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
-<span class="bp">None</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
-                                  <span class="c1"># An empty string</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s1">&#39;abc&#39;</span><span class="p">)</span>
-<span class="n">abc</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
-                                  <span class="c1"># A space</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">[])</span>
-<span class="p">[]</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;list&#39;</span><span class="p">])</span>
-<span class="p">[</span><span class="s1">&#39;list&#39;</span><span class="p">]</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">{})</span>
-<span class="p">{}</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;key&#39;</span><span class="p">:</span> <span class="s1">&#39;value&#39;</span><span class="p">})</span>
-<span class="p">{</span><span class="s1">&#39;key&#39;</span><span class="p">:</span> <span class="s1">&#39;value&#39;</span><span class="p">}</span>
-</code></pre></div>
-</p>
-
-<p>Without <code>default</code> filter:
-<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Template</span>
-<span class="n">tmpl</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s1">&#39;{{ var }}&#39;</span><span class="p">)</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">()</span>
-                                  <span class="c1"># An empty string</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
-<span class="bp">None</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
-                                  <span class="c1"># An empty string</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s1">&#39;abc&#39;</span><span class="p">)</span>
-<span class="n">abc</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
-                                  <span class="c1"># A space</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">[])</span>
-<span class="p">[]</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;list&#39;</span><span class="p">])</span>
-<span class="p">[</span><span class="s1">&#39;list&#39;</span><span class="p">]</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">{})</span>
-<span class="p">{}</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;key&#39;</span><span class="p">:</span> <span class="s1">&#39;value&#39;</span><span class="p">})</span>
-<span class="p">{</span><span class="s1">&#39;key&#39;</span><span class="p">:</span> <span class="s1">&#39;value&#39;</span><span class="p">}</span>
-</code></pre></div>
-</p>
-
-<p>Pretty same, eh?</p>
-
-<h3 id="str-d-bool-test:df8aec350edd46b4d7f3e3e66fee95bc">&ldquo;str | d() | bool&rdquo; test</h3>
-
-<p>With <code>default</code> filter:
-<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Template</span>
-<span class="kn">from</span> <span class="nn">ansible.runner.filter_plugins.core</span> <span class="kn">import</span> <span class="nb">bool</span>
-<span class="n">Template</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">filters</span><span class="p">[</span><span class="s1">&#39;bool&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">bool</span>
-<span class="n">tmpl</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s1">&#39;{{ var | d() | bool }}&#39;</span><span class="p">)</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">()</span>
-<span class="bp">False</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
-<span class="bp">None</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
-<span class="bp">False</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s1">&#39;abc&#39;</span><span class="p">)</span>
-<span class="bp">False</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
-<span class="bp">False</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s1">&#39;True&#39;</span><span class="p">)</span>
-<span class="bp">True</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">[])</span>
-<span class="bp">False</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;list&#39;</span><span class="p">])</span>
-<span class="bp">False</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">{})</span>
-<span class="bp">False</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;key&#39;</span><span class="p">:</span> <span class="s1">&#39;value&#39;</span><span class="p">})</span>
-<span class="bp">False</span>
-</code></pre></div>
-</p>
-
-<p>Without <code>default</code> filter:
-<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Template</span>
-<span class="kn">from</span> <span class="nn">ansible.runner.filter_plugins.core</span> <span class="kn">import</span> <span class="nb">bool</span>
-<span class="n">Template</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">filters</span><span class="p">[</span><span class="s1">&#39;bool&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">bool</span>
-<span class="n">tmpl</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s1">&#39;{{ var | bool }}&#39;</span><span class="p">)</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">()</span>
-<span class="bp">False</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
-<span class="bp">None</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
-<span class="bp">False</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s1">&#39;abc&#39;</span><span class="p">)</span>
-<span class="bp">False</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
-<span class="bp">False</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s1">&#39;True&#39;</span><span class="p">)</span>
-<span class="bp">True</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">[])</span>
-<span class="bp">False</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;list&#39;</span><span class="p">])</span>
-<span class="bp">False</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">{})</span>
-<span class="bp">False</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;key&#39;</span><span class="p">:</span> <span class="s1">&#39;value&#39;</span><span class="p">})</span>
-<span class="bp">False</span>
-</code></pre></div>
-</p>
-
-<p>Pretty same again. So, it seems that <code>default()</code> or <code>d()</code> usage in conditions has no sense at all.</p>
-
-<p>There are two specific features:</p>
-
-<ol>
-<li>When using undefined variables in actual Ansible playbooks without <code>default</code> filter <code>AnsibleUndefinedVariable</code> will be thrown. <strong>So finally, you have to use <code>default</code> filter to be safe.</strong></li>
-<li>Also, mention that <code>bool</code> filter for empty and non-empty lists and dicts evaluates to <code>False</code>. It&rsquo;s followed from sources (see below).</li>
-</ol>
-
-<hr />
-
-<p>Therefore, what about <code>bool</code> filter?</p>
-
-<p>Remember <code>when: docker_upstream | d() | bool</code>, where <code>docker_upstream</code> is an YAML boolean.</p>
-
-<p>Or <code>{% if docker_listen | d() | bool %}</code>, where <code>docker_listen</code> is an YAML list.</p>
-
-<p>The <code>bool</code> filter is the part of <a href="https://github.com/ansible/ansible/blob/devel/lib/ansible/plugins/filter/core.py">Ansible plugins</a>:</p>
-
-<p><div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">bool</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39; return a bool for the arg &#39;&#39;&#39;</span>
-    <span class="k">if</span> <span class="n">a</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">==</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">a</span>
-    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="ow">in</span> <span class="n">types</span><span class="o">.</span><span class="n">StringTypes</span><span class="p">:</span>
-        <span class="n">a</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">a</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;yes&#39;</span><span class="p">,</span> <span class="s1">&#39;on&#39;</span><span class="p">,</span> <span class="s1">&#39;1&#39;</span><span class="p">,</span> <span class="s1">&#39;true&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="bp">True</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">False</span>
-</code></pre></div>
-</p>
-
-<p>You can clearly see from <code>bool</code> function implementation that <code>{% if docker_listen | d() | bool %}</code> results in <code>True</code> only if <code>docker_listen: True</code>. If <code>docker_listen</code> is an arbitrary string or a list (as expected) <code>{% if docker_listen | d() | bool %}</code> results in <code>False</code> always.</p>
-
-<p>Therefore <code>{% if docker_listen | d() %}</code> gives us a correct behaviour for strings, lists and dictionaries (mappings). The reason is explained <a href="https://dddpaul.github.io/blog/2015/11/29/ansible-defined-keyword/">here</a> (see &ldquo;Secondly&rdquo;, &ldquo;Third&rdquo; and &ldquo;More detailed&rdquo; quotes):</p>
-
-<blockquote>
-<p>The if statement in Jinja is comparable with the Python if statement. In the simplest form, you can use it to test if <strong>a variable is defined, not empty or not false</strong>.</p>
-
-<p>For sequences, (strings, lists, tuples), use the fact that <strong>empty sequences are false</strong>.</p>
-
-<p>The following values are considered false: any empty mapping, for example, <code>{}</code>.</p>
-</blockquote>
-
-<p>But for booleans you have to use <code>bool</code> filter — <code>when: docker_upstream | d() | bool</code>, because <code>when: docker_upstream | d()</code> results in <code>True</code> even if <code>docker_upstream</code> is <code>False</code>.</p>
-
-<p>Links:</p>
-
-<ul>
-<li><a href="https://github.com/debops/ansible-docker/pull/2">No need to evaluate a variable two times</a></li>
 </ul>
 
         </div>

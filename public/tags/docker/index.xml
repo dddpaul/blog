@@ -6,8 +6,162 @@
     <description>Recent content in Docker on Dev notes</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 02 Nov 2016 09:00:00 +0300</lastBuildDate>
+    <lastBuildDate>Mon, 07 Nov 2016 21:00:00 +0300</lastBuildDate>
     <atom:link href="https://dddpaul.github.io/blog/tags/docker/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Træfik on Docker Swarm mode cluster</title>
+      <link>https://dddpaul.github.io/blog/2016/11/07/traefik-on-docker-swarm/</link>
+      <pubDate>Mon, 07 Nov 2016 21:00:00 +0300</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2016/11/07/traefik-on-docker-swarm/</guid>
+      <description>&lt;p&gt;Træfɪk is a modern HTTP reverse proxy and load balancer made to deploy microservices with ease. Since 1.1.0-rc1 it supports Docker Swarm mode as backend. It means that Træfɪk will automatically create proxying frontends which will be binded to corresponding Docker Swarm services.&lt;/p&gt;
+
+&lt;p&gt;This post is based on &lt;a href=&#34;https://docs.traefik.io/user-guide/swarm-mode/&#34;&gt;Docker Swarm (mode) cluster&lt;/a&gt; example.&lt;/p&gt;
+
+&lt;p&gt;Assuming we have Docker Swarm mode cluster already, we will need to create an overlay network:&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;docker network create --driver&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;overlay traefik-net
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Backends are the simple &lt;a href=&#34;https://github.com/emilevauge/whoamI&#34;&gt;emilevauge/whoami&lt;/a&gt; services:&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;docker service create --name test1 --label traefik.port&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;m&#34;&gt;80&lt;/span&gt; --network traefik-net emilevauge/whoami
+docker service create --name test2 --label traefik.port&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;m&#34;&gt;80&lt;/span&gt; --network traefik-net emilevauge/whoami
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Træfɪk itself may be ran in rich variety of configurations.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;1.&lt;/strong&gt; HTTP only proxy&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;docker service create &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--name traefik &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--constraint&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;node.role&lt;span class=&#34;o&#34;&gt;==&lt;/span&gt;manager &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--publish 80:80 --publish 8080:8080 &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--mount &lt;span class=&#34;nv&#34;&gt;type&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;bind,source&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/var/run/docker.sock,target&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/var/run/docker.sock &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--network traefik-net &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+traefik:v1.1.0-rc3 &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--docker &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--docker.swarmmode &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--docker.domain&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;example.org &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--docker.watch &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--logLevel&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;DEBUG &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--web
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Remarks:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Træfɪk web UI will we accessible on &lt;a href=&#34;http://example.org:8080&#34;&gt;http://example.org:8080&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;Debug log level must be disabled on production.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;2.&lt;/strong&gt; HTTPS proxy with Let&amp;rsquo;s Encrypt certificate and HTTP to HTTPS redirection&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;docker service create &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--name traefik &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--constraint&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;node.role&lt;span class=&#34;o&#34;&gt;==&lt;/span&gt;manager &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--publish 80:80 --publish 443:443 --publish 8080:8080 &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--mount &lt;span class=&#34;nv&#34;&gt;type&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;bind,source&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/var/run/docker.sock,target&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/var/run/docker.sock,readonly &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--mount &lt;span class=&#34;nv&#34;&gt;type&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;bind,source&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/var/tmp,target&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/etc/traefik/acme &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--network traefik-net &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+traefik:v1.1.0-rc3 &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--entryPoints&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;Name:http Address::80 Redirect.EntryPoint:https&amp;#39;&lt;/span&gt; &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--entryPoints&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;Name:https Address::443 TLS&amp;#39;&lt;/span&gt; &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--defaultEntryPoints&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;http,https &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--acme.entryPoint&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;https &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--acme.email&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;owner@example.org &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--acme.storage&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/etc/traefik/acme/acme.json &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--acme.domains&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;example.org &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--acme.onHostRule&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;true&lt;/span&gt; &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--docker &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--docker.swarmmode &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--docker.domain&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;example.org &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--docker.watch &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--web
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;3.&lt;/strong&gt; HTTPS-only proxy with Let&amp;rsquo;s Encrypt certificate&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;docker service create &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--name traefik &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--constraint&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;node.role&lt;span class=&#34;o&#34;&gt;==&lt;/span&gt;manager &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--publish 443:443 --publish 8080:8080 &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--mount &lt;span class=&#34;nv&#34;&gt;type&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;bind,source&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/var/run/docker.sock,target&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/var/run/docker.sock,readonly &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--mount &lt;span class=&#34;nv&#34;&gt;type&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;bind,source&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/var/tmp,target&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/etc/traefik/acme &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--network traefik-net &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+traefik:v1.1.0-rc3 &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--entryPoints&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;Name:https Address::443 TLS&amp;#39;&lt;/span&gt; &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--defaultEntryPoints&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;https &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--acme.entryPoint&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;https &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--acme.email&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;owner@example.org &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--acme.storage&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/etc/traefik/acme/acme.json &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--acme.domains&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;example.org &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--acme.onHostRule&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;true&lt;/span&gt; &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--docker &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--docker.swarmmode &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--docker.domain&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;example.org &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--docker.watch &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--logLevel&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;DEBUG &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--web
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;4.&lt;/strong&gt; HTTPS-only proxy with Let&amp;rsquo;s Encrypt certificate and HTTPS web UI&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;docker service create &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--name traefik &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--constraint&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;node.role&lt;span class=&#34;o&#34;&gt;==&lt;/span&gt;manager &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--publish 443:443 --publish 8443:8443 &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--mount &lt;span class=&#34;nv&#34;&gt;type&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;bind,source&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/var/run/docker.sock,target&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/var/run/docker.sock,readonly &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--mount &lt;span class=&#34;nv&#34;&gt;type&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;bind,source&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/etc/pki/realms/domain,target&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/etc/traefik/tls,readonly &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--mount &lt;span class=&#34;nv&#34;&gt;type&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;bind,source&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/var/tmp,target&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/etc/traefik/acme &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--network traefik-net &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+traefik:v1.1.0-rc3 &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--entryPoints&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;Name:https Address::443 TLS:/etc/traefik/tls/default.crt,/etc/traefik/tls/default.key&amp;#39;&lt;/span&gt; &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--defaultEntryPoints&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;https &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--acme.entryPoint&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;https &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--acme.email&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;owner@example.org &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--acme.storage&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/etc/traefik/acme/acme.json &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--acme.domains&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;example.org &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--acme.onHostRule&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;true&lt;/span&gt; &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--docker &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--docker.swarmmode &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--docker.domain&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;example.org &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--docker.watch &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--logLevel&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;DEBUG &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--web.address&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;:8443 &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--web.certfile&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/etc/traefik/tls/default.crt &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--web.keyfile&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/etc/traefik/tls/default.key
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;5.&lt;/strong&gt; For debugging purposes you can run Træfɪk without Docker&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;traefik -d &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--entryPoints&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;Name:http Address::8080 Redirect.EntryPoint:https&amp;#39;&lt;/span&gt; &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--entryPoints&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;Name:https Address::8443 TLS&amp;#39;&lt;/span&gt; &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--defaultEntryPoints&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;http,https &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--acme.entryPoint&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;https &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--acme.email&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;owner@example.org &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--acme.storage&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;acme.json &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--acme.domains&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;example.org
+--logLevel&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;DEBUG &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+--web
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;p&gt;Links:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://traefik.io/&#34;&gt;Træfɪk&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
     
     <item>
       <title>Docker registry on Centos 7</title>
