@@ -141,3 +141,7 @@ tmpl = Template('{% if var is defined %} True {% else %} False {% endif %}')
 {{< /highlight >}}
 
 So just use ```var``` and not ```var is defined and var```, Luke!
+
+**UPDATE**
+
+It seems like I was wrong about uselessness  of the ```defined``` keyword. Though being totally ineffective in synthetic python & jinja2 examples, it's necessary to prevent ```error while evaluating conditional``` in the real Ansible playbooks. Thanks to [Pavel Alexeev](https://disqus.com/by/Hubbitus/) for pointing out to my delusion.
