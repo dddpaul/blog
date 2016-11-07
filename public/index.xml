@@ -1437,6 +1437,10 @@ init_by_lua_block {
 &lt;/p&gt;
 
 &lt;p&gt;So just use &lt;code&gt;var&lt;/code&gt; and not &lt;code&gt;var is defined and var&lt;/code&gt;, Luke!&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;UPDATE&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;It seems like I was wrong about uselessness  of the &lt;code&gt;defined&lt;/code&gt; keyword. Though being totally ineffective in synthetic python &amp;amp; jinja2 examples, it&amp;rsquo;s necessary to prevent &lt;code&gt;error while evaluating conditional&lt;/code&gt; in the real Ansible playbooks. Thanks to &lt;a href=&#34;https://disqus.com/by/Hubbitus/&#34;&gt;Pavel Alexeev&lt;/a&gt; for pointing out to my delusion.&lt;/p&gt;
 </description>
     </item>
     
