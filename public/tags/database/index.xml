@@ -6,8 +6,54 @@
     <description>Recent content in Database on Dev notes</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 17 Mar 2016 11:00:00 +0300</lastBuildDate>
+    <lastBuildDate>Sun, 13 Nov 2016 12:45:00 +0300</lastBuildDate>
     <atom:link href="https://dddpaul.github.io/blog/tags/database/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>MySQL to PostgreSQL migration</title>
+      <link>https://dddpaul.github.io/blog/2016/11/13/mysql-to-postgresql-migration/</link>
+      <pubDate>Sun, 13 Nov 2016 12:45:00 +0300</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2016/11/13/mysql-to-postgresql-migration/</guid>
+      <description>&lt;p&gt;Install migration Ruby gem and run it:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;gem install mysql2psql
+mysql2psql
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Update database credentials in generated mysql2psql.yml file:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;mysql:
+  database: redmine
+  hostname: localhost
+  port: 3306
+  username: redmine
+  password: xxxxxxx
+  encoding: utf8
+
+destination:
+ # if file is given, output goes to file, else postgres
+ file: /tmp/redmine-pg.sql
+ postgres:
+  hostname: localhost
+  port: 5432
+  username: mysql2psql
+  password:
+  database: mysql2psql_test
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Run command again:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;mysql2psql
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Links:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.redmine.org/boards/2/topics/12825?r=41870&#34;&gt;How to migrate from MySQL to PostgreSQL&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
     
     <item>
       <title>Linearizability, serializability, transaction isolation and consistency models</title>

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
 
-  <title> Database &middot; Dev notes </title>
+  <title> MySQL to PostgreSQL migration &middot; Dev notes </title>
 
   
   <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/poole.css">
@@ -21,7 +21,7 @@
   <link rel="shortcut icon" href="/favicon.png">
 
   
-  <link href="https://dddpaul.github.io/blog/tags/database/index.xml" rel="alternate" type="application/rss+xml" title="Dev notes" />
+  <link href="" rel="alternate" type="application/rss+xml" title="Dev notes" />
 </head>
 
 <body>
@@ -90,23 +90,84 @@
 
 
 <div class="content container">
+    <div class="post">
+        <h1 class="post-title">MySQL to PostgreSQL migration</h1>
+        <span class="post-date">2016-11-13</span>
 
-    <h1 id="title">Database</h1>
+        <p>Install migration Ruby gem and run it:</p>
 
-    <ul class="posts">
+<pre><code>gem install mysql2psql
+mysql2psql
+</code></pre>
+
+<p>Update database credentials in generated mysql2psql.yml file:</p>
+
+<pre><code>mysql:
+  database: redmine
+  hostname: localhost
+  port: 3306
+  username: redmine
+  password: xxxxxxx
+  encoding: utf8
+
+destination:
+ # if file is given, output goes to file, else postgres
+ file: /tmp/redmine-pg.sql
+ postgres:
+  hostname: localhost
+  port: 5432
+  username: mysql2psql
+  password:
+  database: mysql2psql_test
+</code></pre>
+
+<p>Run command again:</p>
+
+<pre><code>mysql2psql
+</code></pre>
+
+<p>Links:</p>
+
+<ul>
+<li><a href="http://www.redmine.org/boards/2/topics/12825?r=41870">How to migrate from MySQL to PostgreSQL</a></li>
+</ul>
+
+    </div>
+
     
-        <li>
-            <time class="pull-right post-list">2016-11-13</time>
-            - <a href="https://dddpaul.github.io/blog/2016/11/13/mysql-to-postgresql-migration/">MySQL to PostgreSQL migration</a>
-        </li>
+
+    Tags:
+    <ul id="tags">
+        
+        
+        <li><a href="https://dddpaul.github.io/blog//tags/database">database</a> </li>
+        
+    </ul>
+
+    <div id="disqus_thread"></div>
+<script type="text/javascript">
+
+(function() {
     
-        <li>
-            <time class="pull-right post-list">2016-03-17</time>
-            - <a href="https://dddpaul.github.io/blog/2016/03/17/linearizability-and-serializability/">Linearizability, serializability, transaction isolation and consistency models</a>
-        </li>
     
-  </ul>
+    if (window.location.hostname == "localhost")
+        return;
+
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    var disqus_shortname = 'dddpaul-github';
+    var disqus_identifier = 'https:\/\/dddpaul.github.io\/blog\/2016\/11\/13\/mysql-to-postgresql-migration\/';
+    var disqus_title = 'MySQL to PostgreSQL migration';
+    var disqus_url = 'https:\/\/dddpaul.github.io\/blog\/2016\/11\/13\/mysql-to-postgresql-migration\/';
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+
 </div>
 
 </body>
 </html>
+

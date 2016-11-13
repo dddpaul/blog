@@ -6,8 +6,54 @@
     <description>Recent content on Dev notes</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 07 Nov 2016 21:00:00 +0300</lastBuildDate>
+    <lastBuildDate>Sun, 13 Nov 2016 12:45:00 +0300</lastBuildDate>
     <atom:link href="https://dddpaul.github.io/blog/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>MySQL to PostgreSQL migration</title>
+      <link>https://dddpaul.github.io/blog/2016/11/13/mysql-to-postgresql-migration/</link>
+      <pubDate>Sun, 13 Nov 2016 12:45:00 +0300</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2016/11/13/mysql-to-postgresql-migration/</guid>
+      <description>&lt;p&gt;Install migration Ruby gem and run it:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;gem install mysql2psql
+mysql2psql
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Update database credentials in generated mysql2psql.yml file:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;mysql:
+  database: redmine
+  hostname: localhost
+  port: 3306
+  username: redmine
+  password: xxxxxxx
+  encoding: utf8
+
+destination:
+ # if file is given, output goes to file, else postgres
+ file: /tmp/redmine-pg.sql
+ postgres:
+  hostname: localhost
+  port: 5432
+  username: mysql2psql
+  password:
+  database: mysql2psql_test
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Run command again:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;mysql2psql
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Links:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.redmine.org/boards/2/topics/12825?r=41870&#34;&gt;How to migrate from MySQL to PostgreSQL&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
     
     <item>
       <title>Træfik on Docker Swarm mode cluster</title>
@@ -1703,172 +1749,6 @@ DEBUG 23601 --- [lication.main()] o.s.c.e.PropertySourcesPropertyResolver  : Sea
 &lt;p&gt;Конфигурация:&lt;/p&gt;
 
 &lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-ini&#34; data-lang=&#34;ini&#34;&gt;&lt;span class=&#34;na&#34;&gt;params.unique-param&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;Another value&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Логирование HTTP-запросов в Tomcat</title>
-      <link>https://dddpaul.github.io/blog/2015/06/30/tomcat-http-logging/</link>
-      <pubDate>Tue, 30 Jun 2015 13:27:00 +0300</pubDate>
-      
-      <guid>https://dddpaul.github.io/blog/2015/06/30/tomcat-http-logging/</guid>
-      <description>
-
-&lt;h2 id=&#34;apache-tomcat-request-dumper-filter:e82678ac23d6d6c6d716963b71ef486f&#34;&gt;Apache Tomcat Request Dumper Filter&lt;/h2&gt;
-
-&lt;p&gt;&lt;a href=&#34;http://tomcat.apache.org/tomcat-7.0-doc/config/filter.html#Request_Dumper_Filter&#34;&gt;Request Dumper Filter&lt;/a&gt; входит в состав Tomcat. Рассмотрим способы его конфигурации.&lt;/p&gt;
-
-&lt;h3 id=&#34;spring-boot:e82678ac23d6d6c6d716963b71ef486f&#34;&gt;Spring Boot&lt;/h3&gt;
-
-&lt;p&gt;Достаточно поместить вот такой bean в класс, аннотированный @Configuration:&lt;/p&gt;
-
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span class=&#34;nd&#34;&gt;@Bean&lt;/span&gt;
-&lt;span class=&#34;n&#34;&gt;RequestDumperFilter&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;requestDumper&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;()&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
-    &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;new&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;RequestDumperFilter&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;();&lt;/span&gt;
-&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;p&gt;Вывод дампа запросов в отдельный лог здесь не рассматриваем.&lt;/p&gt;
-
-&lt;h3 id=&#34;tomcat-7:e82678ac23d6d6c6d716963b71ef486f&#34;&gt;Tomcat 7&lt;/h3&gt;
-
-&lt;p&gt;Стандартный способ конфигурации фильтра — server.xml / context.xml / web.xml, в зависимости от того, какой scope нам нужен. Для логирования запросов в рамках одного приложения — web.xml.&lt;/p&gt;
-
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span class=&#34;nt&#34;&gt;&amp;lt;filter&amp;gt;&lt;/span&gt;
-    &lt;span class=&#34;nt&#34;&gt;&amp;lt;filter-name&amp;gt;&lt;/span&gt;RequestDumper&lt;span class=&#34;nt&#34;&gt;&amp;lt;/filter-name&amp;gt;&lt;/span&gt;
-    &lt;span class=&#34;nt&#34;&gt;&amp;lt;filter-class&amp;gt;&lt;/span&gt;org.apache.catalina.filters.RequestDumperFilter&lt;span class=&#34;nt&#34;&gt;&amp;lt;/filter-class&amp;gt;&lt;/span&gt;
-&lt;span class=&#34;nt&#34;&gt;&amp;lt;/filter&amp;gt;&lt;/span&gt;
-
-&lt;span class=&#34;nt&#34;&gt;&amp;lt;filter-mapping&amp;gt;&lt;/span&gt;
-    &lt;span class=&#34;nt&#34;&gt;&amp;lt;filter-name&amp;gt;&lt;/span&gt;RequestDumper&lt;span class=&#34;nt&#34;&gt;&amp;lt;/filter-name&amp;gt;&lt;/span&gt;
-    &lt;span class=&#34;nt&#34;&gt;&amp;lt;url-pattern&amp;gt;&lt;/span&gt;*&lt;span class=&#34;nt&#34;&gt;&amp;lt;/url-pattern&amp;gt;&lt;/span&gt;
-&lt;span class=&#34;nt&#34;&gt;&amp;lt;/filter-mapping&amp;gt;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;p&gt;Для логирования в отдельный файл нужно сконфигурировать &lt;a href=&#34;https://tomcat.apache.org/tomcat-7.0-doc/logging.html&#34;&gt;Tomcat JULI&lt;/a&gt;. По-идее, можно логировать через Apache Commons Logging, но в доке дается пример для JULI. Поэтому, вот такой logging.properties можно смело кидать в webapp/WEB-INF/classes:&lt;/p&gt;
-
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-ini&#34; data-lang=&#34;ini&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# Uncomment to dump HTTP request data, see http://tomcat.apache.org/tomcat-7.0-doc/config/filter.html#Request_Dumper_Filter&lt;/span&gt;
-&lt;span class=&#34;c1&#34;&gt;#handlers = 1request-dumper.org.apache.juli.FileHandler&lt;/span&gt;
-
-&lt;span class=&#34;c1&#34;&gt;# To this configuration below, 1request-dumper.org.apache.juli.FileHandler&lt;/span&gt;
-&lt;span class=&#34;c1&#34;&gt;# also needs to be added to the handlers property near the top of the file&lt;/span&gt;
-&lt;span class=&#34;na&#34;&gt;1request-dumper.org.apache.juli.FileHandler.level&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;INFO&lt;/span&gt;
-&lt;span class=&#34;na&#34;&gt;1request-dumper.org.apache.juli.FileHandler.directory&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;${catalina.base}/logs&lt;/span&gt;
-&lt;span class=&#34;na&#34;&gt;1request-dumper.org.apache.juli.FileHandler.prefix&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;request-dumper.&lt;/span&gt;
-&lt;span class=&#34;na&#34;&gt;1request-dumper.org.apache.juli.FileHandler.formatter&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;org.apache.juli.VerbatimFormatter&lt;/span&gt;
-&lt;span class=&#34;na&#34;&gt;org.apache.catalina.filters.RequestDumperFilter.level&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;INFO&lt;/span&gt;
-&lt;span class=&#34;na&#34;&gt;org.apache.catalina.filters.RequestDumperFilter.handlers&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;1request-dumper.org.apache.juli.FileHandler&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;p&gt;Получился почти production-ready вариант, для включения логирования можно раскомментировать строчку с handlers и перезапустить приложение. Совсем по-хорошему это нужно сделать через JMX, тогда, быть может, получится избежать перезапуска приложения.&lt;/p&gt;
-
-&lt;h3 id=&#34;tomcat-5:e82678ac23d6d6c6d716963b71ef486f&#34;&gt;Tomcat 5&lt;/h3&gt;
-
-&lt;p&gt;Для старого Томката нужно использовать &lt;a href=&#34;https://tomcat.apache.org/tomcat-5.5-doc/config/valve.html#Request_Dumper_Valve&#34;&gt;Request_Dumper_Valve&lt;/a&gt;. Фильтра в базовой поставке еще нет, его нужно отдельно собирать из servlet-examples.&lt;/p&gt;
-
-&lt;p&gt;Для включения дампа нужно просто вставить строчку в server.xml (в блоки Engine или Host) и перезапустить сервер Tomcat:&lt;/p&gt;
-
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span class=&#34;nt&#34;&gt;&amp;lt;Valve&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;className=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;org.apache.catalina.valves.RequestDumperValve&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;/&amp;gt;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;p&gt;В первом случае (Engine) дамп будет выдаваться в catalina.out, а во втором (Host) - в localhost.log.&lt;/p&gt;
-
-&lt;hr /&gt;
-
-&lt;p&gt;У Request Dumper Filter есть два недостатка:&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;нельзя залогировать тело запроса, только GET- и POST-параметры;&lt;/li&gt;
-&lt;li&gt;нет возможности логировать HTTP-ответы сервера.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&#34;кастомные-фильтры:e82678ac23d6d6c6d716963b71ef486f&#34;&gt;Кастомные фильтры&lt;/h2&gt;
-
-&lt;p&gt;Основная проблема логирования тела запроса — это то, что body из &lt;a href=&#34;http://docs.oracle.com/javaee/6/api/javax/servlet/ServletRequest.html&#34;&gt;ServletRequest&lt;/a&gt; достается из InputStream, т.е. это одноразовая операция. Мы не можем сначала где-то в фильтре прочитать body, залогировать, а потом второй раз прочитать body в обработчике запроса в приложении. В этом случае выскочит что-то вроде &amp;ldquo;java.io.IOException: Attempted read on closed stream&amp;rdquo;.&lt;/p&gt;
-
-&lt;p&gt;Различные кастомные способы обходят эту проблему, используя wrapper&amp;rsquo;ы или декораторы. Т.е. в фильтре мы читаем body из ServletRequest в String-поле wrapper&amp;rsquo;а, и далее по цепочке передаем уже wrapper. Метод же getInputStream() создает stream из этого String-поля wrapper&amp;rsquo;а.&lt;/p&gt;
-
-&lt;p&gt;Есть две большие статьи с кусками почти работающего кода, реализующего этот подход:&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;http://natch3z.blogspot.co.uk/2009/01/read-request-body-in-filter.html&#34;&gt;Read Request Body in Filter&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://wetfeetblog.com/servlet-filer-to-log-request-and-response-details-and-payload/431&#34;&gt;Servlet Filer to Log Request and Response Payload&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;Также есть маленький, но многообещающий проект &lt;a href=&#34;https://github.com/isrsal/spring-mvc-logger&#34;&gt;spring-mvc-logger&lt;/a&gt;, заточенный под Spring MVC (он использует его logging filters). Его я, к сожалению, не смотрел.&lt;/p&gt;
-
-&lt;h2 id=&#34;logback-access:e82678ac23d6d6c6d716963b71ef486f&#34;&gt;Logback-access&lt;/h2&gt;
-
-&lt;p&gt;100% работающий способ логировать HTTP-ответы и запросы. Это &lt;a href=&#34;http://logback.qos.ch/access.html&#34;&gt;Logback-access&lt;/a&gt;, часть проекта Logback. Подробнее см. &lt;a href=&#34;http://logback.qos.ch/recipes/captureHttp.html&#34;&gt;Capturing HTTP requests and responses&lt;/a&gt;.&lt;/p&gt;
-
-&lt;p&gt;Для выборочного отключения логирования (например, для тестовых или мониторинговых платежей) используется библиотека &lt;a href=&#34;http://janino.net/changelog.html&#34;&gt;Janino&lt;/a&gt;. С ее помощью можно задать для logback-access фильтры (правила), которым должен соответствовать логируемый HTTP-пакет.&lt;/p&gt;
-
-&lt;p&gt;Однако, весь набор библиотек:&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;logback-access.jar + logback-core.jar as dependency,&lt;/li&gt;
-&lt;li&gt;janino.jar + commons-compiler.jar as dependency,&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;должен лежать в $TOMCAT_HOME/lib/.&lt;/p&gt;
-
-&lt;p&gt;Конфигурация logback-access.xml кладется в $TOMCAT_HOME/conf/:&lt;/p&gt;
-
-&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span class=&#34;nt&#34;&gt;&amp;lt;configuration&amp;gt;&lt;/span&gt;
-    &lt;span class=&#34;c&#34;&gt;&amp;lt;!-- Tomcat&amp;#39;s lib folder must contain logback-core.jar and logback-access.jar to dump HTTP requests and responses --&amp;gt;&lt;/span&gt;
-    &lt;span class=&#34;nt&#34;&gt;&amp;lt;appender&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;name=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;DUMPER&amp;quot;&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;class=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;ch.qos.logback.core.rolling.RollingFileAppender&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;&amp;gt;&lt;/span&gt;
-        &lt;span class=&#34;c&#34;&gt;&amp;lt;!-- Tomcat&amp;#39;s lib folder must contain janino.jar and commons-compiler.jar to filter which HTTP requests and responses to dump --&amp;gt;&lt;/span&gt;
-        &lt;span class=&#34;nt&#34;&gt;&amp;lt;filter&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;class=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;ch.qos.logback.core.filter.EvaluatorFilter&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;&amp;gt;&lt;/span&gt;
-            &lt;span class=&#34;nt&#34;&gt;&amp;lt;evaluator&amp;gt;&lt;/span&gt;
-                &lt;span class=&#34;c&#34;&gt;&amp;lt;!-- Disable dumping for HTTP requests for all apps except specified one and for requests with specific header --&amp;gt;&lt;/span&gt;
-                &lt;span class=&#34;c&#34;&gt;&amp;lt;!-- Responses to these requests will not be dumped too --&amp;gt;&lt;/span&gt;
-                &lt;span class=&#34;nt&#34;&gt;&amp;lt;expression&amp;gt;&lt;/span&gt;!event.getRequestURI().startsWith(&amp;quot;/webapp&amp;quot;) || event.getRequestHeader(&amp;quot;X-Logging-Disabled&amp;quot;).equals(&amp;quot;true&amp;quot;)&lt;span class=&#34;nt&#34;&gt;&amp;lt;/expression&amp;gt;&lt;/span&gt;
-            &lt;span class=&#34;nt&#34;&gt;&amp;lt;/evaluator&amp;gt;&lt;/span&gt;
-            &lt;span class=&#34;nt&#34;&gt;&amp;lt;onMismatch&amp;gt;&lt;/span&gt;NEUTRAL&lt;span class=&#34;nt&#34;&gt;&amp;lt;/onMismatch&amp;gt;&lt;/span&gt;
-            &lt;span class=&#34;nt&#34;&gt;&amp;lt;onMatch&amp;gt;&lt;/span&gt;DENY&lt;span class=&#34;nt&#34;&gt;&amp;lt;/onMatch&amp;gt;&lt;/span&gt;
-        &lt;span class=&#34;nt&#34;&gt;&amp;lt;/filter&amp;gt;&lt;/span&gt;
-        &lt;span class=&#34;nt&#34;&gt;&amp;lt;encoder&amp;gt;&lt;/span&gt;
-            &lt;span class=&#34;nt&#34;&gt;&amp;lt;pattern&amp;gt;&lt;/span&gt;
-                %date{yyyy-MM-dd HH:mm:ss.SSS} REQUEST: %fullRequest%n%n%date{yyyy-MM-dd HH:mm:ss.SSS} RESPONSE: %fullResponse
-            &lt;span class=&#34;nt&#34;&gt;&amp;lt;/pattern&amp;gt;&lt;/span&gt;
-        &lt;span class=&#34;nt&#34;&gt;&amp;lt;/encoder&amp;gt;&lt;/span&gt;
-        &lt;span class=&#34;nt&#34;&gt;&amp;lt;file&amp;gt;&lt;/span&gt;${catalina.base}/logs/dumper.log&lt;span class=&#34;nt&#34;&gt;&amp;lt;/file&amp;gt;&lt;/span&gt;
-        &lt;span class=&#34;nt&#34;&gt;&amp;lt;rollingPolicy&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;class=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;ch.qos.logback.core.rolling.TimeBasedRollingPolicy&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;&amp;gt;&lt;/span&gt;
-            &lt;span class=&#34;nt&#34;&gt;&amp;lt;fileNamePattern&amp;gt;&lt;/span&gt;${catalina.base}/logs/dumper.%d.%i.log&lt;span class=&#34;nt&#34;&gt;&amp;lt;/fileNamePattern&amp;gt;&lt;/span&gt;
-            &lt;span class=&#34;nt&#34;&gt;&amp;lt;timeBasedFileNamingAndTriggeringPolicy&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;class=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;&amp;gt;&lt;/span&gt;
-                &lt;span class=&#34;nt&#34;&gt;&amp;lt;maxFileSize&amp;gt;&lt;/span&gt;10MB&lt;span class=&#34;nt&#34;&gt;&amp;lt;/maxFileSize&amp;gt;&lt;/span&gt;
-            &lt;span class=&#34;nt&#34;&gt;&amp;lt;/timeBasedFileNamingAndTriggeringPolicy&amp;gt;&lt;/span&gt;
-        &lt;span class=&#34;nt&#34;&gt;&amp;lt;/rollingPolicy&amp;gt;&lt;/span&gt;
-    &lt;span class=&#34;nt&#34;&gt;&amp;lt;/appender&amp;gt;&lt;/span&gt;
-    &lt;span class=&#34;nt&#34;&gt;&amp;lt;appender-ref&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;ref=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;DUMPER&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;/&amp;gt;&lt;/span&gt;
-&lt;span class=&#34;nt&#34;&gt;&amp;lt;/configuration&amp;gt;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;/p&gt;
-
-&lt;p&gt;Эта конфигурация устанавливает логирование всех HTTP-запросов на /webapp без HTTP-заголовка X-Logging-Disabled.&lt;/p&gt;
-
-&lt;p&gt;Также, должен быть активирован LogbackAccessValve в $TOMCAT_HOME/conf/server.xml (в блоке Host):&lt;/p&gt;
-
-&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span class=&#34;nt&#34;&gt;&amp;lt;Valve&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;className=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;ch.qos.logback.access.tomcat.LogbackValve&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;/&amp;gt;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;/p&gt;
-
-&lt;p&gt;Последний штрих — объявление фильтра &lt;a href=&#34;http://logback.qos.ch/apidocs/ch/qos/logback/access/servlet/TeeFilter.html&#34;&gt;TeeFilter&lt;/a&gt;. В Spring Boot это делается элементарно:&lt;/p&gt;
-
-&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span class=&#34;cm&#34;&gt;/**&lt;/span&gt;
-&lt;span class=&#34;cm&#34;&gt; * Enable HTTP response logging, see &amp;lt;a href=&amp;quot;http://logback.qos.ch/recipes/captureHttp.html&amp;quot;&amp;gt;Capturing HTTP requests and responses&amp;lt;/a&amp;gt;.&lt;/span&gt;
-&lt;span class=&#34;cm&#34;&gt; * Tomcat&amp;#39;s lib folder must contain logback-core.jar and logback-access.jar.&lt;/span&gt;
-&lt;span class=&#34;cm&#34;&gt; */&lt;/span&gt;
-&lt;span class=&#34;nd&#34;&gt;@Bean&lt;/span&gt;
-&lt;span class=&#34;n&#34;&gt;Filter&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;httpRequestAndResponseDumper&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;()&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
-    &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;new&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;TeeFilter&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;();&lt;/span&gt;
-&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;/p&gt;
 </description>
