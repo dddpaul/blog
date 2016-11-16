@@ -107,40 +107,40 @@
 
 <p><strong>1.</strong> Motion ставится элементарно — <code>apt-get install motion</code>. Важные настройки:</p>
 
-<div class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c1"># Максимальный fps</span>
+<div class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># Максимальный fps</span>
 framerate 5
 
-<span class="c1"># Снимать на максимальном fps только во время движения</span>
+<span class="c"># Снимать на максимальном fps только во время движения</span>
 webcam_motion on
 
-<span class="c1"># Выкрутил в максимум, чтобы избежать срабатывания на включение света</span>
+<span class="c"># Выкрутил в максимум, чтобы избежать срабатывания на включение света</span>
 lightswitch 100
 
-<span class="c1"># Кол-во кадров с движением, необходимых для генерации события</span>
+<span class="c"># Кол-во кадров с движением, необходимых для генерации события</span>
 minimum_motion_frames 3
 
-<span class="c1"># Записать кадры до движения</span>
+<span class="c"># Записать кадры до движения</span>
 pre_capture 5
 
-<span class="c1"># Записать кадры после движения</span>
+<span class="c"># Записать кадры после движения</span>
 post_capture 5
 
-<span class="c1"># Маска для определения области детекции, легко делается в Gimp&#39;е из снимка с камеры.</span>
-<span class="c1"># Области, закрашенные черным, игнорируются.</span>
+<span class="c"># Маска для определения области детекции, легко делается в Gimp&#39;е из снимка с камеры.</span>
+<span class="c"># Области, закрашенные черным, игнорируются.</span>
 mask_file /path/to/mask.pgm
 
-<span class="c1"># Время определения окончания движения (если за 15 секунд после начала движения</span>
-<span class="c1"># не было никаких поползновений, то считаем, что событие-движение закончилось)</span>
+<span class="c"># Время определения окончания движения (если за 15 секунд после начала движения</span>
+<span class="c"># не было никаких поползновений, то считаем, что событие-движение закончилось)</span>
 gap 15
 
-<span class="c1"># Отключить создание снимков</span>
+<span class="c"># Отключить создание снимков</span>
 output_normal off
 
-<span class="c1"># Обозначать движение прямоугольником </span>
+<span class="c"># Обозначать движение прямоугольником </span>
 locate on
 
-<span class="c1"># Запуск скрипта по началу движения (это симлимк, который указывает на реальный скрипт).</span>
-<span class="c1"># Изменение симлинка осущестляется по команде с пульта (см. п. 2 про конфиг) </span>
+<span class="c"># Запуск скрипта по началу движения (это симлимк, который указывает на реальный скрипт).</span>
+<span class="c"># Изменение симлинка осущестляется по команде с пульта (см. п. 2 про конфиг) </span>
 on_event_start <span class="s2">&quot;/etc/motion/handlers/on_event_start&quot;</span>
 </code></pre></div>
 
@@ -223,7 +223,7 @@ KERNEL==&quot;event*&quot;, SUBSYSTEM==&quot;input&quot;, ATTRS{name}==&quot;HID
 
 <p>И создадим новый upstart job в <em>/etc/init/evhandler.conf</em>:</p>
 
-<div class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c1"># evhandler - Simple key press listener and handler written in Go</span>
+<div class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># evhandler - Simple key press listener and handler written in Go</span>
 
 start on runlevel <span class="o">[</span>2345<span class="o">]</span>
 stop on runlevel <span class="o">[</span>!2345<span class="o">]</span>
@@ -252,10 +252,10 @@ start evhandler</code>.</p>
 
 <p>Для автоматического запуска этой команды создадим job <em>/etc/init/tty1.conf</em>:</p>
 
-<p><div class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c1"># tty1 - getty</span>
-<span class="c1">#</span>
-<span class="c1"># This service is used to maintain a getty on tty1 from the point the system is</span>
-<span class="c1"># started until it is shut down again.</span>
+<p><div class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="c"># tty1 - getty</span>
+<span class="c">#</span>
+<span class="c"># This service is used to maintain a getty on tty1 from the point the system is</span>
+<span class="c"># started until it is shut down again.</span>
 
 start on stopped rc <span class="nv">RUNLEVEL</span><span class="o">=[</span>2345<span class="o">]</span> and <span class="o">(</span>
             not-container or
@@ -264,9 +264,9 @@ start on stopped rc <span class="nv">RUNLEVEL</span><span class="o">=[</span>234
 
 stop on runlevel <span class="o">[</span>!2345<span class="o">]</span>
 
-<span class="c1"># Blank screen after 1 minute timeout</span>
-<span class="c1"># See http://www.armadeus.com/wiki/index.php?title=FrameBuffer</span>
-<span class="nb">exec</span> <span class="nb">echo</span> -ne <span class="s2">&quot;\033[9;1]&quot;</span> &gt; /dev/tty1
+<span class="c"># Blank screen after 1 minute timeout</span>
+<span class="c"># See http://www.armadeus.com/wiki/index.php?title=FrameBuffer</span>
+<span class="nb">exec echo</span> -ne <span class="s2">&quot;\033[9;1]&quot;</span> &gt; /dev/tty1
 </code></pre></div>
 </p>
 

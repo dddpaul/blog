@@ -96,15 +96,42 @@
 
         <p><strong>1.</strong> Create logical volumes for <code>direct-lvm</code> production mode</p>
 
-<p>Official <a href="https://docs.docker.com/engine/userguide/storagedriver/device-mapper-driver/">Device Mapper storage driver guide</a> recommends to use <a href="https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/6/html/Logical_Volume_Manager_Administration/thinprovisioned_volumes.html">thin pools</a> now. But we will follow more simple way :)</p>
-
 <p>Assume that we have 40 GByte block device named as <code>/dev/sdb</code> with one full-size Linux partition on it.</p>
 
-<div class="highlight"><pre><code class="language-shell" data-lang="shell">pvcreate /dev/sdb1                 <span class="c1"># Create physical volume</span>
-vgcreate docker /dev/sdb1          <span class="c1"># Create volume group and add this physical volume to it</span>
-lvcreate -L 2G -n metadata docker  <span class="c1"># Create logical volume for Docker metadata</span>
-lvcreate -L 15G -n data docker     <span class="c1"># Create logical volume for Docker data (layers, containers etc)</span>
-lvcreate -L 15G -n registry docker <span class="c1"># Create logical volume for Docker Registry data</span>
+<p>Official <a href="https://docs.docker.com/engine/userguide/storagedriver/device-mapper-driver/">Device Mapper storage driver guide</a> recommends to use <a href="https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/6/html/Logical_Volume_Manager_Administration/thinprovisioned_volumes.html">thin pools</a> now. Use these commands to create thin-provisioned logical volumes:</p>
+
+<div class="highlight"><pre><code class="language-shell" data-lang="shell">pvcreate /dev/sdb1                 <span class="c"># Create physical volume</span>
+vgcreate docker /dev/sdb1          <span class="c"># Create volume group and add this physical volume to it</span>
+<span class="c"># Create logical volumes</span>
+lvcreate --wipesignatures y -n data docker -l 40%VG
+lvcreate --wipesignatures y -n registry docker -l 40%VG
+lvcreate --wipesignatures y -n metadata docker -l 2%VG
+<span class="c"># Convert data volume to thin pool&#39;s data volume</span>
+lvconvert -y --zero n -c 512K --thinpool docker/data --poolmetadata docker/metadata
+<span class="c"># Set thin pool autoextend features</span>
+cat &gt; /etc/lvm/profile/docker-data.profile
+activation <span class="o">{</span>
+        <span class="nv">thin_pool_autoextend_threshold</span> <span class="o">=</span> 80
+        <span class="nv">thin_pool_autoextend_percent</span> <span class="o">=</span> 20
+<span class="o">}</span>
+lvchange --metadataprofile docker-data docker/data
+<span class="c"># Check thin pool volume (must be monitored) </span>
+lvs -o+seg_monitor
+  LV       VG     Attr       LSize   Pool Origin Data%  Meta%  Move Log Cpy%Sync Convert Monitor
+  root     centos -wi-ao---- 117,19g
+  swap     centos -wi-ao----   1,95g
+  data     docker twi-a-t---  16,00g             0,00   0,01                             monitored
+  registry docker -wi-a-----  16,00g
+</code></pre></div>
+
+
+<p>Or if you do not trust thin pools use more traditional (but deprecated in Docker) way:</p>
+
+<div class="highlight"><pre><code class="language-shell" data-lang="shell">pvcreate /dev/sdb1                 <span class="c"># Create physical volume</span>
+vgcreate docker /dev/sdb1          <span class="c"># Create volume group and add this physical volume to it</span>
+lvcreate -L 2G -n metadata docker  <span class="c"># Create logical volume for Docker metadata</span>
+lvcreate -L 15G -n data docker     <span class="c"># Create logical volume for Docker data (layers, containers etc)</span>
+lvcreate -L 15G -n registry docker <span class="c"># Create logical volume for Docker Registry data</span>
 </code></pre></div>
 
 
@@ -138,14 +165,14 @@ sdb                                8:16   0    40G  0 disk
 
 <p>Create systemd drop-in file:</p>
 
-<div class="highlight"><pre><code class="language-shell" data-lang="shell">mkdir -p /etc/systemd/system/docker.service.d
+<p><div class="highlight"><pre><code class="language-shell" data-lang="shell">mkdir -p /etc/systemd/system/docker.service.d
 cat &gt; /etc/systemd/system/docker.service.d/env.conf 
 <span class="o">[</span>Service<span class="o">]</span>
 <span class="nv">EnvironmentFile</span><span class="o">=</span>-/etc/sysconfig/docker
 <span class="nv">ExecStart</span><span class="o">=</span>
-<span class="nv">ExecStart</span><span class="o">=</span>/usr/bin/dockerd $OPTIONS <span class="nv">$D</span>OCKER_NETWORK_OPTIONS <span class="nv">$D</span>OCKER_STORAGE_OPTIONS
+<span class="nv">ExecStart</span><span class="o">=</span>/usr/bin/dockerd <span class="nv">$OPTIONS</span> <span class="nv">$DOCKER_NETWORK_OPTIONS</span> <span class="nv">$DOCKER_STORAGE_OPTIONS</span>
 </code></pre></div>
-
+</p>
 
 <p>Specify Docker configuration:</p>
 
@@ -166,7 +193,7 @@ systemctl show docker <span class="p">|</span> grep EnvironmentFile
 
 <p>And run:</p>
 
-<p><div class="highlight"><pre><code class="language-shell" data-lang="shell">systemctl <span class="nb">enable</span> docker
+<p><div class="highlight"><pre><code class="language-shell" data-lang="shell">systemctl <span class="nb">enable </span>docker
 systemctl restart docker
 </code></pre></div>
 </p>

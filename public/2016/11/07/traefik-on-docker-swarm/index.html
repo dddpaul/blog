@@ -119,7 +119,7 @@ docker service create --name test2 --label traefik.port<span class="o">=</span><
 --name traefik <span class="se">\</span>
 --constraint<span class="o">=</span>node.role<span class="o">==</span>manager <span class="se">\</span>
 --publish 80:80 --publish 8080:8080 <span class="se">\</span>
---mount <span class="nv">type</span><span class="o">=</span>bind,source<span class="o">=</span>/var/run/docker.sock,target<span class="o">=</span>/var/run/docker.sock <span class="se">\</span>
+--mount <span class="nb">type</span><span class="o">=</span><span class="nb">bind</span>,source<span class="o">=</span>/var/run/docker.sock,target<span class="o">=</span>/var/run/docker.sock <span class="se">\</span>
 --network traefik-net <span class="se">\</span>
 traefik:v1.1.0-rc3 <span class="se">\</span>
 --docker <span class="se">\</span>
@@ -144,8 +144,8 @@ traefik:v1.1.0-rc3 <span class="se">\</span>
 --name traefik <span class="se">\</span>
 --constraint<span class="o">=</span>node.role<span class="o">==</span>manager <span class="se">\</span>
 --publish 80:80 --publish 443:443 --publish 8080:8080 <span class="se">\</span>
---mount <span class="nv">type</span><span class="o">=</span>bind,source<span class="o">=</span>/var/run/docker.sock,target<span class="o">=</span>/var/run/docker.sock,readonly <span class="se">\</span>
---mount <span class="nv">type</span><span class="o">=</span>bind,source<span class="o">=</span>/var/tmp,target<span class="o">=</span>/etc/traefik/acme <span class="se">\</span>
+--mount <span class="nb">type</span><span class="o">=</span><span class="nb">bind</span>,source<span class="o">=</span>/var/run/docker.sock,target<span class="o">=</span>/var/run/docker.sock,readonly <span class="se">\</span>
+--mount <span class="nb">type</span><span class="o">=</span><span class="nb">bind</span>,source<span class="o">=</span>/var/tmp,target<span class="o">=</span>/etc/traefik/acme <span class="se">\</span>
 --network traefik-net <span class="se">\</span>
 traefik:v1.1.0-rc3 <span class="se">\</span>
 --entryPoints<span class="o">=</span><span class="s1">&#39;Name:http Address::80 Redirect.EntryPoint:https&#39;</span> <span class="se">\</span>
@@ -170,8 +170,8 @@ traefik:v1.1.0-rc3 <span class="se">\</span>
 --name traefik <span class="se">\</span>
 --constraint<span class="o">=</span>node.role<span class="o">==</span>manager <span class="se">\</span>
 --publish 443:443 --publish 8080:8080 <span class="se">\</span>
---mount <span class="nv">type</span><span class="o">=</span>bind,source<span class="o">=</span>/var/run/docker.sock,target<span class="o">=</span>/var/run/docker.sock,readonly <span class="se">\</span>
---mount <span class="nv">type</span><span class="o">=</span>bind,source<span class="o">=</span>/var/tmp,target<span class="o">=</span>/etc/traefik/acme <span class="se">\</span>
+--mount <span class="nb">type</span><span class="o">=</span><span class="nb">bind</span>,source<span class="o">=</span>/var/run/docker.sock,target<span class="o">=</span>/var/run/docker.sock,readonly <span class="se">\</span>
+--mount <span class="nb">type</span><span class="o">=</span><span class="nb">bind</span>,source<span class="o">=</span>/var/tmp,target<span class="o">=</span>/etc/traefik/acme <span class="se">\</span>
 --network traefik-net <span class="se">\</span>
 traefik:v1.1.0-rc3 <span class="se">\</span>
 --entryPoints<span class="o">=</span><span class="s1">&#39;Name:https Address::443 TLS&#39;</span> <span class="se">\</span>
@@ -196,9 +196,9 @@ traefik:v1.1.0-rc3 <span class="se">\</span>
 --name traefik <span class="se">\</span>
 --constraint<span class="o">=</span>node.role<span class="o">==</span>manager <span class="se">\</span>
 --publish 443:443 --publish 8443:8443 <span class="se">\</span>
---mount <span class="nv">type</span><span class="o">=</span>bind,source<span class="o">=</span>/var/run/docker.sock,target<span class="o">=</span>/var/run/docker.sock,readonly <span class="se">\</span>
---mount <span class="nv">type</span><span class="o">=</span>bind,source<span class="o">=</span>/etc/pki/realms/domain,target<span class="o">=</span>/etc/traefik/tls,readonly <span class="se">\</span>
---mount <span class="nv">type</span><span class="o">=</span>bind,source<span class="o">=</span>/var/tmp,target<span class="o">=</span>/etc/traefik/acme <span class="se">\</span>
+--mount <span class="nb">type</span><span class="o">=</span><span class="nb">bind</span>,source<span class="o">=</span>/var/run/docker.sock,target<span class="o">=</span>/var/run/docker.sock,readonly <span class="se">\</span>
+--mount <span class="nb">type</span><span class="o">=</span><span class="nb">bind</span>,source<span class="o">=</span>/etc/pki/realms/domain,target<span class="o">=</span>/etc/traefik/tls,readonly <span class="se">\</span>
+--mount <span class="nb">type</span><span class="o">=</span><span class="nb">bind</span>,source<span class="o">=</span>/var/tmp,target<span class="o">=</span>/etc/traefik/acme <span class="se">\</span>
 --network traefik-net <span class="se">\</span>
 traefik:v1.1.0-rc3 <span class="se">\</span>
 --entryPoints<span class="o">=</span><span class="s1">&#39;Name:https Address::443 TLS:/etc/traefik/tls/default.crt,/etc/traefik/tls/default.key&#39;</span> <span class="se">\</span>
