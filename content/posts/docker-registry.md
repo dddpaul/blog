@@ -8,9 +8,36 @@ tags = ["linux", "docker"]
 
 **1.** Create logical volumes for `direct-lvm` production mode
 
-Official [Device Mapper storage driver guide](https://docs.docker.com/engine/userguide/storagedriver/device-mapper-driver/) recommends to use [thin pools](https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/6/html/Logical_Volume_Manager_Administration/thinprovisioned_volumes.html) now. But we will follow more simple way :)
- 
 Assume that we have 40 GByte block device named as `/dev/sdb` with one full-size Linux partition on it. 
+
+Official [Device Mapper storage driver guide](https://docs.docker.com/engine/userguide/storagedriver/device-mapper-driver/) recommends to use [thin pools](https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/6/html/Logical_Volume_Manager_Administration/thinprovisioned_volumes.html) now. Use these commands to create thin-provisioned logical volumes:
+
+{{< highlight shell >}}
+pvcreate /dev/sdb1                 # Create physical volume
+vgcreate docker /dev/sdb1          # Create volume group and add this physical volume to it
+# Create logical volumes
+lvcreate --wipesignatures y -n data docker -l 40%VG
+lvcreate --wipesignatures y -n registry docker -l 40%VG
+lvcreate --wipesignatures y -n metadata docker -l 2%VG
+# Convert data volume to thin pool's data volume
+lvconvert -y --zero n -c 512K --thinpool docker/data --poolmetadata docker/metadata
+# Set thin pool autoextend features
+cat > /etc/lvm/profile/docker-data.profile
+activation {
+        thin_pool_autoextend_threshold = 80
+        thin_pool_autoextend_percent = 20
+}
+lvchange --metadataprofile docker-data docker/data
+# Check thin pool volume (must be monitored) 
+lvs -o+seg_monitor
+  LV       VG     Attr       LSize   Pool Origin Data%  Meta%  Move Log Cpy%Sync Convert Monitor
+  root     centos -wi-ao---- 117,19g
+  swap     centos -wi-ao----   1,95g
+  data     docker twi-a-t---  16,00g             0,00   0,01                             monitored
+  registry docker -wi-a-----  16,00g
+{{< /highlight >}}
+
+Or if you do not trust thin pools use more traditional (but deprecated in Docker) way:
 
 {{< highlight shell >}}
 pvcreate /dev/sdb1                 # Create physical volume
