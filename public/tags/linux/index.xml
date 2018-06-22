@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Linux on Dev notes</title>
+    <title>Linux on Pavel Derendyaev notes</title>
     <link>https://dddpaul.github.io/blog/tags/linux/</link>
-    <description>Recent content in Linux on Dev notes</description>
+    <description>Recent content in Linux on Pavel Derendyaev notes</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Wed, 02 Nov 2016 09:00:00 +0300</lastBuildDate>
-    <atom:link href="https://dddpaul.github.io/blog/tags/linux/index.xml" rel="self" type="application/rss+xml" />
+    
+	<atom:link href="https://dddpaul.github.io/blog/tags/linux/index.xml" rel="self" type="application/rss+xml" />
+    
     
     <item>
       <title>Docker registry on Centos 7</title>
@@ -15,167 +17,10 @@
       <pubDate>Wed, 02 Nov 2016 09:00:00 +0300</pubDate>
       
       <guid>https://dddpaul.github.io/blog/2016/11/02/docker-registry/</guid>
-      <description>&lt;p&gt;&lt;strong&gt;1.&lt;/strong&gt; Create logical volumes for &lt;code&gt;direct-lvm&lt;/code&gt; production mode&lt;/p&gt;
-
-&lt;p&gt;Assume that we have 40 GByte block device named as &lt;code&gt;/dev/sdb&lt;/code&gt; with one full-size Linux partition on it.&lt;/p&gt;
-
-&lt;p&gt;Official &lt;a href=&#34;https://docs.docker.com/engine/userguide/storagedriver/device-mapper-driver/&#34;&gt;Device Mapper storage driver guide&lt;/a&gt; recommends to use &lt;a href=&#34;https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/6/html/Logical_Volume_Manager_Administration/thinprovisioned_volumes.html&#34;&gt;thin pools&lt;/a&gt; now. Use these commands to create thin-provisioned logical volumes:&lt;/p&gt;
-
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;pvcreate /dev/sdb1                 &lt;span class=&#34;c&#34;&gt;# Create physical volume&lt;/span&gt;
-vgcreate docker /dev/sdb1          &lt;span class=&#34;c&#34;&gt;# Create volume group and add this physical volume to it&lt;/span&gt;
-&lt;span class=&#34;c&#34;&gt;# Create logical volumes&lt;/span&gt;
-lvcreate --wipesignatures y -n data docker -l 40%VG
-lvcreate --wipesignatures y -n registry docker -l 40%VG
-lvcreate --wipesignatures y -n metadata docker -l 2%VG
-&lt;span class=&#34;c&#34;&gt;# Convert data volume to thin pool&amp;#39;s data volume&lt;/span&gt;
-lvconvert -y --zero n -c 512K --thinpool docker/data --poolmetadata docker/metadata
-&lt;span class=&#34;c&#34;&gt;# Set thin pool autoextend features&lt;/span&gt;
-cat &amp;gt; /etc/lvm/profile/docker-data.profile
-activation &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
-        &lt;span class=&#34;nv&#34;&gt;thin_pool_autoextend_threshold&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; 80
-        &lt;span class=&#34;nv&#34;&gt;thin_pool_autoextend_percent&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; 20
-&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
-lvchange --metadataprofile docker-data docker/data
-&lt;span class=&#34;c&#34;&gt;# Check thin pool volume (must be monitored) &lt;/span&gt;
-lvs -o+seg_monitor
-  LV       VG     Attr       LSize   Pool Origin Data%  Meta%  Move Log Cpy%Sync Convert Monitor
-  root     centos -wi-ao---- 117,19g
-  swap     centos -wi-ao----   1,95g
-  data     docker twi-a-t---  16,00g             0,00   0,01                             monitored
-  registry docker -wi-a-----  16,00g
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;p&gt;Or if you do not trust thin pools use more traditional (but deprecated in Docker) way:&lt;/p&gt;
-
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;pvcreate /dev/sdb1                 &lt;span class=&#34;c&#34;&gt;# Create physical volume&lt;/span&gt;
-vgcreate docker /dev/sdb1          &lt;span class=&#34;c&#34;&gt;# Create volume group and add this physical volume to it&lt;/span&gt;
-lvcreate -L 2G -n metadata docker  &lt;span class=&#34;c&#34;&gt;# Create logical volume for Docker metadata&lt;/span&gt;
-lvcreate -L 15G -n data docker     &lt;span class=&#34;c&#34;&gt;# Create logical volume for Docker data (layers, containers etc)&lt;/span&gt;
-lvcreate -L 15G -n registry docker &lt;span class=&#34;c&#34;&gt;# Create logical volume for Docker Registry data&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;p&gt;Mount volume for Docker registry:&lt;/p&gt;
-
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;mkfs.xfs /dev/docker/registry
-&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;/dev/docker/registry /var/lib/docker-registry    xfs     defaults        1 3&amp;quot;&lt;/span&gt; &amp;gt;&amp;gt; /etc/fstab 
-mount -a
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;p&gt;Check:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;lsblk
-NAME                             MAJ:MIN RM   SIZE RO TYPE MOUNTPOINT
-sda                                8:0    0   120G  0 disk
-├─sda1                             8:1    0   876M  0 part /boot
-└─sda2                             8:2    0 119,1G  0 part
-  ├─centos-swap                  253:0    0     2G  0 lvm  [SWAP]
-  └─centos-root                  253:1    0 117,2G  0 lvm  /
-sdb                                8:16   0    40G  0 disk
-└─sdb1                             8:17   0    40G  0 part
-  ├─docker-metadata              253:2    0     2G  0 lvm
-  │ └─docker-253:1-23762136-pool 253:5    0    15G  0 dm
-  ├─docker-data                  253:3    0    15G  0 lvm
-  │ └─docker-253:1-23762136-pool 253:5    0    15G  0 dm
-  └─docker-registry              253:4    0    15G  0 lvm  /var/lib/docker-registry
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;&lt;strong&gt;2.&lt;/strong&gt; Configure Docker daemon&lt;/p&gt;
-
-&lt;p&gt;Create systemd drop-in file:&lt;/p&gt;
-
-&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;mkdir -p /etc/systemd/system/docker.service.d
-cat &amp;gt; /etc/systemd/system/docker.service.d/env.conf 
-&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;Service&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
-&lt;span class=&#34;nv&#34;&gt;EnvironmentFile&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;-/etc/sysconfig/docker
-&lt;span class=&#34;nv&#34;&gt;ExecStart&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;
-&lt;span class=&#34;nv&#34;&gt;ExecStart&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/usr/bin/dockerd &lt;span class=&#34;nv&#34;&gt;$OPTIONS&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$DOCKER_NETWORK_OPTIONS&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$DOCKER_STORAGE_OPTIONS&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;/p&gt;
-
-&lt;p&gt;Specify Docker configuration:&lt;/p&gt;
-
-&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;cat &amp;gt; /etc/sysconfig/docker 
-&lt;span class=&#34;nv&#34;&gt;OPTIONS&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;--iptables=false&amp;#39;&lt;/span&gt;
-&lt;span class=&#34;nv&#34;&gt;DOCKER_NETWORK_OPTIONS&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;&amp;#39;&lt;/span&gt;
-&lt;span class=&#34;nv&#34;&gt;DOCKER_STORAGE_OPTIONS&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;--storage-driver=devicemapper --storage-opt dm.datadev=/dev/docker/data --storage-opt dm.metadatadev=/dev/docker/metadata&amp;#39;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;/p&gt;
-
-&lt;p&gt;Check:&lt;/p&gt;
-
-&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;systemctl daemon-reload
-systemctl show docker &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; grep EnvironmentFile
-&lt;span class=&#34;nv&#34;&gt;EnvironmentFile&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/etc/sysconfig/docker &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;ignore_errors&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;yes&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;/p&gt;
-
-&lt;p&gt;And run:&lt;/p&gt;
-
-&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;systemctl &lt;span class=&#34;nb&#34;&gt;enable &lt;/span&gt;docker
-systemctl restart docker
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;/p&gt;
-
-&lt;p&gt;Check again:&lt;/p&gt;
-
-&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;docker info &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; grep data
- Data file: /dev/docker/data
- Metadata file: /dev/docker/metadata
- Metadata Space Used: &lt;span class=&#34;m&#34;&gt;639&lt;/span&gt; kB
- Metadata Space Total: 2.147 GB
- Metadata Space Available: 2.147 GB
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;3.&lt;/strong&gt; Obtain SSL certificate from Let&amp;rsquo;s Encrypt&lt;/p&gt;
-
-&lt;p&gt;It&amp;rsquo;s can be done by different ways, see &lt;a href=&#34;https://dddpaul.github.io/blog/2016/10/20/lego-nginx/&#34;&gt;Let&amp;rsquo;s Encrypt with lego and Nginx&lt;/a&gt; for one of these.&lt;/p&gt;
-
-&lt;p&gt;Assume that certificate and key was obtained and stored in &lt;code&gt;/etc/pki/tls/lego/certificates&lt;/code&gt; directory.&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;4.&lt;/strong&gt; Run Docker registry container as systemd unit&lt;/p&gt;
-
-&lt;p&gt;Create systemd unit:&lt;/p&gt;
-
-&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;cat &amp;gt; /etc/systemd/system/docker-registry.service
-&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;Unit&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
-&lt;span class=&#34;nv&#34;&gt;Description&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;Docker registry container
-&lt;span class=&#34;nv&#34;&gt;Requires&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;docker.service
-&lt;span class=&#34;nv&#34;&gt;After&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;docker.service
-
-&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;Service&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
-&lt;span class=&#34;nv&#34;&gt;Restart&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;always
-&lt;span class=&#34;nv&#34;&gt;ExecStartPre&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/usr/bin/docker create -p 5000:5000 -v /var/lib/docker-registry:/var/lib/registry -v /etc/pki/tls/lego/certificates:/certs -e &lt;span class=&#34;nv&#34;&gt;REGISTRY_HTTP_TLS_CERTIFICATE&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/certs/example.org.crt -e &lt;span class=&#34;nv&#34;&gt;REGISTRY_HTTP_TLS_KEY&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/certs/example.org.key --name registry registry:2
-&lt;span class=&#34;nv&#34;&gt;ExecStart&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/usr/bin/docker start -a registry
-&lt;span class=&#34;nv&#34;&gt;ExecStop&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/usr/bin/docker stop -t &lt;span class=&#34;m&#34;&gt;5&lt;/span&gt; registry
-&lt;span class=&#34;nv&#34;&gt;ExecStopPost&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/usr/bin/docker rm registry
-
-&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;Install&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
-&lt;span class=&#34;nv&#34;&gt;WantedBy&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;multi-user.target
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;5.&lt;/strong&gt; Permit access to Docker registry only from trusted networks&lt;/p&gt;
-
-&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;firewall-cmd --zone&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;trusted --add-port&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;5000/tcp --permanent
-firewall-cmd --zone&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;trusted --add-source&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;192.168.1.0/24 --permanent
-firewall-cmd --reload
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;/p&gt;
-
-&lt;p&gt;Since Docker daemon was launched with &lt;code&gt;--iptables=false&lt;/code&gt; option, Docker registry port may be accessed from trusted networks only.&lt;/p&gt;
-
-&lt;p&gt;Links:&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://docs.docker.com/engine/admin/systemd/&#34;&gt;Control and configure Docker with systemd&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://docs.docker.com/engine/userguide/storagedriver/device-mapper-driver/&#34;&gt;Docker and the Device Mapper storage driver&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://trainingdevops.com/insights-and-tutorials/deploying-docker-registry-with-let-s-encrypt-ssl-tls-certs&#34;&gt;Deploying Docker Registry with Let&amp;rsquo;s Encrypt SSL/TLS Certs&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-</description>
+      <description>1. Create logical volumes for direct-lvm production mode
+Assume that we have 40 GByte block device named as /dev/sdb with one full-size Linux partition on it.
+Official Device Mapper storage driver guide recommends to use thin pools now. Use these commands to create thin-provisioned logical volumes:
+pvcreate /dev/sdb1 # Create physical volume vgcreate docker /dev/sdb1 # Create volume group and add this physical volume to it # Create logical volumes lvcreate --wipesignatures y -n data docker -l 40%VG lvcreate --wipesignatures y -n registry docker -l 40%VG lvcreate --wipesignatures y -n metadata docker -l 2%VG # Convert data volume to thin pool&amp;#39;s data volume lvconvert -y --zero n -c 512K --thinpool docker/data --poolmetadata docker/metadata # Set thin pool autoextend features cat &amp;gt; /etc/lvm/profile/docker-data.</description>
     </item>
     
     <item>
@@ -184,82 +29,10 @@ firewall-cmd --reload
       <pubDate>Thu, 20 Oct 2016 11:00:00 +0300</pubDate>
       
       <guid>https://dddpaul.github.io/blog/2016/10/20/lego-nginx/</guid>
-      <description>&lt;p&gt;&lt;a href=&#34;https://github.com/xenolf/lego&#34;&gt;xenolf/lego&lt;/a&gt; it&amp;rsquo;s a feature-rich Let&amp;rsquo;s Encrypt client and ACME library written in Go.&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;1.&lt;/strong&gt; Prepare Nginx server&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;server {
-    listen 80 default;
-    server_name example.org www.example.org;
-
-    location /.well-known/acme-challenge {
-        proxy_pass http://127.0.0.1:81;
-        proxy_set_header Host $host;
-    }
-
-    # Other directives
-}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;&lt;strong&gt;2.&lt;/strong&gt; Update ca-certificates for CentOS 5 (optional)&lt;/p&gt;
-
-&lt;p&gt;Let&amp;rsquo;s Encrypt CA certificate is not included into root CA bundle of old Linux distributions like RHEL/Centos 5. You have to replace this bundle manually with fresh one from &lt;a href=&#34;http://curl.haxx.se/&#34;&gt;cURL website&lt;/a&gt;:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;cp /etc/pki/tls/certs/ca-bundle.crt /etc/pki/tls/certs/ca-bundle.crt.bak
-wget -O /etc/pki/tls/certs/ca-bundle.crt http://curl.haxx.se/ca/cacert.pem
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;&lt;strong&gt;3.&lt;/strong&gt; Order the certificate from Let&amp;rsquo;s Encrypt&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;lego -d example.org -d www.example.org -m cert-owner@example.org -a --path=/etc/pki/tls/lego --http=:81 run
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;&lt;strong&gt;4.&lt;/strong&gt; Update Nginx server&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;server {
-    listen 80 default;
-    server_name example.org www.example.org;
-
-    location /.well-known/acme-challenge {
-        proxy_pass http://127.0.0.1:81;
-        proxy_set_header Host $host;
-    }
-
-    # Other directives
-}
-
-server {
-    listen 443 ssl;
-    server_name example.org www.example.org;
-
-    ssl_certificate /etc/pki/tls/lego/certificates/example.org.crt;
-    ssl_certificate_key /etc/pki/tls/lego/certificates/example.org.key;
-
-    location /.well-known/acme-challenge {
-        proxy_pass http://127.0.0.1:444;
-        proxy_set_header Host $host;
-    }
-
-    # Other directives
-}
-
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;&lt;strong&gt;5.&lt;/strong&gt; Renew certificate every 2 month at 01:30 of first day of the month&lt;/p&gt;
-
-&lt;p&gt;Add to crontab:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;30 01 01 */2 * /usr/local/bin/lego -d example.org -d www.example.org -m cert-owner@example.org -a --path=/etc/pki/tls/lego --http=:81 --tls=:444 renew &amp;amp;&amp;amp; /usr/sbin/nginx -s reload
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Links:&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://github.com/xenolf/lego&#34;&gt;Let&amp;rsquo;s Encrypt client and ACME library written in Go&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://code.kuederle.com/letsencrypt/&#34;&gt;LET’S ENCRYPT WITH LEGO AND NGINX&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://raymii.org/s/snippets/CentOS_5_CA_Certificate_Bundle_Update.html&#34;&gt;CentOS 5 CA Certificate Bundle Update&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-</description>
+      <description>xenolf/lego it&amp;rsquo;s a feature-rich Let&amp;rsquo;s Encrypt client and ACME library written in Go.
+1. Prepare Nginx server
+server { listen 80 default; server_name example.org www.example.org; location /.well-known/acme-challenge { proxy_pass http://127.0.0.1:81; proxy_set_header Host $host; } # Other directives }  2. Update ca-certificates for CentOS 5 (optional)
+Let&amp;rsquo;s Encrypt CA certificate is not included into root CA bundle of old Linux distributions like RHEL/Centos 5. You have to replace this bundle manually with fresh one from cURL website:</description>
     </item>
     
     <item>
@@ -268,146 +41,8 @@ server {
       <pubDate>Tue, 30 Aug 2016 17:45:00 +0300</pubDate>
       
       <guid>https://dddpaul.github.io/blog/2016/08/30/gonc/</guid>
-      <description>&lt;p&gt;It&amp;rsquo;s spectacularly simple to implement TCP Netcat in Go thanks to &lt;a href=&#34;https://golang.org/pkg/io/#Copy&#34;&gt;io.Copy&lt;/a&gt;.&lt;/p&gt;
-
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;kd&#34;&gt;type&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;Progress&lt;/span&gt; &lt;span class=&#34;kd&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
-	&lt;span class=&#34;nx&#34;&gt;bytes&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;uint64&lt;/span&gt;
-&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
-
-&lt;span class=&#34;kd&#34;&gt;func&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;TransferStreams&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;con&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;net&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;Conn&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
-	&lt;span class=&#34;nx&#34;&gt;c&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;make&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kd&#34;&gt;chan&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;Progress&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
-
-	&lt;span class=&#34;c1&#34;&gt;// Read from Reader and write to Writer until EOF&lt;/span&gt;
-	&lt;span class=&#34;nx&#34;&gt;copy&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt; &lt;span class=&#34;kd&#34;&gt;func&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;r&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;io&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;ReadCloser&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;w&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;io&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;WriteCloser&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
-		&lt;span class=&#34;k&#34;&gt;defer&lt;/span&gt; &lt;span class=&#34;kd&#34;&gt;func&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
-			&lt;span class=&#34;nx&#34;&gt;r&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;Close&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
-			&lt;span class=&#34;nx&#34;&gt;w&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;Close&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
-		&lt;span class=&#34;p&#34;&gt;}()&lt;/span&gt;
-		&lt;span class=&#34;nx&#34;&gt;n&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;_&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;io&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;Copy&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;w&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;r&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
-		&lt;span class=&#34;nx&#34;&gt;c&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;lt;-&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;Progress&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;bytes&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;uint64&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;n&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)}&lt;/span&gt;
-	&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
-
-	&lt;span class=&#34;k&#34;&gt;go&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;copy&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;con&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;os&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;Stdout&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
-	&lt;span class=&#34;k&#34;&gt;go&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;copy&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;os&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;Stdin&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;con&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
-
-	&lt;span class=&#34;nx&#34;&gt;p&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;lt;-&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;c&lt;/span&gt;
-	&lt;span class=&#34;nx&#34;&gt;log&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;Printf&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;[%s]: Connection has been closed by remote peer, %d bytes has been received\n&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;con&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;RemoteAddr&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(),&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;p&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;bytes&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
-	&lt;span class=&#34;nx&#34;&gt;p&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;lt;-&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;c&lt;/span&gt;
-	&lt;span class=&#34;nx&#34;&gt;log&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;Printf&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;[%s]: Local peer has been stopped, %d bytes has been sent\n&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;con&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;RemoteAddr&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(),&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;p&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;bytes&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
-&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;p&gt;But it&amp;rsquo;s much more harder to do the same for UDP. UDP is connectionless so there is no &amp;ldquo;streams&amp;rdquo; that can be copied. You must tediously read data from connection to buffer and write this buffer to stdout by one goroutine. And read data from stdin and write it to connection from other goroutine.&lt;/p&gt;
-
-&lt;p&gt;Some remarks:&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;Without streams there is no EOF so we must use some predefined disconnect sequence to terminate transfer.&lt;/li&gt;
-&lt;li&gt;Without established connection a listener doesn&amp;rsquo;t know the remote peer address until actual data will be received. So listener must wait for data, then read this data and remote address with &lt;a href=&#34;https://golang.org/pkg/net/#UDPConn.ReadFrom&#34;&gt;*net.UDPConn.ReadFrom&lt;/a&gt;.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;kd&#34;&gt;const&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;
-	&lt;span class=&#34;c1&#34;&gt;// BufferLimit specifies buffer size that is sufficient to&lt;/span&gt;
-	&lt;span class=&#34;c1&#34;&gt;// handle full-size UDP datagram or TCP segment in one step&lt;/span&gt;
-	&lt;span class=&#34;nx&#34;&gt;BufferLimit&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;2&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;16&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;
-	&lt;span class=&#34;c1&#34;&gt;// DisconnectSequence is used to disconnect UDP sessions&lt;/span&gt;
-	&lt;span class=&#34;nx&#34;&gt;DisconnectSequence&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;quot;~.&amp;quot;&lt;/span&gt;
-&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
-
-&lt;span class=&#34;c1&#34;&gt;// Progress indicates transfer status&lt;/span&gt;
-&lt;span class=&#34;kd&#34;&gt;type&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;Progress&lt;/span&gt; &lt;span class=&#34;kd&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
-	&lt;span class=&#34;nx&#34;&gt;remoteAddr&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;net&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;Addr&lt;/span&gt;
-	&lt;span class=&#34;nx&#34;&gt;bytes&lt;/span&gt;      &lt;span class=&#34;kt&#34;&gt;uint64&lt;/span&gt;
-&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
-
-&lt;span class=&#34;kd&#34;&gt;func&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;TransferPackets&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;con&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;net&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;Conn&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
-	&lt;span class=&#34;nx&#34;&gt;c&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;make&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kd&#34;&gt;chan&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;Progress&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
-
-	&lt;span class=&#34;c1&#34;&gt;// Read from Reader and write to Writer until EOF.&lt;/span&gt;
-	&lt;span class=&#34;c1&#34;&gt;// ra is an address to whom packets must be sent in listen mode.&lt;/span&gt;
-	&lt;span class=&#34;nx&#34;&gt;copy&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt; &lt;span class=&#34;kd&#34;&gt;func&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;r&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;io&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;ReadCloser&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;w&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;io&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;WriteCloser&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;ra&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;net&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;Addr&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
-		&lt;span class=&#34;k&#34;&gt;defer&lt;/span&gt; &lt;span class=&#34;kd&#34;&gt;func&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
-			&lt;span class=&#34;nx&#34;&gt;r&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;Close&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
-			&lt;span class=&#34;nx&#34;&gt;w&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;Close&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
-		&lt;span class=&#34;p&#34;&gt;}()&lt;/span&gt;
-
-		&lt;span class=&#34;nx&#34;&gt;buf&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;make&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;([]&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;byte&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;BufferLimit&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
-		&lt;span class=&#34;nx&#34;&gt;bytes&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;uint64&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
-		&lt;span class=&#34;kd&#34;&gt;var&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;n&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt;
-		&lt;span class=&#34;kd&#34;&gt;var&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;error&lt;/span&gt;
-		&lt;span class=&#34;kd&#34;&gt;var&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;addr&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;net&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;Addr&lt;/span&gt;
-
-		&lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
-			&lt;span class=&#34;c1&#34;&gt;// Read&lt;/span&gt;
-			&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;con&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;ok&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;r&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.(&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;net&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;UDPConn&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;ok&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
-				&lt;span class=&#34;nx&#34;&gt;n&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;addr&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;con&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;ReadFrom&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;buf&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
-				&lt;span class=&#34;c1&#34;&gt;// In listen mode remote address is unknown until read from&lt;/span&gt;
-				&lt;span class=&#34;c1&#34;&gt;// connection. Inform caller function with this address.&lt;/span&gt;
-				&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;con&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;RemoteAddr&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;==&lt;/span&gt; &lt;span class=&#34;kc&#34;&gt;nil&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;ra&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;==&lt;/span&gt; &lt;span class=&#34;kc&#34;&gt;nil&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
-					&lt;span class=&#34;nx&#34;&gt;ra&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;addr&lt;/span&gt;
-					&lt;span class=&#34;nx&#34;&gt;c&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;lt;-&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;Progress&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;remoteAddr&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;ra&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
-				&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
-			&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;else&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
-				&lt;span class=&#34;nx&#34;&gt;n&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;r&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;Read&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;buf&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
-			&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
-			&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;!=&lt;/span&gt; &lt;span class=&#34;kc&#34;&gt;nil&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
-				&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;!=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;io&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;EOF&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
-					&lt;span class=&#34;nx&#34;&gt;log&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;Printf&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;[%s]: ERROR: %s\n&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;ra&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
-				&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
-				&lt;span class=&#34;k&#34;&gt;break&lt;/span&gt;
-			&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
-			&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;string&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;buf&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;n&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;])&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;==&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;DisconnectSequence&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
-				&lt;span class=&#34;k&#34;&gt;break&lt;/span&gt;
-			&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
-
-			&lt;span class=&#34;c1&#34;&gt;// Write&lt;/span&gt;
-			&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;con&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;ok&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;w&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.(&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;net&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;UDPConn&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;ok&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;con&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;RemoteAddr&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;==&lt;/span&gt; &lt;span class=&#34;kc&#34;&gt;nil&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
-				&lt;span class=&#34;c1&#34;&gt;// Connection remote address must be nil otherwise&lt;/span&gt;
-				&lt;span class=&#34;c1&#34;&gt;// &amp;quot;WriteTo with pre-connected connection&amp;quot; will be thrown&lt;/span&gt;
-				&lt;span class=&#34;nx&#34;&gt;n&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;con&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;WriteTo&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;buf&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;n&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;],&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;ra&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
-			&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;else&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
-				&lt;span class=&#34;nx&#34;&gt;n&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;w&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;Write&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;buf&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;n&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;])&lt;/span&gt;
-			&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
-			&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;!=&lt;/span&gt; &lt;span class=&#34;kc&#34;&gt;nil&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
-				&lt;span class=&#34;nx&#34;&gt;log&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;Printf&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;[%s]: ERROR: %s\n&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;ra&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
-				&lt;span class=&#34;k&#34;&gt;break&lt;/span&gt;
-			&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
-			&lt;span class=&#34;nx&#34;&gt;bytes&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;+=&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;uint64&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;n&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
-		&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
-		&lt;span class=&#34;nx&#34;&gt;c&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;lt;-&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;Progress&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;bytes&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;bytes&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
-	&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
-
-	&lt;span class=&#34;nx&#34;&gt;ra&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;con&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;RemoteAddr&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
-	&lt;span class=&#34;k&#34;&gt;go&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;copy&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;con&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;os&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;Stdout&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;ra&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
-	&lt;span class=&#34;c1&#34;&gt;// If connection hasn&amp;#39;t got remote address then wait for it from receiver goroutine&lt;/span&gt;
-	&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;ra&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;==&lt;/span&gt; &lt;span class=&#34;kc&#34;&gt;nil&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
-		&lt;span class=&#34;nx&#34;&gt;p&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;lt;-&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;c&lt;/span&gt;
-		&lt;span class=&#34;nx&#34;&gt;ra&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;p&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;remoteAddr&lt;/span&gt;
-		&lt;span class=&#34;nx&#34;&gt;log&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;Printf&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;[%s]: Datagram has been received\n&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;ra&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
-	&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
-	&lt;span class=&#34;k&#34;&gt;go&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;copy&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;os&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;Stdin&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;con&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;ra&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
-
-	&lt;span class=&#34;nx&#34;&gt;p&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;lt;-&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;c&lt;/span&gt;
-	&lt;span class=&#34;nx&#34;&gt;log&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;Printf&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;[%s]: Connection has been closed, %d bytes has been received\n&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;ra&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;p&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;bytes&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
-	&lt;span class=&#34;nx&#34;&gt;p&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;lt;-&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;c&lt;/span&gt;
-	&lt;span class=&#34;nx&#34;&gt;log&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;Printf&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;[%s]: Local peer has been stopped, %d bytes has been sent\n&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;ra&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;p&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;bytes&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
-&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;/p&gt;
-
-&lt;p&gt;Links:&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://github.com/dddpaul/gonc&#34;&gt;Simple Netcat tool written in Go (gonc)&lt;/a&gt; - gonc Github project&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://www.minaandrawos.com/2016/05/14/udp-vs-tcp-in-golang/&#34;&gt;Implementing UDP vs TCP in Golang&lt;/a&gt; - Golang TCP/UDP tips and tricks&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://betabug.nl/golang-bits-and-pieces-io-with-readers-and-writers/&#34;&gt;Golang bits and pieces: IO with readers and writers&lt;/a&gt; - Readers and Writers everywhere&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://medium.com/@benbjohnson/go-walkthrough-io-package-8ac5e95a9fbd&#34;&gt;Go Walkthrough: io package&lt;/a&gt; - Tips and bits of Go io package&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://habrahabr.ru/post/306914/&#34;&gt;Разбираемся в Go: пакет io&lt;/a&gt; - Previous article translated&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://github.com/yanzay/netcat&#34;&gt;Simple netcat on go&lt;/a&gt; - Another Netcat implementation&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://www.joyent.com/blog/tcp-puzzlers&#34;&gt;TCP Puzzlers&lt;/a&gt; - TCP connection tricky parts&lt;/li&gt;
-&lt;/ul&gt;
-</description>
+      <description>It&amp;rsquo;s spectacularly simple to implement TCP Netcat in Go thanks to io.Copy.
+type Progress struct { bytes uint64 } func TransferStreams(con net.Conn) { c := make(chan Progress) // Read from Reader and write to Writer until EOF 	copy := func(r io.ReadCloser, w io.WriteCloser) { defer func() { r.Close() w.Close() }() n, _ := io.Copy(w, r) c &amp;lt;- Progress{bytes: uint64(n)} } go copy(con, os.Stdout) go copy(os.Stdin, con) p := &amp;lt;-c log.</description>
     </item>
     
     <item>
@@ -416,22 +51,8 @@ server {
       <pubDate>Tue, 02 Aug 2016 15:45:00 +0300</pubDate>
       
       <guid>https://dddpaul.github.io/blog/2016/08/02/docker-network-swarm-links/</guid>
-      <description>&lt;p&gt;Some useful articles &amp;amp; videos about modern networking in Docker:&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://github.com/docker/libnetwork/blob/master/docs/macvlan.md&#34;&gt;Macvlan Driver&lt;/a&gt; - Docker Macvlan driver is out of experimental in Docker 1.12.&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://networkstatic.net/configuring-macvlan-ipvlan-linux-networking/&#34;&gt;Configuring Macvlan and Ipvlan Linux Networking&lt;/a&gt; - What Docker Macvlan driver does under the hood.&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://github.com/lowescott/2016-dnf-materials&#34;&gt;Materials for 2016 DevOps Networking Forum (DNF) Presentation&lt;/a&gt; - Slides about Docker networking with Ansible playbooks.&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://habrahabr.ru/company/badoo/blog/304702/&#34;&gt;Видео докладов с Docker митапа&lt;/a&gt; - Особо интересен доклад Константина Назарова &amp;ldquo;Каждому контейнеру по IP&amp;rdquo; (на русском).&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;Swarm mode was presented in Docker 1.12:&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://blog.docker.com/2016/07/docker-built-in-orchestration-ready-for-production-docker-1-12-goes-ga/&#34;&gt;Docker Built-In Orchestration Ready For Production: Docker 1.12 Goes GA&lt;/a&gt; - Post from Docker blog about Swarm mode release. It contains some links to the videos.&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://blog.hypriot.com/post/more-microservice-bliss-with-docker-1-12/&#34;&gt;More Microservices Bliss with Docker 1.12 and Swarm only&lt;/a&gt; - Seems like &lt;a href=&#34;https://traefik.io/&#34;&gt;Traefik&lt;/a&gt; can be partially replaced with Docker 1.12. routing mesh.&lt;/li&gt;
-&lt;/ul&gt;
-</description>
+      <description>Some useful articles &amp;amp; videos about modern networking in Docker:
+ Macvlan Driver - Docker Macvlan driver is out of experimental in Docker 1.12. Configuring Macvlan and Ipvlan Linux Networking - What Docker Macvlan driver does under the hood. Materials for 2016 DevOps Networking Forum (DNF) Presentation - Slides about Docker networking with Ansible playbooks. Видео докладов с Docker митапа - Особо интересен доклад Константина Назарова &amp;ldquo;Каждому контейнеру по IP&amp;rdquo; (на русском).</description>
     </item>
     
     <item>
@@ -440,34 +61,10 @@ server {
       <pubDate>Tue, 28 Jul 2015 10:45:00 +0300</pubDate>
       
       <guid>https://dddpaul.github.io/blog/2015/07/28/firewalld-zones/</guid>
-      <description>&lt;p&gt;As you can expect from &lt;a href=&#34;http://linuxmanpages.net/manpages/fedora20/man1/firewall-cmd.1.html&#34;&gt;man firewall-cmd&lt;/a&gt; interface binding to zone other than default (public) could be achieved with the following command sequence:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;firewall-cmd --zone public --remove-interface eth1 --permanent
-firewall-cmd --zone internal --add-interface eth1 --permanent
-firewall-cmd --reload
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Seems like it&amp;rsquo;s done:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;firewall-cmd --get-zone-of-interface=eth1
-internal
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;But after firewalld restart or server reboot things aren&amp;rsquo;t so bright:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;firewall-cmd --get-zone-of-interface=eth1
-public
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;The reason is in this &lt;a href=&#34;https://bugs.centos.org/view.php?id=7526&#34;&gt;CentOS-7 bug&lt;/a&gt;. The only workaround is to specify zone in &lt;em&gt;/etc/sysconfig/network-scripts/ifcfg-eth1&lt;/em&gt; file:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;TYPE=Ethernet
-NAME=&amp;quot;eth1&amp;quot;
-IPADDR=x.x.x.x
-...
-ZONE=internal
-&lt;/code&gt;&lt;/pre&gt;
-</description>
+      <description>As you can expect from man firewall-cmd interface binding to zone other than default (public) could be achieved with the following command sequence:
+firewall-cmd --zone public --remove-interface eth1 --permanent firewall-cmd --zone internal --add-interface eth1 --permanent firewall-cmd --reload  Seems like it&amp;rsquo;s done:
+firewall-cmd --get-zone-of-interface=eth1 internal  But after firewalld restart or server reboot things aren&amp;rsquo;t so bright:
+firewall-cmd --get-zone-of-interface=eth1 public  The reason is in this CentOS-7 bug. The only workaround is to specify zone in /etc/sysconfig/network-scripts/ifcfg-eth1 file:</description>
     </item>
     
     <item>
@@ -476,193 +73,9 @@ ZONE=internal
       <pubDate>Fri, 14 Nov 2014 16:04:00 +0000</pubDate>
       
       <guid>https://dddpaul.github.io/blog/2014/11/14/motion-remote-control/</guid>
-      <description>&lt;p&gt;Цель — сделать удобное управление для сервачка с системой motion detection.  В качестве сервера пригодился классический нетбук Asus Eee PC 701 4-х гигабайтным SSD на борту. На него была установлена Ubuntu 14.04.&lt;/p&gt;
-
-&lt;p&gt;Задачи:&lt;/p&gt;
-
-&lt;ol&gt;
-&lt;li&gt;Собственно, motion detection (для этого был использован &lt;a href=&#34;http://www.lavrsen.dk/foswiki/bin/view/Motion/WebHome&#34;&gt;Motion&lt;/a&gt;).&lt;/li&gt;
-&lt;li&gt;Управление настройками Motion через ИК-пульт.&lt;/li&gt;
-&lt;li&gt;Вывод всех сообщений от Motion и сигналов от пульта на консоль (&lt;em&gt;/dev/tty1&lt;/em&gt;).&lt;/li&gt;
-&lt;li&gt;Минимальное время работы экрана (быстрый переход в энергосберегающйй режим, просыпание по сигналу от пульта).&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;p&gt;&lt;strong&gt;1.&lt;/strong&gt; Motion ставится элементарно — &lt;code&gt;apt-get install motion&lt;/code&gt;. Важные настройки:&lt;/p&gt;
-
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;c&#34;&gt;# Максимальный fps&lt;/span&gt;
-framerate 5
-
-&lt;span class=&#34;c&#34;&gt;# Снимать на максимальном fps только во время движения&lt;/span&gt;
-webcam_motion on
-
-&lt;span class=&#34;c&#34;&gt;# Выкрутил в максимум, чтобы избежать срабатывания на включение света&lt;/span&gt;
-lightswitch 100
-
-&lt;span class=&#34;c&#34;&gt;# Кол-во кадров с движением, необходимых для генерации события&lt;/span&gt;
-minimum_motion_frames 3
-
-&lt;span class=&#34;c&#34;&gt;# Записать кадры до движения&lt;/span&gt;
-pre_capture 5
-
-&lt;span class=&#34;c&#34;&gt;# Записать кадры после движения&lt;/span&gt;
-post_capture 5
-
-&lt;span class=&#34;c&#34;&gt;# Маска для определения области детекции, легко делается в Gimp&amp;#39;е из снимка с камеры.&lt;/span&gt;
-&lt;span class=&#34;c&#34;&gt;# Области, закрашенные черным, игнорируются.&lt;/span&gt;
-mask_file /path/to/mask.pgm
-
-&lt;span class=&#34;c&#34;&gt;# Время определения окончания движения (если за 15 секунд после начала движения&lt;/span&gt;
-&lt;span class=&#34;c&#34;&gt;# не было никаких поползновений, то считаем, что событие-движение закончилось)&lt;/span&gt;
-gap 15
-
-&lt;span class=&#34;c&#34;&gt;# Отключить создание снимков&lt;/span&gt;
-output_normal off
-
-&lt;span class=&#34;c&#34;&gt;# Обозначать движение прямоугольником &lt;/span&gt;
-locate on
-
-&lt;span class=&#34;c&#34;&gt;# Запуск скрипта по началу движения (это симлимк, который указывает на реальный скрипт).&lt;/span&gt;
-&lt;span class=&#34;c&#34;&gt;# Изменение симлинка осущестляется по команде с пульта (см. п. 2 про конфиг) &lt;/span&gt;
-on_event_start &lt;span class=&#34;s2&#34;&gt;&amp;quot;/etc/motion/handlers/on_event_start&amp;quot;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;p&gt;Для подгонки чувствительности, порога шумов и т.д., нужно использовать setup mode, который активируется при запуске &lt;code&gt;
-motion -s&lt;/code&gt;.&lt;/p&gt;
-
-&lt;p&gt;При этом в mjpeg-трансляции область детекции будет обозначена черным, шумы — серым, а распознанное движение — синим.&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;2.&lt;/strong&gt; Для управления нетбуком был использован &lt;a href=&#34;http://www.dx.com/p/multimedia-ir-remote-controller-with-usb-receiver-for-pc-1-cr2025-26368#.VGYO33WUe24&#34;&gt;ИК-пульт с USB-приемником&lt;/a&gt;. Подобные пульты есть и на aliexpress, и ebay. USB-приемник эмулирует HID-устройство, по сути — обычную клавиатуру.&lt;/p&gt;
-
-&lt;p&gt;Для работы с символьными устройствами ввода в Linux есть подсистема &lt;a href=&#34;http://en.wikipedia.org/wiki/Evdev&#34;&gt;evdev&lt;/a&gt;. Потестить распознавание сигналов с пульта можно с помощью утилиты &lt;a href=&#34;http://manpages.ubuntu.com/manpages/trusty/man1/evtest.1.html&#34;&gt;evtest&lt;/a&gt;.&lt;/p&gt;
-
-&lt;p&gt;На гитхабе нашелся &lt;a href=&#34;https://github.com/gvalkov/golang-evdev&#34;&gt;пакет для работы с evdev на Go&lt;/a&gt;. Проект больше не поддерживается, так что я отфоркался от &lt;a href=&#34;https://github.com/ungerik/golang-evdev&#34;&gt;более свежего форка&lt;/a&gt; и сделал rebase на ядро Ubuntu 14.04 (3.13.0-39-generic на данный момент):&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;cd evdev
-make ecodes.go
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Поверх golang-evdev я написал &lt;a href=&#34;https://github.com/dddpaul/go-evhandler&#34;&gt;evhandler&lt;/a&gt;. Эта программа запускается от root&amp;rsquo;а и слушает события от input device, указанного в конфиге (как правило, &lt;em&gt;/etc/evhandler.toml&lt;/em&gt;).  Мой конфиг:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;[params]
-    device = &amp;quot;/dev/input/eventXXX&amp;quot;
-
-[actions]
-    KEY_STOPCD = &amp;quot;service motion stop&amp;quot;
-    KEY_PLAYPAUSE = &amp;quot;service motion start&amp;quot;
-    KEY_PAGEUP = &amp;quot;/etc/motion/handlers/handler-select up&amp;quot;
-    KEY_PAGEDOWN = &amp;quot;/etc/motion/handlers/handler-select down&amp;quot;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;В разделе &lt;em&gt;actions&lt;/em&gt; на кнопки пульта вешаются команды: остановка и запуск motion, и выбор скрипта, который будет запущен при детекции движения. Скрипт &lt;em&gt;handler-select&lt;/em&gt; &amp;ldquo;передвигает&amp;rdquo; симлинк &lt;em&gt;on_event_start&lt;/em&gt; вверх/вниз, устанавливая, таким образом, реальный скрипт, который будет запускаться. Коллекцию этих скриптов я выложил в &lt;a href=&#34;https://github.com/dddpaul/motion-handlers&#34;&gt;отдельный проект&lt;/a&gt;.&lt;/p&gt;
-
-&lt;p&gt;Для чтения и парсинга конфигов я использовал пакет &lt;a href=&#34;http://spf13.com/project/viper&#34;&gt;Viper&lt;/a&gt;. Это очень классная либа от автора &lt;a href=&#34;http://gohugo.io/&#34;&gt;Hugo&lt;/a&gt;, которая умеет:&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;парсить YAML, TOML и JSON;&lt;/li&gt;
-&lt;li&gt;искать конфиги в разных местах (например, сначала в $HOME, а потом в &lt;em&gt;/etc&lt;/em&gt;);&lt;/li&gt;
-&lt;li&gt;устанавливать значение по-умолчанию и переопределять значения из конфига значениями из CLI.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;&lt;strong&gt;3.&lt;/strong&gt; Имя устройства неплохо бы зафиксировать, т.к. оно назначается udev&amp;rsquo;ом и может меняться при перетыках из порта в порт, а также при перезагрузках. Но для начала надо узнать текущее имя устройства.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;# lsusb
-...
-Bus 003 Device 002: ID 073a:2230 Chaplet Systems, Inc. infrared dongle for remote
-
-# evtest 2&amp;gt;&amp;amp;1 | grep &amp;quot;073a:2230&amp;quot;
-/dev/input/event10:	HID 073a:2230
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Итак, имя устройства в системе — &lt;em&gt;/dev/input/event10&lt;/em&gt;. Получим необходимую информацию для построения udev-правила:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;# udevadm info -a -p $(udevadm info -q path -n /dev/input/event10)
-...
-  looking at device &#39;/devices/pci0000:00/0000:00:1d.1/usb3/3-2/3-2:1.0/input/input12/event10&#39;:
-    KERNEL==&amp;quot;event10&amp;quot;
-    SUBSYSTEM==&amp;quot;input&amp;quot;
-    DRIVER==&amp;quot;&amp;quot;
-
-  looking at parent device &#39;/devices/pci0000:00/0000:00:1d.1/usb3/3-2/3-2:1.0/input/input12&#39;:
-    KERNELS==&amp;quot;input12&amp;quot;
-    SUBSYSTEMS==&amp;quot;input&amp;quot;
-    DRIVERS==&amp;quot;&amp;quot;
-    ATTRS{name}==&amp;quot;HID 073a:2230&amp;quot;
-...
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Теперь можно навесить на устройство фиксированный симлинк:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;# cat &amp;gt; /etc/udev/rules.d/10-local.rules
-KERNEL==&amp;quot;event*&amp;quot;, SUBSYSTEM==&amp;quot;input&amp;quot;, ATTRS{name}==&amp;quot;HID 073a:2230&amp;quot;, SYMLINK+=&amp;quot;input/event100&amp;quot;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Для проверки нужно воспользоваться командой &lt;code&gt;udevadm trigger&lt;/code&gt; или перезагрузиться. Даже если исходное имя устройства изменится (например, на &lt;em&gt;/dev/input/event11&lt;/em&gt;), наш симлинк &lt;em&gt;/dev/input/event100&lt;/em&gt; будет указывать на него.&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;4.&lt;/strong&gt; evhandler должен использовать в качестве стандартного вывода &lt;em&gt;/dev/tty1&lt;/em&gt;. Сделать это очень просто.&lt;/p&gt;
-
-&lt;p&gt;Сначала отключим ввод с &lt;em&gt;/dev/tty1&lt;/em&gt; — &lt;code&gt;rm /etc/init/tty1.conf&lt;/code&gt;.&lt;/p&gt;
-
-&lt;p&gt;И создадим новый upstart job в &lt;em&gt;/etc/init/evhandler.conf&lt;/em&gt;:&lt;/p&gt;
-
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;c&#34;&gt;# evhandler - Simple key press listener and handler written in Go&lt;/span&gt;
-
-start on runlevel &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;2345&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
-stop on runlevel &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;!2345&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
-
-respawn
-
-&lt;span class=&#34;nb&#34;&gt;exec&lt;/span&gt; /path/to/go-evhandler &amp;gt; /dev/tty1 2&amp;gt;&lt;span class=&#34;p&#34;&gt;&amp;amp;&lt;/span&gt;1
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;p&gt;Теперь evhandler будет запускаться при загрузке, а также перезапускаться, если его процесс будет прибит. Для ручного запуска — &lt;code&gt;
-start evhandler&lt;/code&gt;.&lt;/p&gt;
-
-&lt;ol&gt;
-&lt;li&gt;Управлять включением энергосберегающего режима (а именно, гашением экрана) можно з-мя способами:&lt;/li&gt;
-&lt;li&gt;указать &lt;code&gt;consoleblank=sss&lt;/code&gt; (где sss - секунды) в параметрах ядра (&lt;em&gt;GRUB_CMDLINE_LINUX&lt;/em&gt; в &lt;em&gt;/etc/default/grub&lt;/em&gt;);&lt;/li&gt;
-&lt;li&gt;использовать команду &lt;code&gt;setterm -blank mm&lt;/code&gt; (где mm - минуты), для включения — &lt;code&gt;setterm -blank poke&lt;/code&gt;;&lt;/li&gt;
-&lt;li&gt;использовать специальные ESC-последовательности в команде &lt;code&gt;echo&lt;/code&gt;.&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;p&gt;&lt;code&gt;consoleblank&lt;/code&gt; давал странный эффект - после загрузки системы экран становился пустым, но было видно, что подсветка работает. При нажатии клавиш он загорался и полностью погасал через заданное время.&lt;/p&gt;
-
-&lt;p&gt;&lt;code&gt;setterm&lt;/code&gt; через ssh у меня как-то не заработал.&lt;/p&gt;
-
-&lt;p&gt;И только управляющая ESC-последовательность для терминала подошла отлично — &lt;code&gt;echo -e &#39;\033[9;X]&lt;/code&gt; (где X - минуты).&lt;/p&gt;
-
-&lt;p&gt;Для автоматического запуска этой команды создадим job &lt;em&gt;/etc/init/tty1.conf&lt;/em&gt;:&lt;/p&gt;
-
-&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;c&#34;&gt;# tty1 - getty&lt;/span&gt;
-&lt;span class=&#34;c&#34;&gt;#&lt;/span&gt;
-&lt;span class=&#34;c&#34;&gt;# This service is used to maintain a getty on tty1 from the point the system is&lt;/span&gt;
-&lt;span class=&#34;c&#34;&gt;# started until it is shut down again.&lt;/span&gt;
-
-start on stopped rc &lt;span class=&#34;nv&#34;&gt;RUNLEVEL&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=[&lt;/span&gt;2345&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; and &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;
-            not-container or
-            container &lt;span class=&#34;nv&#34;&gt;CONTAINER&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;lxc or
-            container &lt;span class=&#34;nv&#34;&gt;CONTAINER&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;lxc-libvirt&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
-
-stop on runlevel &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;!2345&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
-
-&lt;span class=&#34;c&#34;&gt;# Blank screen after 1 minute timeout&lt;/span&gt;
-&lt;span class=&#34;c&#34;&gt;# See http://www.armadeus.com/wiki/index.php?title=FrameBuffer&lt;/span&gt;
-&lt;span class=&#34;nb&#34;&gt;exec echo&lt;/span&gt; -ne &lt;span class=&#34;s2&#34;&gt;&amp;quot;\033[9;1]&amp;quot;&lt;/span&gt; &amp;gt; /dev/tty1
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;/p&gt;
-
-&lt;p&gt;Ссылки:&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://github.com/dddpaul/go-evhandler&#34;&gt;Evhandler : Simple key press listener and handler written in Go&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://spf13.com/project/viper&#34;&gt;Viper : Go Configuration Management With Fangs&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://superuser.com/a/154388&#34;&gt;Change Linux console screen blanking behavior&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://raspberrypi.stackexchange.com/questions/10374/wake-console-screen-with-ssh&#34;&gt;Wake console screen with SSH&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://www.armadeus.com/wiki/index.php?title=FrameBuffer&#34;&gt;ArmadeusWiki - Framebuffer&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://wiki.archlinux.org/index.php/Udev#Writing_udev_rules&#34;&gt;Writing udev rules&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-</description>
+      <description>Цель — сделать удобное управление для сервачка с системой motion detection. В качестве сервера пригодился классический нетбук Asus Eee PC 701 4-х гигабайтным SSD на борту. На него была установлена Ubuntu 14.04.
+Задачи:
+ Собственно, motion detection (для этого был использован Motion). Управление настройками Motion через ИК-пульт. Вывод всех сообщений от Motion и сигналов от пульта на консоль (/dev/tty1). Минимальное время работы экрана (быстрый переход в энергосберегающйй режим, просыпание по сигналу от пульта).</description>
     </item>
     
   </channel>

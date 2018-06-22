@@ -1,27 +1,31 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-us" lang="en-us">
 <head>
   <link href="http://gmpg.org/xfn/11" rel="profile">
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
-  <meta name="generator" content="Hugo 0.16-DEV" />
+  <meta name="generator" content="Hugo 0.42" />
 
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
 
-  <title> Ansible: &#34;default&#34; and &#34;bool&#34; filters &middot; Dev notes </title>
+  <title>Ansible: &#34;default&#34; and &#34;bool&#34; filters &middot; Pavel Derendyaev notes</title>
 
   
-  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/poole.css">
-  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/syntax.css">
-  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/hyde.css">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
+  <link type="text/css" rel="stylesheet" href="https://dddpaul.github.io/blog/css/print.css" media="print">
+  <link type="text/css" rel="stylesheet" href="https://dddpaul.github.io/blog/css/poole.css">
+  <link type="text/css" rel="stylesheet" href="https://dddpaul.github.io/blog/css/syntax.css">
+  <link type="text/css" rel="stylesheet" href="https://dddpaul.github.io/blog/css/hyde.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Abril+Fatface|PT+Sans:400,400i,700">
+
 
   
   <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144-precomposed.png">
   <link rel="shortcut icon" href="/favicon.png">
 
   
-  <link href="" rel="alternate" type="application/rss+xml" title="Dev notes" />
+  <link href="" rel="alternate" type="application/rss+xml" title="Pavel Derendyaev notes" />
+
+  
 </head>
 
 <body>
@@ -29,9 +33,9 @@
 <div class="sidebar">
     <div class="container sidebar-sticky">
         <div class="sidebar-about">
-            <h1>Dev notes</h1>
+            <h1>Pavel Derendyaev notes</h1>
             <p class="lead">
-                 Notes about Android, Java, JavaScript, Go and other technical stuff 
+                   
             </p>
         </div>
 
@@ -84,7 +88,7 @@
             
         </ul>
 
-        <p>&copy; 2016. All rights reserved. </p>
+        <p>&copy; 2018. All rights reserved. </p>
     </div>
 </div>
 
@@ -113,140 +117,130 @@
 
 <p>First of all, <code>d</code> is an alias for <code>default</code>, and <code>default</code> filter is defined in <a href="https://github.com/mitsuhiko/jinja2/blob/master/jinja2/filters.py">jinja2/filters.py</a>:</p>
 
-<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">do_default</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">default_value</span><span class="o">=</span><span class="s">u&#39;&#39;</span><span class="p">,</span> <span class="n">boolean</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;If the value is undefined it will return the passed default value,</span>
-<span class="sd">    otherwise the value of the variable:</span>
-
-<span class="sd">    .. sourcecode:: jinja</span>
-
-<span class="sd">        {{ my_variable|default(&#39;my_variable is not defined&#39;) }}</span>
-
-<span class="sd">    This will output the value of ``my_variable`` if the variable was</span>
-<span class="sd">    defined, otherwise ``&#39;my_variable is not defined&#39;``. If you want</span>
-<span class="sd">    to use default with variables that evaluate to false you have to</span>
-<span class="sd">    set the second parameter to `true`:</span>
-
-<span class="sd">    .. sourcecode:: jinja</span>
-
-<span class="sd">        {{ &#39;&#39;|default(&#39;the string was empty&#39;, true) }}</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">do_default</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">default_value</span><span class="o">=</span><span class="sa">u</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">boolean</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+    <span class="s2">&#34;&#34;&#34;If the value is undefined it will return the passed default value,
+</span><span class="s2">    otherwise the value of the variable:
+</span><span class="s2">
+</span><span class="s2">    .. sourcecode:: jinja
+</span><span class="s2">
+</span><span class="s2">        {{ my_variable|default(&#39;my_variable is not defined&#39;) }}
+</span><span class="s2">
+</span><span class="s2">    This will output the value of ``my_variable`` if the variable was
+</span><span class="s2">    defined, otherwise ``&#39;my_variable is not defined&#39;``. If you want
+</span><span class="s2">    to use default with variables that evaluate to false you have to
+</span><span class="s2">    set the second parameter to `true`:
+</span><span class="s2">
+</span><span class="s2">    .. sourcecode:: jinja
+</span><span class="s2">
+</span><span class="s2">        {{ &#39;&#39;|default(&#39;the string was empty&#39;, true) }}
+</span><span class="s2">    &#34;&#34;&#34;</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Undefined</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">boolean</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">value</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">default_value</span>
-    <span class="k">return</span> <span class="n">value</span>
-</code></pre></div>
-
+    <span class="k">return</span> <span class="n">value</span></code></pre></div>
 
 <p>So, the default &ldquo;default value&rdquo; is an empty string.</p>
 
-<h3 id="var-d-test:df8aec350edd46b4d7f3e3e66fee95bc">&ldquo;var | d()&rdquo; test</h3>
+<h3 id="var-d-test">&ldquo;var | d()&rdquo; test</h3>
 
 <p>With <code>default</code> filter:
-<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Template</span>
-<span class="n">tmpl</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s">&#39;{{ var | d() }}&#39;</span><span class="p">)</span>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Template</span>
+<span class="n">tmpl</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s1">&#39;{{ var | d() }}&#39;</span><span class="p">)</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">()</span>
-                                  <span class="c"># An empty string</span>
+                                  <span class="c1"># An empty string</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
 <span class="bp">None</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">)</span>
-                                  <span class="c"># An empty string</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39;abc&#39;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+                                  <span class="c1"># An empty string</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s1">&#39;abc&#39;</span><span class="p">)</span>
 <span class="n">abc</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39; &#39;</span><span class="p">)</span>
-                                  <span class="c"># A space</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+                                  <span class="c1"># A space</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">[])</span>
 <span class="p">[]</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;list&#39;</span><span class="p">])</span>
-<span class="p">[</span><span class="s">&#39;list&#39;</span><span class="p">]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;list&#39;</span><span class="p">])</span>
+<span class="p">[</span><span class="s1">&#39;list&#39;</span><span class="p">]</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">{})</span>
 <span class="p">{}</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;key&#39;</span><span class="p">:</span> <span class="s">&#39;value&#39;</span><span class="p">})</span>
-<span class="p">{</span><span class="s">&#39;key&#39;</span><span class="p">:</span> <span class="s">&#39;value&#39;</span><span class="p">}</span>
-</code></pre></div>
-</p>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;key&#39;</span><span class="p">:</span> <span class="s1">&#39;value&#39;</span><span class="p">})</span>
+<span class="p">{</span><span class="s1">&#39;key&#39;</span><span class="p">:</span> <span class="s1">&#39;value&#39;</span><span class="p">}</span></code></pre></div></p>
 
 <p>Without <code>default</code> filter:
-<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Template</span>
-<span class="n">tmpl</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s">&#39;{{ var }}&#39;</span><span class="p">)</span>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Template</span>
+<span class="n">tmpl</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s1">&#39;{{ var }}&#39;</span><span class="p">)</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">()</span>
-                                  <span class="c"># An empty string</span>
+                                  <span class="c1"># An empty string</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
 <span class="bp">None</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">)</span>
-                                  <span class="c"># An empty string</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39;abc&#39;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+                                  <span class="c1"># An empty string</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s1">&#39;abc&#39;</span><span class="p">)</span>
 <span class="n">abc</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39; &#39;</span><span class="p">)</span>
-                                  <span class="c"># A space</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+                                  <span class="c1"># A space</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">[])</span>
 <span class="p">[]</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;list&#39;</span><span class="p">])</span>
-<span class="p">[</span><span class="s">&#39;list&#39;</span><span class="p">]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;list&#39;</span><span class="p">])</span>
+<span class="p">[</span><span class="s1">&#39;list&#39;</span><span class="p">]</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">{})</span>
 <span class="p">{}</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;key&#39;</span><span class="p">:</span> <span class="s">&#39;value&#39;</span><span class="p">})</span>
-<span class="p">{</span><span class="s">&#39;key&#39;</span><span class="p">:</span> <span class="s">&#39;value&#39;</span><span class="p">}</span>
-</code></pre></div>
-</p>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;key&#39;</span><span class="p">:</span> <span class="s1">&#39;value&#39;</span><span class="p">})</span>
+<span class="p">{</span><span class="s1">&#39;key&#39;</span><span class="p">:</span> <span class="s1">&#39;value&#39;</span><span class="p">}</span></code></pre></div></p>
 
 <p>Pretty same, eh?</p>
 
-<h3 id="str-d-bool-test:df8aec350edd46b4d7f3e3e66fee95bc">&ldquo;str | d() | bool&rdquo; test</h3>
+<h3 id="str-d-bool-test">&ldquo;str | d() | bool&rdquo; test</h3>
 
 <p>With <code>default</code> filter:
-<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Template</span>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Template</span>
 <span class="kn">from</span> <span class="nn">ansible.runner.filter_plugins.core</span> <span class="kn">import</span> <span class="nb">bool</span>
-<span class="n">Template</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">filters</span><span class="p">[</span><span class="s">&#39;bool&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">bool</span>
-<span class="n">tmpl</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s">&#39;{{ var | d() | bool }}&#39;</span><span class="p">)</span>
+<span class="n">Template</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">filters</span><span class="p">[</span><span class="s1">&#39;bool&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">bool</span>
+<span class="n">tmpl</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s1">&#39;{{ var | d() | bool }}&#39;</span><span class="p">)</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">()</span>
 <span class="bp">False</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
 <span class="bp">None</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
 <span class="bp">False</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39;abc&#39;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s1">&#39;abc&#39;</span><span class="p">)</span>
 <span class="bp">False</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39; &#39;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
 <span class="bp">False</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39;True&#39;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s1">&#39;True&#39;</span><span class="p">)</span>
 <span class="bp">True</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">[])</span>
 <span class="bp">False</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;list&#39;</span><span class="p">])</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;list&#39;</span><span class="p">])</span>
 <span class="bp">False</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">{})</span>
 <span class="bp">False</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;key&#39;</span><span class="p">:</span> <span class="s">&#39;value&#39;</span><span class="p">})</span>
-<span class="bp">False</span>
-</code></pre></div>
-</p>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;key&#39;</span><span class="p">:</span> <span class="s1">&#39;value&#39;</span><span class="p">})</span>
+<span class="bp">False</span></code></pre></div></p>
 
 <p>Without <code>default</code> filter:
-<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Template</span>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Template</span>
 <span class="kn">from</span> <span class="nn">ansible.runner.filter_plugins.core</span> <span class="kn">import</span> <span class="nb">bool</span>
-<span class="n">Template</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">filters</span><span class="p">[</span><span class="s">&#39;bool&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">bool</span>
-<span class="n">tmpl</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s">&#39;{{ var | bool }}&#39;</span><span class="p">)</span>
+<span class="n">Template</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">filters</span><span class="p">[</span><span class="s1">&#39;bool&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">bool</span>
+<span class="n">tmpl</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s1">&#39;{{ var | bool }}&#39;</span><span class="p">)</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">()</span>
 <span class="bp">False</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
 <span class="bp">None</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
 <span class="bp">False</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39;abc&#39;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s1">&#39;abc&#39;</span><span class="p">)</span>
 <span class="bp">False</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39; &#39;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
 <span class="bp">False</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39;True&#39;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s1">&#39;True&#39;</span><span class="p">)</span>
 <span class="bp">True</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">[])</span>
 <span class="bp">False</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;list&#39;</span><span class="p">])</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;list&#39;</span><span class="p">])</span>
 <span class="bp">False</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">{})</span>
 <span class="bp">False</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;key&#39;</span><span class="p">:</span> <span class="s">&#39;value&#39;</span><span class="p">})</span>
-<span class="bp">False</span>
-</code></pre></div>
-</p>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;key&#39;</span><span class="p">:</span> <span class="s1">&#39;value&#39;</span><span class="p">})</span>
+<span class="bp">False</span></code></pre></div></p>
 
 <p>Pretty same again. So, it seems that <code>default()</code> or <code>d()</code> usage in conditions has no sense at all.</p>
 
@@ -267,18 +261,16 @@
 
 <p>The <code>bool</code> filter is the part of <a href="https://github.com/ansible/ansible/blob/devel/lib/ansible/plugins/filter/core.py">Ansible plugins</a>:</p>
 
-<p><div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">bool</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39; return a bool for the arg &#39;&#39;&#39;</span>
+<p><div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">bool</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
+    <span class="s1">&#39;&#39;&#39; return a bool for the arg &#39;&#39;&#39;</span>
     <span class="k">if</span> <span class="n">a</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">==</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">a</span>
     <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="ow">in</span> <span class="n">types</span><span class="o">.</span><span class="n">StringTypes</span><span class="p">:</span>
         <span class="n">a</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">a</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&#39;yes&#39;</span><span class="p">,</span> <span class="s">&#39;on&#39;</span><span class="p">,</span> <span class="s">&#39;1&#39;</span><span class="p">,</span> <span class="s">&#39;true&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="n">a</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;yes&#39;</span><span class="p">,</span> <span class="s1">&#39;on&#39;</span><span class="p">,</span> <span class="s1">&#39;1&#39;</span><span class="p">,</span> <span class="s1">&#39;true&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">]:</span>
         <span class="k">return</span> <span class="bp">True</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">False</span>
-</code></pre></div>
-</p>
+        <span class="k">return</span> <span class="bp">False</span></code></pre></div></p>
 
 <p>You can clearly see from <code>bool</code> function implementation that <code>{% if docker_listen | d() | bool %}</code> results in <code>True</code> only if <code>docker_listen: True</code>. If <code>docker_listen</code> is an arbitrary string or a list (as expected) <code>{% if docker_listen | d() | bool %}</code> results in <code>False</code> always.</p>
 

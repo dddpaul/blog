@@ -1,27 +1,31 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-us" lang="en-us">
 <head>
   <link href="http://gmpg.org/xfn/11" rel="profile">
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
-  <meta name="generator" content="Hugo 0.16-DEV" />
+  <meta name="generator" content="Hugo 0.42" />
 
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
 
-  <title> Ansible: &#34;defined&#34; keyword &middot; Dev notes </title>
+  <title>Ansible: &#34;defined&#34; keyword &middot; Pavel Derendyaev notes</title>
 
   
-  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/poole.css">
-  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/syntax.css">
-  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/hyde.css">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
+  <link type="text/css" rel="stylesheet" href="https://dddpaul.github.io/blog/css/print.css" media="print">
+  <link type="text/css" rel="stylesheet" href="https://dddpaul.github.io/blog/css/poole.css">
+  <link type="text/css" rel="stylesheet" href="https://dddpaul.github.io/blog/css/syntax.css">
+  <link type="text/css" rel="stylesheet" href="https://dddpaul.github.io/blog/css/hyde.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Abril+Fatface|PT+Sans:400,400i,700">
+
 
   
   <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144-precomposed.png">
   <link rel="shortcut icon" href="/favicon.png">
 
   
-  <link href="" rel="alternate" type="application/rss+xml" title="Dev notes" />
+  <link href="" rel="alternate" type="application/rss+xml" title="Pavel Derendyaev notes" />
+
+  
 </head>
 
 <body>
@@ -29,9 +33,9 @@
 <div class="sidebar">
     <div class="container sidebar-sticky">
         <div class="sidebar-about">
-            <h1>Dev notes</h1>
+            <h1>Pavel Derendyaev notes</h1>
             <p class="lead">
-                 Notes about Android, Java, JavaScript, Go and other technical stuff 
+                   
             </p>
         </div>
 
@@ -84,7 +88,7 @@
             
         </ul>
 
-        <p>&copy; 2016. All rights reserved. </p>
+        <p>&copy; 2018. All rights reserved. </p>
     </div>
 </div>
 
@@ -136,18 +140,17 @@
 <p>At last, a quote from <a href="http://shop.oreilly.com/product/0636920035626.do">Ansible: Up And Running</a>, page 23:</p>
 
 <blockquote>
-<p>Ansible is pretty flexible on how you represent truthy and falsey values in playbooks. Strictly speaking, module arguments (like <code>update_cache=yes</code>) are treated differently from values elsewhere in playbooks (like <code>sudo: True</code>). Values elsewhere are handled by the YAML parser and so use the YAML conventions of truthiness, which are:</p>
-
-<p><em>YAML truthy:</em> true, True, TRUE, yes, Yes, YES, on, On, ON, y, Y</p>
-
-<p><em>YAML falsey:</em> false, False, FALSE, no, No, NO, off, Off, OFF, n, N</p>
-
-<p>Module arguments are passed as strings and use Ansible’s internal conventions, which are:</p>
-
-<p><em>module arg truthy:</em> yes, on, 1, true</p>
-
-<p><em>module arg falsey:</em> no, off, 0, false</p>
-</blockquote>
+<p>Ansible is pretty flexible on how you represent truthy and falsey values in playbooks. Strictly speaking, module arguments (like <code>update_cache=yes</code>) are treated differently from values elsewhere in playbooks (like <code>sudo: True</code>). Values elsewhere are handled by the YAML parser and so use the YAML conventions of truthiness, which are:
+&gt;
+&gt; <em>YAML truthy:</em> true, True, TRUE, yes, Yes, YES, on, On, ON, y, Y
+&gt;
+&gt; <em>YAML falsey:</em> false, False, FALSE, no, No, NO, off, Off, OFF, n, N
+&gt;
+&gt; Module arguments are passed as strings and use Ansible’s internal conventions, which are:
+&gt;
+&gt; <em>module arg truthy:</em> yes, on, 1, true
+&gt;
+&gt; <em>module arg falsey:</em> no, off, 0, false</p>
 
 <p>Why all of these are important? Because there are plenty of redundant <code>if</code> and <code>when</code> conditionals usage in Ansible playbooks and templates. For example in <a href="https://github.com/debops/ansible-nginx/blob/master/tasks/main.yml">debops/ansible-nginx</a>:</p>
 
@@ -166,6 +169,7 @@
   when: ((nginx_local_servers is defined and nginx_local_servers) and
          (item.0 is defined and item.0))
 </code></pre>
+</blockquote>
 
 <p>See that overbloated <code>when</code> condition? Wouldn&rsquo;t be that simpler with <code>when: nginx_local_servers and item.0</code>?</p>
 
@@ -173,70 +177,64 @@
 
 <p>It&rsquo;s all just mere words without proper testing, so let&rsquo;s test long version <code>var is defined and var</code>:</p>
 
-<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Template</span>
-<span class="n">tmpl</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s">&#39;{</span><span class="si">% i</span><span class="s">f var is defined and var %} True {</span><span class="si">% e</span><span class="s">lse %} False {</span><span class="si">% e</span><span class="s">ndif %}&#39;</span><span class="p">)</span>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Template</span>
+<span class="n">tmpl</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s1">&#39;{</span><span class="si">% i</span><span class="s1">f var is defined and var %} True {</span><span class="si">% e</span><span class="s1">lse %} False {</span><span class="si">% e</span><span class="s1">ndif %}&#39;</span><span class="p">)</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">()</span>
  <span class="bp">False</span> 
 <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
  <span class="bp">False</span> 
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
  <span class="bp">False</span> 
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39;abc&#39;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s1">&#39;abc&#39;</span><span class="p">)</span>
  <span class="bp">True</span> 
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39; &#39;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
  <span class="bp">True</span> 
 <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">[])</span>                                                                                                                                                                                                                                           
  <span class="bp">False</span> 
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;list&#39;</span><span class="p">])</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;list&#39;</span><span class="p">])</span>
  <span class="bp">True</span> 
 <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">{})</span>                                                                                                                                                                                                                                           
  <span class="bp">False</span> 
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;key&#39;</span><span class="p">:</span> <span class="s">&#39;value&#39;</span><span class="p">})</span>                                                                                                                                                                                                                             
- <span class="bp">True</span> 
-</code></pre></div>
-
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;key&#39;</span><span class="p">:</span> <span class="s1">&#39;value&#39;</span><span class="p">})</span>                                                                                                                                                                                                                             
+ <span class="bp">True</span> </code></pre></div>
 
 <p>And the short version — <code>var</code>:</p>
 
-<p><div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Template</span>
-<span class="n">tmpl</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s">&#39;{</span><span class="si">% i</span><span class="s">f var %} True {</span><span class="si">% e</span><span class="s">lse %} False {</span><span class="si">% e</span><span class="s">ndif %}&#39;</span><span class="p">)</span>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Template</span>
+<span class="n">tmpl</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s1">&#39;{</span><span class="si">% i</span><span class="s1">f var %} True {</span><span class="si">% e</span><span class="s1">lse %} False {</span><span class="si">% e</span><span class="s1">ndif %}&#39;</span><span class="p">)</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">()</span>
  <span class="bp">False</span> 
 <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
  <span class="bp">False</span> 
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
  <span class="bp">False</span> 
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39;abc&#39;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s1">&#39;abc&#39;</span><span class="p">)</span>
  <span class="bp">True</span> 
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39; &#39;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
  <span class="bp">True</span> 
 <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">[])</span>
  <span class="bp">False</span> 
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;list&#39;</span><span class="p">])</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;list&#39;</span><span class="p">])</span>
  <span class="bp">True</span> 
 <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">{})</span>
  <span class="bp">False</span> 
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;key&#39;</span><span class="p">:</span> <span class="s">&#39;value&#39;</span><span class="p">})</span>
- <span class="bp">True</span> 
-</code></pre></div>
-</p>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;key&#39;</span><span class="p">:</span> <span class="s1">&#39;value&#39;</span><span class="p">})</span>
+ <span class="bp">True</span> </code></pre></div>
 
 <p>So there are no differences at all. For the sake of thrust, let&rsquo;s test <code>var is defined</code>:</p>
 
-<p><div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Template</span>
-<span class="n">tmpl</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s">&#39;{</span><span class="si">% i</span><span class="s">f var is defined %} True {</span><span class="si">% e</span><span class="s">lse %} False {</span><span class="si">% e</span><span class="s">ndif %}&#39;</span><span class="p">)</span>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Template</span>
+<span class="n">tmpl</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s1">&#39;{</span><span class="si">% i</span><span class="s1">f var is defined %} True {</span><span class="si">% e</span><span class="s1">lse %} False {</span><span class="si">% e</span><span class="s1">ndif %}&#39;</span><span class="p">)</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">()</span>
  <span class="bp">False</span> 
 <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
  <span class="bp">True</span> 
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
  <span class="bp">True</span> 
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39;abc&#39;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s1">&#39;abc&#39;</span><span class="p">)</span>
  <span class="bp">True</span> 
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s">&#39; &#39;</span><span class="p">)</span>
- <span class="bp">True</span> 
-</code></pre></div>
-</p>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+ <span class="bp">True</span> </code></pre></div>
 
 <p>So just use <code>var</code> and not <code>var is defined and var</code>, Luke!</p>
 

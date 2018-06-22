@@ -1,27 +1,31 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-us" lang="en-us">
 <head>
   <link href="http://gmpg.org/xfn/11" rel="profile">
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
-  <meta name="generator" content="Hugo 0.16-DEV" />
+  <meta name="generator" content="Hugo 0.42" />
 
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
 
-  <title> Docker registry on Centos 7 &middot; Dev notes </title>
+  <title>Docker registry on Centos 7 &middot; Pavel Derendyaev notes</title>
 
   
-  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/poole.css">
-  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/syntax.css">
-  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/hyde.css">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
+  <link type="text/css" rel="stylesheet" href="https://dddpaul.github.io/blog/css/print.css" media="print">
+  <link type="text/css" rel="stylesheet" href="https://dddpaul.github.io/blog/css/poole.css">
+  <link type="text/css" rel="stylesheet" href="https://dddpaul.github.io/blog/css/syntax.css">
+  <link type="text/css" rel="stylesheet" href="https://dddpaul.github.io/blog/css/hyde.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Abril+Fatface|PT+Sans:400,400i,700">
+
 
   
   <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144-precomposed.png">
   <link rel="shortcut icon" href="/favicon.png">
 
   
-  <link href="" rel="alternate" type="application/rss+xml" title="Dev notes" />
+  <link href="" rel="alternate" type="application/rss+xml" title="Pavel Derendyaev notes" />
+
+  
 </head>
 
 <body>
@@ -29,9 +33,9 @@
 <div class="sidebar">
     <div class="container sidebar-sticky">
         <div class="sidebar-about">
-            <h1>Dev notes</h1>
+            <h1>Pavel Derendyaev notes</h1>
             <p class="lead">
-                 Notes about Android, Java, JavaScript, Go and other technical stuff 
+                   
             </p>
         </div>
 
@@ -84,7 +88,7 @@
             
         </ul>
 
-        <p>&copy; 2016. All rights reserved. </p>
+        <p>&copy; 2018. All rights reserved. </p>
     </div>
 </div>
 
@@ -100,48 +104,42 @@
 
 <p>Official <a href="https://docs.docker.com/engine/userguide/storagedriver/device-mapper-driver/">Device Mapper storage driver guide</a> recommends to use <a href="https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/6/html/Logical_Volume_Manager_Administration/thinprovisioned_volumes.html">thin pools</a> now. Use these commands to create thin-provisioned logical volumes:</p>
 
-<div class="highlight"><pre><code class="language-shell" data-lang="shell">pvcreate /dev/sdb1                 <span class="c"># Create physical volume</span>
-vgcreate docker /dev/sdb1          <span class="c"># Create volume group and add this physical volume to it</span>
-<span class="c"># Create logical volumes</span>
-lvcreate --wipesignatures y -n data docker -l 40%VG
-lvcreate --wipesignatures y -n registry docker -l 40%VG
-lvcreate --wipesignatures y -n metadata docker -l 2%VG
-<span class="c"># Convert data volume to thin pool&#39;s data volume</span>
-lvconvert -y --zero n -c 512K --thinpool docker/data --poolmetadata docker/metadata
-<span class="c"># Set thin pool autoextend features</span>
-cat &gt; /etc/lvm/profile/docker-data.profile
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">pvcreate /dev/sdb1                 <span class="c1"># Create physical volume
+</span><span class="c1"></span>vgcreate docker /dev/sdb1          <span class="c1"># Create volume group and add this physical volume to it
+</span><span class="c1"># Create logical volumes
+</span><span class="c1"></span>lvcreate --wipesignatures y -n data docker -l <span class="m">40</span>%VG
+lvcreate --wipesignatures y -n registry docker -l <span class="m">40</span>%VG
+lvcreate --wipesignatures y -n metadata docker -l <span class="m">2</span>%VG
+<span class="c1"># Convert data volume to thin pool&#39;s data volume
+</span><span class="c1"></span>lvconvert -y --zero n -c 512K --thinpool docker/data --poolmetadata docker/metadata
+<span class="c1"># Set thin pool autoextend features
+</span><span class="c1"></span>cat &gt; /etc/lvm/profile/docker-data.profile
 activation <span class="o">{</span>
-        <span class="nv">thin_pool_autoextend_threshold</span> <span class="o">=</span> 80
-        <span class="nv">thin_pool_autoextend_percent</span> <span class="o">=</span> 20
+        <span class="nv">thin_pool_autoextend_threshold</span> <span class="o">=</span> <span class="m">80</span>
+        <span class="nv">thin_pool_autoextend_percent</span> <span class="o">=</span> <span class="m">20</span>
 <span class="o">}</span>
 lvchange --metadataprofile docker-data docker/data
-<span class="c"># Check thin pool volume (must be monitored) </span>
-lvs -o+seg_monitor
+<span class="c1"># Check thin pool volume (must be monitored) 
+</span><span class="c1"></span>lvs -o+seg_monitor
   LV       VG     Attr       LSize   Pool Origin Data%  Meta%  Move Log Cpy%Sync Convert Monitor
-  root     centos -wi-ao---- 117,19g
-  swap     centos -wi-ao----   1,95g
-  data     docker twi-a-t---  16,00g             0,00   0,01                             monitored
-  registry docker -wi-a-----  16,00g
-</code></pre></div>
-
+  root     centos -wi-ao---- <span class="m">117</span>,19g
+  swap     centos -wi-ao----   <span class="m">1</span>,95g
+  data     docker twi-a-t---  <span class="m">16</span>,00g             <span class="m">0</span>,00   <span class="m">0</span>,01                             monitored
+  registry docker -wi-a-----  <span class="m">16</span>,00g</code></pre></div>
 
 <p>Or if you do not trust thin pools use more traditional (but deprecated in Docker) way:</p>
 
-<div class="highlight"><pre><code class="language-shell" data-lang="shell">pvcreate /dev/sdb1                 <span class="c"># Create physical volume</span>
-vgcreate docker /dev/sdb1          <span class="c"># Create volume group and add this physical volume to it</span>
-lvcreate -L 2G -n metadata docker  <span class="c"># Create logical volume for Docker metadata</span>
-lvcreate -L 15G -n data docker     <span class="c"># Create logical volume for Docker data (layers, containers etc)</span>
-lvcreate -L 15G -n registry docker <span class="c"># Create logical volume for Docker Registry data</span>
-</code></pre></div>
-
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">pvcreate /dev/sdb1                 <span class="c1"># Create physical volume
+</span><span class="c1"></span>vgcreate docker /dev/sdb1          <span class="c1"># Create volume group and add this physical volume to it
+</span><span class="c1"></span>lvcreate -L 2G -n metadata docker  <span class="c1"># Create logical volume for Docker metadata
+</span><span class="c1"></span>lvcreate -L 15G -n data docker     <span class="c1"># Create logical volume for Docker data (layers, containers etc)
+</span><span class="c1"></span>lvcreate -L 15G -n registry docker # Create logical volume <span class="k">for</span> Docker Registry data</code></pre></div>
 
 <p>Mount volume for Docker registry:</p>
 
-<div class="highlight"><pre><code class="language-shell" data-lang="shell">mkfs.xfs /dev/docker/registry
-<span class="nb">echo</span> <span class="s2">&quot;/dev/docker/registry /var/lib/docker-registry    xfs     defaults        1 3&quot;</span> &gt;&gt; /etc/fstab 
-mount -a
-</code></pre></div>
-
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">mkfs.xfs /dev/docker/registry
+<span class="nb">echo</span> <span class="s2">&#34;/dev/docker/registry /var/lib/docker-registry    xfs     defaults        1 3&#34;</span> &gt;&gt; /etc/fstab 
+mount -a</code></pre></div>
 
 <p>Check:</p>
 
@@ -165,49 +163,39 @@ sdb                                8:16   0    40G  0 disk
 
 <p>Create systemd drop-in file:</p>
 
-<p><div class="highlight"><pre><code class="language-shell" data-lang="shell">mkdir -p /etc/systemd/system/docker.service.d
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">mkdir -p /etc/systemd/system/docker.service.d
 cat &gt; /etc/systemd/system/docker.service.d/env.conf 
 <span class="o">[</span>Service<span class="o">]</span>
 <span class="nv">EnvironmentFile</span><span class="o">=</span>-/etc/sysconfig/docker
 <span class="nv">ExecStart</span><span class="o">=</span>
-<span class="nv">ExecStart</span><span class="o">=</span>/usr/bin/dockerd <span class="nv">$OPTIONS</span> <span class="nv">$DOCKER_NETWORK_OPTIONS</span> <span class="nv">$DOCKER_STORAGE_OPTIONS</span>
-</code></pre></div>
-</p>
+<span class="nv">ExecStart</span><span class="o">=</span>/usr/bin/dockerd <span class="nv">$OPTIONS</span> <span class="nv">$DOCKER_NETWORK_OPTIONS</span> <span class="nv">$DOCKER_STORAGE_OPTIONS</span></code></pre></div>
 
 <p>Specify Docker configuration:</p>
 
-<p><div class="highlight"><pre><code class="language-shell" data-lang="shell">cat &gt; /etc/sysconfig/docker 
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">cat &gt; /etc/sysconfig/docker 
 <span class="nv">OPTIONS</span><span class="o">=</span><span class="s1">&#39;--iptables=false&#39;</span>
 <span class="nv">DOCKER_NETWORK_OPTIONS</span><span class="o">=</span><span class="s1">&#39;&#39;</span>
-<span class="nv">DOCKER_STORAGE_OPTIONS</span><span class="o">=</span><span class="s1">&#39;--storage-driver=devicemapper --storage-opt dm.datadev=/dev/docker/data --storage-opt dm.metadatadev=/dev/docker/metadata&#39;</span>
-</code></pre></div>
-</p>
+<span class="nv">DOCKER_STORAGE_OPTIONS</span><span class="o">=</span><span class="s1">&#39;--storage-driver=devicemapper --storage-opt dm.datadev=/dev/docker/data --storage-opt dm.metadatadev=/dev/docker/metadata&#39;</span></code></pre></div>
 
 <p>Check:</p>
 
-<p><div class="highlight"><pre><code class="language-shell" data-lang="shell">systemctl daemon-reload
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">systemctl daemon-reload
 systemctl show docker <span class="p">|</span> grep EnvironmentFile
-<span class="nv">EnvironmentFile</span><span class="o">=</span>/etc/sysconfig/docker <span class="o">(</span><span class="nv">ignore_errors</span><span class="o">=</span>yes<span class="o">)</span>
-</code></pre></div>
-</p>
+<span class="nv">EnvironmentFile</span><span class="o">=</span>/etc/sysconfig/docker <span class="o">(</span><span class="nv">ignore_errors</span><span class="o">=</span>yes<span class="o">)</span></code></pre></div>
 
 <p>And run:</p>
 
-<p><div class="highlight"><pre><code class="language-shell" data-lang="shell">systemctl <span class="nb">enable </span>docker
-systemctl restart docker
-</code></pre></div>
-</p>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">systemctl <span class="nb">enable</span> docker
+systemctl restart docker</code></pre></div>
 
 <p>Check again:</p>
 
-<p><div class="highlight"><pre><code class="language-shell" data-lang="shell">docker info <span class="p">|</span> grep data
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">docker info <span class="p">|</span> grep data
  Data file: /dev/docker/data
  Metadata file: /dev/docker/metadata
  Metadata Space Used: <span class="m">639</span> kB
- Metadata Space Total: 2.147 GB
- Metadata Space Available: 2.147 GB
-</code></pre></div>
-</p>
+ Metadata Space Total: <span class="m">2</span>.147 GB
+ Metadata Space Available: <span class="m">2</span>.147 GB</code></pre></div>
 
 <p><strong>3.</strong> Obtain SSL certificate from Let&rsquo;s Encrypt</p>
 
@@ -219,7 +207,7 @@ systemctl restart docker
 
 <p>Create systemd unit:</p>
 
-<p><div class="highlight"><pre><code class="language-shell" data-lang="shell">cat &gt; /etc/systemd/system/docker-registry.service
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">cat &gt; /etc/systemd/system/docker-registry.service
 <span class="o">[</span>Unit<span class="o">]</span>
 <span class="nv">Description</span><span class="o">=</span>Docker registry container
 <span class="nv">Requires</span><span class="o">=</span>docker.service
@@ -227,23 +215,19 @@ systemctl restart docker
 
 <span class="o">[</span>Service<span class="o">]</span>
 <span class="nv">Restart</span><span class="o">=</span>always
-<span class="nv">ExecStartPre</span><span class="o">=</span>/usr/bin/docker create -p 5000:5000 -v /var/lib/docker-registry:/var/lib/registry -v /etc/pki/tls/lego/certificates:/certs -e <span class="nv">REGISTRY_HTTP_TLS_CERTIFICATE</span><span class="o">=</span>/certs/example.org.crt -e <span class="nv">REGISTRY_HTTP_TLS_KEY</span><span class="o">=</span>/certs/example.org.key --name registry registry:2
+<span class="nv">ExecStartPre</span><span class="o">=</span>/usr/bin/docker create -p <span class="m">5000</span>:5000 -v /var/lib/docker-registry:/var/lib/registry -v /etc/pki/tls/lego/certificates:/certs -e <span class="nv">REGISTRY_HTTP_TLS_CERTIFICATE</span><span class="o">=</span>/certs/example.org.crt -e <span class="nv">REGISTRY_HTTP_TLS_KEY</span><span class="o">=</span>/certs/example.org.key --name registry registry:2
 <span class="nv">ExecStart</span><span class="o">=</span>/usr/bin/docker start -a registry
 <span class="nv">ExecStop</span><span class="o">=</span>/usr/bin/docker stop -t <span class="m">5</span> registry
 <span class="nv">ExecStopPost</span><span class="o">=</span>/usr/bin/docker rm registry
 
 <span class="o">[</span>Install<span class="o">]</span>
-<span class="nv">WantedBy</span><span class="o">=</span>multi-user.target
-</code></pre></div>
-</p>
+<span class="nv">WantedBy</span><span class="o">=</span>multi-user.target</code></pre></div>
 
 <p><strong>5.</strong> Permit access to Docker registry only from trusted networks</p>
 
-<p><div class="highlight"><pre><code class="language-shell" data-lang="shell">firewall-cmd --zone<span class="o">=</span>trusted --add-port<span class="o">=</span>5000/tcp --permanent
-firewall-cmd --zone<span class="o">=</span>trusted --add-source<span class="o">=</span>192.168.1.0/24 --permanent
-firewall-cmd --reload
-</code></pre></div>
-</p>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">firewall-cmd --zone<span class="o">=</span>trusted --add-port<span class="o">=</span><span class="m">5000</span>/tcp --permanent
+firewall-cmd --zone<span class="o">=</span>trusted --add-source<span class="o">=</span><span class="m">192</span>.168.1.0/24 --permanent
+firewall-cmd --reload</code></pre></div>
 
 <p>Since Docker daemon was launched with <code>--iptables=false</code> option, Docker registry port may be accessed from trusted networks only.</p>
 

@@ -1,27 +1,31 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-us" lang="en-us">
 <head>
   <link href="http://gmpg.org/xfn/11" rel="profile">
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
-  <meta name="generator" content="Hugo 0.16-DEV" />
+  <meta name="generator" content="Hugo 0.42" />
 
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
 
-  <title> Выбор простого бэкапа для Windows &middot; Dev notes </title>
+  <title>Выбор простого бэкапа для Windows &middot; Pavel Derendyaev notes</title>
 
   
-  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/poole.css">
-  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/syntax.css">
-  <link rel="stylesheet" href="https://dddpaul.github.io/blog/css/hyde.css">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
+  <link type="text/css" rel="stylesheet" href="https://dddpaul.github.io/blog/css/print.css" media="print">
+  <link type="text/css" rel="stylesheet" href="https://dddpaul.github.io/blog/css/poole.css">
+  <link type="text/css" rel="stylesheet" href="https://dddpaul.github.io/blog/css/syntax.css">
+  <link type="text/css" rel="stylesheet" href="https://dddpaul.github.io/blog/css/hyde.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Abril+Fatface|PT+Sans:400,400i,700">
+
 
   
   <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144-precomposed.png">
   <link rel="shortcut icon" href="/favicon.png">
 
   
-  <link href="" rel="alternate" type="application/rss+xml" title="Dev notes" />
+  <link href="" rel="alternate" type="application/rss+xml" title="Pavel Derendyaev notes" />
+
+  
 </head>
 
 <body>
@@ -29,9 +33,9 @@
 <div class="sidebar">
     <div class="container sidebar-sticky">
         <div class="sidebar-about">
-            <h1>Dev notes</h1>
+            <h1>Pavel Derendyaev notes</h1>
             <p class="lead">
-                 Notes about Android, Java, JavaScript, Go and other technical stuff 
+                   
             </p>
         </div>
 
@@ -84,7 +88,7 @@
             
         </ul>
 
-        <p>&copy; 2016. All rights reserved. </p>
+        <p>&copy; 2018. All rights reserved. </p>
     </div>
 </div>
 
@@ -107,7 +111,7 @@
 
 <p>Не рассматриваются сложные распределенные (и дорогие) системы бэкапа. Один компьютер, одна программа или скрипт.</p>
 
-<h3 id="dublicati-http-www-duplicati-com:0a283e5b4c781814abe20e36e5fd4350"><a href="http://www.duplicati.com/">Dublicati</a></h3>
+<h3 id="dublicati-http-www-duplicati-com"><a href="http://www.duplicati.com/">Dublicati</a></h3>
 
 <p>Duplicati is a free backup client that securely stores encrypted, incremental, compressed backups on cloud storage services and remote file servers. It works with Amazon S3, Windows Live SkyDrive, Google Drive (Google Docs), Rackspace Cloud Files or WebDAV, SSH, FTP (and many more).</p>
 
@@ -140,7 +144,7 @@
 <li>субъективно низкая скорость работы.</li>
 </ul>
 
-<h3 id="cobian-backup-http-www-cobiansoft-com:0a283e5b4c781814abe20e36e5fd4350"><a href="http://www.cobiansoft.com/">Cobian Backup</a></h3>
+<h3 id="cobian-backup-http-www-cobiansoft-com"><a href="http://www.cobiansoft.com/">Cobian Backup</a></h3>
 
 <p>Рассматривалась версия 11.</p>
 
@@ -169,7 +173,7 @@
 <li>вообще, отличная программа, но отсутствие программы восстановления сводит все преимущества на нет - не руками же восстанавливать файлы из инкрементальных (разностных) архивов.</li>
 </ul>
 
-<h3 id="hardlink-backup-http-www-lupinho-net-hardlinkbackup:0a283e5b4c781814abe20e36e5fd4350"><a href="http://www.lupinho.net/hardlinkbackup/">Hardlink Backup</a></h3>
+<h3 id="hardlink-backup-http-www-lupinho-net-hardlinkbackup"><a href="http://www.lupinho.net/hardlinkbackup/">Hardlink Backup</a></h3>
 
 <p>Рассматривалась версия 2.1.1.</p>
 
@@ -200,7 +204,7 @@
 <li>платная версия стоит 29 евро.</li>
 </ul>
 
-<h3 id="скрипт-roboshot-http-roboshot-sourceforge-net:0a283e5b4c781814abe20e36e5fd4350"><a href="http://roboshot.sourceforge.net/">Скрипт RoboShot</a></h3>
+<h3 id="скрипт-roboshot-http-roboshot-sourceforge-net"><a href="http://roboshot.sourceforge.net/">Скрипт RoboShot</a></h3>
 
 <p>Рассматривалась версия 0.3.</p>
 
@@ -220,7 +224,7 @@
 <li>на мой взгляд, слишком большой объем кода.</li>
 </ul>
 
-<h3 id="комбайн-из-bat-скрипта-rsync-и-vssadmin-http-blog-jay2k1-com-2011-08-13-how-to-create-rsync-like-hard-link-backups-with-vss-on-windows:0a283e5b4c781814abe20e36e5fd4350"><a href="http://blog.jay2k1.com/2011/08/13/how-to-create-rsync-like-hard-link-backups-with-vss-on-windows/">Комбайн из bat-скрипта, rsync и vssadmin</a></h3>
+<h3 id="комбайн-из-bat-скрипта-rsync-и-vssadmin-http-blog-jay2k1-com-2011-08-13-how-to-create-rsync-like-hard-link-backups-with-vss-on-windows"><a href="http://blog.jay2k1.com/2011/08/13/how-to-create-rsync-like-hard-link-backups-with-vss-on-windows/">Комбайн из bat-скрипта, rsync и vssadmin</a></h3>
 
 <p>Недостатки:</p>
 
@@ -229,7 +233,7 @@
 <li>для rsync требуется cygwin, что субъективно дает просадку по скорости.</li>
 </ul>
 
-<h3 id="утилита-ln-и-скрипт-deloreancopy-http-schinagl-priv-at-nt-ln-ln-html:0a283e5b4c781814abe20e36e5fd4350"><a href="http://schinagl.priv.at/nt/ln/ln.html">Утилита LN и скрипт DeloreanCopy</a></h3>
+<h3 id="утилита-ln-и-скрипт-deloreancopy-http-schinagl-priv-at-nt-ln-ln-html"><a href="http://schinagl.priv.at/nt/ln/ln.html">Утилита LN и скрипт DeloreanCopy</a></h3>
 
 <p>На мой взгляд, самое простое и лучшее решение, если не нужен VSS из коробки.</p>
 

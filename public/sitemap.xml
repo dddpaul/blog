@@ -1,11 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  
-  <url>
-    <loc>https://dddpaul.github.io/blog/</loc>
-    <lastmod>2016-11-13T12:45:00+03:00</lastmod>
-    <priority>0</priority>
-  </url>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
     <loc>https://dddpaul.github.io/blog/2016/11/13/mysql-to-postgresql-migration/</loc>
@@ -175,6 +170,150 @@
   <url>
     <loc>https://dddpaul.github.io/blog/2014/07/28/oldest/</loc>
     <lastmod>2014-07-28T12:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://dddpaul.github.io/blog/tags/android/</loc>
+    <lastmod>2014-10-21T14:30:16+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://dddpaul.github.io/blog/tags/angularjs/</loc>
+    <lastmod>2014-10-16T11:26:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://dddpaul.github.io/blog/tags/ansible/</loc>
+    <lastmod>2015-11-30T10:45:00+03:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://dddpaul.github.io/blog/series/ansible-tips-and-tricks/</loc>
+    <lastmod>2015-11-30T10:45:00+03:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://dddpaul.github.io/blog/series/building-test-environments-with-docker/</loc>
+    <lastmod>2015-01-12T10:42:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://dddpaul.github.io/blog/tags/concurrency/</loc>
+    <lastmod>2016-03-17T11:00:00+03:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://dddpaul.github.io/blog/tags/database/</loc>
+    <lastmod>2016-11-13T12:45:00+03:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://dddpaul.github.io/blog/tags/devops/</loc>
+    <lastmod>2015-01-12T10:42:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://dddpaul.github.io/blog/tags/docker/</loc>
+    <lastmod>2016-11-07T21:00:00+03:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://dddpaul.github.io/blog/tags/git/</loc>
+    <lastmod>2014-07-28T12:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://dddpaul.github.io/blog/tags/golang/</loc>
+    <lastmod>2016-08-30T17:45:00+03:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://dddpaul.github.io/blog/tags/hugo/</loc>
+    <lastmod>2014-07-28T12:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://dddpaul.github.io/blog/tags/java/</loc>
+    <lastmod>2015-12-21T18:45:00+03:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://dddpaul.github.io/blog/tags/javascript/</loc>
+    <lastmod>2016-04-15T13:00:00+03:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://dddpaul.github.io/blog/series/jmm/</loc>
+    <lastmod>2014-12-06T18:33:46+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://dddpaul.github.io/blog/tags/linux/</loc>
+    <lastmod>2016-11-02T09:00:00+03:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://dddpaul.github.io/blog/series/memory-leaks/</loc>
+    <lastmod>2015-01-17T22:35:49+03:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://dddpaul.github.io/blog/</loc>
+    <lastmod>2016-11-13T12:45:00+03:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://dddpaul.github.io/blog/posts/</loc>
+    <lastmod>2016-11-13T12:45:00+03:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://dddpaul.github.io/blog/tags/python/</loc>
+    <lastmod>2015-11-30T10:45:00+03:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://dddpaul.github.io/blog/tags/react/</loc>
+    <lastmod>2016-04-15T13:00:00+03:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://dddpaul.github.io/blog/series/</loc>
+    <lastmod>2015-11-30T10:45:00+03:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://dddpaul.github.io/blog/tags/</loc>
+    <lastmod>2014-10-21T14:30:16+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://dddpaul.github.io/blog/tags/windows/</loc>
+    <lastmod>2016-09-07T09:00:00+03:00</lastmod>
+    <priority>0</priority>
   </url>
   
 </urlset>
