@@ -1,11 +1,11 @@
 baseurl = "https://dddpaul.github.io/blog/"
 languageCode = "en-us"
-title = "Dev notes"
+title = "Pavel Derendyaev notes"
 theme = "hyde"
 pygmentsuseclasses = true
 
 [params]
-    Description = "Notes about Android, Java, JavaScript, Go and other technical stuff"
+    Description = " "
     disqusShortname = "dddpaul-github"
 
 [Taxonomies]
