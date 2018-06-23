@@ -12,6 +12,6 @@ tags = [ "Meetup", "Java" ]
 
 * [Kotlin: выходим за рамки JVM](https://twitter.com/evgzakharov88/status/1009847790548258819)
 * [Testcontainers: Oracle inside](https://twitter.com/mik_fomichev)
-* [Как жить, если вы неправильно готовите Elasticsearch](presentations/Elasticsearch-1.pdf)
+* [Как жить, если вы неправильно готовите Elasticsearch](http://dddpaul.github.io/blog/presentations/Elasticsearch-1.pdf)
 
 Также есть [запись трансляции](https://www.youtube.com/watch?v=XT4nk89aSvY).
