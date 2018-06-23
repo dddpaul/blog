@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Kafka on Pavel Derendyaev notes</title>
+    <link>https://dddpaul.github.io/blog/tags/kafka/</link>
+    <description>Recent content in Kafka on Pavel Derendyaev notes</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sat, 23 Jun 2018 18:13:44 +0300</lastBuildDate>
+    
+	<atom:link href="https://dddpaul.github.io/blog/tags/kafka/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Kafka tips &amp; tricks</title>
+      <link>https://dddpaul.github.io/blog/2018/06/23/kafka-tips/</link>
+      <pubDate>Sat, 23 Jun 2018 18:13:44 +0300</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2018/06/23/kafka-tips/</guid>
+      <description>Список консьюмер-групп
+docker run wurstmeister/kafka /opt/kafka/bin/kafka-consumer-groups.sh --bootstrap-server kafka:9092 --list  Информация по консьюмер-группе
+docker run wurstmeister/kafka /opt/kafka/bin/kafka-consumer-groups.sh --bootstrap-server kafka:9092 --group id1 --describe  Установка оффсета на начало
+docker run wurstmeister/kafka /opt/kafka/bin/kafka-consumer-groups.sh --bootstrap-server kafka:9092 --topic topic --group id1 --reset-offsets --to-earliest --execute  Установка оффсета на конец
+docker run wurstmeister/kafka /opt/kafka/bin/kafka-consumer-groups.sh --bootstrap-server kafka:9092 --topic topic --group id1 --reset-offsets --to-latest --execute  Установка оффсета на дату-время
+docker run wurstmeister/kafka /opt/kafka/bin/kafka-consumer-groups.sh --bootstrap-server kafka:9092 --topic topic --group id1 --reset-offsets --to-datetime &amp;quot;2017-12-22T00:00:00.</description>
+    </item>
+    
+  </channel>
+</rss>

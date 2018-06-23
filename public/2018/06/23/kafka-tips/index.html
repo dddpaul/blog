@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
 
-  <title>Golang profiling links &middot; Pavel Derendyaev notes</title>
+  <title>Kafka tips &amp; tricks &middot; Pavel Derendyaev notes</title>
 
   
   <link type="text/css" rel="stylesheet" href="https://dddpaul.github.io/blog/css/print.css" media="print">
@@ -99,18 +99,110 @@
 
 <div class="content container">
     <div class="post">
-        <h1 class="post-title">Golang profiling links</h1>
-        <span class="post-date">2016-07-15</span>
+        <h1 class="post-title">Kafka tips &amp; tricks</h1>
+        <span class="post-date">2018-06-23</span>
 
-        <p>Some useful articles &amp; videos about profiling &amp; benchmarking Go programs:</p>
+        <hr />
 
-<ul>
-<li><a href="http://lk4d4.darth.io/posts/bench/">Go Benchmarks</a> - How to write and use benchmarks</li>
-<li><a href="http://dave.cheney.net/2013/07/07/introducing-profile-super-simple-profiling-for-go-programs">Introducing profile, super simple profiling for Go programs</a> - A simple way to profile an existing Go program.</li>
-<li><a href="http://blog.ralch.com/tutorial/golang-performance-and-memory-analysis/">Performance and memory analysis of Golang programs</a> - Performance metrics analysis.</li>
-<li><a href="http://eax.me/go-profiling/">Профилирование в Go (гостевой пост Владимира Солонина)</a> - Доступно о профилировании на русском.</li>
-<li><a href="https://habrahabr.ru/company/badoo/blog/302134/">Видео докладов с Весеннего Go митапа</a> - Особо интересен доклад Марко Кеваца о профилировании (на русском).</li>
-</ul>
+<p>Список консьюмер-групп</p>
+
+<pre><code>docker run wurstmeister/kafka /opt/kafka/bin/kafka-consumer-groups.sh --bootstrap-server kafka:9092 --list
+</code></pre>
+
+<hr />
+
+<p>Информация по консьюмер-группе</p>
+
+<pre><code>docker run wurstmeister/kafka /opt/kafka/bin/kafka-consumer-groups.sh --bootstrap-server kafka:9092 --group id1 --describe
+</code></pre>
+
+<hr />
+
+<p>Установка оффсета на начало</p>
+
+<pre><code>docker run wurstmeister/kafka /opt/kafka/bin/kafka-consumer-groups.sh --bootstrap-server kafka:9092 --topic topic --group id1 --reset-offsets --to-earliest --execute
+</code></pre>
+
+<hr />
+
+<p>Установка оффсета на конец</p>
+
+<pre><code>docker run wurstmeister/kafka /opt/kafka/bin/kafka-consumer-groups.sh --bootstrap-server kafka:9092 --topic topic --group id1 --reset-offsets --to-latest --execute
+</code></pre>
+
+<hr />
+
+<p>Установка оффсета на дату-время</p>
+
+<pre><code>docker run wurstmeister/kafka /opt/kafka/bin/kafka-consumer-groups.sh --bootstrap-server kafka:9092 --topic topic --group id1 --reset-offsets --to-datetime &quot;2017-12-22T00:00:00.000&quot; --execute
+</code></pre>
+
+<hr />
+
+<p>Установка оффсета на дату-время для партишенов 0, 1 (одно время для всех партишенов)</p>
+
+<pre><code>docker run wurstmeister/kafka /opt/kafka/bin/kafka-consumer-groups.sh --bootstrap-server kafka:9092 --topic topic:0,1 --group id1 --reset-offsets --to-datetime &quot;2017-12-22T00:00:00.000&quot; --execute
+</code></pre>
+
+<hr />
+
+<p>Установка оффсета на дату-время для партишенов 0, 1 (разное время для партишенов)</p>
+
+<pre><code>docker run dddpaul/kafka-rewind --servers=kafka:9092 --group-id=id1 --topic=topic -o 0=2017-12-01 -o 1=2018-01-01
+</code></pre>
+
+<hr />
+
+<p>Создать топик</p>
+
+<pre><code>docker exec -it wurstmeister/kafka sh -c &quot;JMX_PORT=10001 /opt/kafka/bin/kafka-topics.sh --create --topic topic --replication-factor 1 --partitions 1 --zookeeper zookeeper:2181&quot;
+</code></pre>
+
+<hr />
+
+<p>Накидать сообщений</p>
+
+<pre><code>docker exec -it wurstmeister/kafka sh -c &quot;JMX_PORT=10001 /opt/kafka/bin/kafka-verifiable-producer.sh --topic topic --max-messages 200000 --broker-list localhost:9092&quot;
+</code></pre>
+
+<hr />
+
+<p>Консольный консьюмер</p>
+
+<pre><code>docker exec -it wurstmeister/kafka sh -c &quot;JMX_PORT=10001 /opt/kafka/bin/kafka-console-consumer.sh --topic topic --bootstrap-server host:9092&quot;
+docker run -it wurstmeister/kafka -c &quot;JMX_PORT=10001 /opt/kafka/bin/kafka-console-consumer.sh --topic topic --bootstrap-server host:9092&quot;
+docker run --entrypoint=/opt/kafka/bin/kafka-console-consumer.sh wurstmeister/kafka --topic topic --bootstrap-server host:9092
+</code></pre>
+
+<hr />
+
+<p>Python консьюмер</p>
+
+<pre><code>#!/usr/bin/env python
+from kafka import KafkaConsumer
+consumer = KafkaConsumer(bootstrap_servers='kafka1:9092',
+                         group_id=None,
+                         auto_offset_reset='earliest')
+consumer.subscribe(['rsyslog_apps'])
+for msg in consumer:
+    print msg
+</code></pre>
+
+<hr />
+
+<p>Kafkacat консьюмер</p>
+
+<pre><code>docker run -it confluentinc/cp-kafkacat kafkacat -b host:9092 -t topic -o beginning -v
+</code></pre>
+
+<hr />
+
+<p>Установка retention на топик</p>
+
+<pre><code>docker exec -it kafka /opt/kafka/bin/kafka-configs.sh --zookeeper host:2181 --entity-type topics --entity-name topic --describe
+docker exec -it kafka /opt/kafka/bin/kafka-topics.sh --zookeeper host:2181 --topic topic --describe
+docker exec -it kafka /opt/kafka/bin/kafka-topics.sh --zookeeper host:2181 --topic topic --alter --config retention.ms=1000
+</code></pre>
 
     </div>
 
@@ -120,7 +212,7 @@
     <ul id="tags">
         
         
-        <li><a href="https://dddpaul.github.io/blog//tags/golang">golang</a> </li>
+        <li><a href="https://dddpaul.github.io/blog//tags/kafka">Kafka</a> </li>
         
     </ul>
 
@@ -135,9 +227,9 @@
 
     var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
     var disqus_shortname = 'dddpaul-github';
-    var disqus_identifier = 'https:\/\/dddpaul.github.io\/blog\/2016\/07\/15\/golang-profiling-links\/';
-    var disqus_title = 'Golang profiling links';
-    var disqus_url = 'https:\/\/dddpaul.github.io\/blog\/2016\/07\/15\/golang-profiling-links\/';
+    var disqus_identifier = 'https:\/\/dddpaul.github.io\/blog\/2018\/06\/23\/kafka-tips\/';
+    var disqus_title = 'Kafka tips \x26 tricks';
+    var disqus_url = 'https:\/\/dddpaul.github.io\/blog\/2018\/06\/23\/kafka-tips\/';
     dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
     (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
 })();
