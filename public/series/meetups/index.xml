@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Meetups on Pavel Derendyaev notes</title>
+    <link>https://dddpaul.github.io/blog/series/meetups/</link>
+    <description>Recent content in Meetups on Pavel Derendyaev notes</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Fri, 22 Jun 2018 22:55:13 +0300</lastBuildDate>
+    
+	<atom:link href="https://dddpaul.github.io/blog/series/meetups/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Backend stories meetup в Альфа-Банке</title>
+      <link>https://dddpaul.github.io/blog/2018/06/22/alfabank-java-meetup-1/</link>
+      <pubDate>Fri, 22 Jun 2018 22:55:13 +0300</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2018/06/22/alfabank-java-meetup-1/</guid>
+      <description>21 июня прошел Java-митап Backend stories в Альфа-банке.
+Доклады:
+ Kotlin: выходим за рамки JVM Testcontainers: Oracle inside Как жить, если вы неправильно готовите Elasticsearch  Также есть запись трансляции.</description>
+    </item>
+    
+  </channel>
+</rss>

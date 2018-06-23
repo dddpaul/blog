@@ -6,10 +6,21 @@
     <description>Recent content on Pavel Derendyaev notes</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 13 Nov 2016 12:45:00 +0300</lastBuildDate>
+    <lastBuildDate>Fri, 22 Jun 2018 22:55:13 +0300</lastBuildDate>
     
 	<atom:link href="https://dddpaul.github.io/blog/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Backend stories meetup в Альфа-Банке</title>
+      <link>https://dddpaul.github.io/blog/2018/06/22/alfabank-java-meetup-1/</link>
+      <pubDate>Fri, 22 Jun 2018 22:55:13 +0300</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2018/06/22/alfabank-java-meetup-1/</guid>
+      <description>21 июня прошел Java-митап Backend stories в Альфа-банке.
+Доклады:
+ Kotlin: выходим за рамки JVM Testcontainers: Oracle inside Как жить, если вы неправильно готовите Elasticsearch  Также есть запись трансляции.</description>
+    </item>
     
     <item>
       <title>MySQL to PostgreSQL migration</title>
