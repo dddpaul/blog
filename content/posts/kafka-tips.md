@@ -1,7 +1,7 @@
 +++
 title = "Kafka tips & tricks"
 date = 2018-06-23T18:13:44+03:00
-draft = true
+draft = false
 tags = ["Kafka"]
 
 +++
