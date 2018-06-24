@@ -13,7 +13,7 @@ tags = [ "Meetup", "Java" ]
 Доклады:
 
 * [Kotlin: выходим за рамки JVM](https://twitter.com/evgzakharov88/status/1009847790548258819)
-* [Testcontainers: Oracle inside](https://twitter.com/mik_fomichev)
+* [Testcontainers: Oracle inside](https://www.slideshare.net/MikhailFomichev1/testcontainers-oracle-inside/MikhailFomichev1/testcontainers-oracle-inside)
 * [Как жить, если вы неправильно готовите Elasticsearch](http://dddpaul.github.io/blog/presentations/Elasticsearch-1.pdf)
 
 Также есть [запись трансляции](https://www.youtube.com/watch?v=XT4nk89aSvY).
