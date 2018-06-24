@@ -6,6 +6,8 @@ tags = ["Kafka"]
 
 +++
 
+{{% img src="media/apache-kafka.png" %}}
+
 ---
 Список консьюмер-групп
 ```
