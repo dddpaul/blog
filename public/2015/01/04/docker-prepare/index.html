@@ -133,28 +133,31 @@ CMD [&quot;/sbin/my_init&quot;]
 
 <p>Свой публичный ssh-ключ, естественно, надо положить в <em>my_rsa_public_key</em> рядом с <em>Dockerfile</em>.</p>
 
-<p>Сборка: <code>docker build -t smile/base .</code> и запуск:</p>
+<p>Сборка: <code>docker build -t smile/base .</code>
+Запуск: <code>docker run --rm -it -p 2022:22 smile/base /sbin/my_init -- bash -l</code></p>
 
-<pre><code>docker run --rm -it -p 2022:22 smile/base /sbin/my_init -- bash -l
+<p>Примечания:</p>
+
+<ul>
+<li><code>--rm</code> — используется для удаления контейнера после его остановки,</li>
+<li><code>-it</code> — для терминального интерактивного режима,</li>
+<li><code>-- bash -l</code> — для запуска шелла после запуска всех сервисов.</li>
+</ul>
+
+<p>Также на контейнер можно зайти по ssh: <code>ssh -p 2022 root@localhost</code>.</p>
+
+<h3 id="образ-с-nginx">Образ с nginx</h3>
+
+<p>Сборка <a href="https://github.com/dddpaul/docker-nginx">docker-nginx</a>: <code>docker build -t smile/nginx .</code></p>
+
+<p>Основная особенность этого образа в том, что при запуске контейнера отключается IPv6.</p>
+
+<p>Сделано это для того, чтобы обойти известную проблему с проксированием Nginx. Т.к. демон висит на tcp6, то апстрим иногда видит запрос от 127.0.0.1, а иногда от 0:0:0:0:0:0:0:1. Это принуждает к изменению ACL на сервере приложений, что не всегда удобно.</p>
+
+<p>IPv6 отключается после выполнения серии sysctl-команд, которые требуют, чтобы контейнер был запущен в привилегированном режиме, т.е. команда запуска слегка усложняется:</p>
+
+<pre><code>docker run --privileged --rm -it -p 2022:22 smile/nginx /sbin/my_init -- bash -l
 </code></pre>
-
-<pre><code class="language---rm```">
-Также на контейнер можно зайти по ssh: ```ssh -p 2022 root@localhost```.
-
-### Образ с nginx
-
-Сборка [docker-nginx](https://github.com/dddpaul/docker-nginx): ```docker build -t smile/nginx .```
-
-Основная особенность этого образа в том, что при запуске контейнера отключается IPv6.
-
-Сделано это для того, чтобы обойти известную проблему с проксированием Nginx. Т.к. демон висит на tcp6, то апстрим иногда видит запрос от 127.0.0.1, а иногда от 0:0:0:0:0:0:0:1. Это принуждает к изменению ACL на сервере приложений, что не всегда удобно.
-
-IPv6 отключается после выполнения серии sysctl-команд, которые требуют, чтобы контейнер был запущен в привилегированном режиме, т.е. команда запуска слегка усложняется:
-
-</code></pre>
-
-<p>docker run &ndash;privileged &ndash;rm -it -p 2022:22 smile/nginx /sbin/my_init &ndash; bash -l
-```</p>
 
 <h3 id="остальные-образы">Остальные образы</h3>
 
