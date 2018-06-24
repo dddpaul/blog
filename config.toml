@@ -16,9 +16,6 @@ pygmentsuseclasses = true
     posts = "/:year/:month/:day/:filename/"
 
 [[menu.main]]
-    Name = "Google+"
-    Url ="http://google.com/+PavelDerendyaev1"
-[[menu.main]]
     name = "GitHub"
     url ="http://github.com/dddpaul"
 [[menu.main]]
