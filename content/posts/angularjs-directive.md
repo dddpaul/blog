@@ -2,7 +2,7 @@
 date = 2014-10-16T11:26:00Z
 draft = false
 title = "Директивы AngularJS"
-tags = [ "JavaScript", "AngularJS" ]
+tags = [ "JavaScript" ]
 
 +++
 

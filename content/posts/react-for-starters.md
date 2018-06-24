@@ -2,7 +2,7 @@
 date = "2016-04-15T13:00:00+03:00"
 draft = false
 title = "Быстрое погружение в React"
-tags = [ "React", "JavaScript" ]
+tags = [ "JavaScript" ]
 +++
 
 Для разогрева:
