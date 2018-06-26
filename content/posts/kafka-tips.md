@@ -8,7 +8,6 @@ tags = ["Kafka"]
 
 {{% img src="media/apache-kafka.png" %}}
 
----
 Список консьюмер-групп
 ```
 docker run wurstmeister/kafka /opt/kafka/bin/kafka-consumer-groups.sh --bootstrap-server kafka:9092 --list
