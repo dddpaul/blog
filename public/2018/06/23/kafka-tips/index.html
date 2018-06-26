@@ -105,8 +105,6 @@
 <pre><code>docker run wurstmeister/kafka /opt/kafka/bin/kafka-consumer-groups.sh --bootstrap-server kafka:9092 --list
 </code></pre>
 
-<hr />
-
 <p>Информация по консьюмер-группе</p>
 
 <pre><code>docker run wurstmeister/kafka /opt/kafka/bin/kafka-consumer-groups.sh --bootstrap-server kafka:9092 --group id1 --describe
@@ -119,28 +117,20 @@
 <pre><code>docker run wurstmeister/kafka /opt/kafka/bin/kafka-consumer-groups.sh --bootstrap-server kafka:9092 --topic topic --group id1 --reset-offsets --to-earliest --execute
 </code></pre>
 
-<hr />
-
 <p>Установка оффсета на конец</p>
 
 <pre><code>docker run wurstmeister/kafka /opt/kafka/bin/kafka-consumer-groups.sh --bootstrap-server kafka:9092 --topic topic --group id1 --reset-offsets --to-latest --execute
 </code></pre>
-
-<hr />
 
 <p>Установка оффсета на дату-время</p>
 
 <pre><code>docker run wurstmeister/kafka /opt/kafka/bin/kafka-consumer-groups.sh --bootstrap-server kafka:9092 --topic topic --group id1 --reset-offsets --to-datetime &quot;2017-12-22T00:00:00.000&quot; --execute
 </code></pre>
 
-<hr />
-
 <p>Установка оффсета на дату-время для партишенов 0, 1 (одно время для всех партишенов)</p>
 
 <pre><code>docker run wurstmeister/kafka /opt/kafka/bin/kafka-consumer-groups.sh --bootstrap-server kafka:9092 --topic topic:0,1 --group id1 --reset-offsets --to-datetime &quot;2017-12-22T00:00:00.000&quot; --execute
 </code></pre>
-
-<hr />
 
 <p>Установка оффсета на дату-время для партишенов 0, 1 (разное время для партишенов)</p>
 
@@ -170,8 +160,6 @@ docker run -it wurstmeister/kafka -c &quot;JMX_PORT=10001 /opt/kafka/bin/kafka-c
 docker run --entrypoint=/opt/kafka/bin/kafka-console-consumer.sh wurstmeister/kafka --topic topic --bootstrap-server host:9092
 </code></pre>
 
-<hr />
-
 <p>Python консьюмер</p>
 
 <pre><code>#!/usr/bin/env python
@@ -183,8 +171,6 @@ consumer.subscribe(['rsyslog_apps'])
 for msg in consumer:
     print msg
 </code></pre>
-
-<hr />
 
 <p>Kafkacat консьюмер</p>
 
