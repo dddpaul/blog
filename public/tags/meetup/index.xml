@@ -6,10 +6,21 @@
     <description>Recent content in Meetup on Pavel Derendyaev notes</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 22 Jun 2018 22:55:13 +0300</lastBuildDate>
+    <lastBuildDate>Mon, 15 Oct 2018 22:55:13 +0300</lastBuildDate>
     
 	<atom:link href="https://dddpaul.github.io/blog/tags/meetup/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Backend stories 2.0 - митап в Альфа-Банке</title>
+      <link>https://dddpaul.github.io/blog/2018/10/15/alfabank-java-meetup-2/</link>
+      <pubDate>Mon, 15 Oct 2018 22:55:13 +0300</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2018/10/15/alfabank-java-meetup-2/</guid>
+      <description>04 октября прошел Java-митап Backend stories 2.0 в Альфа-банке.
+Все материалы доступны на страничке с отчетом о событии.
+Прямая ссылка на запись трансляции.</description>
+    </item>
     
     <item>
       <title>Backend stories meetup в Альфа-Банке</title>

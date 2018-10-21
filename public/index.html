@@ -3,7 +3,7 @@
 <head>
   <link href="http://gmpg.org/xfn/11" rel="profile">
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
-  <meta name="generator" content="Hugo 0.42" />
+  <meta name="generator" content="Hugo 0.47" />
 
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
@@ -94,6 +94,27 @@
 <div class="content container">
     <div class="posts">
 
+        
+        <div class="post">
+            <h1 class="post-title">
+                <a href="https://dddpaul.github.io/blog/2018/10/15/alfabank-java-meetup-2/">
+                    Backend stories 2.0 - митап в Альфа-Банке
+                </a>
+            </h1>
+
+            <span class="post-date">2018-10-15</span>
+
+            
+<img src='https://dddpaul.github.io/blog//media/alfabank.jpg'/>
+
+
+<p>04 октября прошел Java-митап <a href="https://hr.alfabank.ru/events/backendstories2-0">Backend stories 2.0</a> в Альфа-банке.</p>
+
+<p>Все материалы доступны на страничке с <a href="https://hr.alfabank.ru/blog/backend-stories">отчетом о событии</a>.</p>
+
+<p>Прямая ссылка на <a href="https://www.youtube.com/watch?v=pojUohfDlkc">запись трансляции</a>.</p>
+
+        </div>
         
         <div class="post">
             <h1 class="post-title">
@@ -345,7 +366,7 @@ docker service create --name test2 --label traefik.port<span class="o">=</span><
 
 <p><strong>3.</strong> HTTPS-only proxy with Let&rsquo;s Encrypt certificate</p>
 
-<p><div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">docker service create <span class="se">\
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">docker service create <span class="se">\
 </span><span class="se"></span>--name traefik <span class="se">\
 </span><span class="se"></span>--constraint<span class="o">=</span>node.role<span class="o">==</span>manager <span class="se">\
 </span><span class="se"></span>--publish <span class="m">443</span>:443 --publish <span class="m">8080</span>:8080 <span class="se">\
@@ -365,11 +386,11 @@ docker service create --name test2 --label traefik.port<span class="o">=</span><
 </span><span class="se"></span>--docker.domain<span class="o">=</span>example.org <span class="se">\
 </span><span class="se"></span>--docker.watch <span class="se">\
 </span><span class="se"></span>--logLevel<span class="o">=</span>DEBUG <span class="se">\
-</span><span class="se"></span>--web</code></pre></div></p>
+</span><span class="se"></span>--web</code></pre></div>
 
 <p><strong>4.</strong> HTTPS-only proxy with Let&rsquo;s Encrypt certificate and HTTPS web UI</p>
 
-<p><div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">docker service create <span class="se">\
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">docker service create <span class="se">\
 </span><span class="se"></span>--name traefik <span class="se">\
 </span><span class="se"></span>--constraint<span class="o">=</span>node.role<span class="o">==</span>manager <span class="se">\
 </span><span class="se"></span>--publish <span class="m">443</span>:443 --publish <span class="m">8443</span>:8443 <span class="se">\
@@ -392,11 +413,11 @@ docker service create --name test2 --label traefik.port<span class="o">=</span><
 </span><span class="se"></span>--logLevel<span class="o">=</span>DEBUG <span class="se">\
 </span><span class="se"></span>--web.address<span class="o">=</span>:8443 <span class="se">\
 </span><span class="se"></span>--web.certfile<span class="o">=</span>/etc/traefik/tls/default.crt <span class="se">\
-</span><span class="se"></span>--web.keyfile<span class="o">=</span>/etc/traefik/tls/default.key</code></pre></div></p>
+</span><span class="se"></span>--web.keyfile<span class="o">=</span>/etc/traefik/tls/default.key</code></pre></div>
 
 <p><strong>5.</strong> For debugging purposes you can run Træfɪk without Docker</p>
 
-<p><div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">traefik -d <span class="se">\
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">traefik -d <span class="se">\
 </span><span class="se"></span>--entryPoints<span class="o">=</span><span class="s1">&#39;Name:http Address::8080 Redirect.EntryPoint:https&#39;</span> <span class="se">\
 </span><span class="se"></span>--entryPoints<span class="o">=</span><span class="s1">&#39;Name:https Address::8443 TLS&#39;</span> <span class="se">\
 </span><span class="se"></span>--defaultEntryPoints<span class="o">=</span>http,https <span class="se">\
@@ -405,7 +426,7 @@ docker service create --name test2 --label traefik.port<span class="o">=</span><
 </span><span class="se"></span>--acme.storage<span class="o">=</span>acme.json <span class="se">\
 </span><span class="se"></span>--acme.domains<span class="o">=</span>example.org
 --logLevel<span class="o">=</span>DEBUG <span class="se">\
-</span><span class="se"></span>--web</code></pre></div></p>
+</span><span class="se"></span>--web</code></pre></div>
 
 <p>Links:</p>
 
@@ -899,7 +920,7 @@ dosdev -r -d x:
 <li>Without established connection a listener doesn&rsquo;t know the remote peer address until actual data will be received. So listener must wait for data, then read this data and remote address with <a href="https://golang.org/pkg/net/#UDPConn.ReadFrom">*net.UDPConn.ReadFrom</a>.</li>
 </ul>
 
-<p><div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">const</span> <span class="p">(</span>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">const</span> <span class="p">(</span>
 	<span class="c1">// BufferLimit specifies buffer size that is sufficient to
 </span><span class="c1"></span>	<span class="c1">// handle full-size UDP datagram or TCP segment in one step
 </span><span class="c1"></span>	<span class="nx">BufferLimit</span> <span class="p">=</span> <span class="mi">2</span><span class="o">&lt;&lt;</span><span class="mi">16</span> <span class="o">-</span> <span class="mi">1</span>
@@ -984,7 +1005,7 @@ dosdev -r -d x:
 	<span class="nx">log</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">&#34;[%s]: Connection has been closed, %d bytes has been received\n&#34;</span><span class="p">,</span> <span class="nx">ra</span><span class="p">,</span> <span class="nx">p</span><span class="p">.</span><span class="nx">bytes</span><span class="p">)</span>
 	<span class="nx">p</span> <span class="p">=</span> <span class="o">&lt;-</span><span class="nx">c</span>
 	<span class="nx">log</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">&#34;[%s]: Local peer has been stopped, %d bytes has been sent\n&#34;</span><span class="p">,</span> <span class="nx">ra</span><span class="p">,</span> <span class="nx">p</span><span class="p">.</span><span class="nx">bytes</span><span class="p">)</span>
-<span class="p">}</span></code></pre></div></p>
+<span class="p">}</span></code></pre></div>
 
 <p>Links:</p>
 
@@ -1023,27 +1044,6 @@ dosdev -r -d x:
 <ul>
 <li><a href="https://blog.docker.com/2016/07/docker-built-in-orchestration-ready-for-production-docker-1-12-goes-ga/">Docker Built-In Orchestration Ready For Production: Docker 1.12 Goes GA</a> - Post from Docker blog about Swarm mode release. It contains some links to the videos.</li>
 <li><a href="http://blog.hypriot.com/post/more-microservice-bliss-with-docker-1-12/">More Microservices Bliss with Docker 1.12 and Swarm only</a> - Seems like <a href="https://traefik.io/">Traefik</a> can be partially replaced with Docker 1.12. routing mesh.</li>
-</ul>
-
-        </div>
-        
-        <div class="post">
-            <h1 class="post-title">
-                <a href="https://dddpaul.github.io/blog/2016/07/15/golang-profiling-links/">
-                    Golang profiling links
-                </a>
-            </h1>
-
-            <span class="post-date">2016-07-15</span>
-
-            <p>Some useful articles &amp; videos about profiling &amp; benchmarking Go programs:</p>
-
-<ul>
-<li><a href="http://lk4d4.darth.io/posts/bench/">Go Benchmarks</a> - How to write and use benchmarks</li>
-<li><a href="http://dave.cheney.net/2013/07/07/introducing-profile-super-simple-profiling-for-go-programs">Introducing profile, super simple profiling for Go programs</a> - A simple way to profile an existing Go program.</li>
-<li><a href="http://blog.ralch.com/tutorial/golang-performance-and-memory-analysis/">Performance and memory analysis of Golang programs</a> - Performance metrics analysis.</li>
-<li><a href="http://eax.me/go-profiling/">Профилирование в Go (гостевой пост Владимира Солонина)</a> - Доступно о профилировании на русском.</li>
-<li><a href="https://habrahabr.ru/company/badoo/blog/302134/">Видео докладов с Весеннего Go митапа</a> - Особо интересен доклад Марко Кеваца о профилировании (на русском).</li>
 </ul>
 
         </div>
