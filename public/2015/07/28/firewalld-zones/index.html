@@ -3,7 +3,7 @@
 <head>
   <link href="http://gmpg.org/xfn/11" rel="profile">
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
-  <meta name="generator" content="Hugo 0.47" />
+  <meta name="generator" content="Hugo 0.64.0" />
 
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
@@ -86,7 +86,7 @@
             
         </ul>
 
-        <p>&copy; 2018. All rights reserved. </p>
+        <p>&copy; 2020. All rights reserved. </p>
     </div>
 </div>
 
@@ -97,33 +97,22 @@
         <span class="post-date">2015-07-28</span>
 
         <p>As you can expect from <a href="http://linuxmanpages.net/manpages/fedora20/man1/firewall-cmd.1.html">man firewall-cmd</a> interface binding to zone other than default (public) could be achieved with the following command sequence:</p>
-
 <pre><code>firewall-cmd --zone public --remove-interface eth1 --permanent
 firewall-cmd --zone internal --add-interface eth1 --permanent
 firewall-cmd --reload
-</code></pre>
-
-<p>Seems like it&rsquo;s done:</p>
-
+</code></pre><p>Seems like it&rsquo;s done:</p>
 <pre><code>firewall-cmd --get-zone-of-interface=eth1
 internal
-</code></pre>
-
-<p>But after firewalld restart or server reboot things aren&rsquo;t so bright:</p>
-
+</code></pre><p>But after firewalld restart or server reboot things aren&rsquo;t so bright:</p>
 <pre><code>firewall-cmd --get-zone-of-interface=eth1
 public
-</code></pre>
-
-<p>The reason is in this <a href="https://bugs.centos.org/view.php?id=7526">CentOS-7 bug</a>. The only workaround is to specify zone in <em>/etc/sysconfig/network-scripts/ifcfg-eth1</em> file:</p>
-
+</code></pre><p>The reason is in this <a href="https://bugs.centos.org/view.php?id=7526">CentOS-7 bug</a>. The only workaround is to specify zone in <em>/etc/sysconfig/network-scripts/ifcfg-eth1</em> file:</p>
 <pre><code>TYPE=Ethernet
 NAME=&quot;eth1&quot;
 IPADDR=x.x.x.x
 ...
 ZONE=internal
 </code></pre>
-
     </div>
 
     

@@ -3,7 +3,7 @@
 <head>
   <link href="http://gmpg.org/xfn/11" rel="profile">
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
-  <meta name="generator" content="Hugo 0.47" />
+  <meta name="generator" content="Hugo 0.64.0" />
 
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
@@ -86,7 +86,7 @@
             
         </ul>
 
-        <p>&copy; 2018. All rights reserved. </p>
+        <p>&copy; 2020. All rights reserved. </p>
     </div>
 </div>
 
@@ -97,59 +97,39 @@
         <span class="post-date">2015-07-12</span>
 
         <p>Аннотация <a href="http://docs.spring.io/spring/docs/current/javadoc-api/org/springframework/beans/factory/annotation/Value.html">@Value</a> - это самый простой способ для &ldquo;впрыскивания&rdquo; значений из конфигурации Spring Boot в код. При этом также можно задать значение по-умолчанию.</p>
-
 <p>Однако, стоит учитывать, что резолвинг значения будет выполняться для каждой аннотации @Value. Например, если аннотировать @Value два поля (в одном или разных классах - не суть важно) вот так:</p>
-
 <div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="nd">@Value</span><span class="o">(</span><span class="s">&#34;${unique-param}&#34;</span><span class="o">)</span>
 <span class="kd">private</span> <span class="n">String</span> <span class="n">param1</span><span class="o">;</span>
 
 <span class="nd">@Value</span><span class="o">(</span><span class="s">&#34;${unique-param}&#34;</span><span class="o">)</span>
 <span class="kd">private</span> <span class="n">String</span> <span class="n">param2</span><span class="o">;</span></code></pre></div>
-
 <p>, то в debug-логе мы увидим:</p>
-
 <pre><code>TRACE 23601 --- [lication.main()] o.s.c.e.PropertySourcesPropertyResolver  : getProperty(&quot;unique-param&quot;, String)
 DEBUG 23601 --- [lication.main()] o.s.c.e.PropertySourcesPropertyResolver  : Searching for key 'unique-param' in [environmentProperties]
 ...
 TRACE 23601 --- [lication.main()] o.s.c.e.PropertySourcesPropertyResolver  : getProperty(&quot;unique-param&quot;, String)
 DEBUG 23601 --- [lication.main()] o.s.c.e.PropertySourcesPropertyResolver  : Searching for key 'unique-param' in [environmentProperties]
 ...
-</code></pre>
-
-<p>Т.е. поиск (резолвинг) был проведен дважды. Конечно, это слишком мизерная операция, чтобы хоть как-то замедлить старт приложения, но знать об этом стоит.</p>
-
-<hr />
-
+</code></pre><p>Т.е. поиск (резолвинг) был проведен дважды. Конечно, это слишком мизерная операция, чтобы хоть как-то замедлить старт приложения, но знать об этом стоит.</p>
+<hr>
 <p>Еще более неоднозначная штука связана с передачей дефолтного значения через @Value.</p>
-
 <div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="nd">@Value</span><span class="o">(</span><span class="s">&#34;${unique-param:DefaultValue}&#34;</span><span class="o">)</span>
 <span class="kd">private</span> <span class="n">String</span> <span class="n">param</span><span class="o">;</span></code></pre></div>
-
 <p>При резолвинге значения будет сначала проведен поиск параметра &ldquo;unique-param:DefaultValue&rdquo;, а уже потом - &ldquo;unique-param&rdquo;. Таким образом, если в конфигурации указать:</p>
-
 <div class="highlight"><pre class="chroma"><code class="language-ini" data-lang="ini"><span class="na">unique-param\:DefaultValue</span> <span class="o">=</span> <span class="s">Another value</span></code></pre></div>
-
 <p>, то param в коде будет равен &ldquo;Another value&rdquo;.</p>
-
 <p>Такая логика прописана в org.springframework.util.PropertyPlaceholderHelper#parseStringValue.</p>
-
-<hr />
-
+<hr>
 <p>Оба этих нюанса могут ответить на вопрос - почему debug-лог приложения на Spring Boot такой большой.</p>
-
 <p>Мораль - используйте <a href="http://docs.spring.io/autorepo/docs/spring-boot/current/api/org/springframework/boot/context/properties/ConfigurationProperties.html">ConfigurationProperties</a>, что, в конце-концов, и советуется в <a href="http://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-external-config.html">23. Externalized Configuration</a>, раздел &ldquo;23.7 Typesafe Configuration Properties&rdquo;.</p>
-
 <p>Например:</p>
-
 <div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="nd">@ConfigurationProperties</span><span class="o">(</span><span class="n">prefix</span> <span class="o">=</span> <span class="s">&#34;params&#34;</span><span class="o">)</span>
 <span class="kd">public</span> <span class="kd">class</span> <span class="nc">Config</span> <span class="o">{</span>
     <span class="kd">private</span> <span class="n">String</span> <span class="n">uniqueParam</span> <span class="o">=</span> <span class="s">&#34;Default value&#34;</span><span class="o">;</span>
 
     <span class="c1">// Getters are mandatory. Setters are mandatory for immutable types (such as String).
 </span><span class="c1"></span> <span class="o">}</span></code></pre></div>
-
 <p>Конфигурация:</p>
-
 <div class="highlight"><pre class="chroma"><code class="language-ini" data-lang="ini"><span class="na">params.unique-param</span> <span class="o">=</span> <span class="s">Another value</span></code></pre></div>
 
     </div>

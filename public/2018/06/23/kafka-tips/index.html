@@ -3,7 +3,7 @@
 <head>
   <link href="http://gmpg.org/xfn/11" rel="profile">
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
-  <meta name="generator" content="Hugo 0.47" />
+  <meta name="generator" content="Hugo 0.64.0" />
 
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
@@ -86,7 +86,7 @@
             
         </ul>
 
-        <p>&copy; 2018. All rights reserved. </p>
+        <p>&copy; 2020. All rights reserved. </p>
     </div>
 </div>
 
@@ -96,72 +96,34 @@
         <h1 class="post-title">Kafka tips &amp; tricks</h1>
         <span class="post-date">2018-06-23</span>
 
-        
-<img src='https://dddpaul.github.io/blog//media/apache-kafka.png'/>
-
-
+        <!-- raw HTML omitted -->
 <p>Список консьюмер-групп</p>
-
 <pre><code>docker run wurstmeister/kafka /opt/kafka/bin/kafka-consumer-groups.sh --bootstrap-server kafka:9092 --list
-</code></pre>
-
-<p>Информация по консьюмер-группе</p>
-
+</code></pre><p>Информация по консьюмер-группе</p>
 <pre><code>docker run wurstmeister/kafka /opt/kafka/bin/kafka-consumer-groups.sh --bootstrap-server kafka:9092 --group id1 --describe
-</code></pre>
-
-<hr />
-
+</code></pre><hr>
 <p>Установка оффсета на начало</p>
-
 <pre><code>docker run wurstmeister/kafka /opt/kafka/bin/kafka-consumer-groups.sh --bootstrap-server kafka:9092 --topic topic --group id1 --reset-offsets --to-earliest --execute
-</code></pre>
-
-<p>Установка оффсета на конец</p>
-
+</code></pre><p>Установка оффсета на конец</p>
 <pre><code>docker run wurstmeister/kafka /opt/kafka/bin/kafka-consumer-groups.sh --bootstrap-server kafka:9092 --topic topic --group id1 --reset-offsets --to-latest --execute
-</code></pre>
-
-<p>Установка оффсета на дату-время</p>
-
+</code></pre><p>Установка оффсета на дату-время</p>
 <pre><code>docker run wurstmeister/kafka /opt/kafka/bin/kafka-consumer-groups.sh --bootstrap-server kafka:9092 --topic topic --group id1 --reset-offsets --to-datetime &quot;2017-12-22T00:00:00.000&quot; --execute
-</code></pre>
-
-<p>Установка оффсета на дату-время для партишенов 0, 1 (одно время для всех партишенов)</p>
-
+</code></pre><p>Установка оффсета на дату-время для партишенов 0, 1 (одно время для всех партишенов)</p>
 <pre><code>docker run wurstmeister/kafka /opt/kafka/bin/kafka-consumer-groups.sh --bootstrap-server kafka:9092 --topic topic:0,1 --group id1 --reset-offsets --to-datetime &quot;2017-12-22T00:00:00.000&quot; --execute
-</code></pre>
-
-<p>Установка оффсета на дату-время для партишенов 0, 1 (разное время для партишенов)</p>
-
+</code></pre><p>Установка оффсета на дату-время для партишенов 0, 1 (разное время для партишенов)</p>
 <pre><code>docker run dddpaul/kafka-rewind --servers=kafka:9092 --group-id=id1 --topic=topic -o 0=2017-12-01 -o 1=2018-01-01
-</code></pre>
-
-<hr />
-
+</code></pre><hr>
 <p>Создать топик</p>
-
 <pre><code>docker exec -it wurstmeister/kafka sh -c &quot;JMX_PORT=10001 /opt/kafka/bin/kafka-topics.sh --create --topic topic --replication-factor 1 --partitions 1 --zookeeper zookeeper:2181&quot;
-</code></pre>
-
-<hr />
-
+</code></pre><hr>
 <p>Накидать сообщений</p>
-
 <pre><code>docker exec -it wurstmeister/kafka sh -c &quot;JMX_PORT=10001 /opt/kafka/bin/kafka-verifiable-producer.sh --topic topic --max-messages 200000 --broker-list localhost:9092&quot;
-</code></pre>
-
-<hr />
-
+</code></pre><hr>
 <p>Консольный консьюмер</p>
-
 <pre><code>docker exec -it wurstmeister/kafka sh -c &quot;JMX_PORT=10001 /opt/kafka/bin/kafka-console-consumer.sh --topic topic --bootstrap-server host:9092&quot;
 docker run -it wurstmeister/kafka -c &quot;JMX_PORT=10001 /opt/kafka/bin/kafka-console-consumer.sh --topic topic --bootstrap-server host:9092&quot;
 docker run --entrypoint=/opt/kafka/bin/kafka-console-consumer.sh wurstmeister/kafka --topic topic --bootstrap-server host:9092
-</code></pre>
-
-<p>Python консьюмер</p>
-
+</code></pre><p>Python консьюмер</p>
 <pre><code>#!/usr/bin/env python
 from kafka import KafkaConsumer
 consumer = KafkaConsumer(bootstrap_servers='kafka1:9092',
@@ -170,22 +132,14 @@ consumer = KafkaConsumer(bootstrap_servers='kafka1:9092',
 consumer.subscribe(['rsyslog_apps'])
 for msg in consumer:
     print msg
-</code></pre>
-
-<p>Kafkacat консьюмер</p>
-
+</code></pre><p>Kafkacat консьюмер</p>
 <pre><code>docker run -it confluentinc/cp-kafkacat kafkacat -b host:9092 -t topic -o beginning -v
-</code></pre>
-
-<hr />
-
+</code></pre><hr>
 <p>Установка retention на топик</p>
-
 <pre><code>docker exec -it kafka /opt/kafka/bin/kafka-configs.sh --zookeeper host:2181 --entity-type topics --entity-name topic --describe
 docker exec -it kafka /opt/kafka/bin/kafka-topics.sh --zookeeper host:2181 --topic topic --describe
 docker exec -it kafka /opt/kafka/bin/kafka-topics.sh --zookeeper host:2181 --topic topic --alter --config retention.ms=1000
 </code></pre>
-
     </div>
 
     

@@ -3,7 +3,7 @@
 <head>
   <link href="http://gmpg.org/xfn/11" rel="profile">
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
-  <meta name="generator" content="Hugo 0.47" />
+  <meta name="generator" content="Hugo 0.64.0" />
 
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
@@ -86,7 +86,7 @@
             
         </ul>
 
-        <p>&copy; 2018. All rights reserved. </p>
+        <p>&copy; 2020. All rights reserved. </p>
     </div>
 </div>
 
@@ -97,7 +97,6 @@
         <span class="post-date">2015-04-12</span>
 
         <p>So it&rsquo;s time to scrutinize <a href="http://en.wikipedia.org/wiki/Builder_pattern">a builder pattern</a>. There are bunch of options to implement builder pattern in Java:</p>
-
 <ul>
 <li><a href="http://habrahabr.ru/post/86252/">classic</a> builder;</li>
 <li><a href="http://habrahabr.ru/post/244521/">elegant</a> builder;</li>
@@ -107,16 +106,12 @@
 <li><a href="https://github.com/mkarneim/pojobuilder">POJO</a> builder;</li>
 <li><a href="http://immutables.github.io/">Immutables</a> builder.</li>
 </ul>
-
 <p>All of these variants have been examined in <a href="https://github.com/dddpaul/java-builders">Java builders</a> GitHub project.</p>
-
 <p>The winners are (and this a tough IMHO):</p>
-
 <ul>
 <li>IDEA InnerBuilder plugin if you use builder class from frameworks like <a href="http://spring.io/">Spring/Spring MVC</a> or <a href="https://www.playframework.com/">Play</a>. You can&rsquo;t pass validation annotations to generated class. Despite everything if there is a way to do this I&rsquo;ll be happy to mistake.</li>
 <li>Immutables.org builder in all other cases. It&rsquo;s features rich and generates beautiful code.</li>
 </ul>
-
 <p>But do not forget about AutoValue because it&rsquo;s backed by Google itself.</p>
 
     </div>

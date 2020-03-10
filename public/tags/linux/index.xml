@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Linux on Pavel Derendyaev notes</title>
@@ -31,7 +31,7 @@ pvcreate /dev/sdb1 # Create physical volume vgcreate docker /dev/sdb1 # Create v
       <guid>https://dddpaul.github.io/blog/2016/10/20/lego-nginx/</guid>
       <description>xenolf/lego it&amp;rsquo;s a feature-rich Let&amp;rsquo;s Encrypt client and ACME library written in Go.
 1. Prepare Nginx server
-server { listen 80 default; server_name example.org www.example.org; location /.well-known/acme-challenge { proxy_pass http://127.0.0.1:81; proxy_set_header Host $host; } # Other directives }  2. Update ca-certificates for CentOS 5 (optional)
+server { listen 80 default; server_name example.org www.example.org; location /.well-known/acme-challenge { proxy_pass http://127.0.0.1:81; proxy_set_header Host $host; } # Other directives } 2. Update ca-certificates for CentOS 5 (optional)
 Let&amp;rsquo;s Encrypt CA certificate is not included into root CA bundle of old Linux distributions like RHEL/Centos 5. You have to replace this bundle manually with fresh one from cURL website:</description>
     </item>
     
@@ -62,9 +62,9 @@ type Progress struct { bytes uint64 } func TransferStreams(con net.Conn) { c := 
       
       <guid>https://dddpaul.github.io/blog/2015/07/28/firewalld-zones/</guid>
       <description>As you can expect from man firewall-cmd interface binding to zone other than default (public) could be achieved with the following command sequence:
-firewall-cmd --zone public --remove-interface eth1 --permanent firewall-cmd --zone internal --add-interface eth1 --permanent firewall-cmd --reload  Seems like it&amp;rsquo;s done:
-firewall-cmd --get-zone-of-interface=eth1 internal  But after firewalld restart or server reboot things aren&amp;rsquo;t so bright:
-firewall-cmd --get-zone-of-interface=eth1 public  The reason is in this CentOS-7 bug. The only workaround is to specify zone in /etc/sysconfig/network-scripts/ifcfg-eth1 file:</description>
+firewall-cmd --zone public --remove-interface eth1 --permanent firewall-cmd --zone internal --add-interface eth1 --permanent firewall-cmd --reload Seems like it&amp;rsquo;s done:
+firewall-cmd --get-zone-of-interface=eth1 internal But after firewalld restart or server reboot things aren&amp;rsquo;t so bright:
+firewall-cmd --get-zone-of-interface=eth1 public The reason is in this CentOS-7 bug. The only workaround is to specify zone in /etc/sysconfig/network-scripts/ifcfg-eth1 file:</description>
     </item>
     
     <item>

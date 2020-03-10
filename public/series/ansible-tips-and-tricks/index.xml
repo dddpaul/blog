@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Ansible Tips and Tricks on Pavel Derendyaev notes</title>
+    <title>Ansible tips and tricks on Pavel Derendyaev notes</title>
     <link>https://dddpaul.github.io/blog/series/ansible-tips-and-tricks/</link>
-    <description>Recent content in Ansible Tips and Tricks on Pavel Derendyaev notes</description>
+    <description>Recent content in Ansible tips and tricks on Pavel Derendyaev notes</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Mon, 30 Nov 2015 10:45:00 +0300</lastBuildDate>
@@ -20,7 +20,7 @@
       <description>There are plenty of bool and default filters usage in Ansible playbooks and templates. For example, in debops/ansible-docker: when: docker_upstream| d() | bool.
 Where docker_upstream is an YAML boolean: docker_upstream: False. It seems like &amp;ldquo;when&amp;rdquo; condition is overbloated again :)
 The var | d() | bool construction is spread all over the place, for example, in docker config template:
-{% if docker_listen | d() | bool %}  Where docker_listen is an YAML list: docker_listen: [ &#39;{{ docker_tcp_listen }}&#39; ].</description>
+{% if docker_listen | d() | bool %} Where docker_listen is an YAML list: docker_listen: [ &#39;{{ docker_tcp_listen }}&#39; ].</description>
     </item>
     
     <item>

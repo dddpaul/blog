@@ -3,7 +3,7 @@
 <head>
   <link href="http://gmpg.org/xfn/11" rel="profile">
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
-  <meta name="generator" content="Hugo 0.47" />
+  <meta name="generator" content="Hugo 0.64.0" />
 
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
@@ -86,7 +86,7 @@
             
         </ul>
 
-        <p>&copy; 2018. All rights reserved. </p>
+        <p>&copy; 2020. All rights reserved. </p>
     </div>
 </div>
 
@@ -96,33 +96,21 @@
         <h1 class="post-title">Выбор простого бэкапа для Windows</h1>
         <span class="post-date">2016-09-07</span>
 
-        
-
-<p>Доступные и функциональные системы бэкапа под Windows.</p>
-
+        <p>Доступные и функциональные системы бэкапа под Windows.</p>
 <p>Требования:</p>
-
 <ul>
 <li>Основное - использование жестких или символьных ссылок для дедупликации содержимого архива.</li>
 <li>Дополнительное - использование VSS (Volume Shadow Copy Service) для предварительного создания снэпшота.</li>
 </ul>
-
 <p>Не рассматриваются сложные распределенные (и дорогие) системы бэкапа. Один компьютер, одна программа или скрипт.</p>
-
-<h3 id="dublicati-http-www-duplicati-com"><a href="http://www.duplicati.com/">Dublicati</a></h3>
-
+<h3 id="dublicatihttpwwwduplicaticom"><a href="http://www.duplicati.com/">Dublicati</a></h3>
 <p>Duplicati is a free backup client that securely stores encrypted, incremental, compressed backups on cloud storage services and remote file servers. It works with Amazon S3, Windows Live SkyDrive, Google Drive (Google Docs), Rackspace Cloud Files or WebDAV, SSH, FTP (and many more).</p>
-
 <p>Рассматривалась версия 1.3.4.</p>
-
 <p>Особенности:</p>
-
 <ul>
 <li>архив - zip-файл.</li>
 </ul>
-
 <p>Преимущества:</p>
-
 <ul>
 <li>бесплатность;</li>
 <li>кроссплатформенность (требуются .NET 2.0+ или Mono);</li>
@@ -132,28 +120,20 @@
 <li>есть русский язык;</li>
 <li>есть мастер восстановления.</li>
 </ul>
-
 <p>Недостатки:</p>
-
 <ul>
 <li>корявый интерфейс;</li>
 <li>файловые ссылки не используются;</li>
 <li>наглядность при просмотре архивов отсутствует;</li>
 <li>субъективно низкая скорость работы.</li>
 </ul>
-
-<h3 id="cobian-backup-http-www-cobiansoft-com"><a href="http://www.cobiansoft.com/">Cobian Backup</a></h3>
-
+<h3 id="cobian-backuphttpwwwcobiansoftcom"><a href="http://www.cobiansoft.com/">Cobian Backup</a></h3>
 <p>Рассматривалась версия 11.</p>
-
 <p>Особенности:</p>
-
 <ul>
 <li>архив - каталог.</li>
 </ul>
-
 <p>Преимущества:</p>
-
 <ul>
 <li>отличный интерфейс;</li>
 <li>бесплатность;</li>
@@ -163,28 +143,19 @@
 <li>есть русский язык;</li>
 <li>используется VSS.</li>
 </ul>
-
 <p>Недостатки:</p>
-
 <ul>
 <li>файловые ссылки не используются;</li>
 <li>вообще, отличная программа, но отсутствие программы восстановления сводит все преимущества на нет - не руками же восстанавливать файлы из инкрементальных (разностных) архивов.</li>
 </ul>
-
-<h3 id="hardlink-backup-http-www-lupinho-net-hardlinkbackup"><a href="http://www.lupinho.net/hardlinkbackup/">Hardlink Backup</a></h3>
-
+<h3 id="hardlink-backuphttpwwwlupinhonethardlinkbackup"><a href="http://www.lupinho.net/hardlinkbackup/">Hardlink Backup</a></h3>
 <p>Рассматривалась версия 2.1.1.</p>
-
 <p>Особенности:</p>
-
 <ul>
 <li>архив - каталог.</li>
 </ul>
-
 <p>Идеальная программа - подходит и под основное, и под дополнительное требования.</p>
-
 <p>Преимущества:</p>
-
 <ul>
 <li>отличный интерфейс;</li>
 <li>используется VSS;</li>
@@ -193,78 +164,54 @@
 <li>субъективно высокая скорость работы;</li>
 <li>есть возможность восстановления из программы.</li>
 </ul>
-
 <p>Недостатки:</p>
-
 <ul>
 <li>нет русского языка;</li>
 <li>самый главный минус - в бесплатной версии отсутствует запуск процесса бэкапа по расписанию.</li>
 <li>платная версия стоит 29 евро.</li>
 </ul>
-
-<h3 id="скрипт-roboshot-http-roboshot-sourceforge-net"><a href="http://roboshot.sourceforge.net/">Скрипт RoboShot</a></h3>
-
+<h3 id="скрипт-roboshothttproboshotsourceforgenet"><a href="http://roboshot.sourceforge.net/">Скрипт RoboShot</a></h3>
 <p>Рассматривалась версия 0.3.</p>
-
 <p>Особенности:</p>
-
 <ul>
 <li>написан на PowerShell;</li>
 <li>для копирования использует robocopy (т.е. высокая скорость работы);</li>
 <li>вроде использует VSS;</li>
 <li>использует файловые ссылки.</li>
 </ul>
-
 <p>Недостатки:</p>
-
 <ul>
 <li>требует доработки напильником (например, надо править регекспы с немецкой локализации Windows на русской);</li>
 <li>на мой взгляд, слишком большой объем кода.</li>
 </ul>
-
-<h3 id="комбайн-из-bat-скрипта-rsync-и-vssadmin-http-blog-jay2k1-com-2011-08-13-how-to-create-rsync-like-hard-link-backups-with-vss-on-windows"><a href="http://blog.jay2k1.com/2011/08/13/how-to-create-rsync-like-hard-link-backups-with-vss-on-windows/">Комбайн из bat-скрипта, rsync и vssadmin</a></h3>
-
+<h3 id="комбайн-из-bat-скрипта-rsync-и-vssadminhttpblogjay2k1com20110813how-to-create-rsync-like-hard-link-backups-with-vss-on-windows"><a href="http://blog.jay2k1.com/2011/08/13/how-to-create-rsync-like-hard-link-backups-with-vss-on-windows/">Комбайн из bat-скрипта, rsync и vssadmin</a></h3>
 <p>Недостатки:</p>
-
 <ul>
 <li>требует доработки напильником;</li>
 <li>для rsync требуется cygwin, что субъективно дает просадку по скорости.</li>
 </ul>
-
-<h3 id="утилита-ln-и-скрипт-deloreancopy-http-schinagl-priv-at-nt-ln-ln-html"><a href="http://schinagl.priv.at/nt/ln/ln.html">Утилита LN и скрипт DeloreanCopy</a></h3>
-
+<h3 id="утилита-ln-и-скрипт-deloreancopyhttpschinaglprivatntlnlnhtml"><a href="http://schinagl.priv.at/nt/ln/ln.html">Утилита LN и скрипт DeloreanCopy</a></h3>
 <p>На мой взгляд, самое простое и лучшее решение, если не нужен VSS из коробки.</p>
-
 <ul>
 <li><a href="http://schinagl.priv.at/nt/hardlinkshellext/hardlinkshellext.html">Link Shell Extension</a></li>
 <li><a href="http://schinagl.priv.at/nt/ln/ln.html">ln</a> - command line hardlinks</li>
 </ul>
-
 <p>DeLoreanCopy.bat требует 3 ясных параметра:</p>
-
 <pre><code>Usage: DeLoreanCopy &lt;SourcePath&gt; &lt;DestPath&gt; (&lt;KeepMaxCopies&gt;)
 SourcePath directory containing the files to be backed up
 DestPath directory where &quot;DeLorean copy&quot; sets will be created
 KeepMaxCopies (opt.) remove any exceeding number of DLC sets before copying
 e.g. DeLoreanCopy c:\data\source c:\data\backup 90
-</code></pre>
-
-<p>Преимущества:</p>
-
+</code></pre><p>Преимущества:</p>
 <ul>
 <li>простота;</li>
 <li>бесплатность;</li>
 <li>используются файловые ссылки;</li>
 <li>очень просто прикручивается VSS.</li>
 </ul>
-
 <p>Создание снэпшота с помощью <a href="http://msdn.microsoft.com/en-us/library/windows/desktop/bb530725(v=vs.85).aspx">vshadow</a> и запуск скрипта vss-exec-delorean.cmd:</p>
-
 <pre><code>vshadow.exe -script=vss-setvar.cmd -exec=vss-exec-delorean.cmd c:
-</code></pre>
-
-<p>Скрипт vss-exec-delorean.cmd:</p>
-
+</code></pre><p>Скрипт vss-exec-delorean.cmd:</p>
 <pre><code>REM
 REM called from vshadow via commandline e.g
 REM
@@ -283,7 +230,6 @@ REM finally remove the drive letter
 REM
 dosdev -r -d x:
 </code></pre>
-
     </div>
 
     

@@ -3,7 +3,7 @@
 <head>
   <link href="http://gmpg.org/xfn/11" rel="profile">
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
-  <meta name="generator" content="Hugo 0.47" />
+  <meta name="generator" content="Hugo 0.64.0" />
 
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
@@ -86,7 +86,7 @@
             
         </ul>
 
-        <p>&copy; 2018. All rights reserved. </p>
+        <p>&copy; 2020. All rights reserved. </p>
     </div>
 </div>
 
@@ -96,17 +96,11 @@
         <h1 class="post-title">Запуск контейнеров с помощью Fig</h1>
         <span class="post-date">2015-01-12</span>
 
-        
-
-<p>Это третья статья цикла 
-<a href='https://dddpaul.github.io/blog//series/building-test-environments-with-docker/'>Building test environments with Docker</a>.</p>
-
+        <p>Это третья статья цикла
+<!-- raw HTML omitted -->Building test environments with Docker<!-- raw HTML omitted -->.</p>
 <p>Как мы уже убедились, запуск контейнеров с помощью <code>docker run</code> — занятие весьма муторное, т.к. необходимо указывать множество опций. При запуске же нескольких контейнеров ситуация только ухудшается, т.к. теперь нужно задавать имена и линки.</p>
-
 <p>Эту проблему решает инструмент <a href="http://www.fig.sh/">Fig</a>, который может запустить/остановить целое тестовое окружение, состоящее из набора контейнеров. Описание контейнеров задано в YAML-файле. Таким образом, этот YAML-файл представляет собой конфигурацию тестового окружения.</p>
-
 <p>Конфигурация нашего тестового окружения <em>test-env/fig.yml</em>:</p>
-
 <pre><code>app1:
   image: smile/app1
   ports: ['2021:22', '8081:80']
@@ -122,20 +116,12 @@ gate:
   links: [app1, app2]
   ports: ['2020:22', '80:80']
   privileged: true
-</code></pre>
-
-<p>Запуск тестового окружения (находясь в каталоге с файлом <em>fig.yml</em>): <code>fig up</code>.</p>
-
+</code></pre><p>Запуск тестового окружения (находясь в каталоге с файлом <em>fig.yml</em>): <code>fig up</code>.</p>
 <p>По-умолчанию, Fig захватывает консоль и мультиплексирует вывод всех контейнеров. Для запуска в detached mode нужно использовать опцию <code>-d</code>. Посмотреть вывод контейнеров в этом режиме можно с помощью команды <code>fig logs</code>.</p>
-
 <p>Статус тестового окружения: <code>fig ps</code>.</p>
-
 <p>Остановка тестового окружения: <code>fig stop</code>.</p>
-
 <h3 id="запуск-тестового-окружения-с-помощью-upstart">Запуск тестового окружения с помощью Upstart</h3>
-
-<p>Job <em>/etc/init/fig-test-env.conf</em> создан на основе <a href="https://gist.github.com/HeyImAlex/9649374">HeyImAlex/fig.conf</a>. Для отключения автостарта нужно закомментировать вторую строчку (&ldquo;start on &hellip;&rdquo;).</p>
-
+<p>Job <em>/etc/init/fig-test-env.conf</em> создан на основе <a href="https://gist.github.com/HeyImAlex/9649374">HeyImAlex/fig.conf</a>. Для отключения автостарта нужно закомментировать вторую строчку (&ldquo;start on &hellip;&quot;).</p>
 <pre><code>description &quot;Test environment runner&quot;
 start on filesystem and started docker
 stop on runlevel [!2345]
@@ -152,9 +138,7 @@ end script
 post-stop script
  /usr/local/bin/fig stop
 end script
-</code></pre>
-
-<p>Теперь можно запустить тестовое окружение из любого места командой <code>start fig-test-env</code>, а остановить — <code>stop fig-test-env</code>.</p>
+</code></pre><p>Теперь можно запустить тестовое окружение из любого места командой <code>start fig-test-env</code>, а остановить — <code>stop fig-test-env</code>.</p>
 
     </div>
 

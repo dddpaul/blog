@@ -3,7 +3,7 @@
 <head>
   <link href="http://gmpg.org/xfn/11" rel="profile">
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
-  <meta name="generator" content="Hugo 0.47" />
+  <meta name="generator" content="Hugo 0.64.0" />
 
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
@@ -86,7 +86,7 @@
             
         </ul>
 
-        <p>&copy; 2018. All rights reserved. </p>
+        <p>&copy; 2020. All rights reserved. </p>
     </div>
 </div>
 
@@ -97,9 +97,7 @@
         <span class="post-date">2016-10-20</span>
 
         <p><a href="https://github.com/xenolf/lego">xenolf/lego</a> it&rsquo;s a feature-rich Let&rsquo;s Encrypt client and ACME library written in Go.</p>
-
 <p><strong>1.</strong> Prepare Nginx server</p>
-
 <pre><code>server {
     listen 80 default;
     server_name example.org www.example.org;
@@ -111,23 +109,13 @@
 
     # Other directives
 }
-</code></pre>
-
-<p><strong>2.</strong> Update ca-certificates for CentOS 5 (optional)</p>
-
+</code></pre><p><strong>2.</strong> Update ca-certificates for CentOS 5 (optional)</p>
 <p>Let&rsquo;s Encrypt CA certificate is not included into root CA bundle of old Linux distributions like RHEL/Centos 5. You have to replace this bundle manually with fresh one from <a href="http://curl.haxx.se/">cURL website</a>:</p>
-
 <pre><code>cp /etc/pki/tls/certs/ca-bundle.crt /etc/pki/tls/certs/ca-bundle.crt.bak
 wget -O /etc/pki/tls/certs/ca-bundle.crt http://curl.haxx.se/ca/cacert.pem
-</code></pre>
-
-<p><strong>3.</strong> Order the certificate from Let&rsquo;s Encrypt</p>
-
+</code></pre><p><strong>3.</strong> Order the certificate from Let&rsquo;s Encrypt</p>
 <pre><code>lego -d example.org -d www.example.org -m cert-owner@example.org -a --path=/etc/pki/tls/lego --http=:81 run
-</code></pre>
-
-<p><strong>4.</strong> Update Nginx server</p>
-
+</code></pre><p><strong>4.</strong> Update Nginx server</p>
 <pre><code>server {
     listen 80 default;
     server_name example.org www.example.org;
@@ -155,17 +143,10 @@ server {
     # Other directives
 }
 
-</code></pre>
-
-<p><strong>5.</strong> Renew certificate every 2 month at 01:30 of first day of the month</p>
-
+</code></pre><p><strong>5.</strong> Renew certificate every 2 month at 01:30 of first day of the month</p>
 <p>Add to crontab:</p>
-
 <pre><code>30 01 01 */2 * /usr/local/bin/lego -d example.org -d www.example.org -m cert-owner@example.org -a --path=/etc/pki/tls/lego --http=:81 --tls=:444 renew &amp;&amp; /usr/sbin/nginx -s reload
-</code></pre>
-
-<p>Links:</p>
-
+</code></pre><p>Links:</p>
 <ul>
 <li><a href="https://github.com/xenolf/lego">Let&rsquo;s Encrypt client and ACME library written in Go</a></li>
 <li><a href="https://code.kuederle.com/letsencrypt/">LET’S ENCRYPT WITH LEGO AND NGINX</a></li>

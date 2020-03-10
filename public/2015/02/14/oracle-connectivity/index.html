@@ -3,7 +3,7 @@
 <head>
   <link href="http://gmpg.org/xfn/11" rel="profile">
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
-  <meta name="generator" content="Hugo 0.47" />
+  <meta name="generator" content="Hugo 0.64.0" />
 
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
@@ -86,7 +86,7 @@
             
         </ul>
 
-        <p>&copy; 2018. All rights reserved. </p>
+        <p>&copy; 2020. All rights reserved. </p>
     </div>
 </div>
 
@@ -97,37 +97,29 @@
         <span class="post-date">2015-02-14</span>
 
         <p>A new small <a href="https://github.com/dddpaul/java-oracle-connectivity">test project</a> is intended to answer the question - what is the proper way to specify network timeout for database connection?</p>
-
 <p>There so many ways in JDBC API:</p>
-
 <ul>
-<li>[CommonDataSource.setLoginTimeout](<a href="http://docs.oracle.com/javase/7/docs/api/javax/sql/CommonDataSource.html#setLoginTimeout(int)">http://docs.oracle.com/javase/7/docs/api/javax/sql/CommonDataSource.html#setLoginTimeout(int)</a>)</li>
-<li>[Connection.setNetworkTimeout](<a href="http://docs.oracle.com/javase/7/docs/api/java/sql/Connection.html#setNetworkTimeout(java.util.concurrent.Executor,%20int)">http://docs.oracle.com/javase/7/docs/api/java/sql/Connection.html#setNetworkTimeout(java.util.concurrent.Executor,%20int)</a>)</li>
-<li>[Statement.setQueryTimeout](<a href="http://docs.oracle.com/javase/7/docs/api/java/sql/Statement.html#setQueryTimeout(int)">http://docs.oracle.com/javase/7/docs/api/java/sql/Statement.html#setQueryTimeout(int)</a>)</li>
+<li>[CommonDataSource.setLoginTimeout](<a href="http://docs.oracle.com/javase/7/docs/api/javax/sql/CommonDataSource.html#setLoginTimeout(int">http://docs.oracle.com/javase/7/docs/api/javax/sql/CommonDataSource.html#setLoginTimeout(int</a>))</li>
+<li>[Connection.setNetworkTimeout](<a href="http://docs.oracle.com/javase/7/docs/api/java/sql/Connection.html#setNetworkTimeout(java.util.concurrent.Executor,%20int">http://docs.oracle.com/javase/7/docs/api/java/sql/Connection.html#setNetworkTimeout(java.util.concurrent.Executor,%20int</a>))</li>
+<li>[Statement.setQueryTimeout](<a href="http://docs.oracle.com/javase/7/docs/api/java/sql/Statement.html#setQueryTimeout(int">http://docs.oracle.com/javase/7/docs/api/java/sql/Statement.html#setQueryTimeout(int</a>))</li>
 </ul>
-
 <p>And every database has it&rsquo;s own non-standard ways in addition.</p>
-
 <p>But these tests have been lead us to a single conclusion — you must specify network timeouts on driver level. All these JDBC stuff isn&rsquo;t enough for Oracle database.</p>
-
 <p>This code is suitable for <a href="http://tomcat.apache.org/tomcat-7.0-doc/jdbc-pool.html">Tomcat JDBC Connection Pool</a>:</p>
-
 <div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="c1">// Get datasource some way
-</span><span class="c1"></span><span class="n">Datasource</span> <span class="n">ds</span> <span class="o">=</span> <span class="n">createDataSource</span><span class="o">(</span><span class="n">host</span><span class="o">);</span>
+</span><span class="c1"></span><span class="n">Datasource</span> <span class="n">ds</span> <span class="o">=</span> <span class="n">createDataSource</span><span class="o">(</span><span class="n">host</span><span class="o">)</span><span class="o">;</span>
 
 <span class="c1">// Set connect (login) timeout
-</span><span class="c1"></span><span class="n">ds</span><span class="o">.</span><span class="na">setConnectionProperties</span><span class="o">(</span><span class="n">OracleConnection</span><span class="o">.</span><span class="na">CONNECTION_PROPERTY_THIN_NET_CONNECT_TIMEOUT</span> <span class="o">+</span> <span class="s">&#34;=3000&#34;</span><span class="o">);</span>
+</span><span class="c1"></span><span class="n">ds</span><span class="o">.</span><span class="na">setConnectionProperties</span><span class="o">(</span><span class="n">OracleConnection</span><span class="o">.</span><span class="na">CONNECTION_PROPERTY_THIN_NET_CONNECT_TIMEOUT</span> <span class="o">+</span> <span class="s">&#34;=3000&#34;</span><span class="o">)</span><span class="o">;</span>
 
 <span class="c1">// Set common network read timeout
-</span><span class="c1"></span><span class="n">ds</span><span class="o">.</span><span class="na">setConnectionProperties</span><span class="o">(</span><span class="n">OracleConnection</span><span class="o">.</span><span class="na">CONNECTION_PROPERTY_THIN_READ_TIMEOUT</span> <span class="o">+</span> <span class="s">&#34;=3000&#34;</span><span class="o">);</span></code></pre></div>
-
+</span><span class="c1"></span><span class="n">ds</span><span class="o">.</span><span class="na">setConnectionProperties</span><span class="o">(</span><span class="n">OracleConnection</span><span class="o">.</span><span class="na">CONNECTION_PROPERTY_THIN_READ_TIMEOUT</span> <span class="o">+</span> <span class="s">&#34;=3000&#34;</span><span class="o">)</span><span class="o">;</span></code></pre></div>
 <p>The proper way to specify these timeouts in <a href="http://tomcat.apache.org/tomcat-7.0-doc/jndi-datasource-examples-howto.html">JNDI Datasource configuration</a>:</p>
-
 <div class="highlight"><pre class="chroma"><code class="language-xml" data-lang="xml"><span class="nt">&lt;Resource</span> <span class="na">name=</span><span class="s">&#34;jdbc/oracle&#34;</span>
     <span class="na">driverClassName=</span><span class="s">&#34;oracle.jdbc.OracleDriver&#34;</span>
     <span class="na">factory=</span><span class="s">&#34;org.apache.tomcat.jdbc.pool.DataSourceFactory&#34;</span>
     <span class="na">connectionProperties=</span><span class="s">&#34;oracle.net.CONNECT_TIMEOUT=3000;oracle.jdbc.ReadTimeout=3000&#34;</span>
-    <span class="err">...</span>
+    <span class="err">.</span><span class="err">.</span><span class="err">.</span>
     <span class="nt">/&gt;</span></code></pre></div>
 
     </div>

@@ -3,7 +3,7 @@
 <head>
   <link href="http://gmpg.org/xfn/11" rel="profile">
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
-  <meta name="generator" content="Hugo 0.47" />
+  <meta name="generator" content="Hugo 0.64.0" />
 
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
@@ -86,7 +86,7 @@
             
         </ul>
 
-        <p>&copy; 2018. All rights reserved. </p>
+        <p>&copy; 2020. All rights reserved. </p>
     </div>
 </div>
 
@@ -97,33 +97,24 @@
         <span class="post-date">2015-02-01</span>
 
         <p>I&rsquo;ve written a small <a href="https://github.com/dddpaul/java-network-listeners">listeners library</a> today. It allows to create Callables which can be submitted to <a href="http://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ExecutorService.html">ExecutorService</a>. The callable itself implements creating server socket and binding it to local port.</p>
-
 <p>There two principal type of listeners: blocking and non-blocking (thanks to <a href="http://en.wikipedia.org/wiki/Non-blocking_I/O_(Java)">Java NIO</a>.</p>
-
-<hr />
-
+<hr>
 <p>Blocking listener is very simple but in can&rsquo;t be interrupted by calling thread. So there&rsquo;s no point in that:</p>
-
-<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="n">Future</span><span class="o">&lt;</span><span class="n">Socket</span><span class="o">&gt;</span> <span class="n">future</span> <span class="o">=</span> <span class="n">executor</span><span class="o">.</span><span class="na">submit</span><span class="o">(</span> <span class="n">Listeners</span><span class="o">.</span><span class="na">createListener</span><span class="o">(</span> <span class="n">PORT</span> <span class="o">)</span> <span class="o">);</span>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="n">Future</span><span class="o">&lt;</span><span class="n">Socket</span><span class="o">&gt;</span> <span class="n">future</span> <span class="o">=</span> <span class="n">executor</span><span class="o">.</span><span class="na">submit</span><span class="o">(</span> <span class="n">Listeners</span><span class="o">.</span><span class="na">createListener</span><span class="o">(</span> <span class="n">PORT</span> <span class="o">)</span> <span class="o">)</span><span class="o">;</span>
 <span class="k">try</span> <span class="o">{</span>
-    <span class="n">Socket</span> <span class="n">socket</span> <span class="o">=</span> <span class="n">future</span><span class="o">.</span><span class="na">get</span><span class="o">(</span> <span class="n">1</span><span class="o">,</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="na">SECONDS</span> <span class="o">);</span>
+    <span class="n">Socket</span> <span class="n">socket</span> <span class="o">=</span> <span class="n">future</span><span class="o">.</span><span class="na">get</span><span class="o">(</span> <span class="n">1</span><span class="o">,</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="na">SECONDS</span> <span class="o">)</span><span class="o">;</span>
 <span class="o">}</span> <span class="k">catch</span><span class="o">(</span> <span class="n">TimeoutException</span> <span class="n">e</span> <span class="o">)</span> <span class="o">{</span>
-    <span class="n">future</span><span class="o">.</span><span class="na">cancel</span><span class="o">(</span> <span class="kc">true</span> <span class="o">);</span>
+    <span class="n">future</span><span class="o">.</span><span class="na">cancel</span><span class="o">(</span> <span class="kc">true</span> <span class="o">)</span><span class="o">;</span>
 <span class="o">}</span></code></pre></div>
-
 <p>Listener will stay active and PORT will be bound still. The reason is in usage of the uninterruptible <a href="http://docs.oracle.com/javase/7/docs/api/java/net/ServerSocket.html#accept()">ServerSocket.accept()</a>.</p>
-
-<hr />
-
+<hr>
 <p>In contrary non-blocking listener is more sophisticated but it can be interrupted by calling thread. So you can do that:</p>
-
-<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="n">Future</span><span class="o">&lt;</span><span class="n">Socket</span><span class="o">&gt;</span> <span class="n">future</span> <span class="o">=</span> <span class="n">executor</span><span class="o">.</span><span class="na">submit</span><span class="o">(</span> <span class="n">Listeners</span><span class="o">.</span><span class="na">createListener</span><span class="o">(</span> <span class="n">PORT</span> <span class="o">)</span> <span class="o">);</span>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="n">Future</span><span class="o">&lt;</span><span class="n">Socket</span><span class="o">&gt;</span> <span class="n">future</span> <span class="o">=</span> <span class="n">executor</span><span class="o">.</span><span class="na">submit</span><span class="o">(</span> <span class="n">Listeners</span><span class="o">.</span><span class="na">createListener</span><span class="o">(</span> <span class="n">PORT</span> <span class="o">)</span> <span class="o">)</span><span class="o">;</span>
 <span class="k">try</span> <span class="o">{</span>
-    <span class="n">Socket</span> <span class="n">socket</span> <span class="o">=</span> <span class="n">future</span><span class="o">.</span><span class="na">get</span><span class="o">(</span> <span class="n">1</span><span class="o">,</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="na">SECONDS</span> <span class="o">);</span>
+    <span class="n">Socket</span> <span class="n">socket</span> <span class="o">=</span> <span class="n">future</span><span class="o">.</span><span class="na">get</span><span class="o">(</span> <span class="n">1</span><span class="o">,</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="na">SECONDS</span> <span class="o">)</span><span class="o">;</span>
 <span class="o">}</span> <span class="k">catch</span><span class="o">(</span> <span class="n">TimeoutException</span> <span class="n">e</span> <span class="o">)</span> <span class="o">{</span>
-    <span class="n">future</span><span class="o">.</span><span class="na">cancel</span><span class="o">(</span> <span class="kc">true</span> <span class="o">);</span>
+    <span class="n">future</span><span class="o">.</span><span class="na">cancel</span><span class="o">(</span> <span class="kc">true</span> <span class="o">)</span><span class="o">;</span>
 <span class="o">}</span></code></pre></div>
-
 <p>Listener will be terminated and PORT will be freed.</p>
 
     </div>

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Posts on Pavel Derendyaev notes</title>
@@ -6,10 +6,21 @@
     <description>Recent content in Posts on Pavel Derendyaev notes</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 15 Oct 2018 22:55:13 +0300</lastBuildDate>
+    <lastBuildDate>Mon, 01 Apr 2019 22:55:13 +0300</lastBuildDate>
     
 	<atom:link href="https://dddpaul.github.io/blog/posts/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Backend stories 3.0 - митап в Альфа-Банке</title>
+      <link>https://dddpaul.github.io/blog/2019/04/01/alfabank-java-meetup-3/</link>
+      <pubDate>Mon, 01 Apr 2019 22:55:13 +0300</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2019/04/01/alfabank-java-meetup-3/</guid>
+      <description>29 марта прошел Java-митап Backend stories 3.0 в Альфа-банке.
+Материалы доступны на страничке с отчетом о событии.
+Прямая ссылка на запись трансляции.</description>
+    </item>
     
     <item>
       <title>Backend stories 2.0 - митап в Альфа-Банке</title>
@@ -29,10 +40,10 @@
       
       <guid>https://dddpaul.github.io/blog/2018/06/23/kafka-tips/</guid>
       <description>Список консьюмер-групп
-docker run wurstmeister/kafka /opt/kafka/bin/kafka-consumer-groups.sh --bootstrap-server kafka:9092 --list  Информация по консьюмер-группе
+docker run wurstmeister/kafka /opt/kafka/bin/kafka-consumer-groups.sh --bootstrap-server kafka:9092 --list Информация по консьюмер-группе
 docker run wurstmeister/kafka /opt/kafka/bin/kafka-consumer-groups.sh --bootstrap-server kafka:9092 --group id1 --describe  Установка оффсета на начало
-docker run wurstmeister/kafka /opt/kafka/bin/kafka-consumer-groups.sh --bootstrap-server kafka:9092 --topic topic --group id1 --reset-offsets --to-earliest --execute  Установка оффсета на конец
-docker run wurstmeister/kafka /opt/kafka/bin/kafka-consumer-groups.sh --bootstrap-server kafka:9092 --topic topic --group id1 --reset-offsets --to-latest --execute  Установка оффсета на дату-время
+docker run wurstmeister/kafka /opt/kafka/bin/kafka-consumer-groups.sh --bootstrap-server kafka:9092 --topic topic --group id1 --reset-offsets --to-earliest --execute Установка оффсета на конец
+docker run wurstmeister/kafka /opt/kafka/bin/kafka-consumer-groups.sh --bootstrap-server kafka:9092 --topic topic --group id1 --reset-offsets --to-latest --execute Установка оффсета на дату-время
 docker run wurstmeister/kafka /opt/kafka/bin/kafka-consumer-groups.sh --bootstrap-server kafka:9092 --topic topic --group id1 --reset-offsets --to-datetime &amp;quot;2017-12-22T00:00:00.</description>
     </item>
     
@@ -54,9 +65,9 @@ docker run wurstmeister/kafka /opt/kafka/bin/kafka-consumer-groups.sh --bootstra
       
       <guid>https://dddpaul.github.io/blog/2016/11/13/mysql-to-postgresql-migration/</guid>
       <description>Install migration Ruby gem and run it:
-gem install mysql2psql mysql2psql  Update database credentials in generated mysql2psql.yml file:
-mysql: database: redmine hostname: localhost port: 3306 username: redmine password: xxxxxxx encoding: utf8 destination: # if file is given, output goes to file, else postgres file: /tmp/redmine-pg.sql postgres: hostname: localhost port: 5432 username: mysql2psql password: database: mysql2psql_test  Run command again:
-mysql2psql  Links:
+gem install mysql2psql mysql2psql Update database credentials in generated mysql2psql.yml file:
+mysql: database: redmine hostname: localhost port: 3306 username: redmine password: xxxxxxx encoding: utf8 destination: # if file is given, output goes to file, else postgres file: /tmp/redmine-pg.sql postgres: hostname: localhost port: 5432 username: mysql2psql password: database: mysql2psql_test Run command again:
+mysql2psql Links:
  How to migrate from MySQL to PostgreSQL  </description>
     </item>
     
@@ -92,7 +103,7 @@ pvcreate /dev/sdb1 # Create physical volume vgcreate docker /dev/sdb1 # Create v
       <guid>https://dddpaul.github.io/blog/2016/10/20/lego-nginx/</guid>
       <description>xenolf/lego it&amp;rsquo;s a feature-rich Let&amp;rsquo;s Encrypt client and ACME library written in Go.
 1. Prepare Nginx server
-server { listen 80 default; server_name example.org www.example.org; location /.well-known/acme-challenge { proxy_pass http://127.0.0.1:81; proxy_set_header Host $host; } # Other directives }  2. Update ca-certificates for CentOS 5 (optional)
+server { listen 80 default; server_name example.org www.example.org; location /.well-known/acme-challenge { proxy_pass http://127.0.0.1:81; proxy_set_header Host $host; } # Other directives } 2. Update ca-certificates for CentOS 5 (optional)
 Let&amp;rsquo;s Encrypt CA certificate is not included into root CA bundle of old Linux distributions like RHEL/Centos 5. You have to replace this bundle manually with fresh one from cURL website:</description>
     </item>
     
@@ -146,7 +157,7 @@ type Progress struct { bytes uint64 } func TransferStreams(con net.Conn) { c := 
       <guid>https://dddpaul.github.io/blog/2016/04/15/react-for-starters/</guid>
       <description>Для разогрева:
  React tutorial Курс на Хекслете  После этого более-менее должно оформиться понимание, что:
- React - это V в MVC; основа React - это компоненты; у компонента есть главный метод render(), который дергается React&amp;rsquo;ом, когда нужно отобразить или перерисовать компонент; компоненты инициализируется через properties, и хранят state; компоненты пишутся на JSX - специальный синтаксис, который &amp;ldquo;бесшовно&amp;rdquo; внедряет HTML в JS; компоненты можно связывать в иерархические структуры; состояние нельзя менять напрямую, а только через специальный метод setState() - таким образом React точно узнает, что состояние изменилось и объект надо перерисовать; состояние принято хранить в родительском компоненте, и передавать его в дочерние компоненты через properties.</description>
+ React - это V в MVC; основа React - это компоненты; у компонента есть главный метод render(), который дергается React&#39;ом, когда нужно отобразить или перерисовать компонент; компоненты инициализируется через properties, и хранят state; компоненты пишутся на JSX - специальный синтаксис, который &amp;ldquo;бесшовно&amp;rdquo; внедряет HTML в JS; компоненты можно связывать в иерархические структуры; состояние нельзя менять напрямую, а только через специальный метод setState() - таким образом React точно узнает, что состояние изменилось и объект надо перерисовать; состояние принято хранить в родительском компоненте, и передавать его в дочерние компоненты через properties.</description>
     </item>
     
     <item>
@@ -157,7 +168,7 @@ type Progress struct { bytes uint64 } func TransferStreams(con net.Conn) { c := 
       <guid>https://dddpaul.github.io/blog/2016/03/17/linearizability-and-serializability/</guid>
       <description>Linearizability versus Serializability:
  Linearizability is a guarantee about single operations on single objects. It provides a real-time (i.e., wall-clock) guarantee on the behavior of a set of single operations (often reads and writes) on a single object (e.g., distributed register or data item).
-Linearizability for read and write operations is synonymous with the term “atomic consistency” and is the “C,” or “consistency,” in Gilbert and Lynch’s proof of the CAP Theorem.</description>
+  Linearizability for read and write operations is synonymous with the term “atomic consistency” and is the “C,” or “consistency,” in Gilbert and Lynch’s proof of the CAP Theorem.</description>
     </item>
     
     <item>
@@ -179,7 +190,7 @@ Plain Tomcat way According to How do I change how GET parameters are interpreted
       <description>There are plenty of bool and default filters usage in Ansible playbooks and templates. For example, in debops/ansible-docker: when: docker_upstream| d() | bool.
 Where docker_upstream is an YAML boolean: docker_upstream: False. It seems like &amp;ldquo;when&amp;rdquo; condition is overbloated again :)
 The var | d() | bool construction is spread all over the place, for example, in docker config template:
-{% if docker_listen | d() | bool %}  Where docker_listen is an YAML list: docker_listen: [ &#39;{{ docker_tcp_listen }}&#39; ].</description>
+{% if docker_listen | d() | bool %} Where docker_listen is an YAML list: docker_listen: [ &#39;{{ docker_tcp_listen }}&#39; ].</description>
     </item>
     
     <item>
@@ -202,9 +213,9 @@ First of all, the Ansible when clause contains a Jinja2 expression (see Ansible 
       
       <guid>https://dddpaul.github.io/blog/2015/07/28/firewalld-zones/</guid>
       <description>As you can expect from man firewall-cmd interface binding to zone other than default (public) could be achieved with the following command sequence:
-firewall-cmd --zone public --remove-interface eth1 --permanent firewall-cmd --zone internal --add-interface eth1 --permanent firewall-cmd --reload  Seems like it&amp;rsquo;s done:
-firewall-cmd --get-zone-of-interface=eth1 internal  But after firewalld restart or server reboot things aren&amp;rsquo;t so bright:
-firewall-cmd --get-zone-of-interface=eth1 public  The reason is in this CentOS-7 bug. The only workaround is to specify zone in /etc/sysconfig/network-scripts/ifcfg-eth1 file:</description>
+firewall-cmd --zone public --remove-interface eth1 --permanent firewall-cmd --zone internal --add-interface eth1 --permanent firewall-cmd --reload Seems like it&amp;rsquo;s done:
+firewall-cmd --get-zone-of-interface=eth1 internal But after firewalld restart or server reboot things aren&amp;rsquo;t so bright:
+firewall-cmd --get-zone-of-interface=eth1 public The reason is in this CentOS-7 bug. The only workaround is to specify zone in /etc/sysconfig/network-scripts/ifcfg-eth1 file:</description>
     </item>
     
     <item>
@@ -273,7 +284,7 @@ But these tests have been lead us to a single conclusion — you must specify ne
       <guid>https://dddpaul.github.io/blog/2015/02/01/java-listeners/</guid>
       <description>I&amp;rsquo;ve written a small listeners library today. It allows to create Callables which can be submitted to ExecutorService. The callable itself implements creating server socket and binding it to local port.
 There two principal type of listeners: blocking and non-blocking (thanks to Java NIO.
-Blocking listener is very simple but in can&amp;rsquo;t be interrupted by calling thread. So there&amp;rsquo;s no point in that:
+ Blocking listener is very simple but in can&amp;rsquo;t be interrupted by calling thread. So there&amp;rsquo;s no point in that:
 Future&amp;lt;Socket&amp;gt; future = executor.submit( Listeners.createListener( PORT ) ); try { Socket socket = future.</description>
     </item>
     
@@ -284,8 +295,7 @@ Future&amp;lt;Socket&amp;gt; future = executor.submit( Listeners.createListener(
       
       <guid>https://dddpaul.github.io/blog/2015/01/17/memory-leaks-articles/</guid>
       <description>&amp;ldquo;Solving OutOfMemoryError&amp;rdquo; series from Nikita Salnikov-Tarnovsky and Vladimir Šor:
- Solving OutOfMemoryError (part 1) – story of a developer Solving OutOfMemoryError (part 2) – why didn’t operations solve it? Solving OutOfMemoryError (part 3) – where do you start? Solving OutOfMemoryError (part 4) – memory profilers Solving OutOfMemoryError (part 5) – JDK Tools Solving OutOfMemoryError (part 6) – Dump is not a waste  &amp;ldquo;Classloader leaks&amp;rdquo; series from Mattias Jiderhamn:
- Classloader leaks I – How to find classloader leaks with Eclipse Memory Analyser (MAT) Classloader leaks II – Find and work around unwanted references Classloader leaks III – “Die Thread, die!</description>
+ Solving OutOfMemoryError (part 1) – story of a developer Solving OutOfMemoryError (part 2) – why didn’t operations solve it? Solving OutOfMemoryError (part 3) – where do you start? Solving OutOfMemoryError (part 4) – memory profilers Solving OutOfMemoryError (part 5) – JDK Tools Solving OutOfMemoryError (part 6) – Dump is not a waste   &amp;ldquo;Classloader leaks&amp;rdquo; series from Mattias Jiderhamn:</description>
     </item>
     
     <item>
@@ -329,8 +339,8 @@ Future&amp;lt;Socket&amp;gt; future = executor.submit( Listeners.createListener(
       
       <guid>https://dddpaul.github.io/blog/2014/12/21/method-handle-logger/</guid>
       <description>One more quote from The Well-Grounded Java Developer by Benjamin J. Evans and Martijn Verburg about useful feature of MethodHandle.
-One additional feature that method handles provide is the ability to determine the current class from a static context. If you’ve ever written logging code (such as for log4j) that looked like this,
-Logger lgr = LoggerFactory.getLogger(MyClass.class);  you know that this code is fragile. If it’s refactored to move into a superclass or subclass, the explicit class name would cause problems With Java 7, however, you can write this:</description>
+ One additional feature that method handles provide is the ability to determine the current class from a static context. If you’ve ever written logging code (such as for log4j) that looked like this,
+Logger lgr = LoggerFactory.getLogger(MyClass.class); you know that this code is fragile. If it’s refactored to move into a superclass or subclass, the explicit class name would cause problems With Java 7, however, you can write this:</description>
     </item>
     
     <item>
@@ -341,7 +351,7 @@ Logger lgr = LoggerFactory.getLogger(MyClass.class);  you know that this code is
       <guid>https://dddpaul.github.io/blog/2014/12/06/jmm-1/</guid>
       <description>This article is mostly consist of quotes from The Well-Grounded Java Developer by Benjamin J. Evans and Martijn Verburg. I like simplicity and brevity of their explanation approach.
 And that&amp;rsquo;s how Happens-Before and Synchronizes-With relationships are explained.
- Happens-Before — This relationship indicates that one block of code fully completes before the other can start. Synchronizes-With — This means that an action will synchronize its view of an object with main memory before continuing.</description>
+  Happens-Before — This relationship indicates that one block of code fully completes before the other can start. Synchronizes-With — This means that an action will synchronize its view of an object with main memory before continuing.</description>
     </item>
     
     <item>
@@ -383,7 +393,7 @@ And that&amp;rsquo;s how Happens-Before and Synchronizes-With relationships are 
       <guid>https://dddpaul.github.io/blog/2014/08/02/orientation-change/</guid>
       <description>После нескольких дней отладки приложения пришел к выводу, что смена ориентации (rotation, orientation change) требует к себе особого внимания. Наконец-то я понял тех разработчиков, которые напрочь запрещают смену ориентации в своем софте. Ведь, не зная некоторых неочевидных нюансов, можно легко получить крах приложения или утечку памяти.
 Опишу в порядке возрастания сложности, на какие подводные камни мне пришлось натолкнуться.
-Beginner&amp;rsquo;s level Надо сохранять состояние (state) фрагментов. Не сохранил — потерял, т.</description>
+Beginner&amp;rsquo;s level Надо сохранять состояние (state) фрагментов. Не сохранил — потерял, т.к. активити и фрагменты будут пересозданы.</description>
     </item>
     
     <item>
@@ -393,7 +403,7 @@ Beginner&amp;rsquo;s level Надо сохранять состояние (state
       
       <guid>https://dddpaul.github.io/blog/2014/08/01/android-memory-leaks/</guid>
       <description>Articles:
- Avoiding memory leaks. This great article describes base causes of memory leaks on Android. I quote summary from there:
+  Avoiding memory leaks. This great article describes base causes of memory leaks on Android. I quote summary from there:
  Do not keep long-lived references to a context-activity (a reference to an activity should have the same life cycle as the activity itself) Try using the context-application instead of a context-activity Avoid non-static inner classes in an activity if you don&amp;rsquo;t control their life cycle, use a static inner class and make a weak reference to the activity inside.</description>
     </item>
     

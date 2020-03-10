@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Memory Leaks on Pavel Derendyaev notes</title>
+    <title>Memory leaks on Pavel Derendyaev notes</title>
     <link>https://dddpaul.github.io/blog/series/memory-leaks/</link>
-    <description>Recent content in Memory Leaks on Pavel Derendyaev notes</description>
+    <description>Recent content in Memory leaks on Pavel Derendyaev notes</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Sat, 17 Jan 2015 22:35:49 +0300</lastBuildDate>
@@ -18,8 +18,7 @@
       
       <guid>https://dddpaul.github.io/blog/2015/01/17/memory-leaks-articles/</guid>
       <description>&amp;ldquo;Solving OutOfMemoryError&amp;rdquo; series from Nikita Salnikov-Tarnovsky and Vladimir Šor:
- Solving OutOfMemoryError (part 1) – story of a developer Solving OutOfMemoryError (part 2) – why didn’t operations solve it? Solving OutOfMemoryError (part 3) – where do you start? Solving OutOfMemoryError (part 4) – memory profilers Solving OutOfMemoryError (part 5) – JDK Tools Solving OutOfMemoryError (part 6) – Dump is not a waste  &amp;ldquo;Classloader leaks&amp;rdquo; series from Mattias Jiderhamn:
- Classloader leaks I – How to find classloader leaks with Eclipse Memory Analyser (MAT) Classloader leaks II – Find and work around unwanted references Classloader leaks III – “Die Thread, die!</description>
+ Solving OutOfMemoryError (part 1) – story of a developer Solving OutOfMemoryError (part 2) – why didn’t operations solve it? Solving OutOfMemoryError (part 3) – where do you start? Solving OutOfMemoryError (part 4) – memory profilers Solving OutOfMemoryError (part 5) – JDK Tools Solving OutOfMemoryError (part 6) – Dump is not a waste   &amp;ldquo;Classloader leaks&amp;rdquo; series from Mattias Jiderhamn:</description>
     </item>
     
     <item>
@@ -40,7 +39,7 @@
       <guid>https://dddpaul.github.io/blog/2014/08/02/orientation-change/</guid>
       <description>После нескольких дней отладки приложения пришел к выводу, что смена ориентации (rotation, orientation change) требует к себе особого внимания. Наконец-то я понял тех разработчиков, которые напрочь запрещают смену ориентации в своем софте. Ведь, не зная некоторых неочевидных нюансов, можно легко получить крах приложения или утечку памяти.
 Опишу в порядке возрастания сложности, на какие подводные камни мне пришлось натолкнуться.
-Beginner&amp;rsquo;s level Надо сохранять состояние (state) фрагментов. Не сохранил — потерял, т.</description>
+Beginner&amp;rsquo;s level Надо сохранять состояние (state) фрагментов. Не сохранил — потерял, т.к. активити и фрагменты будут пересозданы.</description>
     </item>
     
     <item>
@@ -50,7 +49,7 @@ Beginner&amp;rsquo;s level Надо сохранять состояние (state
       
       <guid>https://dddpaul.github.io/blog/2014/08/01/android-memory-leaks/</guid>
       <description>Articles:
- Avoiding memory leaks. This great article describes base causes of memory leaks on Android. I quote summary from there:
+  Avoiding memory leaks. This great article describes base causes of memory leaks on Android. I quote summary from there:
  Do not keep long-lived references to a context-activity (a reference to an activity should have the same life cycle as the activity itself) Try using the context-application instead of a context-activity Avoid non-static inner classes in an activity if you don&amp;rsquo;t control their life cycle, use a static inner class and make a weak reference to the activity inside.</description>
     </item>
     

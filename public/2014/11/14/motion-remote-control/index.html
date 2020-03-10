@@ -3,7 +3,7 @@
 <head>
   <link href="http://gmpg.org/xfn/11" rel="profile">
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
-  <meta name="generator" content="Hugo 0.47" />
+  <meta name="generator" content="Hugo 0.64.0" />
 
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
@@ -86,7 +86,7 @@
             
         </ul>
 
-        <p>&copy; 2018. All rights reserved. </p>
+        <p>&copy; 2020. All rights reserved. </p>
     </div>
 </div>
 
@@ -97,71 +97,57 @@
         <span class="post-date">2014-11-14</span>
 
         <p>Цель — сделать удобное управление для сервачка с системой motion detection.  В качестве сервера пригодился классический нетбук Asus Eee PC 701 4-х гигабайтным SSD на борту. На него была установлена Ubuntu 14.04.</p>
-
 <p>Задачи:</p>
-
 <ol>
 <li>Собственно, motion detection (для этого был использован <a href="http://www.lavrsen.dk/foswiki/bin/view/Motion/WebHome">Motion</a>).</li>
 <li>Управление настройками Motion через ИК-пульт.</li>
 <li>Вывод всех сообщений от Motion и сигналов от пульта на консоль (<em>/dev/tty1</em>).</li>
 <li>Минимальное время работы экрана (быстрый переход в энергосберегающйй режим, просыпание по сигналу от пульта).</li>
 </ol>
-
 <p><strong>1.</strong> Motion ставится элементарно — <code>apt-get install motion</code>. Важные настройки:</p>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="c1"># Максимальный fps</span>
+framerate <span class="m">5</span>
 
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="c1"># Максимальный fps
-</span><span class="c1"></span>framerate <span class="m">5</span>
+<span class="c1"># Снимать на максимальном fps только во время движения</span>
+webcam_motion on
 
-<span class="c1"># Снимать на максимальном fps только во время движения
-</span><span class="c1"></span>webcam_motion on
+<span class="c1"># Выкрутил в максимум, чтобы избежать срабатывания на включение света</span>
+lightswitch <span class="m">100</span>
 
-<span class="c1"># Выкрутил в максимум, чтобы избежать срабатывания на включение света
-</span><span class="c1"></span>lightswitch <span class="m">100</span>
+<span class="c1"># Кол-во кадров с движением, необходимых для генерации события</span>
+minimum_motion_frames <span class="m">3</span>
 
-<span class="c1"># Кол-во кадров с движением, необходимых для генерации события
-</span><span class="c1"></span>minimum_motion_frames <span class="m">3</span>
+<span class="c1"># Записать кадры до движения</span>
+pre_capture <span class="m">5</span>
 
-<span class="c1"># Записать кадры до движения
-</span><span class="c1"></span>pre_capture <span class="m">5</span>
+<span class="c1"># Записать кадры после движения</span>
+post_capture <span class="m">5</span>
 
-<span class="c1"># Записать кадры после движения
-</span><span class="c1"></span>post_capture <span class="m">5</span>
+<span class="c1"># Маска для определения области детекции, легко делается в Gimp&#39;е из снимка с камеры.</span>
+<span class="c1"># Области, закрашенные черным, игнорируются.</span>
+mask_file /path/to/mask.pgm
 
-<span class="c1"># Маска для определения области детекции, легко делается в Gimp&#39;е из снимка с камеры.
-</span><span class="c1"># Области, закрашенные черным, игнорируются.
-</span><span class="c1"></span>mask_file /path/to/mask.pgm
+<span class="c1"># Время определения окончания движения (если за 15 секунд после начала движения</span>
+<span class="c1"># не было никаких поползновений, то считаем, что событие-движение закончилось)</span>
+gap <span class="m">15</span>
 
-<span class="c1"># Время определения окончания движения (если за 15 секунд после начала движения
-</span><span class="c1"># не было никаких поползновений, то считаем, что событие-движение закончилось)
-</span><span class="c1"></span>gap <span class="m">15</span>
+<span class="c1"># Отключить создание снимков</span>
+output_normal off
 
-<span class="c1"># Отключить создание снимков
-</span><span class="c1"></span>output_normal off
+<span class="c1"># Обозначать движение прямоугольником</span> 
+locate on
 
-<span class="c1"># Обозначать движение прямоугольником 
-</span><span class="c1"></span>locate on
-
-<span class="c1"># Запуск скрипта по началу движения (это симлимк, который указывает на реальный скрипт).
-</span><span class="c1"># Изменение симлинка осущестляется по команде с пульта (см. п. 2 про конфиг) 
-</span><span class="c1"></span>on_event_start <span class="s2">&#34;/etc/motion/handlers/on_event_start&#34;</span></code></pre></div>
-
-<p>Для подгонки чувствительности, порога шумов и т.д., нужно использовать setup mode, который активируется при запуске <code>
-motion -s</code>.</p>
-
+<span class="c1"># Запуск скрипта по началу движения (это симлимк, который указывает на реальный скрипт).</span>
+<span class="c1"># Изменение симлинка осущестляется по команде с пульта (см. п. 2 про конфиг)</span> 
+on_event_start <span class="s2">&#34;/etc/motion/handlers/on_event_start&#34;</span></code></pre></div>
+<p>Для подгонки чувствительности, порога шумов и т.д., нужно использовать setup mode, который активируется при запуске <code>motion -s</code>.</p>
 <p>При этом в mjpeg-трансляции область детекции будет обозначена черным, шумы — серым, а распознанное движение — синим.</p>
-
 <p><strong>2.</strong> Для управления нетбуком был использован <a href="http://www.dx.com/p/multimedia-ir-remote-controller-with-usb-receiver-for-pc-1-cr2025-26368#.VGYO33WUe24">ИК-пульт с USB-приемником</a>. Подобные пульты есть и на aliexpress, и ebay. USB-приемник эмулирует HID-устройство, по сути — обычную клавиатуру.</p>
-
 <p>Для работы с символьными устройствами ввода в Linux есть подсистема <a href="http://en.wikipedia.org/wiki/Evdev">evdev</a>. Потестить распознавание сигналов с пульта можно с помощью утилиты <a href="http://manpages.ubuntu.com/manpages/trusty/man1/evtest.1.html">evtest</a>.</p>
-
 <p>На гитхабе нашелся <a href="https://github.com/gvalkov/golang-evdev">пакет для работы с evdev на Go</a>. Проект больше не поддерживается, так что я отфоркался от <a href="https://github.com/ungerik/golang-evdev">более свежего форка</a> и сделал rebase на ядро Ubuntu 14.04 (3.13.0-39-generic на данный момент):</p>
-
 <pre><code>cd evdev
 make ecodes.go
-</code></pre>
-
-<p>Поверх golang-evdev я написал <a href="https://github.com/dddpaul/go-evhandler">evhandler</a>. Эта программа запускается от root&rsquo;а и слушает события от input device, указанного в конфиге (как правило, <em>/etc/evhandler.toml</em>).  Мой конфиг:</p>
-
+</code></pre><p>Поверх golang-evdev я написал <a href="https://github.com/dddpaul/go-evhandler">evhandler</a>. Эта программа запускается от root'а и слушает события от input device, указанного в конфиге (как правило, <em>/etc/evhandler.toml</em>).  Мой конфиг:</p>
 <pre><code>[params]
     device = &quot;/dev/input/eventXXX&quot;
 
@@ -170,30 +156,21 @@ make ecodes.go
     KEY_PLAYPAUSE = &quot;service motion start&quot;
     KEY_PAGEUP = &quot;/etc/motion/handlers/handler-select up&quot;
     KEY_PAGEDOWN = &quot;/etc/motion/handlers/handler-select down&quot;
-</code></pre>
-
-<p>В разделе <em>actions</em> на кнопки пульта вешаются команды: остановка и запуск motion, и выбор скрипта, который будет запущен при детекции движения. Скрипт <em>handler-select</em> &ldquo;передвигает&rdquo; симлинк <em>on_event_start</em> вверх/вниз, устанавливая, таким образом, реальный скрипт, который будет запускаться. Коллекцию этих скриптов я выложил в <a href="https://github.com/dddpaul/motion-handlers">отдельный проект</a>.</p>
-
+</code></pre><p>В разделе <em>actions</em> на кнопки пульта вешаются команды: остановка и запуск motion, и выбор скрипта, который будет запущен при детекции движения. Скрипт <em>handler-select</em> &ldquo;передвигает&rdquo; симлинк <em>on_event_start</em> вверх/вниз, устанавливая, таким образом, реальный скрипт, который будет запускаться. Коллекцию этих скриптов я выложил в <a href="https://github.com/dddpaul/motion-handlers">отдельный проект</a>.</p>
 <p>Для чтения и парсинга конфигов я использовал пакет <a href="http://spf13.com/project/viper">Viper</a>. Это очень классная либа от автора <a href="http://gohugo.io/">Hugo</a>, которая умеет:</p>
-
 <ul>
 <li>парсить YAML, TOML и JSON;</li>
 <li>искать конфиги в разных местах (например, сначала в $HOME, а потом в <em>/etc</em>);</li>
 <li>устанавливать значение по-умолчанию и переопределять значения из конфига значениями из CLI.</li>
 </ul>
-
-<p><strong>3.</strong> Имя устройства неплохо бы зафиксировать, т.к. оно назначается udev&rsquo;ом и может меняться при перетыках из порта в порт, а также при перезагрузках. Но для начала надо узнать текущее имя устройства.</p>
-
+<p><strong>3.</strong> Имя устройства неплохо бы зафиксировать, т.к. оно назначается udev'ом и может меняться при перетыках из порта в порт, а также при перезагрузках. Но для начала надо узнать текущее имя устройства.</p>
 <pre><code># lsusb
 ...
 Bus 003 Device 002: ID 073a:2230 Chaplet Systems, Inc. infrared dongle for remote
 
 # evtest 2&gt;&amp;1 | grep &quot;073a:2230&quot;
 /dev/input/event10:	HID 073a:2230
-</code></pre>
-
-<p>Итак, имя устройства в системе — <em>/dev/input/event10</em>. Получим необходимую информацию для построения udev-правила:</p>
-
+</code></pre><p>Итак, имя устройства в системе — <em>/dev/input/event10</em>. Получим необходимую информацию для построения udev-правила:</p>
 <pre><code># udevadm info -a -p $(udevadm info -q path -n /dev/input/event10)
 ...
   looking at device '/devices/pci0000:00/0000:00:1d.1/usb3/3-2/3-2:1.0/input/input12/event10':
@@ -207,67 +184,50 @@ Bus 003 Device 002: ID 073a:2230 Chaplet Systems, Inc. infrared dongle for remot
     DRIVERS==&quot;&quot;
     ATTRS{name}==&quot;HID 073a:2230&quot;
 ...
-</code></pre>
-
-<p>Теперь можно навесить на устройство фиксированный симлинк:</p>
-
+</code></pre><p>Теперь можно навесить на устройство фиксированный симлинк:</p>
 <pre><code># cat &gt; /etc/udev/rules.d/10-local.rules
 KERNEL==&quot;event*&quot;, SUBSYSTEM==&quot;input&quot;, ATTRS{name}==&quot;HID 073a:2230&quot;, SYMLINK+=&quot;input/event100&quot;
-</code></pre>
-
-<p>Для проверки нужно воспользоваться командой <code>udevadm trigger</code> или перезагрузиться. Даже если исходное имя устройства изменится (например, на <em>/dev/input/event11</em>), наш симлинк <em>/dev/input/event100</em> будет указывать на него.</p>
-
+</code></pre><p>Для проверки нужно воспользоваться командой <code>udevadm trigger</code> или перезагрузиться. Даже если исходное имя устройства изменится (например, на <em>/dev/input/event11</em>), наш симлинк <em>/dev/input/event100</em> будет указывать на него.</p>
 <p><strong>4.</strong> evhandler должен использовать в качестве стандартного вывода <em>/dev/tty1</em>. Сделать это очень просто.</p>
-
 <p>Сначала отключим ввод с <em>/dev/tty1</em> — <code>rm /etc/init/tty1.conf</code>.</p>
-
 <p>И создадим новый upstart job в <em>/etc/init/evhandler.conf</em>:</p>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="c1"># evhandler - Simple key press listener and handler written in Go</span>
 
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="c1"># evhandler - Simple key press listener and handler written in Go
-</span><span class="c1"></span>
-start on runlevel <span class="o">[</span><span class="m">2345</span><span class="o">]</span>
+start on runlevel <span class="o">[</span>2345<span class="o">]</span>
 stop on runlevel <span class="o">[</span>!2345<span class="o">]</span>
 
 respawn
 
-<span class="nb">exec</span> /path/to/go-evhandler &gt; /dev/tty1 <span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span></code></pre></div>
-
-<p>Теперь evhandler будет запускаться при загрузке, а также перезапускаться, если его процесс будет прибит. Для ручного запуска — <code>
-start evhandler</code>.</p>
-
-<ol>
+<span class="nb">exec</span> /path/to/go-evhandler &gt; /dev/tty1 2&gt;<span class="p">&amp;</span><span class="m">1</span></code></pre></div>
+<p>Теперь evhandler будет запускаться при загрузке, а также перезапускаться, если его процесс будет прибит. Для ручного запуска — <code>start evhandler</code>.</p>
+<ol start="4">
 <li>Управлять включением энергосберегающего режима (а именно, гашением экрана) можно з-мя способами:</li>
+</ol>
+<ul>
 <li>указать <code>consoleblank=sss</code> (где sss - секунды) в параметрах ядра (<em>GRUB_CMDLINE_LINUX</em> в <em>/etc/default/grub</em>);</li>
 <li>использовать команду <code>setterm -blank mm</code> (где mm - минуты), для включения — <code>setterm -blank poke</code>;</li>
 <li>использовать специальные ESC-последовательности в команде <code>echo</code>.</li>
-</ol>
-
+</ul>
 <p><code>consoleblank</code> давал странный эффект - после загрузки системы экран становился пустым, но было видно, что подсветка работает. При нажатии клавиш он загорался и полностью погасал через заданное время.</p>
-
 <p><code>setterm</code> через ssh у меня как-то не заработал.</p>
-
 <p>И только управляющая ESC-последовательность для терминала подошла отлично — <code>echo -e '\033[9;X]</code> (где X - минуты).</p>
-
 <p>Для автоматического запуска этой команды создадим job <em>/etc/init/tty1.conf</em>:</p>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="c1"># tty1 - getty</span>
+#
+<span class="c1"># This service is used to maintain a getty on tty1 from the point the system is</span>
+<span class="c1"># started until it is shut down again.</span>
 
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="c1"># tty1 - getty
-</span><span class="c1">#
-</span><span class="c1"># This service is used to maintain a getty on tty1 from the point the system is
-</span><span class="c1"># started until it is shut down again.
-</span><span class="c1"></span>
-start on stopped rc <span class="nv">RUNLEVEL</span><span class="o">=[</span><span class="m">2345</span><span class="o">]</span> and <span class="o">(</span>
+start on stopped rc <span class="nv">RUNLEVEL</span><span class="o">=</span><span class="o">[</span>2345<span class="o">]</span> and <span class="o">(</span>
             not-container or
             container <span class="nv">CONTAINER</span><span class="o">=</span>lxc or
             container <span class="nv">CONTAINER</span><span class="o">=</span>lxc-libvirt<span class="o">)</span>
 
 stop on runlevel <span class="o">[</span>!2345<span class="o">]</span>
 
-<span class="c1"># Blank screen after 1 minute timeout
-</span><span class="c1"># See http://www.armadeus.com/wiki/index.php?title=FrameBuffer
-</span><span class="c1"></span><span class="nb">exec</span> <span class="nb">echo</span> -ne <span class="s2">&#34;\033[9;1]&#34;</span> &gt; /dev/tty1</code></pre></div>
-
+<span class="c1"># Blank screen after 1 minute timeout</span>
+<span class="c1"># See http://www.armadeus.com/wiki/index.php?title=FrameBuffer</span>
+<span class="nb">exec</span> <span class="nb">echo</span> -ne <span class="s2">&#34;\033[9;1]&#34;</span> &gt; /dev/tty1</code></pre></div>
 <p>Ссылки:</p>
-
 <ul>
 <li><a href="https://github.com/dddpaul/go-evhandler">Evhandler : Simple key press listener and handler written in Go</a></li>
 <li><a href="http://spf13.com/project/viper">Viper : Go Configuration Management With Fangs</a></li>

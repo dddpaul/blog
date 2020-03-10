@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Meetup on Pavel Derendyaev notes</title>
@@ -6,10 +6,21 @@
     <description>Recent content in Meetup on Pavel Derendyaev notes</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 15 Oct 2018 22:55:13 +0300</lastBuildDate>
+    <lastBuildDate>Mon, 01 Apr 2019 22:55:13 +0300</lastBuildDate>
     
 	<atom:link href="https://dddpaul.github.io/blog/tags/meetup/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Backend stories 3.0 - митап в Альфа-Банке</title>
+      <link>https://dddpaul.github.io/blog/2019/04/01/alfabank-java-meetup-3/</link>
+      <pubDate>Mon, 01 Apr 2019 22:55:13 +0300</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2019/04/01/alfabank-java-meetup-3/</guid>
+      <description>29 марта прошел Java-митап Backend stories 3.0 в Альфа-банке.
+Материалы доступны на страничке с отчетом о событии.
+Прямая ссылка на запись трансляции.</description>
+    </item>
     
     <item>
       <title>Backend stories 2.0 - митап в Альфа-Банке</title>

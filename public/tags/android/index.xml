@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Android on Pavel Derendyaev notes</title>
@@ -29,7 +29,7 @@
       <guid>https://dddpaul.github.io/blog/2014/08/02/orientation-change/</guid>
       <description>После нескольких дней отладки приложения пришел к выводу, что смена ориентации (rotation, orientation change) требует к себе особого внимания. Наконец-то я понял тех разработчиков, которые напрочь запрещают смену ориентации в своем софте. Ведь, не зная некоторых неочевидных нюансов, можно легко получить крах приложения или утечку памяти.
 Опишу в порядке возрастания сложности, на какие подводные камни мне пришлось натолкнуться.
-Beginner&amp;rsquo;s level Надо сохранять состояние (state) фрагментов. Не сохранил — потерял, т.</description>
+Beginner&amp;rsquo;s level Надо сохранять состояние (state) фрагментов. Не сохранил — потерял, т.к. активити и фрагменты будут пересозданы.</description>
     </item>
     
     <item>
@@ -39,7 +39,7 @@ Beginner&amp;rsquo;s level Надо сохранять состояние (state
       
       <guid>https://dddpaul.github.io/blog/2014/08/01/android-memory-leaks/</guid>
       <description>Articles:
- Avoiding memory leaks. This great article describes base causes of memory leaks on Android. I quote summary from there:
+  Avoiding memory leaks. This great article describes base causes of memory leaks on Android. I quote summary from there:
  Do not keep long-lived references to a context-activity (a reference to an activity should have the same life cycle as the activity itself) Try using the context-application instead of a context-activity Avoid non-static inner classes in an activity if you don&amp;rsquo;t control their life cycle, use a static inner class and make a weak reference to the activity inside.</description>
     </item>
     

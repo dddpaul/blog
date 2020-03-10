@@ -3,7 +3,7 @@
 <head>
   <link href="http://gmpg.org/xfn/11" rel="profile">
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
-  <meta name="generator" content="Hugo 0.47" />
+  <meta name="generator" content="Hugo 0.64.0" />
 
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
@@ -86,7 +86,7 @@
             
         </ul>
 
-        <p>&copy; 2018. All rights reserved. </p>
+        <p>&copy; 2020. All rights reserved. </p>
     </div>
 </div>
 
@@ -96,37 +96,25 @@
         <h1 class="post-title">Связывание контейнеров</h1>
         <span class="post-date">2015-01-08</span>
 
-        <p>Это вторая статья цикла 
-<a href='https://dddpaul.github.io/blog//series/building-test-environments-with-docker/'>Building test environments with Docker</a>.</p>
-
+        <p>Это вторая статья цикла
+<!-- raw HTML omitted -->Building test environments with Docker<!-- raw HTML omitted -->.</p>
 <p>При создании тестовых окружений из нескольких контейнеров неизбежно возникает задача их взаимного связывания. Набивший оскомину пример: контейнеру с приложением нужен контейнер БД. В нашем же случае, контейнеру с балансером нужны контейнеры с апстримами.</p>
-
 <p>Статья <a href="https://docs.docker.com/userguide/dockerlinks/">Linking Containers Together</a> полностью раскрывает вопрос линковки контейнеров. Осветим вкратце лишь основные моменты:</p>
-
 <ul>
 <li>каждый контейнер необходимо как-то назвать с помощью опции <code>--name</code>;</li>
 <li>ссылка на контейнер-зависимость обозначается опцией <code>--link</code>;</li>
 <li>в итоге, внутри зависимого контейнера, инициализируется множество переменных окружения, содержащих параметры контейнера-зависимости, а также в <em>/etc/hosts</em> заносится IP-адрес контейнера-зависимости.</li>
 </ul>
-
 <p>Например, так выглядит последовательный запуск 3-х контейнеров, причем 3-й зависит от первых двух:</p>
-
 <pre><code>docker run -d --privileged -p 2021:22 -p 8081:80 --name app1 smile/tomcat7
 docker run -d --privileged -p 2022:22 -p 8082:80 --name app2 smile/tomcat7
 docker run -d --privileged -p 2020:22 -p 80:80 --name gate --link app1:app1 --link app2:app2 smile/gate
-</code></pre>
-
-<p>Для проверки можно использовать вывод <code>docker inspect</code>:</p>
-
+</code></pre><p>Для проверки можно использовать вывод <code>docker inspect</code>:</p>
 <pre><code>docker inspect -f &quot;{{ .HostConfig.Links }}&quot; gate
 
 [/app1:/gate/app1 /app2:/gate/app2]
-</code></pre>
-
-<p>Опция <code>-d (detach mode)</code> здесь необходима, чтобы контейнеры запускались в фоновом режиме и не захватывали консоль.</p>
-
+</code></pre><p>Опция <code>-d (detach mode)</code> здесь необходима, чтобы контейнеры запускались в фоновом режиме и не захватывали консоль.</p>
 <p>Теперь, если зайти в контейнер gate (<code>ssh -p 2020 root@localhost</code>) и посмотреть переменные окружения, то будет ясно, что gate &ldquo;видит&rdquo; exposed-порты и IP-адрес контейнера-зависимости:</p>
-
 <pre><code>root@aba982937531:~# env | grep APP1
 APP1_NAME=/gate/app1
 APP1_PORT_22_TCP=tcp://172.17.0.28:22
@@ -139,17 +127,11 @@ APP1_PORT_80_TCP_PROTO=tcp
 APP1_PORT_22_TCP_PROTO=tcp
 APP1_PORT=tcp://172.17.0.28:22
 ...
-</code></pre>
-
-<p>Еще лучше дела обстоят с <em>/etc/hosts</em>:</p>
-
+</code></pre><p>Еще лучше дела обстоят с <em>/etc/hosts</em>:</p>
 <pre><code>root@aba982937531:~# grep app1 /etc/hosts
 172.17.0.28	app1
 
-</code></pre>
-
-<p>Модификация <em>/etc/hosts</em>, например, дает возможность писать следующие кофиги Nginx:</p>
-
+</code></pre><p>Модификация <em>/etc/hosts</em>, например, дает возможность писать следующие кофиги Nginx:</p>
 <pre><code>server {
     listen 80 default_server;
     server_name _;
@@ -166,9 +148,7 @@ APP1_PORT=tcp://172.17.0.28:22
         proxy_redirect http://127.0.0.1:8082/app2 /app2;             #
     }
 }
-</code></pre>
-
-<p>Таким образом, в первом приближении, встроенная возможность связывания контейнеров в Docker решает наши проблемы.</p>
+</code></pre><p>Таким образом, в первом приближении, встроенная возможность связывания контейнеров в Docker решает наши проблемы.</p>
 
     </div>
 

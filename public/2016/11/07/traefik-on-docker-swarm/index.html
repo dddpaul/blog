@@ -3,7 +3,7 @@
 <head>
   <link href="http://gmpg.org/xfn/11" rel="profile">
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
-  <meta name="generator" content="Hugo 0.47" />
+  <meta name="generator" content="Hugo 0.64.0" />
 
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
@@ -86,7 +86,7 @@
             
         </ul>
 
-        <p>&copy; 2018. All rights reserved. </p>
+        <p>&copy; 2020. All rights reserved. </p>
     </div>
 </div>
 
@@ -97,26 +97,18 @@
         <span class="post-date">2016-11-07</span>
 
         <p>Træfɪk is a modern HTTP reverse proxy and load balancer made to deploy microservices with ease. Since 1.1.0-rc1 it supports Docker Swarm mode as backend. It means that Træfɪk will automatically create proxying frontends which will be binded to corresponding Docker Swarm services.</p>
-
 <p>This post is based on <a href="https://docs.traefik.io/user-guide/swarm-mode/">Docker Swarm (mode) cluster</a> example.</p>
-
 <p>Assuming we have Docker Swarm mode cluster already, we will need to create an overlay network:</p>
-
 <div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">docker network create --driver<span class="o">=</span>overlay traefik-net</code></pre></div>
-
 <p>Backends are the simple <a href="https://github.com/emilevauge/whoamI">emilevauge/whoami</a> services:</p>
-
 <div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">docker service create --name test1 --label traefik.port<span class="o">=</span><span class="m">80</span> --network traefik-net emilevauge/whoami
 docker service create --name test2 --label traefik.port<span class="o">=</span><span class="m">80</span> --network traefik-net emilevauge/whoami</code></pre></div>
-
 <p>Træfɪk itself may be ran in rich variety of configurations.</p>
-
 <p><strong>1.</strong> HTTP only proxy</p>
-
 <div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">docker service create <span class="se">\
 </span><span class="se"></span>--name traefik <span class="se">\
-</span><span class="se"></span>--constraint<span class="o">=</span>node.role<span class="o">==</span>manager <span class="se">\
-</span><span class="se"></span>--publish <span class="m">80</span>:80 --publish <span class="m">8080</span>:8080 <span class="se">\
+</span><span class="se"></span>--constraint<span class="o">=</span>node.role<span class="o">=</span><span class="o">=</span>manager <span class="se">\
+</span><span class="se"></span>--publish 80:80 --publish 8080:8080 <span class="se">\
 </span><span class="se"></span>--mount <span class="nv">type</span><span class="o">=</span>bind,source<span class="o">=</span>/var/run/docker.sock,target<span class="o">=</span>/var/run/docker.sock <span class="se">\
 </span><span class="se"></span>--network traefik-net <span class="se">\
 </span><span class="se"></span>traefik:v1.1.0-rc3 <span class="se">\
@@ -126,20 +118,16 @@ docker service create --name test2 --label traefik.port<span class="o">=</span><
 </span><span class="se"></span>--docker.watch <span class="se">\
 </span><span class="se"></span>--logLevel<span class="o">=</span>DEBUG <span class="se">\
 </span><span class="se"></span>--web</code></pre></div>
-
 <p>Remarks:</p>
-
 <ul>
-<li>Træfɪk web UI will we accessible on <a href="http://example.org:8080">http://example.org:8080</a>.</li>
+<li>Træfɪk web UI will we accessible on <a href="http://example.org">http://example.org</a>:8080.</li>
 <li>Debug log level must be disabled on production.</li>
 </ul>
-
 <p><strong>2.</strong> HTTPS proxy with Let&rsquo;s Encrypt certificate and HTTP to HTTPS redirection</p>
-
 <div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">docker service create <span class="se">\
 </span><span class="se"></span>--name traefik <span class="se">\
-</span><span class="se"></span>--constraint<span class="o">=</span>node.role<span class="o">==</span>manager <span class="se">\
-</span><span class="se"></span>--publish <span class="m">80</span>:80 --publish <span class="m">443</span>:443 --publish <span class="m">8080</span>:8080 <span class="se">\
+</span><span class="se"></span>--constraint<span class="o">=</span>node.role<span class="o">=</span><span class="o">=</span>manager <span class="se">\
+</span><span class="se"></span>--publish 80:80 --publish 443:443 --publish 8080:8080 <span class="se">\
 </span><span class="se"></span>--mount <span class="nv">type</span><span class="o">=</span>bind,source<span class="o">=</span>/var/run/docker.sock,target<span class="o">=</span>/var/run/docker.sock,readonly <span class="se">\
 </span><span class="se"></span>--mount <span class="nv">type</span><span class="o">=</span>bind,source<span class="o">=</span>/var/tmp,target<span class="o">=</span>/etc/traefik/acme <span class="se">\
 </span><span class="se"></span>--network traefik-net <span class="se">\
@@ -157,13 +145,11 @@ docker service create --name test2 --label traefik.port<span class="o">=</span><
 </span><span class="se"></span>--docker.domain<span class="o">=</span>example.org <span class="se">\
 </span><span class="se"></span>--docker.watch <span class="se">\
 </span><span class="se"></span>--web</code></pre></div>
-
 <p><strong>3.</strong> HTTPS-only proxy with Let&rsquo;s Encrypt certificate</p>
-
 <div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">docker service create <span class="se">\
 </span><span class="se"></span>--name traefik <span class="se">\
-</span><span class="se"></span>--constraint<span class="o">=</span>node.role<span class="o">==</span>manager <span class="se">\
-</span><span class="se"></span>--publish <span class="m">443</span>:443 --publish <span class="m">8080</span>:8080 <span class="se">\
+</span><span class="se"></span>--constraint<span class="o">=</span>node.role<span class="o">=</span><span class="o">=</span>manager <span class="se">\
+</span><span class="se"></span>--publish 443:443 --publish 8080:8080 <span class="se">\
 </span><span class="se"></span>--mount <span class="nv">type</span><span class="o">=</span>bind,source<span class="o">=</span>/var/run/docker.sock,target<span class="o">=</span>/var/run/docker.sock,readonly <span class="se">\
 </span><span class="se"></span>--mount <span class="nv">type</span><span class="o">=</span>bind,source<span class="o">=</span>/var/tmp,target<span class="o">=</span>/etc/traefik/acme <span class="se">\
 </span><span class="se"></span>--network traefik-net <span class="se">\
@@ -181,13 +167,11 @@ docker service create --name test2 --label traefik.port<span class="o">=</span><
 </span><span class="se"></span>--docker.watch <span class="se">\
 </span><span class="se"></span>--logLevel<span class="o">=</span>DEBUG <span class="se">\
 </span><span class="se"></span>--web</code></pre></div>
-
 <p><strong>4.</strong> HTTPS-only proxy with Let&rsquo;s Encrypt certificate and HTTPS web UI</p>
-
 <div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">docker service create <span class="se">\
 </span><span class="se"></span>--name traefik <span class="se">\
-</span><span class="se"></span>--constraint<span class="o">=</span>node.role<span class="o">==</span>manager <span class="se">\
-</span><span class="se"></span>--publish <span class="m">443</span>:443 --publish <span class="m">8443</span>:8443 <span class="se">\
+</span><span class="se"></span>--constraint<span class="o">=</span>node.role<span class="o">=</span><span class="o">=</span>manager <span class="se">\
+</span><span class="se"></span>--publish 443:443 --publish 8443:8443 <span class="se">\
 </span><span class="se"></span>--mount <span class="nv">type</span><span class="o">=</span>bind,source<span class="o">=</span>/var/run/docker.sock,target<span class="o">=</span>/var/run/docker.sock,readonly <span class="se">\
 </span><span class="se"></span>--mount <span class="nv">type</span><span class="o">=</span>bind,source<span class="o">=</span>/etc/pki/realms/domain,target<span class="o">=</span>/etc/traefik/tls,readonly <span class="se">\
 </span><span class="se"></span>--mount <span class="nv">type</span><span class="o">=</span>bind,source<span class="o">=</span>/var/tmp,target<span class="o">=</span>/etc/traefik/acme <span class="se">\
@@ -208,9 +192,7 @@ docker service create --name test2 --label traefik.port<span class="o">=</span><
 </span><span class="se"></span>--web.address<span class="o">=</span>:8443 <span class="se">\
 </span><span class="se"></span>--web.certfile<span class="o">=</span>/etc/traefik/tls/default.crt <span class="se">\
 </span><span class="se"></span>--web.keyfile<span class="o">=</span>/etc/traefik/tls/default.key</code></pre></div>
-
 <p><strong>5.</strong> For debugging purposes you can run Træfɪk without Docker</p>
-
 <div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">traefik -d <span class="se">\
 </span><span class="se"></span>--entryPoints<span class="o">=</span><span class="s1">&#39;Name:http Address::8080 Redirect.EntryPoint:https&#39;</span> <span class="se">\
 </span><span class="se"></span>--entryPoints<span class="o">=</span><span class="s1">&#39;Name:https Address::8443 TLS&#39;</span> <span class="se">\
@@ -221,9 +203,7 @@ docker service create --name test2 --label traefik.port<span class="o">=</span><
 </span><span class="se"></span>--acme.domains<span class="o">=</span>example.org
 --logLevel<span class="o">=</span>DEBUG <span class="se">\
 </span><span class="se"></span>--web</code></pre></div>
-
 <p>Links:</p>
-
 <ul>
 <li><a href="https://traefik.io/">Træfɪk</a></li>
 </ul>

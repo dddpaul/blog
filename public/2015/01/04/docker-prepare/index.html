@@ -3,7 +3,7 @@
 <head>
   <link href="http://gmpg.org/xfn/11" rel="profile">
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
-  <meta name="generator" content="Hugo 0.47" />
+  <meta name="generator" content="Hugo 0.64.0" />
 
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
@@ -86,7 +86,7 @@
             
         </ul>
 
-        <p>&copy; 2018. All rights reserved. </p>
+        <p>&copy; 2020. All rights reserved. </p>
     </div>
 </div>
 
@@ -96,28 +96,18 @@
         <h1 class="post-title">Подготовка и запуск docker-контейнеров</h1>
         <span class="post-date">2015-01-04</span>
 
-        
-
-<p>Это первая статья цикла 
-<a href='https://dddpaul.github.io/blog//series/building-test-environments-with-docker/'>Building test environments with Docker</a>.</p>
-
+        <p>Это первая статья цикла
+<!-- raw HTML omitted -->Building test environments with Docker<!-- raw HTML omitted -->.</p>
 <p>Сразу оговорюсь, что все docker-контейнеры основаны на <a href="http://phusion.github.io/baseimage-docker/">baseimage-docker</a>. Этот образ позволяет запускать в контейнере несколько приложений с помощью супервизора <a href="http://smarden.org/runit/">runit</a> и содержит ssh, cron, syslog &ldquo;из коробки&rdquo;.</p>
-
 <p>Хотя подобный подход <a href="http://jpetazzo.github.io/2014/06/23/docker-ssh-considered-evil/">не рекомендуется разработчиками Docker</a>, он очень удобен в эксплуатации и не принуждает разработчика к своему &ldquo;proper way&rdquo;. Всегда можно использовать канонический подход от Docker с volumes и nsenter, а, при желании, подключаться к контейнерам по ssh.</p>
-
 <p>Кроме того, я привык использовать сервера приложений в связке с nginx, и baseimage-docker позволяет легко это сделать.</p>
-
 <h3 id="базовый-образ">Базовый образ</h3>
-
 <p>При создании базового образа выполняются две вещи:</p>
-
 <ul>
 <li>публичный ssh-ключ добавляется в список разрешенных для суперпользователя контейнера;</li>
 <li>задается локаль.</li>
 </ul>
-
 <p><em>Dockerfile</em> базового образа:</p>
-
 <pre><code>FROM phusion/baseimage:0.9.15
 
 # Add public SSH keys
@@ -129,38 +119,23 @@ ENV LANG=en_US.utf8
 
 # Use baseimage-docker's init system
 CMD [&quot;/sbin/my_init&quot;]
-</code></pre>
-
-<p>Свой публичный ssh-ключ, естественно, надо положить в <em>my_rsa_public_key</em> рядом с <em>Dockerfile</em>.</p>
-
+</code></pre><p>Свой публичный ssh-ключ, естественно, надо положить в <em>my_rsa_public_key</em> рядом с <em>Dockerfile</em>.</p>
 <p>Сборка: <code>docker build -t smile/base .</code>
 Запуск: <code>docker run --rm -it -p 2022:22 smile/base /sbin/my_init -- bash -l</code></p>
-
 <p>Примечания:</p>
-
 <ul>
 <li><code>--rm</code> — используется для удаления контейнера после его остановки,</li>
 <li><code>-it</code> — для терминального интерактивного режима,</li>
 <li><code>-- bash -l</code> — для запуска шелла после запуска всех сервисов.</li>
 </ul>
-
 <p>Также на контейнер можно зайти по ssh: <code>ssh -p 2022 root@localhost</code>.</p>
-
 <h3 id="образ-с-nginx">Образ с nginx</h3>
-
 <p>Сборка <a href="https://github.com/dddpaul/docker-nginx">docker-nginx</a>: <code>docker build -t smile/nginx .</code></p>
-
 <p>Основная особенность этого образа в том, что при запуске контейнера отключается IPv6.</p>
-
 <p>Сделано это для того, чтобы обойти известную проблему с проксированием Nginx. Т.к. демон висит на tcp6, то апстрим иногда видит запрос от 127.0.0.1, а иногда от 0:0:0:0:0:0:0:1. Это принуждает к изменению ACL на сервере приложений, что не всегда удобно.</p>
-
 <p>IPv6 отключается после выполнения серии sysctl-команд, которые требуют, чтобы контейнер был запущен в привилегированном режиме, т.е. команда запуска слегка усложняется:</p>
-
 <pre><code>docker run --privileged --rm -it -p 2022:22 smile/nginx /sbin/my_init -- bash -l
-</code></pre>
-
-<h3 id="остальные-образы">Остальные образы</h3>
-
+</code></pre><h3 id="остальные-образы">Остальные образы</h3>
 <p>На основе docker-nginx можно строить более сложные образы, такие как <a href="https://github.com/dddpaul/docker-java7-server">docker-java7-server</a> и  <a href="https://github.com/dddpaul/docker-tomcat7">docker-tomcat7</a>. На основе последнего уже строятся образы для конечных приложений.</p>
 
     </div>
