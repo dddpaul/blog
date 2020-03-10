@@ -1,8 +1,0 @@
-# IDEA project settings
-.idea
-*.ipr
-*.iws
-*.iml
-
-# MacOS
-*.DS_Store

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Database on Pavel Derendyaev notes</title>
+    <link>https://dddpaul.github.io/blog/tags/database/</link>
+    <description>Recent content in Database on Pavel Derendyaev notes</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sun, 13 Nov 2016 12:45:00 +0300</lastBuildDate>
+    
+	<atom:link href="https://dddpaul.github.io/blog/tags/database/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>MySQL to PostgreSQL migration</title>
+      <link>https://dddpaul.github.io/blog/2016/11/13/mysql-to-postgresql-migration/</link>
+      <pubDate>Sun, 13 Nov 2016 12:45:00 +0300</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2016/11/13/mysql-to-postgresql-migration/</guid>
+      <description>Install migration Ruby gem and run it:
+gem install mysql2psql mysql2psql Update database credentials in generated mysql2psql.yml file:
+mysql: database: redmine hostname: localhost port: 3306 username: redmine password: xxxxxxx encoding: utf8 destination: # if file is given, output goes to file, else postgres file: /tmp/redmine-pg.sql postgres: hostname: localhost port: 5432 username: mysql2psql password: database: mysql2psql_test Run command again:
+mysql2psql Links:
+ How to migrate from MySQL to PostgreSQL  </description>
+    </item>
+    
+    <item>
+      <title>Linearizability, serializability, transaction isolation and consistency models</title>
+      <link>https://dddpaul.github.io/blog/2016/03/17/linearizability-and-serializability/</link>
+      <pubDate>Thu, 17 Mar 2016 11:00:00 +0300</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2016/03/17/linearizability-and-serializability/</guid>
+      <description>Linearizability versus Serializability:
+ Linearizability is a guarantee about single operations on single objects. It provides a real-time (i.e., wall-clock) guarantee on the behavior of a set of single operations (often reads and writes) on a single object (e.g., distributed register or data item).
+  Linearizability for read and write operations is synonymous with the term “atomic consistency” and is the “C,” or “consistency,” in Gilbert and Lynch’s proof of the CAP Theorem.</description>
+    </item>
+    
+  </channel>
+</rss>

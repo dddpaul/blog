@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Devops on Pavel Derendyaev notes</title>
+    <link>https://dddpaul.github.io/blog/tags/devops/</link>
+    <description>Recent content in Devops on Pavel Derendyaev notes</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 12 Jan 2015 10:42:00 +0000</lastBuildDate>
+    
+	<atom:link href="https://dddpaul.github.io/blog/tags/devops/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Запуск контейнеров с помощью Fig</title>
+      <link>https://dddpaul.github.io/blog/2015/01/12/docker-fig/</link>
+      <pubDate>Mon, 12 Jan 2015 10:42:00 +0000</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2015/01/12/docker-fig/</guid>
+      <description>Это третья статья цикла Building test environments with Docker.
+Как мы уже убедились, запуск контейнеров с помощью docker run — занятие весьма муторное, т.к. необходимо указывать множество опций. При запуске же нескольких контейнеров ситуация только ухудшается, т.к. теперь нужно задавать имена и линки.
+Эту проблему решает инструмент Fig, который может запустить/остановить целое тестовое окружение, состоящее из набора контейнеров. Описание контейнеров задано в YAML-файле. Таким образом, этот YAML-файл представляет собой конфигурацию тестового окружения.</description>
+    </item>
+    
+    <item>
+      <title>Связывание контейнеров</title>
+      <link>https://dddpaul.github.io/blog/2015/01/08/docker-linking/</link>
+      <pubDate>Thu, 08 Jan 2015 13:49:06 +0000</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2015/01/08/docker-linking/</guid>
+      <description>Это вторая статья цикла Building test environments with Docker.
+При создании тестовых окружений из нескольких контейнеров неизбежно возникает задача их взаимного связывания. Набивший оскомину пример: контейнеру с приложением нужен контейнер БД. В нашем же случае, контейнеру с балансером нужны контейнеры с апстримами.
+Статья Linking Containers Together полностью раскрывает вопрос линковки контейнеров. Осветим вкратце лишь основные моменты:
+ каждый контейнер необходимо как-то назвать с помощью опции --name; ссылка на контейнер-зависимость обозначается опцией --link; в итоге, внутри зависимого контейнера, инициализируется множество переменных окружения, содержащих параметры контейнера-зависимости, а также в /etc/hosts заносится IP-адрес контейнера-зависимости.</description>
+    </item>
+    
+    <item>
+      <title>Подготовка и запуск docker-контейнеров</title>
+      <link>https://dddpaul.github.io/blog/2015/01/04/docker-prepare/</link>
+      <pubDate>Sun, 04 Jan 2015 13:49:06 +0000</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2015/01/04/docker-prepare/</guid>
+      <description>Это первая статья цикла Building test environments with Docker.
+Сразу оговорюсь, что все docker-контейнеры основаны на baseimage-docker. Этот образ позволяет запускать в контейнере несколько приложений с помощью супервизора runit и содержит ssh, cron, syslog &amp;ldquo;из коробки&amp;rdquo;.
+Хотя подобный подход не рекомендуется разработчиками Docker, он очень удобен в эксплуатации и не принуждает разработчика к своему &amp;ldquo;proper way&amp;rdquo;. Всегда можно использовать канонический подход от Docker с volumes и nsenter, а, при желании, подключаться к контейнерам по ssh.</description>
+    </item>
+    
+  </channel>
+</rss>
