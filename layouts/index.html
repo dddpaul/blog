@@ -6,7 +6,7 @@
 <div class="content container">
     <div class="posts">
 
-        {{ range first 10 .Data.Pages }}
+        {{ range first 10 .Site.RegularPages }}
         <div class="post">
             <h1 class="post-title">
                 <a href="{{ .Permalink }}">
