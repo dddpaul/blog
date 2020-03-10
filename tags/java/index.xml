@@ -6,10 +6,22 @@
     <description>Recent content in Java on Pavel Derendyaev notes</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 01 Apr 2019 22:55:13 +0300</lastBuildDate>
+    <lastBuildDate>Sat, 10 Aug 2019 22:55:13 +0300</lastBuildDate>
     
 	<atom:link href="https://dddpaul.github.io/blog/tags/java/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Backend stories 4.0 - митап в Альфа-Банке</title>
+      <link>https://dddpaul.github.io/blog/2019/08/10/alfabank-java-meetup-4/</link>
+      <pubDate>Sat, 10 Aug 2019 22:55:13 +0300</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2019/08/10/alfabank-java-meetup-4/</guid>
+      <description>9 августа прошел Java-митап Backend stories 4.0 в Альфа-банке.
+Презентации доступны на страничке с отчетом о событии.
+Прямая ссылка на запись трансляции.
+Мой доклад по отказоустойчивой балансировке в Интернете.</description>
+    </item>
     
     <item>
       <title>Backend stories 3.0 - митап в Альфа-Банке</title>

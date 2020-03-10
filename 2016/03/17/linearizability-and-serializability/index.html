@@ -114,11 +114,15 @@
 <blockquote>
 <p>In the database systems community, the gold standard is serializability. We’ve spent plenty of time looking at this in the last couple of days. Serializability concerns transactions that group multiple operations across potentially multiple objects. A serializable schedule is one that corresponds to some ordering of the transactions such that they happen one after the other in time (no concurrent / overlapping transactions). It’s the highest form of isolation between transactions.</p>
 </blockquote>
-<!-- raw HTML omitted -->
+
+<img src='https://dddpaul.github.io/blog//media/serializable.png'/>
+
 <blockquote>
 <p>In the distributed systems community, the gold standard is linearizability. Linearizability concerns single operations on single objects. A linearizable schedule is one where each operation appears to happen atomically at a single point in time. Once a write completes, all later reads (wall-clock time) should see the value of that write or the value of a later write. In a distributed context, we may have multiple replicas of an object’s state, and in a linearizable schedule it is as if they were all updated at once at a single point in time.</p>
 </blockquote>
-<!-- raw HTML omitted -->
+
+<img src='https://dddpaul.github.io/blog//media/linearizable.png'/>
+
 <blockquote>
 <p>Also, small correction: the “C” in ACID is the <em>assumption</em> that the application program is correct (each transaction in isolation brings the database from a correct state to another correct state), whereas the AID properties are <em>guarantees</em> provided by the database. Together they imply serializability.</p>
 </blockquote>
@@ -138,7 +142,9 @@
 </blockquote>
 <hr>
 <p><a href="http://blog.acolyer.org/2016/02/24/a-critique-of-ansi-sql-isolation-levels/">A Critique of ANSI SQL Isolation Levels</a>:</p>
-<!-- raw HTML omitted -->
+
+<img src='https://dddpaul.github.io/blog//media/ansi-sql-isolation-levels.png'/>
+
 <hr>
 <p>Other articles:</p>
 <ul>
