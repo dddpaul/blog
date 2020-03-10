@@ -6,7 +6,7 @@ Tags = ["Devops", "Docker"]
 series = ["Building test environments with Docker"]
 
 +++
-Это третья статья цикла {{% link section="series" title="Building test environments with Docker" %}}.
+Это третья статья цикла {{< link section="series" title="Building test environments with Docker" >}}.
 
 Как мы уже убедились, запуск контейнеров с помощью ```docker run``` — занятие весьма муторное, т.к. необходимо указывать множество опций. При запуске же нескольких контейнеров ситуация только ухудшается, т.к. теперь нужно задавать имена и линки.
 

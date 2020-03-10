@@ -6,7 +6,7 @@ series = [ "Meetups" ]
 tags = [ "Meetup", "Java" ]
 +++
 
-{{% img src="media/alfabank.jpg" %}}
+{{< img src="media/alfabank.jpg" >}}
 
 04 октября прошел Java-митап [Backend stories 2.0](https://hr.alfabank.ru/events/backendstories2-0) в Альфа-банке.
 
