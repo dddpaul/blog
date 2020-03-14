@@ -14,4 +14,4 @@ tags = [ "Meetup", "Java" ]
 
 Прямая ссылка на [запись трансляции](https://www.youtube.com/watch?v=kY4lYiqxf7k).
 
-Мой доклад по [отказоустойчивой балансировке в Интернете](https://drive.google.com/file/d/1Wt_dRyXicdbhy2pFdUCFxqi2U2xNxEYU/view?usp=sharing).
+Мой доклад - [Отказоустойчивость в большом Интернете](http://dddpaul.github.io/blog/presentations/Internet-Balancing.pdf)
