@@ -3,7 +3,7 @@
 <head>
   <link href="http://gmpg.org/xfn/11" rel="profile">
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
-  <meta name="generator" content="Hugo 0.67.0" />
+  <meta name="generator" content="Hugo 0.79.1" />
 
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
@@ -78,6 +78,8 @@
             
             <li><a href="https://dddpaul.github.io/blog//tags/linux/">linux</a> </li>
             
+            <li><a href="https://dddpaul.github.io/blog//tags/me/">me</a> </li>
+            
             <li><a href="https://dddpaul.github.io/blog//tags/meetup/">meetup</a> </li>
             
             <li><a href="https://dddpaul.github.io/blog//tags/python/">python</a> </li>
@@ -109,18 +111,18 @@
 <p>Итого — держим асинктаски в headless-фрагменте, который запускаем из активити. В целом, это отличная схема на все случаи жизни, а не только для приведенного примера.</p>
 <h3 id="veteran">Veteran</h3>
 <p>Копаем в сторону уже вскользь упомянутого multi-pane. Как его сделать правильно на одних фрагментах? Внятно описанный <a href="http://www.vogella.com/tutorials/AndroidFragments/article.html">способ от Ларса Вогеля</a> требует разных активити, а я не хочу плодить сущности.</p>
-<p>Используем уже описанный метод с двумя layout'ами (ведь мы же за декларативный подход!):</p>
+<p>Используем уже описанный метод с двумя layout&rsquo;ами (ведь мы же за декларативный подход!):</p>
 <ul>
-<li>1-й layout состоит из одного ViewPager'а;</li>
+<li>1-й layout состоит из одного ViewPager&rsquo;а;</li>
 <li>2-й — LinearLayout с двумя фрагментами.</li>
 </ul>
 <p>В чем прелесть подхода — 2-й layout можно положить в папочку, например, layout-w600dp и он будет автоматически использован, если ширина экрана больше 600dp. Красота!</p>
 <p>Оно даже работает и не падает. Правда, появился какой-то странный глюк с <a href="http://github.com/greenrobot/EventBus">EventBus</a>: иногда фрагмент получает два сообщения вместо одного. При более пристальном изучении оказалось наоборот - два одинаковых фрагмента получают одно сообщение. Откуда они берутся? А кто его знает :)</p>
 <p>Была убита куча времени в DDMS/VisualVM/MAT, в результате чего появился <a href="https://github.com/dddpaul/android-ViewPagerBug">тестовый проект</a>, также описал симптомы на <a href="http://stackoverflow.com/questions/25033824/dublicate-fragment-allocation-when-using-viewpager-with-different-layouts">StackOverflow</a>. Вкратце, именно при использовании такого варианта multi-pane (когда в одном layout есть ViewPager, а в другом нет), фрагменты при перевороте создаются ДВАЖДЫ. Причем, оба в RESUMED state, поэтому они оба и ловят сообщения по EventBus.</p>
-<p>Плюнув, отказался от второго layout'а, теперь ViewPager используется везде. Чтобы показать сразу 2 фрагмента, можно использовать разные <a href="http://commonsware.com/blog/2012/08/20/multiple-view-viewpager-options.html">хитрые способы</a>. Они, в общем, несложные, и, в моем случае, способ с переопределением getPageWidth() даже не внес никаких сайд-эффектов. Правда, определение ширины экрана, когда надо показать multi-pane пришлось вынести в код, получилось чуть менее декларативненько.</p>
+<p>Плюнув, отказался от второго layout&rsquo;а, теперь ViewPager используется везде. Чтобы показать сразу 2 фрагмента, можно использовать разные <a href="http://commonsware.com/blog/2012/08/20/multiple-view-viewpager-options.html">хитрые способы</a>. Они, в общем, несложные, и, в моем случае, способ с переопределением getPageWidth() даже не внес никаких сайд-эффектов. Правда, определение ширины экрана, когда надо показать multi-pane пришлось вынести в код, получилось чуть менее декларативненько.</p>
 <h3 id="hardcore">Hardcore</h3>
 <p>Плавно переходим к утечкам памяти :)</p>
-<p>Очень веселая ситуация, когда после, например, после 10 ротаций эмулятора и нескольких запусков GC в хипе болтаются 11 activities. Решив идти до конца, вооружившись методом исключения и вырезав почти весь код и вьюхи, удалось докопаться до причины. Утекал компонент TextView с опцией <a href="http://stackoverflow.com/questions/22990634/textview-with-id-and-textisselectable-true-causes-leaking-of-the-activity-obje">textIsSelectable=&quot;true&rdquo;</a>. Очень порадовало начало топика &ldquo;It took me three days to narrow my problem &hellip;&rdquo; :)</p>
+<p>Очень веселая ситуация, когда после, например, после 10 ротаций эмулятора и нескольких запусков GC в хипе болтаются 11 activities. Решив идти до конца, вооружившись методом исключения и вырезав почти весь код и вьюхи, удалось докопаться до причины. Утекал компонент TextView с опцией <a href="http://stackoverflow.com/questions/22990634/textview-with-id-and-textisselectable-true-causes-leaking-of-the-activity-obje">textIsSelectable=&ldquo;true&rdquo;</a>. Очень порадовало начало топика &ldquo;It took me three days to narrow my problem &hellip;&rdquo; :)</p>
 <p>Убрал одну строчку в layout, утечка исчезла, ура. Вернулся в основную ветку, вставил этот коммит, прогнал тест (10 ротаций), получил 10 activities. Уже лучше :)</p>
 <p>Оказалось, компонент EditText также замечательно утекает. Причина, вроде бы в том, что он слишком умный (у него по-умолчанию включен спеллчекер). Если отключить, то утечка может пропасть, а может и нет. Прогнал тест на разных эмуляторах, оказалось, что в 4.3 баг починен, уже хорошо! А я все тестил на 4.1.2.</p>
 <p>Раз версия 4.3 такая замечательная, может быть, там починена утечка textIsSelectable? А то вдруг понадобится эта опция? Нет, все без изменений. Версия 4.4.2? А вот фиг вам - <a href="https://code.google.com/p/android/issues/detail?id=61671">баг в эмуляторе</a>. Вы не можете повернуть эмулятор с этой версией Андроида :) Тест запустить не удалось.</p>

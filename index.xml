@@ -6,10 +6,16 @@
     <description>Recent content on Pavel Derendyaev notes</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 10 Aug 2019 22:55:13 +0300</lastBuildDate>
-    
-	<atom:link href="https://dddpaul.github.io/blog/index.xml" rel="self" type="application/rss+xml" />
-    
+    <lastBuildDate>Mon, 28 Dec 2020 21:00:00 +0300</lastBuildDate><atom:link href="https://dddpaul.github.io/blog/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Me</title>
+      <link>https://dddpaul.github.io/blog/2020/12/28/me/</link>
+      <pubDate>Mon, 28 Dec 2020 21:00:00 +0300</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2020/12/28/me/</guid>
+      <description>Меня зовут Павел Дерендяев, я руководитель Java-разработчиков в Альфа-Банке.
+Свою карьеру в IT я начинал как системный администратор и сетевой инженер в различных телеком-компаниях. Основными языками программирования были Perl и Bash (и PHP!). В 2010 году я полностью забросил Perl/PHP и переключился на Java-разработку. В основном, писал около-биллинговые решения для тех же телекомов. Я все еще люблю настраивать сети, возиться с инфраструктурой и писать скрипты на Bash или Python.</description>
+    </item>
     
     <item>
       <title>Backend stories 4.0 - митап в Альфа-Банке</title>
@@ -169,7 +175,7 @@ type Progress struct { bytes uint64 } func TransferStreams(con net.Conn) { c := 
       <guid>https://dddpaul.github.io/blog/2016/04/15/react-for-starters/</guid>
       <description>Для разогрева:
  React tutorial Курс на Хекслете  После этого более-менее должно оформиться понимание, что:
- React - это V в MVC; основа React - это компоненты; у компонента есть главный метод render(), который дергается React&#39;ом, когда нужно отобразить или перерисовать компонент; компоненты инициализируется через properties, и хранят state; компоненты пишутся на JSX - специальный синтаксис, который &amp;ldquo;бесшовно&amp;rdquo; внедряет HTML в JS; компоненты можно связывать в иерархические структуры; состояние нельзя менять напрямую, а только через специальный метод setState() - таким образом React точно узнает, что состояние изменилось и объект надо перерисовать; состояние принято хранить в родительском компоненте, и передавать его в дочерние компоненты через properties.</description>
+ React - это V в MVC; основа React - это компоненты; у компонента есть главный метод render(), который дергается React&amp;rsquo;ом, когда нужно отобразить или перерисовать компонент; компоненты инициализируется через properties, и хранят state; компоненты пишутся на JSX - специальный синтаксис, который &amp;ldquo;бесшовно&amp;rdquo; внедряет HTML в JS; компоненты можно связывать в иерархические структуры; состояние нельзя менять напрямую, а только через специальный метод setState() - таким образом React точно узнает, что состояние изменилось и объект надо перерисовать; состояние принято хранить в родительском компоненте, и передавать его в дочерние компоненты через properties.</description>
     </item>
     
     <item>

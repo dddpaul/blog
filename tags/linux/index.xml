@@ -6,11 +6,7 @@
     <description>Recent content in linux on Pavel Derendyaev notes</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 02 Nov 2016 09:00:00 +0300</lastBuildDate>
-    
-	<atom:link href="https://dddpaul.github.io/blog/tags/linux/index.xml" rel="self" type="application/rss+xml" />
-    
-    
+    <lastBuildDate>Wed, 02 Nov 2016 09:00:00 +0300</lastBuildDate><atom:link href="https://dddpaul.github.io/blog/tags/linux/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Docker registry on Centos 7</title>
       <link>https://dddpaul.github.io/blog/2016/11/02/docker-registry/</link>

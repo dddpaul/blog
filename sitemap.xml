@@ -3,6 +3,31 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>https://dddpaul.github.io/blog/2020/12/28/me/</loc>
+    <lastmod>2020-12-28T21:00:00+03:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://dddpaul.github.io/blog/tags/me/</loc>
+    <lastmod>2020-12-28T21:00:00+03:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://dddpaul.github.io/blog/</loc>
+    <lastmod>2020-12-28T21:00:00+03:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://dddpaul.github.io/blog/posts/</loc>
+    <lastmod>2020-12-28T21:00:00+03:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://dddpaul.github.io/blog/tags/</loc>
+    <lastmod>2020-12-28T21:00:00+03:00</lastmod>
+  </url>
+  
+  <url>
     <loc>https://dddpaul.github.io/blog/2019/08/10/alfabank-java-meetup-4/</loc>
     <lastmod>2019-08-10T22:55:13+03:00</lastmod>
   </url>
@@ -23,22 +48,7 @@
   </url>
   
   <url>
-    <loc>https://dddpaul.github.io/blog/</loc>
-    <lastmod>2019-08-10T22:55:13+03:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://dddpaul.github.io/blog/posts/</loc>
-    <lastmod>2019-08-10T22:55:13+03:00</lastmod>
-  </url>
-  
-  <url>
     <loc>https://dddpaul.github.io/blog/series/</loc>
-    <lastmod>2019-08-10T22:55:13+03:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://dddpaul.github.io/blog/tags/</loc>
     <lastmod>2019-08-10T22:55:13+03:00</lastmod>
   </url>
   

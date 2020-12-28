@@ -3,7 +3,7 @@
 <head>
   <link href="http://gmpg.org/xfn/11" rel="profile">
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
-  <meta name="generator" content="Hugo 0.67.0" />
+  <meta name="generator" content="Hugo 0.79.1" />
 
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
@@ -78,6 +78,8 @@
             
             <li><a href="https://dddpaul.github.io/blog//tags/linux/">linux</a> </li>
             
+            <li><a href="https://dddpaul.github.io/blog//tags/me/">me</a> </li>
+            
             <li><a href="https://dddpaul.github.io/blog//tags/meetup/">meetup</a> </li>
             
             <li><a href="https://dddpaul.github.io/blog//tags/python/">python</a> </li>
@@ -134,11 +136,11 @@ gap <span class="m">15</span>
 <span class="c1"># Отключить создание снимков</span>
 output_normal off
 
-<span class="c1"># Обозначать движение прямоугольником</span> 
+<span class="c1"># Обозначать движение прямоугольником </span>
 locate on
 
 <span class="c1"># Запуск скрипта по началу движения (это симлимк, который указывает на реальный скрипт).</span>
-<span class="c1"># Изменение симлинка осущестляется по команде с пульта (см. п. 2 про конфиг)</span> 
+<span class="c1"># Изменение симлинка осущестляется по команде с пульта (см. п. 2 про конфиг) </span>
 on_event_start <span class="s2">&#34;/etc/motion/handlers/on_event_start&#34;</span></code></pre></div>
 <p>Для подгонки чувствительности, порога шумов и т.д., нужно использовать setup mode, который активируется при запуске <code>motion -s</code>.</p>
 <p>При этом в mjpeg-трансляции область детекции будет обозначена черным, шумы — серым, а распознанное движение — синим.</p>
@@ -147,7 +149,7 @@ on_event_start <span class="s2">&#34;/etc/motion/handlers/on_event_start&#34;</s
 <p>На гитхабе нашелся <a href="https://github.com/gvalkov/golang-evdev">пакет для работы с evdev на Go</a>. Проект больше не поддерживается, так что я отфоркался от <a href="https://github.com/ungerik/golang-evdev">более свежего форка</a> и сделал rebase на ядро Ubuntu 14.04 (3.13.0-39-generic на данный момент):</p>
 <pre><code>cd evdev
 make ecodes.go
-</code></pre><p>Поверх golang-evdev я написал <a href="https://github.com/dddpaul/go-evhandler">evhandler</a>. Эта программа запускается от root'а и слушает события от input device, указанного в конфиге (как правило, <em>/etc/evhandler.toml</em>).  Мой конфиг:</p>
+</code></pre><p>Поверх golang-evdev я написал <a href="https://github.com/dddpaul/go-evhandler">evhandler</a>. Эта программа запускается от root&rsquo;а и слушает события от input device, указанного в конфиге (как правило, <em>/etc/evhandler.toml</em>).  Мой конфиг:</p>
 <pre><code>[params]
     device = &quot;/dev/input/eventXXX&quot;
 
@@ -163,7 +165,7 @@ make ecodes.go
 <li>искать конфиги в разных местах (например, сначала в $HOME, а потом в <em>/etc</em>);</li>
 <li>устанавливать значение по-умолчанию и переопределять значения из конфига значениями из CLI.</li>
 </ul>
-<p><strong>3.</strong> Имя устройства неплохо бы зафиксировать, т.к. оно назначается udev'ом и может меняться при перетыках из порта в порт, а также при перезагрузках. Но для начала надо узнать текущее имя устройства.</p>
+<p><strong>3.</strong> Имя устройства неплохо бы зафиксировать, т.к. оно назначается udev&rsquo;ом и может меняться при перетыках из порта в порт, а также при перезагрузках. Но для начала надо узнать текущее имя устройства.</p>
 <pre><code># lsusb
 ...
 Bus 003 Device 002: ID 073a:2230 Chaplet Systems, Inc. infrared dongle for remote
@@ -213,7 +215,7 @@ respawn
 <p>И только управляющая ESC-последовательность для терминала подошла отлично — <code>echo -e '\033[9;X]</code> (где X - минуты).</p>
 <p>Для автоматического запуска этой команды создадим job <em>/etc/init/tty1.conf</em>:</p>
 <div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="c1"># tty1 - getty</span>
-#
+<span class="c1">#</span>
 <span class="c1"># This service is used to maintain a getty on tty1 from the point the system is</span>
 <span class="c1"># started until it is shut down again.</span>
 
