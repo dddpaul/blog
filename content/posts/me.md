@@ -1,7 +1,7 @@
 +++
 date = "2020-12-28T21:00:00+03:00"
 draft = false
-title = "Me"
+title = "About me"
 tags = ["me"]
 
 +++
