@@ -6,10 +6,15 @@
     <description>Recent content in Tags on Pavel Derendyaev notes</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 10 Aug 2019 22:55:13 +0300</lastBuildDate>
-    
-	<atom:link href="https://dddpaul.github.io/blog/tags/index.xml" rel="self" type="application/rss+xml" />
-    
+    <lastBuildDate>Mon, 28 Dec 2020 21:00:00 +0300</lastBuildDate><atom:link href="https://dddpaul.github.io/blog/tags/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>me</title>
+      <link>https://dddpaul.github.io/blog/tags/me/</link>
+      <pubDate>Mon, 28 Dec 2020 21:00:00 +0300</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/tags/me/</guid>
+      <description></description>
+    </item>
     
     <item>
       <title>Java</title>

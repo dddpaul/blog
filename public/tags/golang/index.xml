@@ -6,11 +6,7 @@
     <description>Recent content in golang on Pavel Derendyaev notes</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 30 Aug 2016 17:45:00 +0300</lastBuildDate>
-    
-	<atom:link href="https://dddpaul.github.io/blog/tags/golang/index.xml" rel="self" type="application/rss+xml" />
-    
-    
+    <lastBuildDate>Tue, 30 Aug 2016 17:45:00 +0300</lastBuildDate><atom:link href="https://dddpaul.github.io/blog/tags/golang/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Simple Netcat tool written in Go</title>
       <link>https://dddpaul.github.io/blog/2016/08/30/gonc/</link>

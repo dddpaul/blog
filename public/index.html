@@ -3,7 +3,7 @@
 <head>
   <link href="http://gmpg.org/xfn/11" rel="profile">
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
-  <meta name="generator" content="Hugo 0.67.0" />
+  <meta name="generator" content="Hugo 0.79.1" />
 
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
@@ -78,6 +78,8 @@
             
             <li><a href="https://dddpaul.github.io/blog//tags/linux/">linux</a> </li>
             
+            <li><a href="https://dddpaul.github.io/blog//tags/me/">me</a> </li>
+            
             <li><a href="https://dddpaul.github.io/blog//tags/meetup/">meetup</a> </li>
             
             <li><a href="https://dddpaul.github.io/blog//tags/python/">python</a> </li>
@@ -94,6 +96,35 @@
 <div class="content container">
     <div class="posts">
 
+        
+        <div class="post">
+            <h1 class="post-title">
+                <a href="https://dddpaul.github.io/blog/2020/12/28/me/">
+                    Me
+                </a>
+            </h1>
+
+            <span class="post-date">2020-12-28</span>
+
+            
+<img src='https://dddpaul.github.io/blog///media/alfabank.jpg'/>
+
+<p>Меня зовут Павел Дерендяев, я руководитель Java-разработчиков в Альфа-Банке.</p>
+<p>Свою карьеру в IT я начинал как системный администратор и сетевой инженер в различных телеком-компаниях. Основными языками программирования были Perl и Bash (и PHP!). В 2010 году я полностью забросил Perl/PHP и переключился на Java-разработку. В основном, писал около-биллинговые решения для тех же телекомов. Я все еще люблю настраивать сети, возиться с инфраструктурой и писать скрипты на Bash или Python.</p>
+<p>Конкретно в Альфе-банке я занимался разработкой микросервисов для корпоративного Интернет-банка и, естественно, плотно занимался инфраструктурой нашего Mesos/Marathon-кластера.</p>
+<p>В конце 2017 года в моей жизни случился очередной перелом. IT-блок банка трансформировался в матричную структуру, дабы разработчики не были разбросаны по разным отделам, а находились в одном центре компетенции. Цель - погружение всех в одно коммьюнити, обмен знаниями и опытом, следование общей технической стратегии и, вообще, уменьшение степени велосипедостроения.</p>
+<p>Как руководитель Центра компетенции Java я, в основном, занимаюсь наймом разработчиков, их дальнейшим развитием, участвую в развитии общего технического слоя Java в Банке. Также занимаюсь организацией коммьюнити и продвижением HR-бренда Альфа-Банка.</p>
+<p>Моя цель - не внедрить бесплатную раздачу печенек и бананов и не развесить гамаки рядом с каждым рабочим местом. Я хочу, чтобы разработчики занимались интересными задачами, которые их драйвят и приносят реальную ценность банку и его сотням тысяч клиентов. Не секрет, что к крутому стеку технологий у нас прилагаются сложная банковская архитектура, большие нагрузки, работа 24/7, требования безопасности и командная ответственность. Помочь разработчику не утонуть во всем этом, получать кайф от работы и “нормально делать, чтобы нормально было” - это и есть моя основная задача.</p>
+<p>Кого я ищу в свою команду:</p>
+<ul>
+<li>Если ты хочешь быть “в тренде” в мире Java.</li>
+<li>Если ты хочешь создавать конечные решения - not only code, но и инфраструктура.</li>
+<li>Если ты хочешь развивать технологии private cloud.</li>
+<li>Если ты хочешь работать в команде с ведущими экспертами в области Java и DevOps.</li>
+<li>Если ты хочешь стартовать новые проекты и принимать архитектурные решения.</li>
+</ul>
+
+        </div>
         
         <div class="post">
             <h1 class="post-title">
@@ -419,7 +450,7 @@ activation <span class="o">{</span>
         <span class="nv">thin_pool_autoextend_percent</span> <span class="o">=</span> <span class="m">20</span>
 <span class="o">}</span>
 lvchange --metadataprofile docker-data docker/data
-<span class="c1"># Check thin pool volume (must be monitored)</span> 
+<span class="c1"># Check thin pool volume (must be monitored) </span>
 lvs -o+seg_monitor
   LV       VG     Attr       LSize   Pool Origin Data%  Meta%  Move Log Cpy%Sync Convert Monitor
   root     centos -wi-ao---- 117,19g
@@ -578,151 +609,6 @@ server {
 <li><a href="https://raymii.org/s/snippets/CentOS_5_CA_Certificate_Bundle_Update.html">CentOS 5 CA Certificate Bundle Update</a></li>
 </ul>
 
-        </div>
-        
-        <div class="post">
-            <h1 class="post-title">
-                <a href="https://dddpaul.github.io/blog/2016/09/07/windows-backup/">
-                    Выбор простого бэкапа для Windows
-                </a>
-            </h1>
-
-            <span class="post-date">2016-09-07</span>
-
-            <p>Доступные и функциональные системы бэкапа под Windows.</p>
-<p>Требования:</p>
-<ul>
-<li>Основное - использование жестких или символьных ссылок для дедупликации содержимого архива.</li>
-<li>Дополнительное - использование VSS (Volume Shadow Copy Service) для предварительного создания снэпшота.</li>
-</ul>
-<p>Не рассматриваются сложные распределенные (и дорогие) системы бэкапа. Один компьютер, одна программа или скрипт.</p>
-<h3 id="dublicatihttpwwwduplicaticom"><a href="http://www.duplicati.com/">Dublicati</a></h3>
-<p>Duplicati is a free backup client that securely stores encrypted, incremental, compressed backups on cloud storage services and remote file servers. It works with Amazon S3, Windows Live SkyDrive, Google Drive (Google Docs), Rackspace Cloud Files or WebDAV, SSH, FTP (and many more).</p>
-<p>Рассматривалась версия 1.3.4.</p>
-<p>Особенности:</p>
-<ul>
-<li>архив - zip-файл.</li>
-</ul>
-<p>Преимущества:</p>
-<ul>
-<li>бесплатность;</li>
-<li>кроссплатформенность (требуются .NET 2.0+ или Mono);</li>
-<li>полные и инкрементальные бэкапы;</li>
-<li>есть возможность шифрования архивов;</li>
-<li>используется VSS;</li>
-<li>есть русский язык;</li>
-<li>есть мастер восстановления.</li>
-</ul>
-<p>Недостатки:</p>
-<ul>
-<li>корявый интерфейс;</li>
-<li>файловые ссылки не используются;</li>
-<li>наглядность при просмотре архивов отсутствует;</li>
-<li>субъективно низкая скорость работы.</li>
-</ul>
-<h3 id="cobian-backuphttpwwwcobiansoftcom"><a href="http://www.cobiansoft.com/">Cobian Backup</a></h3>
-<p>Рассматривалась версия 11.</p>
-<p>Особенности:</p>
-<ul>
-<li>архив - каталог.</li>
-</ul>
-<p>Преимущества:</p>
-<ul>
-<li>отличный интерфейс;</li>
-<li>бесплатность;</li>
-<li>полные, инкрементальные и дифференциальные бэкапы;</li>
-<li>есть возможность шифрования файлов в архиве (каждый файл пакуется в зашифрованный архив);</li>
-<li>субъективно высокая скорость работы.</li>
-<li>есть русский язык;</li>
-<li>используется VSS.</li>
-</ul>
-<p>Недостатки:</p>
-<ul>
-<li>файловые ссылки не используются;</li>
-<li>вообще, отличная программа, но отсутствие программы восстановления сводит все преимущества на нет - не руками же восстанавливать файлы из инкрементальных (разностных) архивов.</li>
-</ul>
-<h3 id="hardlink-backuphttpwwwlupinhonethardlinkbackup"><a href="http://www.lupinho.net/hardlinkbackup/">Hardlink Backup</a></h3>
-<p>Рассматривалась версия 2.1.1.</p>
-<p>Особенности:</p>
-<ul>
-<li>архив - каталог.</li>
-</ul>
-<p>Идеальная программа - подходит и под основное, и под дополнительное требования.</p>
-<p>Преимущества:</p>
-<ul>
-<li>отличный интерфейс;</li>
-<li>используется VSS;</li>
-<li>используются файловые ссылки;</li>
-<li>наглядный просмотр архивов (из Проводника или программы);</li>
-<li>субъективно высокая скорость работы;</li>
-<li>есть возможность восстановления из программы.</li>
-</ul>
-<p>Недостатки:</p>
-<ul>
-<li>нет русского языка;</li>
-<li>самый главный минус - в бесплатной версии отсутствует запуск процесса бэкапа по расписанию.</li>
-<li>платная версия стоит 29 евро.</li>
-</ul>
-<h3 id="скрипт-roboshothttproboshotsourceforgenet"><a href="http://roboshot.sourceforge.net/">Скрипт RoboShot</a></h3>
-<p>Рассматривалась версия 0.3.</p>
-<p>Особенности:</p>
-<ul>
-<li>написан на PowerShell;</li>
-<li>для копирования использует robocopy (т.е. высокая скорость работы);</li>
-<li>вроде использует VSS;</li>
-<li>использует файловые ссылки.</li>
-</ul>
-<p>Недостатки:</p>
-<ul>
-<li>требует доработки напильником (например, надо править регекспы с немецкой локализации Windows на русской);</li>
-<li>на мой взгляд, слишком большой объем кода.</li>
-</ul>
-<h3 id="комбайн-из-bat-скрипта-rsync-и-vssadminhttpblogjay2k1com20110813how-to-create-rsync-like-hard-link-backups-with-vss-on-windows"><a href="http://blog.jay2k1.com/2011/08/13/how-to-create-rsync-like-hard-link-backups-with-vss-on-windows/">Комбайн из bat-скрипта, rsync и vssadmin</a></h3>
-<p>Недостатки:</p>
-<ul>
-<li>требует доработки напильником;</li>
-<li>для rsync требуется cygwin, что субъективно дает просадку по скорости.</li>
-</ul>
-<h3 id="утилита-ln-и-скрипт-deloreancopyhttpschinaglprivatntlnlnhtml"><a href="http://schinagl.priv.at/nt/ln/ln.html">Утилита LN и скрипт DeloreanCopy</a></h3>
-<p>На мой взгляд, самое простое и лучшее решение, если не нужен VSS из коробки.</p>
-<ul>
-<li><a href="http://schinagl.priv.at/nt/hardlinkshellext/hardlinkshellext.html">Link Shell Extension</a></li>
-<li><a href="http://schinagl.priv.at/nt/ln/ln.html">ln</a> - command line hardlinks</li>
-</ul>
-<p>DeLoreanCopy.bat требует 3 ясных параметра:</p>
-<pre><code>Usage: DeLoreanCopy &lt;SourcePath&gt; &lt;DestPath&gt; (&lt;KeepMaxCopies&gt;)
-SourcePath directory containing the files to be backed up
-DestPath directory where &quot;DeLorean copy&quot; sets will be created
-KeepMaxCopies (opt.) remove any exceeding number of DLC sets before copying
-e.g. DeLoreanCopy c:\data\source c:\data\backup 90
-</code></pre><p>Преимущества:</p>
-<ul>
-<li>простота;</li>
-<li>бесплатность;</li>
-<li>используются файловые ссылки;</li>
-<li>очень просто прикручивается VSS.</li>
-</ul>
-<p>Создание снэпшота с помощью <a href="http://msdn.microsoft.com/en-us/library/windows/desktop/bb530725(v=vs.85).aspx">vshadow</a> и запуск скрипта vss-exec-delorean.cmd:</p>
-<pre><code>vshadow.exe -script=vss-setvar.cmd -exec=vss-exec-delorean.cmd c:
-</code></pre><p>Скрипт vss-exec-delorean.cmd:</p>
-<pre><code>REM
-REM called from vshadow via commandline e.g
-REM
-REM vshadow.exe -script=vss-setvar.cmd -exec=vss-exec.cmd e:
-REM
-REM vss-setvar.cmd is generated by vshadow.exe
-REM
-call vss-setvar.cmd
-REM assign a DOS device to the created snapshot
-REM
-dosdev x: %shadow_device_1%
-REM run the intended copy job
-REM
-DeLoreanCopy.bat X:\Users\paul\Documents C:\backup\ 3
-REM finally remove the drive letter
-REM
-dosdev -r -d x:
-</code></pre>
         </div>
         
     </div>
