@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>linux on Pavel Derendyaev notes</title>
+    <link>https://dddpaul.github.io/blog/tags/linux/</link>
+    <description>Recent content in linux on Pavel Derendyaev notes</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Wed, 02 Nov 2016 09:00:00 +0300</lastBuildDate><atom:link href="https://dddpaul.github.io/blog/tags/linux/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Docker registry on Centos 7</title>
+      <link>https://dddpaul.github.io/blog/2016/11/02/docker-registry/</link>
+      <pubDate>Wed, 02 Nov 2016 09:00:00 +0300</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2016/11/02/docker-registry/</guid>
+      <description>1. Create logical volumes for direct-lvm production mode
+Assume that we have 40 GByte block device named as /dev/sdb with one full-size Linux partition on it.
+Official Device Mapper storage driver guide recommends to use thin pools now. Use these commands to create thin-provisioned logical volumes:
+pvcreate /dev/sdb1 # Create physical volume vgcreate docker /dev/sdb1 # Create volume group and add this physical volume to it # Create logical volumes lvcreate --wipesignatures y -n data docker -l 40%VG lvcreate --wipesignatures y -n registry docker -l 40%VG lvcreate --wipesignatures y -n metadata docker -l 2%VG # Convert data volume to thin pool&amp;#39;s data volume lvconvert -y --zero n -c 512K --thinpool docker/data --poolmetadata docker/metadata # Set thin pool autoextend features cat &amp;gt; /etc/lvm/profile/docker-data.</description>
+    </item>
+    
+    <item>
+      <title>Let&#39;s Encrypt with lego and Nginx</title>
+      <link>https://dddpaul.github.io/blog/2016/10/20/lego-nginx/</link>
+      <pubDate>Thu, 20 Oct 2016 11:00:00 +0300</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2016/10/20/lego-nginx/</guid>
+      <description>xenolf/lego it&amp;rsquo;s a feature-rich Let&amp;rsquo;s Encrypt client and ACME library written in Go.
+1. Prepare Nginx server
+server { listen 80 default; server_name example.org www.example.org; location /.well-known/acme-challenge { proxy_pass http://127.0.0.1:81; proxy_set_header Host $host; } # Other directives } 2. Update ca-certificates for CentOS 5 (optional)
+Let&amp;rsquo;s Encrypt CA certificate is not included into root CA bundle of old Linux distributions like RHEL/Centos 5. You have to replace this bundle manually with fresh one from cURL website:</description>
+    </item>
+    
+    <item>
+      <title>Simple Netcat tool written in Go</title>
+      <link>https://dddpaul.github.io/blog/2016/08/30/gonc/</link>
+      <pubDate>Tue, 30 Aug 2016 17:45:00 +0300</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2016/08/30/gonc/</guid>
+      <description>It&amp;rsquo;s spectacularly simple to implement TCP Netcat in Go thanks to io.Copy.
+type Progress struct { bytes uint64 } func TransferStreams(con net.Conn) { c := make(chan Progress) // Read from Reader and write to Writer until EOF copy := func(r io.ReadCloser, w io.WriteCloser) { defer func() { r.Close() w.Close() }() n, _ := io.Copy(w, r) c &amp;lt;- Progress{bytes: uint64(n)} } go copy(con, os.Stdout) go copy(os.Stdin, con) p := &amp;lt;-c log.Printf(&amp;#34;[%s]: Connection has been closed by remote peer, %d bytes has been received\n&amp;#34;, con.</description>
+    </item>
+    
+    <item>
+      <title>Docker network and Swarm mode links</title>
+      <link>https://dddpaul.github.io/blog/2016/08/02/docker-network-swarm-links/</link>
+      <pubDate>Tue, 02 Aug 2016 15:45:00 +0300</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2016/08/02/docker-network-swarm-links/</guid>
+      <description>Some useful articles &amp;amp; videos about modern networking in Docker:
+Macvlan Driver - Docker Macvlan driver is out of experimental in Docker 1.12. Configuring Macvlan and Ipvlan Linux Networking - What Docker Macvlan driver does under the hood. Materials for 2016 DevOps Networking Forum (DNF) Presentation - Slides about Docker networking with Ansible playbooks. Видео докладов с Docker митапа - Особо интересен доклад Константина Назарова &amp;ldquo;Каждому контейнеру по IP&amp;rdquo; (на русском).</description>
+    </item>
+    
+    <item>
+      <title>Bind interfaces to multiple zones with Firewalld on CentOS-7</title>
+      <link>https://dddpaul.github.io/blog/2015/07/28/firewalld-zones/</link>
+      <pubDate>Tue, 28 Jul 2015 10:45:00 +0300</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2015/07/28/firewalld-zones/</guid>
+      <description>As you can expect from man firewall-cmd interface binding to zone other than default (public) could be achieved with the following command sequence:
+firewall-cmd --zone public --remove-interface eth1 --permanent firewall-cmd --zone internal --add-interface eth1 --permanent firewall-cmd --reload Seems like it&amp;rsquo;s done:
+firewall-cmd --get-zone-of-interface=eth1 internal But after firewalld restart or server reboot things aren&amp;rsquo;t so bright:
+firewall-cmd --get-zone-of-interface=eth1 public The reason is in this CentOS-7 bug. The only workaround is to specify zone in /etc/sysconfig/network-scripts/ifcfg-eth1 file:</description>
+    </item>
+    
+    <item>
+      <title>Дистанционное управление Motion с помощью Go</title>
+      <link>https://dddpaul.github.io/blog/2014/11/14/motion-remote-control/</link>
+      <pubDate>Fri, 14 Nov 2014 16:04:00 +0000</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2014/11/14/motion-remote-control/</guid>
+      <description>Цель — сделать удобное управление для сервачка с системой motion detection. В качестве сервера пригодился классический нетбук Asus Eee PC 701 4-х гигабайтным SSD на борту. На него была установлена Ubuntu 14.04.
+Задачи:
+Собственно, motion detection (для этого был использован Motion). Управление настройками Motion через ИК-пульт. Вывод всех сообщений от Motion и сигналов от пульта на консоль (/dev/tty1). Минимальное время работы экрана (быстрый переход в энергосберегающйй режим, просыпание по сигналу от пульта).</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>JavaScript on Pavel Derendyaev notes</title>
+    <link>https://dddpaul.github.io/blog/tags/javascript/</link>
+    <description>Recent content in JavaScript on Pavel Derendyaev notes</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Fri, 15 Apr 2016 13:00:00 +0300</lastBuildDate><atom:link href="https://dddpaul.github.io/blog/tags/javascript/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Быстрое погружение в React</title>
+      <link>https://dddpaul.github.io/blog/2016/04/15/react-for-starters/</link>
+      <pubDate>Fri, 15 Apr 2016 13:00:00 +0300</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2016/04/15/react-for-starters/</guid>
+      <description>Для разогрева:
+React tutorial Курс на Хекслете После этого более-менее должно оформиться понимание, что:
+React - это V в MVC; основа React - это компоненты; у компонента есть главный метод render(), который дергается React&amp;rsquo;ом, когда нужно отобразить или перерисовать компонент; компоненты инициализируется через properties, и хранят state; компоненты пишутся на JSX - специальный синтаксис, который &amp;ldquo;бесшовно&amp;rdquo; внедряет HTML в JS; компоненты можно связывать в иерархические структуры; состояние нельзя менять напрямую, а только через специальный метод setState() - таким образом React точно узнает, что состояние изменилось и объект надо перерисовать; состояние принято хранить в родительском компоненте, и передавать его в дочерние компоненты через properties.</description>
+    </item>
+    
+    <item>
+      <title>Директивы AngularJS</title>
+      <link>https://dddpaul.github.io/blog/2014/10/16/angularjs-directive/</link>
+      <pubDate>Thu, 16 Oct 2014 11:26:00 +0000</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2014/10/16/angularjs-directive/</guid>
+      <description>Статьи:
+AngularJS directive: Overview. Очень крутой сборник статей про директивы. Помогает понять, как правильно создать шаблон директивы вручную (через функции compile и link), а также, как навесить watches. AngularJS: $watch, $digest and $apply. Еще раз об этих базовых функциях AngularJS почитать никогда не вредно. A Practical Guide to AngularJS Directives - Part 1, Part 2. Подробно про директивы. Moving Data In An AngularJS Directive. Передача данных в директиву. Mastering the Scope of the Directives in AngularJS.</description>
+    </item>
+    
+  </channel>
+</rss>
