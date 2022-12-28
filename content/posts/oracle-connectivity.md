@@ -10,9 +10,9 @@ A new small [test project](https://github.com/dddpaul/java-oracle-connectivity) 
 
 There so many ways in JDBC API:
 
-* [CommonDataSource.setLoginTimeout](http://docs.oracle.com/javase/7/docs/api/javax/sql/CommonDataSource.html#setLoginTimeout(int\))
-* [Connection.setNetworkTimeout](http://docs.oracle.com/javase/7/docs/api/java/sql/Connection.html#setNetworkTimeout(java.util.concurrent.Executor,%20int\))
-* [Statement.setQueryTimeout](http://docs.oracle.com/javase/7/docs/api/java/sql/Statement.html#setQueryTimeout(int\))
+* [CommonDataSource.setLoginTimeout](http://docs.oracle.com/javase/7/docs/api/javax/sql/CommonDataSource.html#setLoginTimeout\(int\))
+* [Connection.setNetworkTimeout](http://docs.oracle.com/javase/7/docs/api/java/sql/Connection.html#setNetworkTimeout\(java.util.concurrent.Executor,%20int\))
+* [Statement.setQueryTimeout](http://docs.oracle.com/javase/7/docs/api/java/sql/Statement.html#setQueryTimeout\(int\))
 
 And every database has it's own non-standard ways in addition.
 
