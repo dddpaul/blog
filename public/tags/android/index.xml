@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Android on Pavel Derendyaev notes</title>
+    <link>https://dddpaul.github.io/blog/tags/android/</link>
+    <description>Recent content in Android on Pavel Derendyaev notes</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 21 Oct 2014 14:30:16 +0000</lastBuildDate><atom:link href="https://dddpaul.github.io/blog/tags/android/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Борьба с утечками памяти в Android (Badoo)</title>
+      <link>https://dddpaul.github.io/blog/2014/10/21/android-memory-leak-badoo/</link>
+      <pubDate>Tue, 21 Oct 2014 14:30:16 +0000</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2014/10/21/android-memory-leak-badoo/</guid>
+      <description>На хабре появилась статья Борьба с утечками памяти в Android. Часть 1 от компании Badoo. Т.к. тема созвучна с моими постами из серии Memory leaks, то решил вкратце описать их методы.
+Суть проблемы — использование android.os.Handler, в который постится анонимный Runnable с помощью метода [postDelayed](http://developer.android.com/reference/android/os/Handler.html#postDelayed(java.lang.Runnable, long). Для демонстрации, Runnable просто меняет какой-либо TextView (т.е. содержит внутри себя ссылку mTextView), и время до выполнения Runnable берется довольно большим. Так вот, если за этот промежуток времени повернуть девайс несколько раз, то старые активити не будут собираться GC, т.</description>
+    </item>
+    
+    <item>
+      <title>Подводные камни смены ориентации в Android</title>
+      <link>https://dddpaul.github.io/blog/2014/08/02/orientation-change/</link>
+      <pubDate>Sat, 02 Aug 2014 13:32:33 +0000</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2014/08/02/orientation-change/</guid>
+      <description>После нескольких дней отладки приложения пришел к выводу, что смена ориентации (rotation, orientation change) требует к себе особого внимания. Наконец-то я понял тех разработчиков, которые напрочь запрещают смену ориентации в своем софте. Ведь, не зная некоторых неочевидных нюансов, можно легко получить крах приложения или утечку памяти.
+Опишу в порядке возрастания сложности, на какие подводные камни мне пришлось натолкнуться.
+Beginner&amp;rsquo;s level Надо сохранять состояние (state) фрагментов. Не сохранил — потерял, т.к. активити и фрагменты будут пересозданы.</description>
+    </item>
+    
+    <item>
+      <title>Android memory leaks</title>
+      <link>https://dddpaul.github.io/blog/2014/08/01/android-memory-leaks/</link>
+      <pubDate>Fri, 01 Aug 2014 13:34:16 +0000</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2014/08/01/android-memory-leaks/</guid>
+      <description>Articles:
+Avoiding memory leaks. This great article describes base causes of memory leaks on Android. I quote summary from there:
+Do not keep long-lived references to a context-activity (a reference to an activity should have the same life cycle as the activity itself) Try using the context-application instead of a context-activity Avoid non-static inner classes in an activity if you don&amp;rsquo;t control their life cycle, use a static inner class and make a weak reference to the activity inside.</description>
+    </item>
+    
+    <item>
+      <title>Multi-pane layout for tablets</title>
+      <link>https://dddpaul.github.io/blog/2014/07/30/multi-pane/</link>
+      <pubDate>Wed, 30 Jul 2014 07:14:41 +0000</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2014/07/30/multi-pane/</guid>
+      <description>Some articles:
+Multiple-View ViewPager Options. It&amp;rsquo;s a brilliant set of methods to display several fragments simultaneously using ViewPager. I&amp;rsquo;ve personally used first method (overriding getPageWidth() in PagerAdapter) - it works for me. Android ViewPager with Multiple Views. Looks like third method from previous article. And StackOverflow discussions:
+Can ViewPager have multiple views in per page?. There are links to CommonsWare article and description of method used for some Dutch newspaper app.</description>
+    </item>
+    
+    <item>
+      <title>Retaining state with headless fragments</title>
+      <link>https://dddpaul.github.io/blog/2014/07/29/headless-fragments/</link>
+      <pubDate>Tue, 29 Jul 2014 07:55:41 +0000</pubDate>
+      
+      <guid>https://dddpaul.github.io/blog/2014/07/29/headless-fragments/</guid>
+      <description>Some articles:
+Official Fragments guide. Has some clues for headless fragments (see &amp;ldquo;Adding a fragment without a UI&amp;rdquo;). Superb multi-pane fragments tutorial from Lars Vogel. Contains some tips for headless fragments. Android best tip to work with fragments and orientation change. More detailed headless fragments technique description. Headless fragment example - FragmentRetainInstance.java. In this code headless fragment is created from other fragment. In my case it&amp;rsquo;s inappropriate because of Robolectric testing (recursive fragment transactions).</description>
+    </item>
+    
+  </channel>
+</rss>
